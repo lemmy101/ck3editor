@@ -8,6 +8,7 @@ namespace JominiParse
     public enum ScopeType
     {
         none,
+        inheritparent,
         character,
         realm,
         dynasty,
@@ -52,6 +53,7 @@ namespace JominiParse
         
         public List<ConditionProperty> Properties = new List<ConditionProperty>();
     }
+
     public class ScopeTypeDef
     {
         public ScopeType ScopeType { get; set; }

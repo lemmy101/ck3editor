@@ -1,4 +1,4 @@
-<if>
+<Schema blockType="inheritparent">
 	<Child name="limit" type="Limit" isBlock="yes"/>
-	<Child name="scopeconditions" type="scopeconditions"/>
-</if>
+	<Child name="scopeeffects" type="scopeeffects"/>
+</Schema>

@@ -1,4 +1,4 @@
-<ScriptObject name="ScriptEvent">
+<ScriptObject name="ScriptEvent" blockType="schema_block">
 	<Child name="type" type="enum">
 	  <Enum>character_event</Enum>
 	</Child>
@@ -6,9 +6,9 @@
 	<Child name="desc" type="localized"/>
 	<Child name="theme" type="event_theme"/>
 	<Child name="hidden" type="bool"/>
-	<Child name="immediate" type="effect" isBlock="yes"/>
-	<Child name="trigger" type="TriggerBlock" isBlock="yes"/>
-	<Child name="weight_multiplier" type="value_modifier" isBlock="yes"/>
-	<Child name="option" type="option" isBlock="yes"/>
-	<Child name="after" type="effect" isBlock="yes"/>
+	<Child name="immediate" type="EffectImmediate" isBlock="yes" blockType="effect_block"/>
+	<Child name="trigger" type="TriggerBlock" isBlock="yes" blockType="condition_block"/>
+  <Child name="weight_multiplier" type="value_modifier" isBlock="yes"/>
+	<Child name="option" type="EffectOption" isBlock="yes" blockType="schema_block"/>
+	<Child name="after" type="effect" isBlock="yes" blockType="effect_block"/>
 </ScriptObject>

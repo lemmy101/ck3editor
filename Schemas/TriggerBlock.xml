@@ -1,3 +1,6 @@
-<TriggerBlock name="TriggerBlock">
+<Schema>
+	<Child name="trigger_if" type="TriggerIf" isBlock="yes"/>
+	<Child name="trigger_else_if" type="TriggerIf" isBlock="yes"/>
+	<Child name="trigger_else" type="inheritparent" blockType="inheritparent" isBlock="yes"/>
 	<Child name="scopeconditions" type="scopeconditions"/>
-</TriggerBlock>
+</Schema>

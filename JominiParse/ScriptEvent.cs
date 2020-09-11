@@ -58,11 +58,33 @@ namespace JominiParse
             */
 
         }
+
+        public override void OnPostInitializeChild(ScriptObject child)
+        {
+            base.OnPostInitializeChild(child);
+
+            if(child.Name == "type")
+                if ((child as ScriptValue).GetStringValue() == "character_event")
+                {
+                    SetScopeType(ScopeType.character);
+                }
+        }
+
         public ScriptEvent(ScriptObject parent, ScriptParsedSegment seg) : base(parent, seg)
         {
         }
 
-   
+        private ScopeType eventScopeType = ScopeType.character;
+        public override ScopeType GetScopeType()
+        {
+            return eventScopeType;
+        }
+
+        public override void SetScopeType(ScopeType type)
+        {
+            eventScopeType = type;
+        }
+
         public List<EventOption> options = new List<EventOption>();
 
         public LocalizedString title { get; set; }

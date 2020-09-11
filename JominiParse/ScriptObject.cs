@@ -6,7 +6,6 @@ using System.Reflection;
 
 namespace JominiParse
 {
-
     public class ScriptObject
     {
         public static Dictionary<int, Type> TypeMap = new Dictionary<int, Type>();
@@ -40,10 +39,13 @@ namespace JominiParse
 
         }
 
+        public virtual void OnPostInitializeChild(ScriptObject child)
+        {
+
+        }
+
         public ScriptObject(ScriptObject parent, ScriptParsedSegment seg)
         {
-     //       TypeMap[GetType().AssemblyQualifiedName.GetHashCode()] = GetType();
-
             if (seg == null)
             {
                 return;
@@ -55,19 +57,7 @@ namespace JominiParse
             this.LineEnd = seg.lineNumbers.Last();
             this.Parent = parent;
             this.Library = Core.Instance.LoadingCK3Library;
-
-            foreach (var scriptParsedSegment in seg.children)
-            {
-                if (scriptParsedSegment.value.Count > 0)
-                {
-                    ScriptValueParser.Instance.ParseScriptValue(this, scriptParsedSegment);
-                }
-                else
-                {
-                    ScriptObject s = new ScriptObject(this, scriptParsedSegment);
-                }
-            }
-           
+     
             Schema = SchemaManager.Instance.GetSchema(GetType());
             if (parent != null)
             {
@@ -75,9 +65,15 @@ namespace JominiParse
                 if (parent.Schema != null && seg.name != null)
                 {
                     SchemaChild = parent.Schema.GetChild(seg.name);
-                    
+
                     if (SchemaChild != null)
+                    {
                         Schema = SchemaManager.Instance.GetSchema(SchemaChild.Type);
+                        if (SchemaChild.scopeType != ScopeType.none)
+                        {
+                            SetScopeType(SchemaChild.scopeType);
+                        }
+                    }
                 }
                 if (Schema == null && seg.name != null)
                 {
@@ -85,8 +81,45 @@ namespace JominiParse
                     Schema = SchemaManager.Instance.GetSchema(seg.name);
 
                 }
+            }
+            if (Parent != null)
+            {
+                if(GetScopeType()==ScopeType.none || GetScopeType() == ScopeType.inheritparent)
+                    SetScopeType(Parent.GetScopeType());
+            }
 
+            foreach (var scriptParsedSegment in seg.children)
+            {
+                ScriptObject so = null;
+                if (scriptParsedSegment.value.Count > 0)
+                {
+                    so = ScriptValueParser.Instance.ParseScriptValue(this, scriptParsedSegment);
+                }
+                else
+                {
+                    so = new ScriptObject(this, scriptParsedSegment);
+                }
 
+                OnPostInitializeChild(so);
+            }
+
+            if (Schema != null)
+            {
+                var s = Schema.GetScope();
+                if (s != ScopeType.none)
+                {
+                    SetScopeType(s);
+                }
+
+                string name = Schema.GetScopeChildIdentifier();
+                if (name != null)
+                {
+                    var t = Children.Where(a => a.Name == name);
+                    if (t.Any())
+                    {
+                        SetScopeType(t.First().GetScopeType());
+                    }
+                }
             }
         }
 
@@ -112,7 +145,8 @@ namespace JominiParse
             ScopeType = type;
         }
 
-        protected ScopeType ScopeType { get; set; }
+        private BlockType BlockType { get; set; }
+        private ScopeType ScopeType { get; set; }
         public ScriptObject Parent { get; set; }
 
         public int LineEnd { get; set; }
@@ -187,7 +221,6 @@ namespace JominiParse
                 Children[x].PostRead();
             }
 
-            
         }
         protected string TabFormat(string str, int depth = 0)
         {

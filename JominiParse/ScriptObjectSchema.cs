@@ -8,6 +8,8 @@ namespace JominiParse
 {
     public class SchemaChild
     {
+        public BlockType blockType { get; set; }
+        public ScopeType scopeType { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
         public bool IsBlock { get; set; }
@@ -22,6 +24,9 @@ namespace JominiParse
     {
         Dictionary<string, SchemaChild> children = new Dictionary<string, SchemaChild>();
         public bool Soft { get; set; }
+        private ScopeType scope = ScopeType.none;
+        private string scopeChildId { get; set; }
+        public BlockType blockType { get; set; }
 
         public void Load(string filename)
         {
@@ -35,8 +40,11 @@ namespace JominiParse
             {
                 string name = el.Attributes["name"].InnerText;
                 string type = el.Attributes["type"].InnerText;
+
                 bool isBlock = (el.Attributes["isBlock"]==null) ? false : el.Attributes["isBlock"].InnerText=="yes";
                 SchemaChild c = new SchemaChild();
+
+
                 if (type == "enum")
                 {
                     var e = new SchemaEnum();
@@ -53,10 +61,45 @@ namespace JominiParse
                 c.Name = name;
                 c.Type = type;
                 c.IsBlock = isBlock;
+
+                if (el.Attributes["blockType"] != null)
+                {
+                    BlockType sc = BlockType.none;
+                    Enum.TryParse(el.Attributes["blockType"].InnerText, out sc);
+                    c.blockType = sc;
+                }
+                if (el.Attributes["scopeType"] != null)
+                {
+                    ScopeType sc = ScopeType.none;
+                    Enum.TryParse(el.Attributes["scopeType"].InnerText, out sc);
+                    c.scopeType = sc;
+                }
+                if (el.Attributes["scopeChildId"] != null)
+                {
+                    scopeChildId = el.Attributes["scopeChildId"].InnerText;
+                }
+
                 children[name] = c;
                 el = el.NextSibling;
             }
 
+            if (doc.DocumentElement.Attributes["blockType"] != null)
+            {
+                BlockType sc = BlockType.none;
+                Enum.TryParse(doc.DocumentElement.Attributes["blockType"].InnerText, out sc);
+                blockType = sc;
+            }
+
+            if (doc.DocumentElement.Attributes["scopeType"]!=null)
+            {
+                Enum.TryParse(doc.DocumentElement.Attributes["scopeType"].InnerText, out scope);
+            }
+
+        }
+
+        public string GetScopeChildIdentifier()
+        {
+            return scopeChildId;
         }
 
         public void AddChildrenToList(List<string> results)
@@ -116,6 +159,12 @@ namespace JominiParse
             return children[child];
 
         }
+
+        public ScopeType GetScope()
+        {
+            return scope;
+        }
+
     }
 
     public class SchemaManager
@@ -139,7 +188,7 @@ namespace JominiParse
             if (SchemaMap.ContainsKey(type))
                 return SchemaMap[type];
 
-            if (!schemaFilenames.Contains("Schemas/" + type + ".xml"))
+            if (!schemaFilenames.Contains("Schemas/" + type.Name + ".xml"))
                 return null;
 
             ScriptObjectSchema s = new ScriptObjectSchema();
