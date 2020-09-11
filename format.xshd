@@ -1,0 +1,146 @@
+<SyntaxDefinition name="Behaviour" extensions=".txt">
+  <Properties>
+    <Property name="LineComment" value="//" />
+  </Properties>
+  <Digits name="Digits" bold="true" italic="false" color="#FFb993f1" />
+  <RuleSets>
+    <!-- <RuleSet ignorecase="false">
+      <Delimiters>&amp;&lt;&gt;~!%^*()-+=|\#/{}[]:;"' ,	.?</Delimiters>
+      <Span name="BlockComment" rule="CommentMarkerSet" bold="true" italic="false" color="Green" stopateol="false">
+        <Begin>/*</Begin>
+        <End>*/</End>
+      </Span>
+      <MarkPrevious bold="true"  bold="true" italic="false" color="MidnightBlue">(</MarkPrevious>
+      <KeyWords name="Punctuation" bold="true" italic="false" color="DarkGreen">
+       <Key word="?" />
+        <Key word="," />
+        <Key word="." />
+        <Key word=";" />
+        <Key word="(" />
+        <Key word=")" />
+        <Key word="[" />
+        <Key word="]" />
+        <Key word="{" />
+        <Key word="}" />
+        <Key word="+" />
+        <Key word="-" />
+        <Key word="/" />
+        <Key word="%" />
+        <Key word="*" />
+        <Key word="&lt;" />
+        <Key word="&gt;" />
+        <Key word="^" />
+        <Key word="=" />
+        <Key word="~" />
+        <Key word="!" />
+        <Key word="|" />
+        <Key word="&amp;" />
+      </KeyWords>
+    </RuleSet>-->
+
+    <RuleSet ignorecase="false">
+      <Delimiters>&amp;&lt;&gt;~!%^*()-+=|\#/{}[]:;"' ,	.?</Delimiters>
+      <KeyWords name="Keywords" bold="true" italic="false" color="#FFe470c6">
+        <Key word="limit" />
+        <Key word="if" />
+        <Key word="else_if" />
+        <Key word="else" />
+        <Key word="trigger_if" />
+        <Key word="trigger_else_if" />
+        <Key word="trigger_else" />
+        
+        <Key word="modifier" />
+        <Key word="compare_modifier" />
+        
+        <Key word="value" />
+        <Key word="add" />
+        <Key word="base" />
+        <Key word="factor" />
+        <Key word="min" />
+        <Key word="max" />
+        <Key word="offset" />
+        <Key word="multiplier" />
+
+        <Key word="random_list" />
+        <Key word="random" />
+        
+        <Key word="yes" />
+        <Key word="no" />
+        
+        <Key word="scope" />
+        
+        <Key word="save_scope_as" />
+        <Key word="namespace" />
+
+        <Key word="NOT" />
+        <Key word="AND" />
+        <Key word="OR" />
+        <Key word="NOR" />
+        <Key word="NAND" />
+        
+      </KeyWords>
+      <KeyWords name="Scopes" bold="true" italic="false" color="#FF86e9f1">
+        <Key word="faith" />
+
+        <Key word="liege" />
+        <Key word="house" />
+        <Key word="house_head" />
+        <Key word="every_player" />
+
+        <Key word="any_ancestor" />
+        <Key word="any_spouse" />
+        <Key word="any_sibling" />
+        <Key word="any_relation" />
+        <Key word="any_parent" />
+        <Key word="every_ancestor" />
+        <Key word="every_spouse" />
+        <Key word="every_sibling" />
+        <Key word="every_relation" />
+        <Key word="every_parent" />
+
+        <Key word="mother" />
+        <Key word="father" />
+        <Key word="real_father" />
+        <Key word="dynasty" />
+
+        <Key word="primary_title" />
+
+        <Key word="any_close_or_extended_family_member" />
+        <Key word="every_close_or_extended_family_member" />
+        <Key word="every_in_list" />
+        <Key word="random_in_list" />
+
+        <Key word="every_child" />
+        <Key word="any_child" />
+
+        <Key word="primary_spouse" />
+
+        <Key word="any_held_title" />
+        <Key word="root" />
+        <Key word="this" />
+      </KeyWords>
+    
+    </RuleSet>
+
+    <RuleSet name="CommentMarkerSet" ignorecase="false">
+      <Delimiters>&lt;&gt;~!@%^*()-+=|\#/{}[]:;"' ,	.?</Delimiters>
+      <KeyWords name="ErrorWords" bold="true" italic="false" color="Red">
+        <Key word="TODO" />
+        <Key word="FIXME" />
+      </KeyWords>
+      <KeyWords name="WarningWords" bold="true" italic="false" color="#EEE0E000">
+        <Key word="HACK" />
+        <Key word="UNDONE" />
+      </KeyWords>
+    </RuleSet>
+    <RuleSet ignorecase="false">
+      <Span name="BlockComment" rule="CommentMarkerSet" bold="true" italic="false" color="#FF6272a4" stopateol="true">
+        <Begin>#</Begin>
+      </Span>
+      <Span name="String" color="#FFeafa8c"  bold="true" italic="false">
+        <Begin>"</Begin>
+        <End>"</End>
+      </Span>
+    </RuleSet>
+  </RuleSets>
+</SyntaxDefinition>

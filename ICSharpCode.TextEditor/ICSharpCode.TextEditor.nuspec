@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ICSharpCode.TextEditor.Extended</id>
+    <version>$version$</version>
+    <title>ICSharpCode.TextEditor.Extended</title>
+    <authors>megakraken</authors>
+    <owners>megakraken</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html</licenseUrl>
+    <projectUrl>https://github.com/megakraken/ICSharpCode.TextEditor</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/megakraken/ICSharpCode.TextEditor/master/icon.png</iconUrl>
+    <description>ICSharpCode.TextEditor WinForms Control extended by a couple of new options:
+
+* Auto-hides Scrollbars when they are not needed
+* Highlighting drop-down selectable from Forms Editor
+* Right-click cut/copy/paste menu
+* Removed ugly dotted line
+* SQL Highlighting</description>
+    <summary>ICSharpCode.TextEditor WinForms Control extended by a couple of new options.</summary>
+    <releaseNotes></releaseNotes>
+    <copyright>SharpDevelop</copyright>
+    <tags>ICSharpCode.TextEditor, SharpDevelop</tags>
+  </metadata>
+  <files>
+    <file src="ICSharpCode.TextEditor\bin\Release\ICSharpCode.TextEditor.dll" target="lib\net45\ICSharpCode.TextEditor.dll" />
+  </files>
+</package>

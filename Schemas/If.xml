@@ -1,0 +1,4 @@
+<if>
+	<Child name="limit" type="Limit" isBlock="yes"/>
+	<Child name="scopeconditions" type="scopeconditions"/>
+</if>
