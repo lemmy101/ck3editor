@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace JominiParse
@@ -16,7 +17,7 @@ namespace JominiParse
     {
         public override string Name
         {
-            get { return Value.Name; }
+            get { return Value?.Name; }
         }
 
         public ScriptValue Value { get; set; }
@@ -26,6 +27,17 @@ namespace JominiParse
             return Value.ToScript();
         }
 
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
+
+            Value = (ScriptValue) Children[0];
+        }
+
+        public override void Write(BinaryWriter writer)
+        {
+            base.Write(writer);
+        }
 
         public override ScopeType GetScopeType()
         {
@@ -49,6 +61,15 @@ namespace JominiParse
         public override string ToScript()
         {
             return If.ToScript();
+        }
+
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
+            if (Parent != null)
+            {
+                SetScopeType(Parent.GetScopeType());
+            }
         }
 
         public void Parse(List<ScriptParsedSegment> values, ScriptContext context)
@@ -82,6 +103,31 @@ namespace JominiParse
             return str;
         }
 
+        public override void Write(BinaryWriter writer)
+        {
+            base.Write(writer);
+            
+            writer.Write(Effects.Count);
+
+            for (int x = 0; x < Effects.Count; x++)
+                writer.Write(Children.IndexOf(Effects[x]));
+
+          
+        }
+
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
+
+            int nChildren = reader.ReadInt32();
+
+            for (int x = 0; x < nChildren; x++)
+            {
+                int i = reader.ReadInt32();
+                Effects.Add((EffectBase)Children[i]);
+            }
+
+        }
         public string ToScriptInterior()
         {
             String str = "";

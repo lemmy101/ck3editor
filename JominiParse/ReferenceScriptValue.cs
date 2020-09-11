@@ -1,4 +1,6 @@
-﻿namespace JominiParse
+﻿using System.IO;
+
+namespace JominiParse
 {
     public class ReferenceScriptValue : ScriptValue
     {
@@ -13,7 +15,29 @@
         {
             return Name + " = " + Value.ToString();
         }
-      
+        public override void Write(BinaryWriter writer)
+        {
+            base.Write(writer);
+
+            if (Value != null)
+            {
+                writer.Write(true);
+                writer.Write(Value);
+            }
+            else
+            {
+                writer.Write(false);
+            }
+        }
+
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
+            
+            if(reader.ReadBoolean())
+                Value = reader.ReadString();
+        }
+
         public ReferenceScriptValue(ScriptObject parent, ScriptParsedSegment seg) : base(parent, seg)
         {
         }

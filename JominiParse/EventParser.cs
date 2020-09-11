@@ -7,6 +7,7 @@ namespace JominiParse
     {
         public static EventParser Instance = new EventParser();
 
+        
         public EventOption ParseOption(ScriptObject parent, ScriptParsedSegment segment)
         {
             EventOption option = new EventOption(parent, segment);
@@ -46,6 +47,10 @@ namespace JominiParse
             d.Name = segment.name;
          
             d.Namespace = FileTokenizer.Instance.ScriptNamespace;
+
+            return d;
+
+            /*
             ReadParsedChildSegment(d, segment, d, "type");
             ReadParsedChildSegment(d, segment, d, "scope");
             ReadParsedChildSegment(d, segment, d, "title");
@@ -54,14 +59,14 @@ namespace JominiParse
             ReadParsedChildSegment(d, segment, d, "trigger");
             ReadParsedChildSegment(d, segment, d, "weight_multiplier");
             ReadParsedChildSegment(d, segment, d, "immediate");
-
+            
             ReadParsedChildSegment(d, segment, d, "after");
-
+            */
             var list = segment.children.Where(a => a.name == "option").ToList();
 
             foreach (var scriptParsedSegment in list)
             {
-                d.options.Add(ParseOption(d, scriptParsedSegment));
+         //       d.options.Add(ParseOption(d, scriptParsedSegment));
             }
 
             string toScript = d.ToScript();

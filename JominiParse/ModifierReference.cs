@@ -1,10 +1,22 @@
-﻿namespace JominiParse
+﻿using System.IO;
+
+namespace JominiParse
 {
     public class ModifierReference : ModifierBase
     {
         public override string ToScript()
         {
-            return Modifier.ToScript();
+            return "";//Modifier.ToScript();
+        }
+
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
+        }
+
+        public override void Write(BinaryWriter writer)
+        {
+            base.Write(writer);
         }
 
         public ScriptValue Modifier { get; set; }
@@ -13,7 +25,7 @@
         }
         public void Parse(ScriptParsedSegment value, ScriptContext context)
         {
-            Modifier = new ReferenceScriptValue(Parent, value);
+         //   Modifier = new ReferenceScriptValue(Parent, value);
             ScriptValueParser.Instance.ParseScriptValue(Parent, value);
         }
 

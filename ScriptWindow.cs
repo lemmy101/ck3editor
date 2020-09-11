@@ -111,7 +111,7 @@ namespace CK3ScriptEditor
                     CurrentIntellisense.Close();
                     CurrentIntellisense.Dispose();
                     CurrentIntellisense = null;
-                    textEditorControl1.ActiveTextAreaControl.TextArea.Select();
+                //    textEditorControl1.ActiveTextAreaControl.TextArea.Select();
                     textEditorControl1.ActiveTextAreaControl.TextArea.Focus();
                 }
 
@@ -148,7 +148,7 @@ namespace CK3ScriptEditor
                         textEditorControl1.Document.GetLineSegment(textEditorControl1.ActiveTextAreaControl.Caret.Line)),
                     textEditorControl1.ActiveTextAreaControl.Caret.Column, inside))
                 {
-                    textEditorControl1.ActiveTextAreaControl.TextArea.Select();
+                    //textEditorControl1.ActiveTextAreaControl.TextArea.Select();
                     textEditorControl1.ActiveTextAreaControl.TextArea.Focus();
 
                 }
@@ -190,7 +190,7 @@ namespace CK3ScriptEditor
                     location.Y += textEditorControl1.ActiveTextAreaControl.TextArea.TextView.FontHeight + 4;
                     i.Location = location;//new Point(location.X + location.X, location.Y + location.Y);
 
-                    textEditorControl1.ActiveTextAreaControl.TextArea.Select();
+                   // textEditorControl1.ActiveTextAreaControl.TextArea.Select();
                     textEditorControl1.ActiveTextAreaControl.TextArea.Focus();
 
                 }

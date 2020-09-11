@@ -29,7 +29,11 @@ namespace JominiParse
             var then = scriptParsedSegments[0].children.GetRange(index, scriptParsedSegments[0].children.Count - index).ToList();
 
             FileTokenizer.Instance.ParseResults(i, then, context, i.Then);
-          
+
+            foreach (var scriptObject in i.Then)
+            {
+                scriptObject.IsThen = true;
+            }
             // have else / elseifs
             if (scriptParsedSegments.Count > 1)
             {

@@ -1,4 +1,7 @@
-﻿namespace JominiParse
+﻿using System.IO;
+using System.Linq;
+
+namespace JominiParse
 {
     public class ScriptActivity : ScriptObject
     {
@@ -31,6 +34,21 @@
         public ScriptActivity(ScriptObject parent, ScriptParsedSegment seg) : base(parent, seg)
         {
         }
+
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
+
+            expiration_days = (ScriptValue)FindChild("expiration_days");
+            solo = (ScriptValue)FindChild("solo");
+            frame = (ScriptValue)FindChild("frame");
+            color = (ScriptValue)FindChild("color");
+            on_spawn = (EffectBlock)FindChild("on_spawn");
+            on_activate = (EffectBlock)FindChild("on_activate");
+            on_complete = (EffectBlock)FindChild("on_complete");
+            on_expire = (EffectBlock)FindChild("on_expire");
+        }
+
     }
 
     public class ScriptActivityParser : ParserBase

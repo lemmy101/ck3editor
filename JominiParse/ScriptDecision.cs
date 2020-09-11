@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -29,6 +30,26 @@ namespace JominiParse
 }", 0);
 
 
+        }
+
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
+
+            picture = (ScriptValue)FindChild("picture");
+            ai_check_interval = (ScriptValue)FindChild("ai_check_interval");
+            major = (ScriptValue)FindChild("major");
+            desc = (LocalizedString)FindChild("desc");
+            selection_tooltip = (LocalizedString)FindChild("selection_tooltip");
+            cooldown = (ScriptPeriod)FindChild("cooldown");
+            is_shown = (ConditionBlock)FindChild("is_shown");
+            is_valid = (ConditionBlock)FindChild("is_valid");
+            is_valid_showing_failures_only = (ConditionBlock)FindChild("is_valid_showing_failures_only");
+            cost = (ScriptCost)FindChild("cost");
+            ai_will_do = (ValueModifier)FindChild("ai_will_do");
+            ai_potential = (ConditionBlock)FindChild("ai_potential");
+            effect = (EffectBlock)FindChild("effect");
+   
         }
 
         public ScriptValue picture { get; set; }

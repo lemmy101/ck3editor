@@ -1,4 +1,6 @@
-﻿namespace JominiParse
+﻿using System.IO;
+
+namespace JominiParse
 {
     public class StaticScriptValue : ScriptValue
     {
@@ -11,6 +13,20 @@
         public override string ToString()
         {
             return Name + " = " + Value.ToString();
+        }
+
+        public override void Write(BinaryWriter writer)
+        {
+            base.Write(writer);
+
+            writer.Write(Value);
+        }
+
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
+
+            Value = reader.ReadSingle();
         }
 
         public StaticScriptValue(ScriptObject parent, ScriptParsedSegment seg) : base(parent, seg)

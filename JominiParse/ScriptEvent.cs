@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace JominiParse
 {
@@ -8,6 +9,7 @@ namespace JominiParse
       
         public override string ToScript()
         {
+            return "";
             string str = GetStart(Name);
 
             str += type?.ToScript() + "\n";
@@ -30,7 +32,32 @@ namespace JominiParse
 
             return TabFormat(str);
         }
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
 
+            type = (ScriptValue)FindChild("type");
+            scope = (ScriptValue)FindChild("scope");
+            title = (LocalizedString)FindChild("title");
+            desc = (LocalizedString)FindChild("desc");
+            theme = (ScriptValue)FindChild("theme");
+            trigger = (ConditionBlock)FindChild("trigger");
+            weight_multiplier = (ValueModifier)FindChild("weight_multiplier");
+            immediate = (EffectBlock)FindChild("immediate");
+            after = (EffectBlock)FindChild("after");
+
+            /*
+            ReadParsedChildSegment(d, segment, d, "type");
+            ReadParsedChildSegment(d, segment, d, "scope");
+            ReadParsedChildSegment(d, segment, d, "title");
+            ReadParsedChildSegment(d, segment, d, "desc");
+            ReadParsedChildSegment(d, segment, d, "theme");
+            ReadParsedChildSegment(d, segment, d, "trigger");
+            ReadParsedChildSegment(d, segment, d, "weight_multiplier");
+            ReadParsedChildSegment(d, segment, d, "immediate");
+            */
+
+        }
         public ScriptEvent(ScriptObject parent, ScriptParsedSegment seg) : base(parent, seg)
         {
         }

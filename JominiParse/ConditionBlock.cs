@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace JominiParse
@@ -26,6 +27,29 @@ namespace JominiParse
             return str;
         }
 
+        public override void Write(BinaryWriter writer)
+        {
+            base.Write(writer);
+            writer.Write(conditions.Count);
+
+            for(int x=0;x< conditions.Count;x++)
+                writer.Write(Children.IndexOf(conditions[x]));
+
+         }
+
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
+
+            int nChildren = reader.ReadInt32();
+
+            for (int x = 0; x < nChildren; x++)
+            {
+                int i = reader.ReadInt32();
+                conditions.Add((ConditionBase) Children[i]);
+            }
+            
+        }
 
         public string ToScriptInterior()
         {
@@ -39,10 +63,10 @@ namespace JominiParse
             return str;
         }
 
-        public override string ToString()
-        {
-            return Name;
-        }
+      //  public override string ToString()
+     //   {
+    //        return Name;
+     //   }
 
         public void Parse(string name, List<ScriptParsedSegment> segments, ScriptContext context)
         {

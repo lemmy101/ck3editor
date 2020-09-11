@@ -96,24 +96,37 @@ namespace JominiParse
                 string line2 = line;
                 if (line.Length == 0)
                     continue;
+                if(line2 == "name = \"Abdallah\" #ibn Muhammad\"")
+                {
 
+                }
                 if (line2.Contains("\"") && ((line2.IndexOf("\"") < line2.IndexOf("#") || line2.IndexOf("#") == -1)))
                 {
                     string ll = line2;
                     string after = "";
                     while (ll.Contains("\""))
                     {
-                        var s = ll.IndexOf("\"");
-                        var e = ll.IndexOf("\"", s+1);
-                        var l = e - s;
-                        string before = ll.Substring(0, s);
-                        string str = ll.Substring((s + 1), l - 1);
-                        after = ll.Substring(e + 1);
+                        if (ll.Contains("\"") &&
+                            ((ll.IndexOf("\"") < ll.IndexOf("#") || ll.IndexOf("#") == -1)))
+                        {
+                            var s = ll.IndexOf("\"");
+                            var e = ll.IndexOf("\"", s + 1);
+                            var l = e - s;
+                            string before = ll.Substring(0, s);
+                            string str = ll.Substring((s + 1), l - 1);
+                            after = ll.Substring(e + 1);
+
+                            TokenizeLine(before.Trim(), tokens);
+                            tokens.Add("\"" + str + "\"");
+                            lineNumbers.Add(index);
+                            ll = after;
+                        }
+                        else
+                        {
+                            ll = ll.Substring(0, ll.IndexOf("#")).Trim();
+                        }
+                      
                         
-                        TokenizeLine(before.Trim(), tokens);
-                        tokens.Add("\"" + str + "\"");
-                        lineNumbers.Add(index);
-                        ll = after;
 
                     }
                     TokenizeLine(after.Trim(), tokens);
@@ -151,11 +164,6 @@ namespace JominiParse
         {
             if (line2.Length == 0)
                 return;
-
-            if (line2.Contains("!="))
-            {
-                int gfd = 0;
-            }
 
             line2 = line2.Split('#')[0].Trim();
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace JominiParse
 {
@@ -16,7 +17,12 @@ namespace JominiParse
 
             return TabFormat(str);
         }
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
+        
 
+        }
         public ScriptedEffect(ScriptObject parent, ScriptParsedSegment seg) : base(parent, seg)
         {
 

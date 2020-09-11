@@ -50,6 +50,7 @@ namespace CK3ScriptEditor
             var childCount = 0;
 
             
+            TreeView.SuspendNodeEvents();
             var file = Core.Instance.GetFile(filename, isBaseFile);
 
             foreach (var scriptObject in file.Map.Values) 
@@ -58,14 +59,12 @@ namespace CK3ScriptEditor
 
                 node.Tag = scriptObject;
 
-                if (scriptObject is ScriptEvent)
-                    FillEventTreeData(node, scriptObject as ScriptEvent, lineNumber);
-                if (scriptObject is ScriptDecision)
-                    FillDecisionTreeData(node, scriptObject as ScriptDecision, lineNumber);
-
+                FillTreeData(node, scriptObject, lineNumber);
 
                 TreeView.Nodes.Add(node);
             }
+
+            TreeView.ResumeNodeEvents();
 
             UpdateTreeSelection(filename, lineNumber);
         }
@@ -120,7 +119,7 @@ namespace CK3ScriptEditor
                 treeNode.Nodes.Add(triggeredBy);
             }
 
-            if(ev.title != null)
+            if (ev.title != null)
                 treeNode.Text = treeNode.Text + " - " + ev.title.Localized();
 
             AddTreeNode(treeNode, ev.type);
@@ -139,13 +138,44 @@ namespace CK3ScriptEditor
             treeNode.Expanded = false;
             //    treeNode.Nodes.Add(new TreeNode(decision.picture.ToString()) { Tag = decision.picture });
         }
+        private void FillTreeData(DarkTreeNode treeNode, ScriptObject ev, int lineNumber)
+        {
+            fileOverviewNodes.Clear();
+            var triggeredBy = new DarkTreeNode("Triggered By");
+            bool hasReferencedBy = false;
+          
+            /*foreach (var eventConnection in ev.Connections)
+            {
+                if (eventConnection.To == ev)
+                {
+                    DarkTreeNode n = new DarkTreeNode(eventConnection.From.Name);
+                    n.Tag = eventConnection.FromCommand;
+                    fileOverviewNodes[n.Tag] = n;
+                    triggeredBy.Nodes.Add(n);
+                    hasReferencedBy = true;
+                }
+            }
+            */
+            if (hasReferencedBy)
+            {
+              //  treeNode.Nodes.Add(triggeredBy);
+            }
+
+            foreach (var scriptObject in ev.Children)
+            {
+                AddTreeNode(treeNode, scriptObject);
+            }
+
+            treeNode.Expanded = false;
+            //    treeNode.Nodes.Add(new TreeNode(decision.picture.ToString()) { Tag = decision.picture });
+        }
 
         private void AddTreeNode(DarkTreeNode treeNode, ScriptObject obj)
         {
             if (obj == null)
                 return;
 
-            var n = new DarkTreeNode(obj.ToString());
+            var n = new DarkTreeNode(obj.Name);
             n.Tag = obj;
             treeNode.Nodes.Add(n);
 

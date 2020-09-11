@@ -26,7 +26,7 @@ namespace CK3ScriptEditor
         public void FillProjectView()
         {
             projectTree.Nodes.Clear();
-
+            projectTree.SuspendNodeEvents();
             DarkTreeNode ck3 = new DarkTreeNode("base");
             DarkTreeNode mod = new DarkTreeNode(Core.Instance.ModCK3Library.Name);
 
@@ -36,6 +36,7 @@ namespace CK3ScriptEditor
             string startModDir = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name;
             Fill(ck3, startDir, false);
             Fill(mod, startModDir, true);
+            projectTree.ResumeNodeEvents();
         }
 
         List<string> allowedDirs = new List<string>()

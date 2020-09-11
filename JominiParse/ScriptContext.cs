@@ -52,6 +52,7 @@
         StoryCycles,
         SuccessionElections,
         Traits,
-        VassalContracts
+        VassalContracts,
+        Characters
     }
 }

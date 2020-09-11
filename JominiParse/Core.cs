@@ -21,6 +21,8 @@ namespace JominiParse
             LoadingCK3Library = BaseCK3Library;
             BaseCK3Library.Path = Globals.CK3Path;
             LoadCK3Scripts(BaseCK3Library);
+           // BaseCK3Library.LoadBinary("baseData.dat");
+           BaseCK3Library.SaveBinary("baseData.dat");
         }
 
         public void CreateMod(string mod)
@@ -162,6 +164,9 @@ namespace JominiParse
 
             results = FileTokenizer.Instance.LoadDirectory(startDir + "common/character_interactions", startDir, ScriptContext.CharacterInteractions);
             LoadingCK3Library.Add(results, ScriptContext.CharacterInteractions);
+           
+            results = FileTokenizer.Instance.LoadDirectory(startDir + "history/characters", startDir, ScriptContext.Characters);
+            LoadingCK3Library.Add(results, ScriptContext.Characters);
 
             results = FileTokenizer.Instance.LoadDirectory(startDir + "common/council_positions", startDir, ScriptContext.CouncilPositions);
             LoadingCK3Library.Add(results, ScriptContext.CouncilPositions);
@@ -236,7 +241,7 @@ namespace JominiParse
             results = FileTokenizer.Instance.LoadDirectory(startDir + "common/religion/religions", startDir, ScriptContext.Religions);
             LoadingCK3Library.Add(results, ScriptContext.Religions);
 
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/religion/schemes", startDir, ScriptContext.Schemes);
+            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/schemes", startDir, ScriptContext.Schemes);
             LoadingCK3Library.Add(results, ScriptContext.Schemes);
 
             results = FileTokenizer.Instance.LoadDirectory(startDir + "common/scripted_character_templates", startDir, ScriptContext.ScriptedCharacterTemplates);
@@ -309,6 +314,9 @@ namespace JominiParse
 
                 case ScriptContext.Focuses:
                     return GetFocusNameSet(modOnly);
+                    break;
+                case ScriptContext.Characters:
+                    return GetCharacterNameSet(modOnly);
                     break;
 
                 case ScriptContext.DynastyPerks:
@@ -502,6 +510,19 @@ namespace JominiParse
                 return eventNames;
 
             eventNames.UnionWith(BaseCK3Library.VassalContractsMap.Keys);
+
+            return eventNames;
+        }
+
+        public HashSet<string> GetCharacterNameSet(bool modOnly)
+        {
+            HashSet<string> eventNames = new HashSet<string>();
+
+            eventNames.UnionWith(ModCK3Library.CharactersMap.Keys);
+            if (modOnly)
+                return eventNames;
+
+            eventNames.UnionWith(BaseCK3Library.CharactersMap.Keys);
 
             return eventNames;
         }
@@ -1108,6 +1129,11 @@ namespace JominiParse
 
                 case ScriptContext.VassalContracts:
                     return ModCK3Library.GetVassalContract(name);
+                    break;
+
+
+                case ScriptContext.Characters:
+                    return ModCK3Library.GetCharacter(name);
                     break;
 
 

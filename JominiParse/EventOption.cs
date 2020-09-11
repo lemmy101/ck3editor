@@ -1,4 +1,6 @@
-﻿namespace JominiParse
+﻿using System.IO;
+
+namespace JominiParse
 {
     public class EventOption : ScriptObject
     {
@@ -13,6 +15,8 @@
 
             return "option: " + name.ToString();
         }
+
+       
 
         public override string ToScript()
         {

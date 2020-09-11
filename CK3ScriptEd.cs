@@ -165,11 +165,13 @@ namespace CK3ScriptEditor
             }
         }
 
+        private ScriptWindow lastActive = null;
         private void DockPanel_ActiveContentChanged(object sender, DockContentEventArgs e)
         {
-            if (DockPanel.ActiveContent is ScriptWindow)
+            if (DockPanel.ActiveContent is ScriptWindow && lastActive != DockPanel.ActiveContent)
             {
                 (DockPanel.ActiveContent as ScriptWindow).Activate();
+                lastActive = (DockPanel.ActiveContent as ScriptWindow);
             }
         }
 
@@ -203,6 +205,7 @@ namespace CK3ScriptEditor
 
             if (textEditors.ContainsKey(filename))
             {
+             
                 DockPanel.ActiveContent = openScriptWindows[filename];
 
                 CurrentFile = filename;

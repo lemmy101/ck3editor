@@ -21,6 +21,8 @@ namespace JominiParse
     public class ScriptObjectSchema
     {
         Dictionary<string, SchemaChild> children = new Dictionary<string, SchemaChild>();
+        public bool Soft { get; set; }
+
         public void Load(string filename)
         {
             XmlDocument doc = new XmlDocument();
@@ -124,15 +126,28 @@ namespace JominiParse
         Dictionary<String, ScriptObjectSchema> SoftSchemaMap = new Dictionary<String, ScriptObjectSchema>();
         public ScriptObjectSchema GetSchema(Type type)
         {
+            if (schemaFilenames.Count == 0)
+            {
+                string[] dir = Directory.GetFiles("Schemas/");
+                foreach (var s1 in dir)
+                {
+                    schemaFilenames.Add(s1);
+                }
+
+            }
+
             if (SchemaMap.ContainsKey(type))
                 return SchemaMap[type];
+
+            if (!schemaFilenames.Contains("Schemas/" + type + ".xml"))
+                return null;
 
             ScriptObjectSchema s = new ScriptObjectSchema();
             if (!File.Exists("Schemas/" + type.Name + ".xml"))
                 return null;
 
-            s.Load("Schemas/"+type.Name+".xml");
-
+            s.Load("Schemas/" + type.Name + ".xml");
+            s.Soft = false;
             SchemaMap[type] = s;
 
             return s;
@@ -158,6 +173,7 @@ namespace JominiParse
             ScriptObjectSchema s = new ScriptObjectSchema();
 
             s.Load("Schemas/" + type + ".xml");
+            s.Soft = true;
 
             SoftSchemaMap[type] = s;
 

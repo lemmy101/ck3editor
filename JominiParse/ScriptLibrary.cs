@@ -12,6 +12,7 @@ namespace JominiParse
         public string Filename { get; set; }
         public bool IsBase { get; set; }
         public bool Overridden { get; set; }
+        public ScriptContext Context { get; set; }
 
         public Dictionary<string, ScriptObject> Map = new Dictionary<string, ScriptObject>();
     }
@@ -28,6 +29,7 @@ namespace JominiParse
         public Dictionary<string, ScriptObject> BookmarkMap = new Dictionary<string, ScriptObject>();
         public Dictionary<string, ScriptObject> BuildingMap = new Dictionary<string, ScriptObject>();
         public Dictionary<string, ScriptObject> CharacterInteractionMap = new Dictionary<string, ScriptObject>();
+        public Dictionary<string, ScriptObject> CharactersMap = new Dictionary<string, ScriptObject>();
         public Dictionary<string, ScriptObject> CouncilPositionsMap = new Dictionary<string, ScriptObject>();
         public Dictionary<string, ScriptObject> CouncilTasksMap = new Dictionary<string, ScriptObject>();
         public Dictionary<string, ScriptObject> DefinesMap = new Dictionary<string, ScriptObject>();
@@ -94,7 +96,18 @@ namespace JominiParse
         public string Path { get; set; }
 
         #region Get Objects
+        public ScriptObject GetCharacter(string str)
+        {
+            if (!CharactersMap.ContainsKey(str))
+            {
+                if (Parent != null)
+                    return Parent.GetCharacter(str);
 
+                return null;
+            }
+
+            return CharactersMap[str];
+        }
         public ScriptObject GetVassalContract(string str)
         {
             if (!VassalContractsMap.ContainsKey(str))
@@ -709,8 +722,10 @@ namespace JominiParse
         #endregion
 
 
+
         public void Add(List<ScriptObject> objects, ScriptContext context)
         {
+         
             switch (context)
             {
 
@@ -722,7 +737,21 @@ namespace JominiParse
                         if (dec != null)
                         {
                             VassalContractsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
+                        }
+
+                    }
+                }
+                    break;
+                case ScriptContext.Characters:
+                {
+                    foreach (var scriptObject in objects)
+                    {
+                        var dec = scriptObject as ScriptObject;
+                        if (dec != null)
+                        {
+                            CharactersMap[dec.Name] = dec;
+                            DoFile(dec, context);
                         }
 
                     }
@@ -738,7 +767,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             TraitsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -752,7 +781,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             SuccessionElectionsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -766,7 +795,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             StoryCyclesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -780,7 +809,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             SecretTypesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -794,7 +823,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             ScriptedTriggersMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -809,7 +838,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             ScriptedRulesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -824,7 +853,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             ScriptedRelationsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -839,7 +868,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             ScriptedListsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -853,7 +882,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             ScriptedEffectsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -869,7 +898,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             ScriptedCharacterTemplatesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -883,7 +912,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             SchemesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -897,7 +926,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             ReligionsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -912,7 +941,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             ReligionFamilysMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -926,7 +955,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             HolySitesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -941,7 +970,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             FervorModifiersMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -957,7 +986,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             DoctrinesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -972,7 +1001,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             OptionModifiersMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -986,7 +1015,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             OnActionsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1002,7 +1031,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             NicknamesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1016,7 +1045,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             StaticModifiersMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1030,7 +1059,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             ScriptedModifiersMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1044,7 +1073,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             LifestylesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1059,7 +1088,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             LifestylePerksMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1073,7 +1102,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             LawsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1088,7 +1117,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             LandedTitleMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1102,7 +1131,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             ImportantActionsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1117,7 +1146,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             HookTypesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1132,7 +1161,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             HoldingsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1147,7 +1176,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             GovernmentsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1162,7 +1191,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             GameRulesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1176,7 +1205,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             FocusMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1191,7 +1220,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             FactionsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1205,7 +1234,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             EventThemesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1220,7 +1249,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             EventBackgroundsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1235,7 +1264,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             DynastyPerksMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1251,7 +1280,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             DynastyLegaciesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1266,7 +1295,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             DefinesMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1280,7 +1309,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             CouncilTasksMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1294,7 +1323,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             CouncilPositionsMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1309,7 +1338,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             CharacterInteractionMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                     }
@@ -1324,7 +1353,7 @@ namespace JominiParse
 
                         BuildingMap[dec.Name] = dec;
 
-                        DoFile(dec);
+                        DoFile(dec, context);
                     }
 
                 }
@@ -1337,7 +1366,7 @@ namespace JominiParse
 
                         CasusBelliTypeMap[dec.Name] = dec;
 
-                        DoFile(dec);
+                        DoFile(dec, context);
                     }
 
                 }
@@ -1350,7 +1379,7 @@ namespace JominiParse
 
                         BookmarkMap[dec.Name] = dec;
 
-                        DoFile(dec);
+                        DoFile(dec, context);
                     }
 
                 }
@@ -1362,7 +1391,7 @@ namespace JominiParse
                         var dec = scriptObject as ScriptDecision;
 
                         DecisionMap[dec.Name] = dec;
-                        DoFile(dec);
+                        DoFile(dec, context);
 
 
                     }
@@ -1373,10 +1402,11 @@ namespace JominiParse
                     foreach (var scriptObject in objects)
                     {
                         var dec = scriptObject as ScriptValue;
-
-                        ScriptValueMap[dec.Name] = dec;
-                        DoFile(dec);
-
+                        if (dec != null)
+                        {
+                            ScriptValueMap[dec.Name] = dec;
+                            DoFile(dec, context);
+                        }
 
                     }
                 }
@@ -1389,7 +1419,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             EventMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
 
                         }
 
@@ -1404,7 +1434,7 @@ namespace JominiParse
                         if (dec != null)
                         {
                             ActivityMap[dec.Name] = dec;
-                            DoFile(dec);
+                            DoFile(dec, context);
                         }
 
                         }
@@ -1484,7 +1514,7 @@ namespace JominiParse
 
             unprocessedTriggers.Clear();
         }
-        private void DoFile(ScriptObject dec)
+        private void DoFile(ScriptObject dec, ScriptContext context)
         {
             ScriptFile f;
             if (FileMap.ContainsKey(dec.Filename))
@@ -1494,9 +1524,11 @@ namespace JominiParse
                 f = new ScriptFile();
                 f.IsBase = this == Core.Instance.BaseCK3Library;
                 f.Filename = dec.Filename;
+                f.Context = context;
                 FileMap[dec.Filename] = f;
             }
 
+            dec.Context = context;
             dec.ScriptFile = f;
             f.Map[dec.Name] = dec;
         }
@@ -1535,5 +1567,73 @@ namespace JominiParse
             }
         }
 
+        public void SaveBinary(string filename)
+        {
+
+            using (BinaryWriter writer = new BinaryWriter(File.Open(filename, FileMode.Create)))
+            {
+                writer.Write(ScriptObject.TypeMap.Count);
+                foreach (var typeMapValue in ScriptObject.TypeMap.Values)
+                {
+                    writer.Write(typeMapValue.GetHashCode());
+                    writer.Write(typeMapValue.AssemblyQualifiedName);
+                }
+
+                writer.Write(FileMap.Count);
+                foreach (var file in FileMap.Values)
+                {
+                    writer.Write(file.Filename);
+                    writer.Write(file.Map.Count);
+                    writer.Write((int)file.Context);
+                    foreach (var scriptObject in file.Map.Values)
+                    {
+                        scriptObject.Write(writer);
+                    }
+                }
+            }
+        }
+
+        public void LoadBinary(string fn)
+        {
+            using (BinaryReader reader = new BinaryReader(File.Open(fn, FileMode.Open)))
+            {
+                int typeCount = reader.ReadInt32();
+
+                for(int x=0;x<typeCount;x++)
+                {
+                    int hash = reader.ReadInt32();
+                    string name = reader.ReadString();
+                    Type t = Type.GetType(name);
+                    ScriptObject.TypeMap[hash] = t;
+                }
+
+                int nFiles = reader.ReadInt32();
+
+                for(int x=0;x<nFiles;x++)
+                {
+                    string filename = reader.ReadString();
+                    int nObjects = reader.ReadInt32();
+                    ScriptFile sf = new ScriptFile();
+                    sf.Filename = filename;
+                    sf.IsBase = true;
+                    
+                    sf.Context = (ScriptContext) reader.ReadInt32();
+                    for (int m = 0; m < nObjects; m++)
+                    {
+                        ScriptObject o = ScriptObject.LoadFromData(reader, null);
+                        o.Read(reader, sf, null);
+                        sf.Map[o.Name] = o;
+                    }
+
+                    FileMap[sf.Filename] = sf;
+
+                    var l = sf.Map.Values.ToList().GroupBy(a => a.Context).ToList();
+                    foreach (var pair in l)
+                    {
+                        Add(pair.ToList(), pair.Key);
+                    }
+                }
+            }
+        }
     }
 }

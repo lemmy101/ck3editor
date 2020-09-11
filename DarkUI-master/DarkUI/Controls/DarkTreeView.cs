@@ -194,6 +194,9 @@ namespace DarkUI.Controls
 
         private void Nodes_ItemsAdded(object sender, ObservableListModified<DarkTreeNode> e)
         {
+            if (supressNodeEvents)
+                return;
+
             foreach (var node in e.Items)
             {
                 node.ParentTree = this;
@@ -210,6 +213,8 @@ namespace DarkUI.Controls
 
         private void Nodes_ItemsRemoved(object sender, ObservableListModified<DarkTreeNode> e)
         {
+            if (supressNodeEvents)
+                return;
             foreach (var node in e.Items)
             {
                 node.ParentTree = this;
@@ -223,6 +228,8 @@ namespace DarkUI.Controls
 
         private void ChildNodes_ItemsAdded(object sender, ObservableListModified<DarkTreeNode> e)
         {
+            if (supressNodeEvents)
+                return;
             foreach (var node in e.Items)
                 HookNodeEvents(node);
 
@@ -231,6 +238,8 @@ namespace DarkUI.Controls
 
         private void ChildNodes_ItemsRemoved(object sender, ObservableListModified<DarkTreeNode> e)
         {
+            if (supressNodeEvents)
+                return;
             foreach (var node in e.Items)
             {
                 if (SelectedNodes.Contains(node))
@@ -535,7 +544,8 @@ namespace DarkUI.Controls
 
         #region Method Region
 
-        private void HookNodeEvents(DarkTreeNode node)
+
+        public void HookNodeEvents(DarkTreeNode node)
         {
             node.Nodes.ItemsAdded += ChildNodes_ItemsAdded;
             node.Nodes.ItemsRemoved += ChildNodes_ItemsRemoved;
@@ -548,7 +558,7 @@ namespace DarkUI.Controls
                 HookNodeEvents(childNode);
         }
 
-        private void UnhookNodeEvents(DarkTreeNode node)
+        public void UnhookNodeEvents(DarkTreeNode node)
         {
             node.Nodes.ItemsAdded -= ChildNodes_ItemsAdded;
             node.Nodes.ItemsRemoved -= ChildNodes_ItemsRemoved;
@@ -561,7 +571,7 @@ namespace DarkUI.Controls
                 UnhookNodeEvents(childNode);
         }
 
-        private void UpdateNodes()
+        public void UpdateNodes()
         {
             if (IsDragging)
                 return;
@@ -1274,5 +1284,34 @@ namespace DarkUI.Controls
         }
 
         #endregion
+
+        private bool supressNodeEvents = false;
+        public void ResumeNodeEvents()
+        {
+            supressNodeEvents = false;
+
+            foreach (var darkTreeNode in Nodes)
+            {
+                ResumeNodeEvents(darkTreeNode);
+            }
+
+            UpdateNodes();
+
+        }
+
+        void ResumeNodeEvents(DarkTreeNode child)
+        {
+            HookNodeEvents(child);
+
+            foreach (var darkTreeNode in child.Nodes)
+            {
+                HookNodeEvents(darkTreeNode);
+            }
+        }
+
+        public void SuspendNodeEvents()
+        {
+            supressNodeEvents = true;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace JominiParse
@@ -9,6 +10,7 @@ namespace JominiParse
         public List<ModifierBase> Modifiers = new List<ModifierBase>();
         public override string ToScript()
         {
+            return "";
             string v = GetStart(Name);
 
             v += Base.ToScript() + "\n";
@@ -28,11 +30,21 @@ namespace JominiParse
             return Name;
         }
 
+        public override void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
+        {
+            base.Read(reader, file, parent);
+        }
+
+        public override void Write(BinaryWriter writer)
+        {
+            base.Write(writer);
+        }
+
         public void Parse(ScriptParsedSegment value, ScriptContext context)
         {
             Name = value.name;
            var b = value.children.First();
-
+            /*
            Base = ScriptValueParser.Instance.ParseScriptValue(this, b);
 
            for (int i = 1; i < value.children.Count; i++)
@@ -61,7 +73,7 @@ namespace JominiParse
                    Modifiers.Add(m);
                }
 
-            }
+            }*/
         }
 
 
