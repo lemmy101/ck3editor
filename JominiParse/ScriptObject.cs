@@ -59,6 +59,10 @@ namespace JominiParse
             this.Library = Core.Instance.LoadingCK3Library;
      
             Schema = SchemaManager.Instance.GetSchema(GetType());
+            if (Schema != null)
+            {
+
+            }
             if (parent != null)
             {
                 parent.Children.Add(this);
@@ -73,6 +77,10 @@ namespace JominiParse
                         {
                             SetScopeType(SchemaChild.scopeType);
                         }
+                        if (SchemaChild.blockType != BlockType.none)
+                        {
+                            BlockType = SchemaChild.blockType;
+                        }
                     }
                 }
                 if (Schema == null && seg.name != null)
@@ -82,6 +90,12 @@ namespace JominiParse
 
                 }
             }
+
+            if (Schema != null)
+            {
+                BlockType = Schema.blockType;
+            }
+
             if (Parent != null)
             {
                 if(GetScopeType()==ScopeType.none || GetScopeType() == ScopeType.inheritparent)
@@ -98,6 +112,16 @@ namespace JominiParse
                 else
                 {
                     so = new ScriptObject(this, scriptParsedSegment);
+                }
+                if(Name == "immediate")
+                {
+
+                }
+
+                if (BlockType == BlockType.effect_block)
+                {
+                    ScopeManager.Instance.AddScopeFunction(so.GetScopeType(), so.Name);
+
                 }
 
                 OnPostInitializeChild(so);

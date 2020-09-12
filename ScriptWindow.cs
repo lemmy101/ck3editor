@@ -63,7 +63,7 @@ namespace CK3ScriptEditor
                 {
                     inside = inside.Parent;
                 }
-                if (Core.Instance.ModCK3Library.Has(inside) && !inside.ScriptFile.IsBase)
+                if (Core.Instance.BaseCK3Library.Has(inside) && !inside.ScriptFile.IsBase)
                 {
                     // already have it in mod... go to...
                     ToolStripMenuItem m = new ToolStripMenuItem("Goto base data definition of: \"" + inside.Name + "\"");
@@ -80,7 +80,7 @@ namespace CK3ScriptEditor
                     e.contextMenu.Items.Insert(0, m);
                     e.contextMenu.ItemClicked += ContextMenu_ItemClicked;
                 }
-                else
+                else if(inside.ScriptFile.IsBase)
                 {
                     ToolStripMenuItem m = new ToolStripMenuItem("Clone \"" + inside.Name + "\" ("+inside.Context+ ") to \"" + Core.Instance.ModCK3Library.Name + "\"");
                     m.Tag = new List<object>() { "clone", inside };
@@ -358,15 +358,55 @@ namespace CK3ScriptEditor
 
         }
 
+        public void UpdateLocalizations()
+        {
+            textEditorControl1.Document.LocalizationMap.Clear();
+
+            var file = ScriptFile;
+
+            foreach (var scriptObject in file.Map)
+            {
+                if(scriptObject.Value.Schema != null)
+                {
+                    var l = scriptObject.Value.Schema.children.Where(a => a.Value.Type == "localized").ToList();
+
+                    foreach (var keyValuePair in l)
+                    {
+                        var res = scriptObject.Value.Children.Where(a => a.Name == keyValuePair.Key).ToList();
+
+                        foreach (var re in res)
+                        {
+                            //
+                            if (re is LocalizedString)
+                            {
+
+                            }
+                            if(re is ScriptValue)
+                            {
+                                string val = (re as ScriptValue).GetStringValue();
+
+                                if(!string.IsNullOrEmpty(val))
+                                {
+                                    textEditorControl1.Document.LocalizationMap[re.LineStart-1] = Core.Instance.GetLocalizedText(val);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            textEditorControl1.Invalidate();
+            textEditorControl1.ActiveTextAreaControl.Invalidate();
+            textEditorControl1.ActiveTextAreaControl.TextArea.Invalidate();
+        }
 
         public string Filename { get; set; }
+        public ScriptFile ScriptFile { get; set; }
 
         public TextEditorControl LoadFile(string filename)
         {
           //  Filename = filename.Substring(filename.LastIndexOf("game/") + 5);
             textEditorControl1.LoadFile(filename);
-            
-            
+
             if (IsBaseFile)
             {
                 DockText = "Base:" + filename.Substring(filename.LastIndexOf("/") + 1) + " (Read-Only)";
@@ -424,6 +464,7 @@ namespace CK3ScriptEditor
                     
                 }
             }
+            
             return textEditorControl1;
         }
 
@@ -490,8 +531,10 @@ namespace CK3ScriptEditor
 
                     }
                 }
-            }
 
+                if(ScriptFile!=null)
+                    UpdateLocalizations();
+            }
         }
 
         private void textEditorControl1_Click(object sender, EventArgs e)

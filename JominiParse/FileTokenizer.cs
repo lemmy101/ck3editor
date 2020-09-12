@@ -216,7 +216,7 @@ namespace JominiParse
                     SetNamespace(scriptParsedSegment.value[0]);
                     continue;
                 }
-
+                /*
                 if (scriptParsedSegment.name == "if" || scriptParsedSegment.name == "trigger_if")
                 {
                     int range;
@@ -224,7 +224,7 @@ namespace JominiParse
                     index += range - 1;
                     continue;
                 }
-
+                */
                 var r = ParseResult(parent, scriptParsedSegment, context);
                 if(r != null)
                     results.Add(r);
@@ -250,6 +250,7 @@ namespace JominiParse
                 case ScriptContext.Events:
                     return EventParser.Instance.ParseEvent(parent, parsableResult);
                     break;
+                /*
                 case ScriptContext.ConditionBlock:
                     return EffectParser.Instance.ParseCondition(parent, parsableResult);
                     break;
@@ -258,7 +259,7 @@ namespace JominiParse
                     break;
                 case ScriptContext.ScriptedModifiers:
                     return ScriptedModifierParser.Instance.ParseModifier(parent, parsableResult);
-                    break;
+                    break;*/
             }
 
             return new ScriptObject(parent, parsableResult);

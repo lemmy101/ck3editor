@@ -45,6 +45,27 @@ namespace JominiParse
                     }
 
                 }
+                if (results2.Contains("scopeeffects"))
+                {
+                    results2.Remove("scopeeffects");
+                    // can use condition commands...
+
+                    var condition = ScopeManager.Instance.GetEffect(inside.Parent.GetScopeType(), inside.Name);
+
+                    if (condition != null)
+                    {
+                        foreach (var c in condition.Properties)
+                        {
+                            results.Add(c.name);
+                        }
+                        results.RemoveAll(a => !a.ToLower().StartsWith(match.ToLower()));
+
+                        results = results.OrderBy(a => a).ToList();
+
+                        return results;
+                    }
+
+                }
             }
 
 
@@ -62,6 +83,7 @@ namespace JominiParse
                 {
                     results.Remove("scopeeffects");
                     var scope = inside.GetScopeType();
+                    ScopeManager.Instance.AddCompleteScopeEffectResults(scope, results);
 
                 }
             }
@@ -73,7 +95,7 @@ namespace JominiParse
 
              results.RemoveAll(a => !a.ToLower().StartsWith(match.ToLower()));
 
-            results = results.OrderBy(a => a).ToList();
+            results = results.OrderBy(a => a).Distinct().ToList();
 
             return results;
         }
@@ -120,12 +142,25 @@ namespace JominiParse
                     {
                         results.Remove("scopeeffects");
                         var scope = inside.Parent.GetScopeType();
+                        {
+                            var eff = ScopeManager.Instance.GetEffect(scope, child);
+                            if (eff != null)
+                            {
+                                switch (eff.type)
+                                {
+                                    case "bool":
+                                        results.Add("yes");
+                                        results.Add("no");
+                                        break;
+                                }
+                            }
+                        }
 
                     }
 
                 }
             }
-            results = results.OrderBy(a => a).ToList();
+            results = results.OrderBy(a => a).Distinct().ToList();
 
             return results;
         }
@@ -156,8 +191,25 @@ namespace JominiParse
                     {
                         var condition = ScopeManager.Instance.GetCondition(scope, child);
 
-                        if(condition != null)
+                        if (condition != null)
                             return condition.Properties.Count > 0;
+                    }
+
+                    var schema = SchemaManager.Instance.GetSchema(child);
+
+                    if (schema != null)
+                    {
+                        return true;
+                    }
+                }
+                if (results2.Contains("scopeeffects"))
+                {
+                    results2.Remove("scopeeffects");
+                    {
+                        var eff = ScopeManager.Instance.GetEffect(scope, child);
+
+                        if (eff != null)
+                            return eff.Properties.Count > 0;
                     }
 
                     var schema = SchemaManager.Instance.GetSchema(child);

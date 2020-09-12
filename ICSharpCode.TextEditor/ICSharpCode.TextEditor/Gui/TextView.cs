@@ -269,6 +269,20 @@ namespace ICSharpCode.TextEditor
 				Brush fillBrush = selectionBeyondEOL && TextEditorProperties.AllowCaretBeyondEOL ? bgColorBrush : backgroundBrush;
 				g.FillRectangle(fillBrush,
 				                new RectangleF(physicalXPos, lineRectangle.Y, lineRectangle.Width - physicalXPos + lineRectangle.X, lineRectangle.Height));
+
+
+				if(Document.LocalizationMap.ContainsKey(lineNumber))
+                {
+                    int x = physicalXPos + 64;
+                  
+					int drawWidth = DrawDocumentWord(g,
+                        Document.LocalizationMap[lineNumber],
+                        new Point(x, lineRectangle.Y),
+                        textArea.TextEditorProperties.FontContainer.BoldItalicFont,
+                        Color.FromArgb(94+20, 94 + 20, 42 + 20),
+                        fillBrush);
+				}
+              
 			}
 			if (TextEditorProperties.ShowVerticalRuler) {
 				DrawVerticalRuler(g, lineRectangle);
@@ -583,6 +597,8 @@ namespace ICSharpCode.TextEditor
 					}
 				}
 			}
+
+
 			return physicalXPos;
 		}
 		

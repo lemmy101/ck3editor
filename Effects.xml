@@ -1,0 +1,176 @@
+<Effects>
+  <Effect name="add_character_flag" validscope="character">
+    <Property name="flag" type="any"/>
+    <Property name="days" type="num"/>
+    <Property name="months" type="num"/>
+    <Property name="years" type="num"/>
+  </Effect>
+  <Effect name="add_character_modifier" validscope="character">
+    <Property name="modifier" type="modifier"/>
+    <Property name="days" type="num"/>
+    <Property name="months" type="num"/>
+    <Property name="years" type="num"/>
+  </Effect>
+  <Effect name="add_courtier" validscope="character" type="character" />
+  <Effect name="add_diplomacy_lifestyle_perk_points" validscope="character" type="num" />
+  <Effect name="add_diplomacy_lifestyle_xp" validscope="character" type="num" />
+  <Effect name="add_dread" validscope="character" type="num" />
+  <Effect name="add_gold" validscope="character" type="num" />
+  <Effect name="add_hook" validscope="character">
+    <Property name="target" type="character"/>
+    <Property name="type" type="hook"/>
+  </Effect>
+  <Effect name="add_internal_flag" validscope="character" type="flag" />
+  <Effect name="add_intrigue_lifestyle_perk_points" validscope="character" type="num"  />
+  <Effect name="add_intrigue_lifestyle_xp" validscope="character" type="num"  />
+  <Effect name="add_learning_lifestyle_perk_points" validscope="character" type="num"  />
+  <Effect name="add_learning_lifestyle_xp" validscope="character" type="num"  />
+  <Effect name="add_learning_skill" validscope="character" type="num"  />
+  <Effect name="add_martial_lifestyle_perk_points" validscope="character" type="num"  />
+  <Effect name="add_martial_lifestyle_xp" validscope="character" type="num"  />
+  <Effect name="add_martial_skill" validscope="character" type="num"/>
+  <Effect name="add_opinion" validscope="character">
+    <Property name="target" type="character"/>
+    <Property name="modifier" type="num"/>
+  </Effect>
+  <Effect name="add_piety" validscope="character" type="num" />
+  <Effect name="add_piety_level" validscope="character" type="num" />
+  <Effect name="add_prestige" validscope="character" type="num"  />
+  <Effect name="add_prestige_level" validscope="character" type="num"  />
+  <Effect name="add_realm_law_skip_effects" validscope="character" type="law"/>
+  <Effect name="add_secret" validscope="character" >
+    <Property name="type" type="secret"/>
+    <Property name="target" type="character"/>
+  </Effect>
+  <Effect name="add_stewardship_lifestyle_perk_points" validscope="character" type="num"  />
+  <Effect name="add_stewardship_lifestyle_xp" validscope="character" type="num"  />
+  <Effect name="add_stewardship_skill" validscope="character" type="num"  />
+  <Effect name="add_stress" validscope="character" type="num"  />
+  <Effect name="add_trait" validscope="character" type="trait" />
+  <Effect name="add_tyranny" validscope="character" type="num" />
+  <Effect name="add_unpressed_claim" validscope="character" type="title" />
+  <Effect name="add_visiting_courtier" validscope="character" type="character"/>
+  <Effect name="break_alliance" validscope="character" type="character" />
+  <Effect name="cancel_truce_one_way" validscope="character" type="character" />
+  <Effect name="change_global_variable" validscope="character">
+    <Property name="name" type="variable"/>
+    <Property name="add" type="num"/>
+    <Property name="multiply" type="num"/>
+    <Property name="divide" type="num"/>
+  </Effect>
+  <Effect name="change_variable" validscope="character">
+    <Property name="name" type="variable"/>
+    <Property name="add" type="num"/>
+    <Property name="multiply" type="num"/>
+    <Property name="divide" type="num"/>
+  </Effect>
+  <Effect name="clear_saved_scope" validscope="character" type="scope"/>
+  <Effect name="clear_variable_list" validscope="character" type="list" />
+  <Effect name="create_title_and_vassal_change" validscope="character" />
+  <Effect name="custom_tooltip" validscope="character" type="tooltip" />
+  <Effect name="death" validscope="character" >
+    <Property name="death_reason" type="deathreason"/>
+    <Property name="killer" type="character"/>
+  </Effect>
+  <Effect name="depose" validscope="character" type="bool" />
+  <Effect name="execute_decision" validscope="character" type="decision" />
+  <Effect name="give_nickname" validscope="character" type="nickname" />
+  <Effect name="hidden_effect" validscope="character" >
+    <Property name="dummy" type="dummy"/>
+  </Effect>
+  <Effect name="highlight_portrait" validscope="character" type="character"/>
+  <Effect name="if" validscope="any" >
+    <Property name="dummy" type="dummy"/>
+  </Effect>
+  <Effect name="imprison" validscope="character" >
+    <Property name="target" type="character"/>
+    <Property name="type" type="modifier"/>
+  </Effect>
+  <Effect name="make_concubine" validscope="character" type="character" />
+  <Effect name="pay_short_term_gold" validscope="character" >
+    <Property name="target" type="character"/>
+    <Property name="gold" type="num"/>
+    <Property name="yearly_income" type="bool"/>
+  </Effect>
+  <Effect name="play_music_cue" validscope="character" type="music" />
+  <Effect name="recruit_courtier" validscope="character" type="character"/>
+  <Effect name="remove_character_flag" validscope="character" type="any" />
+  <Effect name="remove_character_modifier" validscope="character" type="modifier" />
+  <Effect name="remove_courtier_or_guest" validscope="character" type="character" />
+  <Effect name="remove_decision_cooldown" validscope="character" type="decision" />
+  <Effect name="remove_hook" validscope="character" >
+    <Property name="target" type="character"/>
+    <Property name="type" type="hook"/>
+  </Effect>
+  <Effect name="remove_nickname" validscope="character" type="bool" />
+  <Effect name="remove_opinion" validscope="character" >
+    <Property name="target" type="character"/>
+    <Property name="modifier" type="num"/>
+  </Effect>
+  <Effect name="remove_relation_friend" validscope="character" type="character"  />
+  <Effect name="remove_relation_lover" validscope="character" type="character"  />
+  <Effect name="remove_relation_mentor" validscope="character" type="character"  />
+  <Effect name="remove_relation_nemesis" validscope="character" type="character"  />
+  <Effect name="remove_relation_potential_rival" validscope="character" type="character"  />
+  <Effect name="remove_relation_rival" validscope="character"  type="character" />
+  <Effect name="remove_short_term_gold" validscope="character" type="num" />
+  <Effect name="remove_trait" validscope="character" type="trait" />
+  <Effect name="remove_variable" validscope="character" type="variable"/>
+  <Effect name="resolve_title_and_vassal_change" validscope="character" type="change" />
+  <Effect name="reverse_add_opinion" validscope="character">
+    <Property name="target" type="character"/>
+    <Property name="modifier" type="num"/>
+  </Effect>
+  <Effect name="save_scope_as" validscope="character" type="any" />
+  <Effect name="save_scope_value_as" validscope="character" />
+  <Effect name="save_temporary_scope_as" validscope="character" type="any" />
+  <Effect name="send_interface_toast" validscope="character">
+    <Property name="dummy" type="dummy"/>
+  </Effect>
+  <Effect name="set_character_faith" validscope="character" type="faith" />
+  <Effect name="set_character_faith_with_conversion" validscope="character" type="faith"/>
+  <Effect name="set_culture" validscope="character" type="culture" />
+  <Effect name="set_designated_heir" validscope="character" type="character"/>
+  <Effect name="set_local_variable" validscope="character" >
+    <Property name="name" type="any"/>
+    <Property name="value" type="any"/>
+  </Effect>
+  <Effect name="set_player_character" validscope="character" type="character" />
+  <Effect name="set_realm_capital" validscope="character" type="title" />
+  <Effect name="set_relation_best_friend" validscope="character" type="character" />
+  <Effect name="set_relation_crush" validscope="character" type="character" />
+  <Effect name="set_relation_friend" validscope="character" type="character" />
+  <Effect name="set_relation_lover" validscope="character" type="character" />
+  <Effect name="set_relation_mentor" validscope="character" type="character" />
+  <Effect name="set_relation_potential_friend" validscope="character" type="character" />
+  <Effect name="set_relation_rival" validscope="character" type="character" />
+  <Effect name="set_relation_soulmate" validscope="character" type="character" />
+  <Effect name="set_sexuality" validscope="character" type="sexuality"/>
+  <Effect name="set_variable" validscope="character"  >
+    <Property name="name" type="any"/>
+    <Property name="value" type="any"/>
+    <Property name="days" type="num"/>
+    <Property name="months" type="num"/>
+    <Property name="years" type="num"/>
+  </Effect>
+  <Effect name="show_as_tooltip" validscope="character" >
+    <Property name="dummy" type="dummy"/>
+  </Effect>
+  <Effect name="skill" validscope="character" />
+  <Effect name="spawn_army" validscope="character" >
+    <Property name="dummy" type="dummy"/>
+  </Effect>
+  <Effect name="start_scheme" validscope="character"  >
+    <Property name="target" type="character"/>
+    <Property name="type" type="scheme"/>
+  </Effect>
+  <Effect name="start_war" validscope="character" >
+    <Property name="target" type="character"/>
+    <Property name="casus_belli" type="casus_belli"/>
+  </Effect>
+  <Effect name="trigger_event" validscope="character"   >
+    <Property name="id" type="event"/>
+    <Property name="days" type="num"/>
+  </Effect>
+  <Effect name="use_hook" validscope="character" type="character"/>
+</Effects>

@@ -417,8 +417,10 @@ namespace ICSharpCode.TextEditor.Document
 				return updateQueue;
 			}
 		}
-		
-		public void RequestUpdate(TextAreaUpdate update)
+
+        public Dictionary<int, string> LocalizationMap { get; set; } = new Dictionary<int, string>();
+
+        public void RequestUpdate(TextAreaUpdate update)
 		{
 			if (updateQueue.Count == 1 && updateQueue[0].TextAreaUpdateType == TextAreaUpdateType.WholeTextArea) {
 				// if we're going to update the whole text area, we don't need to store detail updates

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -50,8 +51,27 @@ namespace JominiParse
         public string type { get; set; }
         public ScopeType validscope { get; set; }
         public string specialrules { get; set; }
-        
+
         public List<ConditionProperty> Properties = new List<ConditionProperty>();
+    }
+    public class EffectDef
+    {
+        public class EffectProperty
+        {
+            public string name { get; set; }
+            public string type { get; set; }
+        }
+        public string name { get; set; }
+        public string type { get; set; }
+        public ScopeType validscope { get; set; }
+        public string specialrules { get; set; }
+
+        public override string ToString()
+        {
+            return name;
+        }
+
+        public List<EffectProperty> Properties = new List<EffectProperty>();
     }
 
     public class ScopeTypeDef
@@ -60,10 +80,10 @@ namespace JominiParse
 
         public Dictionary<string, ScopeChangeDefinition> ValidConditionScopes = new Dictionary<string, ScopeChangeDefinition>();
         public Dictionary<string, ScopeChangeDefinition> ValidEffectScopes = new Dictionary<string, ScopeChangeDefinition>();
-         public HashSet<string> ValidEffects = new HashSet<string>();
-        public HashSet<string> ValidCommands = new HashSet<string>();
+         public HashSet<EffectDef> ValidEffects = new HashSet<EffectDef>();
         public HashSet<ConditionDef> ValidConditions = new HashSet<ConditionDef>();
         public Dictionary<string, ConditionDef> ValidConditionMap = new Dictionary<string, ConditionDef>();
+        public Dictionary<string, EffectDef> ValidEffectMap = new Dictionary<string, EffectDef>();
     }
 
     public class ScopeManager
@@ -79,7 +99,7 @@ namespace JominiParse
 
             for (int n = 0; n < (int)ScopeType.max; n++)
             {
-                if(Defs[(ScopeType)n] == null)
+                if (Defs[(ScopeType)n] == null)
                     Defs[(ScopeType)n] = new ScopeTypeDef() { ScopeType = (ScopeType)n };
             }
 
@@ -88,6 +108,27 @@ namespace JominiParse
             while (el != null)
             {
                 LoadCondition(el);
+                el = el.NextSibling;
+
+            }
+        }
+        public void LoadEffectDefinitions(string filename)
+        {
+            XmlDocument doc = new XmlDocument();
+
+            doc.Load(filename);
+
+            for (int n = 0; n < (int)ScopeType.max; n++)
+            {
+                if (Defs[(ScopeType)n] == null)
+                    Defs[(ScopeType)n] = new ScopeTypeDef() { ScopeType = (ScopeType)n };
+            }
+
+            var el = doc.DocumentElement.FirstChild as XmlNode;
+
+            while (el != null)
+            {
+                LoadEffect(el);
                 el = el.NextSibling;
 
             }
@@ -133,6 +174,14 @@ namespace JominiParse
             SchemaManager.Instance.CreateScopeSchema(fromScope, scopeDef, blockType);
         }
 
+        public EffectDef GetEffect(ScopeType scope, string child)
+        {
+            if (Defs[scope].ValidEffectMap.ContainsKey(child))
+                return Defs[scope].ValidEffectMap[child];
+
+            return null;
+
+        }
         public ConditionDef GetCondition(ScopeType scope, string child)
         {
             if(Defs[scope].ValidConditionMap.ContainsKey(child))
@@ -177,7 +226,7 @@ namespace JominiParse
 
                 cd.validscope = f;
                 cd.name = name;
-        
+
                 if (el.Attributes["specialrules"] != null)
                 {
                     cd.specialrules = el.Attributes["specialrules"].InnerText;
@@ -185,12 +234,12 @@ namespace JominiParse
 
                 var c = el.FirstChild;
 
-                while(c != null)
+                while (c != null)
                 {
                     string pn = c.Attributes["name"].InnerText;
                     string pt = c.Attributes["type"].InnerText;
 
-                    cd.Properties.Add(new ConditionDef.ConditionProperty() {name = pn, type = pt});
+                    cd.Properties.Add(new ConditionDef.ConditionProperty() { name = pn, type = pt });
 
                     c = c.NextSibling;
                 }
@@ -200,7 +249,7 @@ namespace JominiParse
             }
             else
             {
-                cd.type = el.Attributes["type"]!= null ? el.Attributes["type"].InnerText : null;
+                cd.type = el.Attributes["type"] != null ? el.Attributes["type"].InnerText : null;
                 cd.name = name;
 
                 ScopeType f = ScopeType.none;
@@ -213,10 +262,69 @@ namespace JominiParse
                 {
                     cd.specialrules = el.Attributes["specialrules"].InnerText;
                 }
-                
+
                 cd.validscope = f;
                 Defs[f].ValidConditions.Add(cd);
                 Defs[f].ValidConditionMap[cd.name] = cd;
+
+            }
+        }
+        private void LoadEffect(XmlNode el)
+        {
+            string name = el.Attributes["name"].InnerText;
+            string validscope = el.Attributes["validscope"].InnerText;
+            var cd = new EffectDef();
+
+            if (el.FirstChild != null)
+            {
+                ScopeType f = ScopeType.none;
+                if (!Enum.TryParse(validscope, out f))
+                {
+                    throw new Exception();
+                }
+
+                cd.validscope = f;
+                cd.name = name;
+
+                if (el.Attributes["specialrules"] != null)
+                {
+                    cd.specialrules = el.Attributes["specialrules"].InnerText;
+                }
+
+                var c = el.FirstChild;
+
+                while (c != null)
+                {
+                    string pn = c.Attributes["name"].InnerText;
+                    string pt = c.Attributes["type"].InnerText;
+
+                    cd.Properties.Add(new EffectDef.EffectProperty() { name = pn, type = pt });
+
+                    c = c.NextSibling;
+                }
+
+                Defs[f].ValidEffects.Add(cd);
+                Defs[f].ValidEffectMap[cd.name] = cd;
+            }
+            else
+            {
+                cd.type = el.Attributes["type"] != null ? el.Attributes["type"].InnerText : null;
+                cd.name = name;
+
+                ScopeType f = ScopeType.none;
+                if (!Enum.TryParse(validscope, out f))
+                {
+                    throw new Exception();
+                }
+
+                if (el.Attributes["specialrules"] != null)
+                {
+                    cd.specialrules = el.Attributes["specialrules"].InnerText;
+                }
+
+                cd.validscope = f;
+                Defs[f].ValidEffects.Add(cd);
+                Defs[f].ValidEffectMap[cd.name] = cd;
 
             }
         }
@@ -249,8 +357,14 @@ namespace JominiParse
                 def.ValidConditionScopes[name] = new ScopeChangeDefinition() { text = name, toType = to };
             }
         }
-        private void AddScopeFunction(ScopeType from, string name)
+
+        internal void AddScopeFunction(ScopeType from, string name)
         {
+            return;
+
+            if (name.StartsWith("scope:"))
+                return;
+      
             ScopeTypeDef def = null;
             if (!Defs.ContainsKey(from))
             {
@@ -262,8 +376,13 @@ namespace JominiParse
                 def = Defs[from];
             }
 
+            
 
-            def.ValidEffects.Add(name);
+            if (!def.ValidEffectScopes.ContainsKey(name))
+            {
+                def.ValidEffects.Add(new EffectDef() {name=name});
+                def.ValidEffectMap[name] = def.ValidEffects.Last();
+            }
 
         }
         private void AddScopeCondition(ScopeType from, string name)
@@ -288,11 +407,7 @@ namespace JominiParse
 
             if (effect.Parent is ScriptEvent)
             {
-                if (effect.Parent.Name == "if")
-                {
-
-                }
-             
+       
                 var ev = effect.Parent as ScriptEvent;
 
                 var str = ev.type != null ? ev.type.GetStringValue() : "character_event";
@@ -610,6 +725,20 @@ namespace JominiParse
             results.Add("AND");
             results.Add("OR");
             results.Add("NOR");
+        }
+        public void AddCompleteScopeEffectResults(ScopeType scope, List<string> results)
+        {
+            foreach (var scopeChangeDefinition in Defs[scope].ValidEffectScopes.Values)
+                results.Add(scopeChangeDefinition.text);
+            foreach (var scopeChangeDefinition in Defs[scope].ValidEffectMap.Values)
+                results.Add(scopeChangeDefinition.name);
+
+            foreach (var scopeChangeDefinition in Defs[ScopeType.any].ValidEffectScopes.Values)
+                results.Add(scopeChangeDefinition.text);
+            foreach (var scopeChangeDefinition in Defs[ScopeType.any].ValidEffectMap.Values)
+                results.Add(scopeChangeDefinition.name);
+
+            results.Add("hidden_effect");
         }
 
     }

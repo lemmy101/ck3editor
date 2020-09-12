@@ -33,6 +33,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DevIL.NET2, Version=1.1.2619.31671, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\DevIL.NET2.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Core, Version=4.6.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\FSharp.Core.4.6.2\lib\net45\FSharp.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -58,6 +65,19 @@
     </Compile>
     <Compile Include="CloneToModDialog.Designer.cs">
       <DependentUpon>CloneToModDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DDSHelper.cs" />
+    <Compile Include="EventPreviewForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EventPreviewForm.Designer.cs">
+      <DependentUpon>EventPreviewForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EventRepresentation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="EventRepresentation.Designer.cs">
+      <DependentUpon>EventRepresentation.cs</DependentUpon>
     </Compile>
     <Compile Include="FileOverviewToolWindow.cs">
       <SubType>UserControl</SubType>
@@ -98,6 +118,12 @@
     <EmbeddedResource Include="CloneToModDialog.resx">
       <DependentUpon>CloneToModDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="EventPreviewForm.resx">
+      <DependentUpon>EventPreviewForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EventRepresentation.resx">
+      <DependentUpon>EventRepresentation.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FileOverviewToolWindow.resx">
       <DependentUpon>FileOverviewToolWindow.cs</DependentUpon>
     </EmbeddedResource>
@@ -125,6 +151,7 @@
     <None Include="format.xshd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -151,6 +178,11 @@
       <Project>{63affa3a-993f-4d23-b51f-fd4c5d64be35}</Project>
       <Name>JominiParse</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DevIL.dll" />
+    <Content Include="DevIL.NET2.dll" />
+    <Content Include="ILU.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

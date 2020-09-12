@@ -33,6 +33,7 @@ namespace CK3ScriptEditor
         internal FileOverviewToolWindow fileOverview;
         internal ProjectExplorer projectExplorer;
         internal ScriptObjectExplorer soExplorer;
+       // internal EventRepresentationPanel eventPreview;
         private void ToggleToolWindow(DarkToolWindow toolWindow)
         {
             if (toolWindow.DockPanel == null)
@@ -59,6 +60,7 @@ namespace CK3ScriptEditor
             AutoSave.Interval = BackupManager.Instance.TickTimeMS;
             ScopeManager.Instance.LoadScopeDefinitions("Scopes.xml");
             ScopeManager.Instance.LoadConditionDefinitions("Conditions.xml");
+            ScopeManager.Instance.LoadEffectDefinitions("Effects.xml");
             Core.Instance.Init();
 
             Core.Instance.CreateOrLoadMod("TestMod");
@@ -75,14 +77,15 @@ namespace CK3ScriptEditor
             fileOverview = new FileOverviewToolWindow();
             soExplorer = new ScriptObjectExplorer();
             projectExplorer = new ProjectExplorer();
-
+        //    eventPreview = new EventRepresentationPanel();
             //              DockPanel.AddContent(_dockHistory, _dockLayers.DockGroup);
 
 
             _toolWindows.Add(projectExplorer);
             _toolWindows.Add(soExplorer);
             _toolWindows.Add(fileOverview);
-
+          //  _toolWindows.Add(eventPreview);
+            
             soExplorer.UpdateScriptExplorer();
 
             // Add the tool window list contents to the dock panel
@@ -126,27 +129,32 @@ namespace CK3ScriptEditor
             }
 */
             /*
-            d.InnerXml = "<Conditions></Conditions>";
+            d.InnerXml = "<Effects></Effects>";
 
             for (int n = 0; n < (int)ScopeType.max; n++)
             {
                 if (!ScopeManager.Instance.Defs.ContainsKey((ScopeType)n))
                     continue;
 
-                var l = ScopeManager.Instance.Defs[(ScopeType)n].ValidConditions.OrderBy(a => a).ToList();
+                var l = ScopeManager.Instance.Defs[(ScopeType)n].ValidEffectMap.Values.OrderBy(a => a.name).ToList();
 
                 foreach (var instanceKnownCharacterEffectScope in l)
                 {
+                    if (Core.Instance.GetScriptedEffectNameSet(false).Contains(instanceKnownCharacterEffectScope.name))
+                        continue;
+                    if (instanceKnownCharacterEffectScope.name.Contains("scripted_effect"))
+                        continue;
+
                     var fe = (XmlElement)d.FirstChild;
 
-                    fe.InnerXml += "<Condition name=\"" + instanceKnownCharacterEffectScope + "\" validscope=\"" + ((ScopeType)n).ToString() + "\"/>";
+                    fe.InnerXml += "<Effect name=\"" + instanceKnownCharacterEffectScope.name + "\" validscope=\"" + ((ScopeType)n).ToString() + "\"/>";
 
                 }
 
 
             }
-            d.Save("Conditions2.xml");
-            */
+            d.Save("Effects2.xml");
+*/            
 
             var fsmProvider = new FileSyntaxModeProvider("./");
 
@@ -237,6 +245,8 @@ namespace CK3ScriptEditor
             window.Filename = filename;
             AllowUpdateFile = false;
             textEditors[filename] = window.LoadFile(startDir+filename);
+            window.ScriptFile = Core.Instance.GetFile(filename, fromBase);
+            window.UpdateLocalizations();
             AllowUpdateFile = true;
             fileOverview.UpdateTree(filename, textEditors[filename].ActiveTextAreaControl.Caret.Line, fromBase);
 

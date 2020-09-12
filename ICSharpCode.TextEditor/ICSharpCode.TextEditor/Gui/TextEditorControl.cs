@@ -193,7 +193,7 @@ namespace ICSharpCode.TextEditor
 			}
 		}
 
-		public void Undo()
+        public void Undo()
 		{
 			if (Document.ReadOnly) {
 				return;

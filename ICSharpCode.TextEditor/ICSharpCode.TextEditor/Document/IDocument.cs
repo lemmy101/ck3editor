@@ -280,8 +280,10 @@ namespace ICSharpCode.TextEditor.Document
 		List<TextAreaUpdate> UpdateQueue {
 			get;
 		}
-		
-		/// <remarks>
+
+        Dictionary<int, string> LocalizationMap { get; set; }
+
+        /// <remarks>
 		/// Requests an update of the textarea
 		/// </remarks>
 		void RequestUpdate(TextAreaUpdate update);

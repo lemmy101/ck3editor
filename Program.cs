@@ -17,6 +17,7 @@ namespace CK3ScriptEditor
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new CK3ScriptEd());
+            //Application.Run(new EventPreviewForm());
         }
     }
 }
