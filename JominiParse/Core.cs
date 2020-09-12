@@ -1313,5 +1313,17 @@ namespace JominiParse
         {
             return ContextData[context].Directory;
         }
+
+        public HashSet<string> GetNameSetFromEnumType(string type)
+        {
+            if (type == "trait")
+                return GetTraitNameSet(false);
+            if (type == "decision")
+                return GetDecisionNameSet(false);
+            if (type == "event")
+                return GetEventNameSet(false);
+
+            return new HashSet<string>();
+        }
     }
 }

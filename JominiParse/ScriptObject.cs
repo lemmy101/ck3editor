@@ -57,7 +57,7 @@ namespace JominiParse
             this.LineEnd = seg.lineNumbers.Last();
             this.Parent = parent;
             this.Library = Core.Instance.LoadingCK3Library;
-     
+        
             Schema = SchemaManager.Instance.GetSchema(GetType());
             if (Schema != null)
             {

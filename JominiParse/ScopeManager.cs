@@ -111,6 +111,19 @@ namespace JominiParse
                 el = el.NextSibling;
 
             }
+
+            foreach (var scopeTypeDef in Defs)
+            {
+ 
+                foreach (var valueValidConditionScope in scopeTypeDef.Value.ValidConditions)
+                {
+                    if (valueValidConditionScope.Properties.Count > 0)
+                        SchemaManager.Instance.CreateScopeFunction(scopeTypeDef.Key, valueValidConditionScope, BlockType.function_block);
+                }
+
+       
+            }
+        
         }
         public void LoadEffectDefinitions(string filename)
         {
@@ -131,6 +144,16 @@ namespace JominiParse
                 LoadEffect(el);
                 el = el.NextSibling;
 
+            }
+
+            foreach (var scopeTypeDef in Defs)
+            {
+            
+                foreach (var valueValidEffectScope in scopeTypeDef.Value.ValidEffects)
+                {
+                    if (valueValidEffectScope.Properties.Count > 0)
+                        SchemaManager.Instance.CreateScopeFunction(scopeTypeDef.Key, valueValidEffectScope, BlockType.function_block);
+                }
             }
         }
 
@@ -166,6 +189,7 @@ namespace JominiParse
                 {
                     CreateScopeSchema(scopeTypeDef.Key, valueValidEffectScope.Value, BlockType.effect_scope_change);
                 }
+            
             }
         }
 

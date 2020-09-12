@@ -432,8 +432,10 @@ namespace CK3ScriptEditor
                     {
                         foreach (var lineSegmentWord in lineSegment.Words)
                         {
-                            if(lineSegmentWord.SyntaxColor != null)
+                            if (lineSegmentWord.SyntaxColor != null)
+                            {
                                 lineSegmentWord.SyntaxColor.BackgroundColor = c;
+                            }
                         }
                     }
                     
@@ -458,7 +460,9 @@ namespace CK3ScriptEditor
                         foreach (var lineSegmentWord in lineSegment.Words)
                         {
                             if (lineSegmentWord.SyntaxColor != null)
+                            {
                                 lineSegmentWord.SyntaxColor.BackgroundColor = c;
+                            }
                         }
                     }
                     

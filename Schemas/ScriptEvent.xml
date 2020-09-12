@@ -9,6 +9,6 @@
 	<Child name="immediate" type="EffectBlock" isBlock="yes" blockType="effect_block"/>
 	<Child name="trigger" type="TriggerBlock" isBlock="yes" blockType="condition_block"/>
   <Child name="weight_multiplier" type="value_modifier" isBlock="yes"/>
-	<Child name="option" type="EffectOption" isBlock="yes" blockType="effect_block"/>
+	<Child name="option" type="option" isBlock="yes" blockType="effect_block"/>
 	<Child name="after" type="effect" isBlock="yes" blockType="effect_block"/>
 </ScriptObject>

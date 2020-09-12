@@ -72,13 +72,15 @@ namespace ICSharpCode.TextEditor.Document
         /// <value>
 		/// The foreground color used
 		/// </value>
-		public Color Color {
-			get {
+		public Color Color
+        {
+            get {
 				return color;
 			}
-		}
-		
-		/// <value>
+            set => color = value;
+        }
+
+        /// <value>
 		/// The font used
 		/// </value>
 		public Font GetFont(FontContainer fontContainer)

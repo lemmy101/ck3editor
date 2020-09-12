@@ -203,6 +203,50 @@ namespace JominiParse
             return s;
         }
 
+        public void CreateScopeFunction(ScopeType key, ConditionDef def, BlockType bt)
+        {
+            ScriptObjectSchema schema = new ScriptObjectSchema();
+
+
+            schema.Soft = true;
+            schema.blockType = bt;
+            schema.scope = key;
+
+            foreach (var conditionProperty in def.Properties)
+            {
+                var a = new SchemaChild();
+                string name = conditionProperty.name;
+                string type = conditionProperty.type;
+
+                a.Name = name;
+                a.Type = type;
+                schema.children[name] = a;
+            }
+
+            SoftSchemaMap[def.name] = schema;
+        }
+        public void CreateScopeFunction(ScopeType key, EffectDef def, BlockType bt)
+        {
+            ScriptObjectSchema schema = new ScriptObjectSchema();
+
+
+            schema.Soft = true;
+            schema.blockType = bt;
+            schema.scope = key;
+
+            foreach (var conditionProperty in def.Properties)
+            {
+                var a = new SchemaChild();
+                string name = conditionProperty.name;
+                string type = conditionProperty.type;
+
+                a.Name = name;
+                a.Type = type;
+                schema.children[name] = a;
+            }
+
+            SoftSchemaMap[def.name] = schema;
+        }
         public void CreateScopeSchema(ScopeType fromScope, ScopeChangeDefinition scopeDef, BlockType blockType)
         {
             ScriptObjectSchema schema = new ScriptObjectSchema();
@@ -263,5 +307,6 @@ namespace JominiParse
 
             return s;
         }
+
     }
 }

@@ -99,7 +99,7 @@ namespace JominiParse
 
             return results;
         }
-        public List<string> GetValidTokensEqual(ScriptObject inside, string child)
+        public List<string> GetValidTokensEqual(ScriptObject inside, string child, string sofar)
         {
             List<string> results = new List<string>();
             if (inside == null)
@@ -107,9 +107,8 @@ namespace JominiParse
 
                 return results;
             }
-
-
-            if (inside != null && inside.Parent != null)
+            
+            if (inside != null && inside.Parent != null && inside.Parent.Schema != null)
             {
                 // add enum options
                 results.AddRange(inside.Parent.Schema.GetChoices(child));
@@ -128,39 +127,48 @@ namespace JominiParse
                             var condition = ScopeManager.Instance.GetCondition(scope, child);
                             if (condition != null)
                             {
-                                switch (condition.type)
-                                {
-                                    case "bool":
-                                        results.Add("yes");
-                                        results.Add("no");
-                                        break;
-                                }
+                                type = condition.type;
                             }
                         }
                     }
-                    if (results.Contains("scopeeffects"))
+                    if (results2.Contains("scopeeffects"))
                     {
-                        results.Remove("scopeeffects");
+                        results2.Remove("scopeeffects");
                         var scope = inside.Parent.GetScopeType();
                         {
                             var eff = ScopeManager.Instance.GetEffect(scope, child);
                             if (eff != null)
                             {
-                                switch (eff.type)
-                                {
-                                    case "bool":
-                                        results.Add("yes");
-                                        results.Add("no");
-                                        break;
-                                }
+                                type = eff.type;
                             }
                         }
 
                     }
-
+                    results.AddRange(results2);
                 }
+
+            
+                if (type != null)
+                {
+                    switch (type)
+                    {
+                        case "bool":
+                            results.Add("yes");
+                            results.Add("no");
+                            break;
+                        default:
+                            results.AddRange(Core.Instance.GetNameSetFromEnumType(type));
+                            break;
+                    }
+                }
+               
             }
             results = results.OrderBy(a => a).Distinct().ToList();
+            if(sofar != null)
+                results.RemoveAll(a => !a.ToLower().StartsWith(sofar.ToLower()));
+
+            if(results.Count==1 && results[0] == sofar)
+                results.Clear();
 
             return results;
         }

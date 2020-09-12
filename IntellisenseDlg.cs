@@ -47,27 +47,38 @@ namespace CK3ScriptEditor
             if (before.Length == 0 && !Force)
                 return false;
 
-            if (before.EndsWith("=") || before.EndsWith("<=") || before.EndsWith(">=") || before.EndsWith("!=") ||
-                before.EndsWith("=="))
+            if (before.Contains("=") || before.Contains("<=") || before.Contains(">=") || before.Contains("!=") ||
+                before.Contains("=="))
             {
+                beforeOriginal = beforeOriginal.Replace("==", "*");
+                beforeOriginal = beforeOriginal.Replace("<=", "*");
+                beforeOriginal = beforeOriginal.Replace(">=", "*");
+                beforeOriginal = beforeOriginal.Replace("!=", "*");
+                beforeOriginal = beforeOriginal.Replace("==", "*");
+                beforeOriginal = beforeOriginal.Replace("=", "*");
+                int afterOpindex = beforeOriginal.IndexOf("*") + 1;
                 before = before.Replace("==", "*");
                 before = before.Replace("<=", "*");
                 before = before.Replace(">=", "*");
                 before = before.Replace("!=", "*");
                 before = before.Replace("==", "*");
                 before = before.Replace("=", "*");
-                
+                string beforeReplaced = before;
+                string sofar = before.Substring(before.LastIndexOf("*") + 1).Trim();
                 before = before.Substring(0, before.LastIndexOf("*")).Trim();
                 int dif = beforeOriginal.Length - beforeOriginal.TrimEnd(new char[] { ' ' }).Length;
 
-                if (dif == 1)
+                if (!beforeReplaced.Trim().EndsWith("*"))
+                    dif = 1;
+                
+                if (dif >= 1)
                 {
                     // find appropriate choices for type before =
-                    choices = CoreIntellisenseHandler.Instance.GetValidTokensEqual(inside, before);
+                    choices = CoreIntellisenseHandler.Instance.GetValidTokensEqual(inside, before, sofar);
 
                     var index = lineSegment.IndexOf(before);
 
-                    StartText = lineSegment.Substring(0, caretColumn);
+                    StartText = lineSegment.Substring(0, afterOpindex);
                     autoCompletePostEquals = true;
 
                 }
