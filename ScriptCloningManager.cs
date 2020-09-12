@@ -22,7 +22,6 @@ namespace CK3ScriptEditor
                 string dir = Core.Instance.GetDirectoryFromContext(dlg.Context) + "/";
 
                 string path = dir + dlg.ChosenFilename;
-
                 string fullPath = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/" + path;
                 string fullBasePath = Globals.CK3Path + dlg.ScriptObject.Filename;
                 bool exists = File.Exists(fullPath);

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -54,7 +56,7 @@ namespace CK3ScriptEditor
         {
             Instance = this;
             InitializeComponent();
-
+            AutoSave.Interval = BackupManager.Instance.TickTimeMS;
             ScopeManager.Instance.LoadScopeDefinitions("Scopes.xml");
             ScopeManager.Instance.LoadConditionDefinitions("Conditions.xml");
             Core.Instance.Init();
@@ -150,7 +152,8 @@ namespace CK3ScriptEditor
 
             HighlightingManager.Manager.AddSyntaxModeFileProvider(fsmProvider); // Attach to the text editor.
 
-            
+            BackupManager.Instance.UpdateTick();
+
         }
 
         private void DockPanel_ContentRemoved(object sender, DockContentEventArgs e)
@@ -261,6 +264,121 @@ namespace CK3ScriptEditor
                 DockPanel.RemoveContent(openScriptWindows[path]);
             }
 
+        }
+
+        private void fixOverriddenFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(
+                    "This process will take every object in overridden mod files that have changed (files that share the filename with CK3 base files) and move them to a new file with object specific overrides. This will improve mod compatibility for the mod.\n\nWARNING: This may not be what you want to do for all mods, if you are purposefully overriding content from the base files to remove them intentionally, for the purposes of Total Conversions etc then this may cause damage to your mod.\n\nPLEASE BACK UP BEFORE USING THIS!",
+                    "Warning", MessageBoxButtons.OKCancel) == DialogResult.OK)
+            {
+                List<string> toDelete = new List<string>();
+                foreach (var fileMapValue in Core.Instance.ModCK3Library.FileMap.Values)
+                {
+                    var baseFile = Core.Instance.BaseCK3Library.GetFile(fileMapValue.Filename);
+                    if (baseFile != null)
+                    {
+                        string filename = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/" + fileMapValue.Filename;
+
+                        toDelete.Add(filename);
+                        List<ScriptObject> changedObjects = new List<ScriptObject>();
+                        List<ScriptObject> unchangedObjects = new List<ScriptObject>();
+                        foreach (var scriptObject in fileMapValue.Map.Values)
+                        {
+                            if (scriptObject.Name == "release_from_prison_interaction")
+                            {
+
+                            }
+                            var lines = RawScriptHelper.GetScriptFromFile(scriptObject);
+                            var baseLines = RawScriptHelper.GetScriptFromFileFromBase(scriptObject);
+
+                            bool matches = RawScriptHelper.DoScriptsMatchIgnoreWhitespace(baseLines, lines);
+
+                            if (!matches)
+                            {
+                                changedObjects.Add(scriptObject);
+                            }
+                            else
+                            {
+                                unchangedObjects.Add(scriptObject);
+                            }
+                        }
+
+                        // now transplant to a new file...
+                        if(changedObjects.Count==0)
+                            continue;
+                        ;
+                        string fileEnd = fileMapValue.Filename.Substring(fileMapValue.Filename.LastIndexOf("/") + 1);
+                        bool add00 = false;
+                        int numOfFile = 1;
+                        var under = fileEnd.IndexOf("_");
+                            String num = "";
+
+                        if (under!=-1)
+                            num = fileEnd.Substring(0, under);
+                        
+
+                        if (Int32.TryParse(num, out numOfFile))
+                        {
+                            numOfFile++;
+                            if (numOfFile == 100)
+                                numOfFile = 999;
+                            fileEnd = fileEnd.Substring(fileEnd.IndexOf("_")+1);
+                            add00 = true;
+                            fileEnd = Core.Instance.ModCK3Library.Name.ToLower() + "_" + fileEnd;
+
+
+                            string numStr = numOfFile.ToString();
+
+                            if (numStr.Length < 2)
+                                numStr = "0" + numStr;
+
+                            fileEnd = numStr + "_" + fileEnd;
+
+                        }
+                        else
+                        {
+                            numOfFile = 1;
+                            fileEnd = "zz_" + fileEnd;
+                        }
+
+
+                   
+                        string newFilename = fileMapValue.Filename.Substring(0, fileMapValue.Filename.LastIndexOf("/") + 1) + fileEnd;
+
+                        RawScriptHelper.SaveScriptObjectsToFile(fileMapValue, changedObjects, newFilename);
+                    }
+                }
+
+                foreach (var file in toDelete)
+                {
+                    File.Delete(file);
+                }
+
+                Core.Instance.Init();
+                Core.Instance.LoadMod(Core.Instance.ModCK3Library.Name);
+                CK3ScriptEd.Instance.CloseAllModFileWindows();
+                CK3ScriptEd.Instance.UpdateAllWindows();
+            }
+        }
+
+        private void UpdateAllWindows()
+        {
+            projectExplorer.FillProjectView();
+            soExplorer.UpdateScriptExplorer();
+        }
+
+        private void CloseAllModFileWindows()
+        {
+            foreach (var w in openModScriptWindows)
+            {
+                DockPanel.RemoveContent(w.Value);
+            }
+        }
+
+        private void AutoSave_Tick(object sender, EventArgs e)
+        {
+            BackupManager.Instance.UpdateTick();
         }
     }
 }

@@ -23,7 +23,6 @@ namespace JominiParse
             BaseCK3Library.Path = Globals.CK3Path;
             LoadCK3Scripts(BaseCK3Library);
            // BaseCK3Library.LoadBinary("baseData.dat");
-           BaseCK3Library.SaveBinary("baseData.dat");
         }
 
         public void CreateOrLoadMod(string mod)

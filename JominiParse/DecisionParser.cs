@@ -8,8 +8,7 @@
         {
             ScriptDecision d = new ScriptDecision(parent, segment);
             d.Name = segment.name;
-       
-          
+
             return d;
         }
     }
