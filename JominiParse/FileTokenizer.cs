@@ -74,7 +74,7 @@ namespace JominiParse
        
             filename = filename.Replace(basePath, "");
 
-            Core.Instance.LoadingCK3Library.EnsureFile(filename);
+            this.File = Core.Instance.LoadingCK3Library.EnsureFile(filename, context);
 
             string[] lines = text.Split(new char[] {'\n'});
             List<int> lineNumbers = new List<int>();
@@ -159,6 +159,8 @@ namespace JominiParse
 
             return results;
         }
+
+        public ScriptFile File { get; set; }
 
         private void TokenizeLine(string line2, List<string> tokens)
         {
@@ -511,6 +513,7 @@ namespace JominiParse
         public void SetNamespace(string segmentValue)
         {
             ScriptNamespace = segmentValue;
+            File.Namespace = segmentValue;
         }
 
         public string ScriptNamespace { get; set; }

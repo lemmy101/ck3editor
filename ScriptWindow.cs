@@ -12,6 +12,7 @@ using DarkUI.Docking;
 using ICSharpCode.TextEditor;
 using ICSharpCode.TextEditor.Document;
 using JominiParse;
+using ContextMenu = ICSharpCode.TextEditor.ContextMenu;
 
 namespace CK3ScriptEditor
 {
@@ -40,9 +41,90 @@ namespace CK3ScriptEditor
             textEditorControl1.Document.TextContentChanged += ActiveTextAreaControlOnTextChanged;
             textEditorControl1.ActiveTextAreaControl.TextArea.KeyEventHandler += TextArea_KeyEventHandler;
             textEditorControl1.ActiveTextAreaControl.TextArea.DoProcessDialogKey += TextArea_DoProcessDialogKey;
-            
-            
-            
+
+            var cm = ((ContextMenu) textEditorControl1.ActiveTextAreaControl.ContextMenuStrip);
+
+            cm.ContextMenuShown += CmOnContextMenuShown;
+
+        }
+        public void RemoveEventHandlers()
+        {
+            var cm = ((ContextMenu)textEditorControl1.ActiveTextAreaControl.ContextMenuStrip);
+            cm.ContextMenuShown -= CmOnContextMenuShown;
+         }
+
+        private void CmOnContextMenuShown(object sender, ContextMenu.ContextMenuCreateEventArgs e)
+        {
+            var inside = GetInside();
+
+            if (inside != null)
+            {
+                while (inside.Parent != null)
+                {
+                    inside = inside.Parent;
+                }
+                if (Core.Instance.ModCK3Library.Has(inside) && !inside.ScriptFile.IsBase)
+                {
+                    // already have it in mod... go to...
+                    ToolStripMenuItem m = new ToolStripMenuItem("Goto base data definition of: \"" + inside.Name + "\"");
+                    m.Tag = new List<object>() { "gotoBase", inside };
+                    e.contextMenu.Items.Insert(0, m);
+                    e.contextMenu.ItemClicked += ContextMenu_ItemClicked;
+                }
+                else
+                if (Core.Instance.ModCK3Library.Has(inside) && inside.ScriptFile.IsBase)
+                {
+                    // already have it in mod... go to...
+                    ToolStripMenuItem m = new ToolStripMenuItem("Goto \"" + Core.Instance.ModCK3Library.Name + "\" definition of: \"" + inside.Name + "\"");
+                    m.Tag = new List<object>() { "gotoMod", inside };
+                    e.contextMenu.Items.Insert(0, m);
+                    e.contextMenu.ItemClicked += ContextMenu_ItemClicked;
+                }
+                else
+                {
+                    ToolStripMenuItem m = new ToolStripMenuItem("Clone \"" + inside.Name + "\" ("+inside.Context+ ") to \"" + Core.Instance.ModCK3Library.Name + "\"");
+                    m.Tag = new List<object>() { "clone", inside };
+                    e.contextMenu.Items.Insert(0, m);
+                    e.contextMenu.ItemClicked += ContextMenu_ItemClicked;
+                }
+            }
+            //ToolStripMenuItem m = new ToolStripMenuItem("Test");
+            //e.contextMenu.Items.Insert(0, m);
+        }
+
+        private void ContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            if (!(e.ClickedItem.Tag is List<object>))
+                return;
+
+            List<object> prms = (List<object>) (e.ClickedItem.Tag);
+
+            string command = prms[0].ToString();
+
+            if (command == "clone")
+            {
+                ScriptObject toClone = prms[1] as ScriptObject;
+
+                ScriptCloningManager.Instance.Clone(toClone);
+            }
+
+            if (command == "gotoBase")
+            {
+                ScriptObject toClone = prms[1] as ScriptObject;
+
+                var got = Core.Instance.Get(toClone.Name, toClone.Context, true);
+
+                CK3ScriptEd.Instance.Goto(got.Filename, got.LineStart-1, true);
+            }
+
+            if (command == "gotoMod")
+            {
+                ScriptObject toClone = prms[1] as ScriptObject;
+                var got = Core.Instance.Get(toClone.Name, toClone.Context, false);
+                CK3ScriptEd.Instance.Goto(got.Filename, got.LineStart - 1, false);
+            }
+            var cm = ((ContextMenu)textEditorControl1.ActiveTextAreaControl.ContextMenuStrip);
+            cm.ItemClicked -= ContextMenu_ItemClicked;
         }
 
         private void ActiveTextAreaControlOnTextChanged(object sender, EventArgs e)
@@ -255,7 +337,15 @@ namespace CK3ScriptEditor
             {
                 CK3ScriptEd.Instance.fileOverview.UpdateTreeSelection(Filename, textEditorControl1.ActiveTextAreaControl.Caret.Line);
 
-                DoIntellisense(false, false);
+                try
+                {
+                    DoIntellisense(false, false);
+                }
+                catch (Exception exception)
+                {
+                    DoCloseIntellisense();
+                }
+                
 
                 if (lineForIntellisense != textEditorControl1.ActiveTextAreaControl.Caret.Line)
                 {
@@ -417,5 +507,6 @@ namespace CK3ScriptEditor
                 CK3ScriptEd.Instance.fileOverview.UpdateTree(Filename, textEditorControl1.ActiveTextAreaControl.Caret.Line, IsBaseFile);
 
         }
+
     }
 }

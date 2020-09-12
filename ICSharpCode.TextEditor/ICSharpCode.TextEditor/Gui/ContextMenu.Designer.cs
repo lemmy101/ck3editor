@@ -38,17 +38,17 @@
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new System.Drawing.Size(141, 6);
+            toolStripSeparator1.Size = new System.Drawing.Size(155, 6);
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new System.Drawing.Size(141, 6);
+            toolStripSeparator2.Size = new System.Drawing.Size(155, 6);
             // 
             // undo
             // 
             this.undo.Name = "undo";
-            this.undo.Size = new System.Drawing.Size(144, 22);
+            this.undo.Size = new System.Drawing.Size(158, 22);
             this.undo.Text = "&Undo";
             // 
             // cut
@@ -56,7 +56,7 @@
             this.cut.Image = global::ICSharpCode.TextEditor.Properties.Resources.cutToolStripMenuItem;
             this.cut.Name = "cut";
             this.cut.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-            this.cut.Size = new System.Drawing.Size(144, 22);
+            this.cut.Size = new System.Drawing.Size(158, 22);
             this.cut.Text = "&Cut";
             // 
             // copy
@@ -64,7 +64,7 @@
             this.copy.Image = global::ICSharpCode.TextEditor.Properties.Resources.copyToolStripMenuItem;
             this.copy.Name = "copy";
             this.copy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.copy.Size = new System.Drawing.Size(144, 22);
+            this.copy.Size = new System.Drawing.Size(158, 22);
             this.copy.Text = "&Copy";
             // 
             // paste
@@ -72,23 +72,24 @@
             this.paste.Image = global::ICSharpCode.TextEditor.Properties.Resources.pasteToolStripMenuItem;
             this.paste.Name = "paste";
             this.paste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.paste.Size = new System.Drawing.Size(144, 22);
+            this.paste.Size = new System.Drawing.Size(158, 22);
             this.paste.Text = "&Paste";
             // 
             // delete
             // 
             this.delete.Name = "delete";
-            this.delete.Size = new System.Drawing.Size(144, 22);
+            this.delete.Size = new System.Drawing.Size(158, 22);
             this.delete.Text = "&Delete";
             // 
             // selectAll
             // 
             this.selectAll.Name = "selectAll";
-            this.selectAll.Size = new System.Drawing.Size(144, 22);
+            this.selectAll.Size = new System.Drawing.Size(158, 22);
             this.selectAll.Text = "&Select All";
             // 
             // ContextMenu
             // 
+            this.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.undo,
             toolStripSeparator1,
@@ -98,7 +99,7 @@
             this.delete,
             toolStripSeparator2,
             this.selectAll});
-            this.Size = new System.Drawing.Size(145, 148);
+            this.Size = new System.Drawing.Size(159, 148);
             this.Opening += new System.ComponentModel.CancelEventHandler(this.OnOpening);
             this.ResumeLayout(false);
 

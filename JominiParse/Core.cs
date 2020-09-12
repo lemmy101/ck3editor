@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -25,11 +26,19 @@ namespace JominiParse
            BaseCK3Library.SaveBinary("baseData.dat");
         }
 
-        public void CreateMod(string mod)
+        public void CreateOrLoadMod(string mod)
         {
+            if (Directory.Exists(Globals.CK3ModPath + mod + "/"))
+            {
+                LoadMod(mod);
+                return;
+            }
+
+            Directory.CreateDirectory(Globals.CK3ModPath + mod + "/");
             ModCK3Library = new ScriptLibrary();
             ModCK3Library.Parent = BaseCK3Library;
             ModCK3Library.Name = mod;
+
         }
         public void LoadMod(string mod)
         {
@@ -54,16 +63,13 @@ namespace JominiParse
 
         ScriptContext GetContextFromDirectory(string dir)
         {
-            if (dir.StartsWith("common/decisions"))
-                return ScriptContext.Decisions;
-            if (dir.StartsWith("common/activities"))
-                return ScriptContext.Activities;
-            if (dir.StartsWith("common/script_values"))
-                return ScriptContext.ScriptValues;
-            if (dir.StartsWith("common/scripted_modifiers"))
-                return ScriptContext.ScriptedModifiers;
-            if (dir.StartsWith("events"))
-                return ScriptContext.Events;
+            var res = ContextData.Where(a => dir.StartsWith(a.Value.Directory)).ToList();
+
+            if(res.Any())
+
+            {
+                return res[0].Key;
+            }
 
             return ScriptContext.Events;
         }
@@ -85,7 +91,7 @@ namespace JominiParse
 
             BaseCK3Library.ConnectEventNetwork();
         }
-        public bool LoadCK3File(string filename, bool forceBase=false)
+        public bool LoadCK3File(string filename, bool forceBase=false, bool forceReload = false)
         {
             bool fromBase = false;
             if (!ModCK3Library.FileMap.ContainsKey(filename))
@@ -93,18 +99,26 @@ namespace JominiParse
 
             fromBase = fromBase | forceBase;
 
-            if (fromBase)
+            LoadingCK3Library = fromBase ? BaseCK3Library : ModCK3Library;
+            if (!forceReload)
             {
-                if (BaseCK3Library.FileMap.ContainsKey(filename))
-                    return fromBase;
+                if (fromBase)
+                {
+                    if (BaseCK3Library.FileMap.ContainsKey(filename))
+                        return fromBase;
+                }
+                else
+                {
+                    if (ModCK3Library.FileMap.ContainsKey(filename))
+                        return fromBase;
+                }
+
             }
             else
             {
-                if (ModCK3Library.FileMap.ContainsKey(filename))
-                    return fromBase;
+                LoadingCK3Library.ClearFile(filename);
             }
 
-            LoadingCK3Library = fromBase ? BaseCK3Library : ModCK3Library;
            
             string directory = filename.Substring(0, filename.LastIndexOf("/"));
 
@@ -131,6 +145,69 @@ namespace JominiParse
         {
             return ModCK3Library.GetFile(file);
         }
+       
+        public class ContextInfo
+        {
+            public string Directory;
+//            public delegate HashSet<string> GetNameSet(bool modOnly);
+        }
+
+        private Dictionary<ScriptContext, ContextInfo> ContextData = new Dictionary<ScriptContext, ContextInfo>()
+        {
+            { ScriptContext.Events, new ContextInfo() {Directory = "events"}},
+            { ScriptContext.Decisions, new ContextInfo() {Directory = "common/decisions"}},
+            { ScriptContext.ScriptValues, new ContextInfo() {Directory = "common/script_values"}},
+            { ScriptContext.Activities, new ContextInfo() {Directory = "common/activities"}},
+            { ScriptContext.Bookmark, new ContextInfo() {Directory = "common/bookmarks"}},
+            { ScriptContext.Buildings, new ContextInfo() {Directory = "common/buildings"}},
+            { ScriptContext.CasusBelliType, new ContextInfo() {Directory = "common/casus_belli_types"}},
+            { ScriptContext.CharacterInteractions, new ContextInfo() {Directory = "common/character_interactions"}},
+            { ScriptContext.Characters, new ContextInfo() {Directory = "history/characters"}},
+            { ScriptContext.CouncilPositions, new ContextInfo() {Directory = "common/council_positions"}},
+            { ScriptContext.CouncilTasks, new ContextInfo() {Directory = "common/council_tasks"}},
+            { ScriptContext.Defines, new ContextInfo() {Directory = "common/Defines"}},
+            { ScriptContext.DynastyLegacies, new ContextInfo() {Directory = "common/dynasty_legacies"}},
+            { ScriptContext.DynastyPerks, new ContextInfo() {Directory = "common/dynasty_perks"}},
+            { ScriptContext.EventBackgrounds, new ContextInfo() {Directory = "common/event_backgrounds"}},
+            { ScriptContext.EventThemes, new ContextInfo() {Directory = "common/event_themes"}},
+            { ScriptContext.Factions, new ContextInfo() {Directory = "common/factions"}},
+            { ScriptContext.Focuses, new ContextInfo() {Directory = "common/focuses"}},
+            { ScriptContext.GameRules, new ContextInfo() {Directory = "common/game_rules"}},
+            { ScriptContext.Governments, new ContextInfo() {Directory = "common/governments"}},
+            { ScriptContext.Holdings, new ContextInfo() {Directory = "common/holdings"}},
+            { ScriptContext.HookTypes, new ContextInfo() {Directory = "common/hook_types"}},
+            { ScriptContext.ImportantActions, new ContextInfo() {Directory = "common/important_actions"}},
+            { ScriptContext.LandedTitles, new ContextInfo() {Directory = "common/landed_titles"}},
+
+            { ScriptContext.Laws, new ContextInfo() {Directory = "common/laws"}},
+            { ScriptContext.LifestylePerks, new ContextInfo() {Directory = "common/lifestyle_perks"}},
+            { ScriptContext.Lifestyles, new ContextInfo() {Directory = "common/lifestyles"}},
+            { ScriptContext.StaticModifiers, new ContextInfo() {Directory = "common/modifiers"}},
+            { ScriptContext.Nicknames, new ContextInfo() {Directory = "common/nicknames"}},
+            { ScriptContext.OnActions, new ContextInfo() {Directory = "common/on_action"}},
+            { ScriptContext.OptionModifiers, new ContextInfo() {Directory = "common/opinion_modifiers"}},
+            { ScriptContext.Doctrines, new ContextInfo() {Directory = "common/religion/doctrines"}},
+            { ScriptContext.FervorModifiers, new ContextInfo() {Directory = "common/religion/fervor_modifiers"}},
+
+            { ScriptContext.HolySites, new ContextInfo() {Directory = "common/religion/holy_sites"}},
+            { ScriptContext.ReligionFamilys, new ContextInfo() {Directory = "common/religion/religion_families"}},
+            { ScriptContext.Religions, new ContextInfo() {Directory = "common/religion/religions"}},
+
+            { ScriptContext.Schemes, new ContextInfo() {Directory = "common/schemes"}},
+            { ScriptContext.ScriptedCharacterTemplates, new ContextInfo() {Directory = "common/scripted_character_templates"}},
+            { ScriptContext.ScriptedEffects, new ContextInfo() {Directory = "common/scripted_effects"}},
+            { ScriptContext.ScriptedLists, new ContextInfo() {Directory = "common/scripted_lists"}},
+            { ScriptContext.ScriptedModifiers, new ContextInfo() {Directory = "common/scripted_modifiers"}},
+            { ScriptContext.ScriptedRelations, new ContextInfo() {Directory = "common/scripted_relations"}},
+            { ScriptContext.ScriptedRules, new ContextInfo() {Directory = "common/scripted_rules"}},
+            { ScriptContext.ScriptedTriggers, new ContextInfo() {Directory = "common/scripted_triggers"}},
+            { ScriptContext.SecretTypes, new ContextInfo() {Directory = "common/secret_types"}},
+            { ScriptContext.StoryCycles, new ContextInfo() {Directory = "common/story_cycles"}},
+            { ScriptContext.SuccessionElections, new ContextInfo() {Directory = "common/succession_election"}},
+            { ScriptContext.Traits, new ContextInfo() {Directory = "common/traits"}},
+            { ScriptContext.VassalContracts, new ContextInfo() {Directory = "common/vassal_contracts"}},
+   
+        };
 
         public void LoadCK3Scripts(ScriptLibrary lib)
         {
@@ -140,143 +217,17 @@ namespace JominiParse
             string startDir = lib.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
 
             LoadingCK3Library.LoadLocalizations(startDir + "localization/english");
-  
-            var results = FileTokenizer.Instance.LoadDirectory(startDir+"events", startDir, ScriptContext.Events);
-            LoadingCK3Library.Add(results, ScriptContext.Events);
 
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/decisions", startDir, ScriptContext.Decisions);
-            LoadingCK3Library.Add(results, ScriptContext.Decisions);
+            for(int x=0;x<(int)ScriptContext.Max;x++)
+            {
+                if(ContextData.ContainsKey((ScriptContext)x))
+                {
+                    ContextInfo info = ContextData[(ScriptContext)x];
+                    var r = FileTokenizer.Instance.LoadDirectory(startDir + info.Directory + "/", startDir, (ScriptContext)x);
+                    LoadingCK3Library.Add(r, (ScriptContext)x);
+                }
 
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/script_values", startDir, ScriptContext.ScriptValues);
-            LoadingCK3Library.Add(results, ScriptContext.ScriptValues);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/activities", startDir, ScriptContext.Activities);
-            LoadingCK3Library.Add(results, ScriptContext.Activities);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/bookmarks", startDir, ScriptContext.Bookmark);
-            LoadingCK3Library.Add(results, ScriptContext.Bookmark);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/buildings", startDir, ScriptContext.Buildings);
-            LoadingCK3Library.Add(results, ScriptContext.Buildings);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/casus_belli_types", startDir, ScriptContext.CasusBelliType);
-            LoadingCK3Library.Add(results, ScriptContext.CasusBelliType);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/character_interactions", startDir, ScriptContext.CharacterInteractions);
-            LoadingCK3Library.Add(results, ScriptContext.CharacterInteractions);
-           
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "history/characters", startDir, ScriptContext.Characters);
-            LoadingCK3Library.Add(results, ScriptContext.Characters);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/council_positions", startDir, ScriptContext.CouncilPositions);
-            LoadingCK3Library.Add(results, ScriptContext.CouncilPositions);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/council_tasks", startDir, ScriptContext.CouncilTasks);
-            LoadingCK3Library.Add(results, ScriptContext.CouncilTasks);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/defines", startDir, ScriptContext.Defines);
-            LoadingCK3Library.Add(results, ScriptContext.Defines);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/dynasty_legacies", startDir, ScriptContext.DynastyLegacies);
-            LoadingCK3Library.Add(results, ScriptContext.DynastyLegacies);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/dynasty_perks", startDir, ScriptContext.DynastyPerks);
-            LoadingCK3Library.Add(results, ScriptContext.DynastyPerks);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/event_backgrounds", startDir, ScriptContext.EventBackgrounds);
-            LoadingCK3Library.Add(results, ScriptContext.EventBackgrounds);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/event_themes", startDir, ScriptContext.EventThemes);
-            LoadingCK3Library.Add(results, ScriptContext.EventThemes);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/factions", startDir, ScriptContext.Factions);
-            LoadingCK3Library.Add(results, ScriptContext.Factions);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/focuses", startDir, ScriptContext.Focuses);
-            LoadingCK3Library.Add(results, ScriptContext.Focuses);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/game_rules", startDir, ScriptContext.GameRules);
-            LoadingCK3Library.Add(results, ScriptContext.GameRules);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/governments", startDir, ScriptContext.Governments);
-            LoadingCK3Library.Add(results, ScriptContext.Governments);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/holdings", startDir, ScriptContext.Holdings);
-            LoadingCK3Library.Add(results, ScriptContext.Holdings);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/hook_types", startDir, ScriptContext.HookTypes);
-            LoadingCK3Library.Add(results, ScriptContext.HookTypes);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/important_actions", startDir, ScriptContext.ImportantActions);
-            LoadingCK3Library.Add(results, ScriptContext.ImportantActions);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/landed_titles", startDir, ScriptContext.LandedTitles);
-            LoadingCK3Library.Add(results, ScriptContext.LandedTitles);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/laws", startDir, ScriptContext.Laws);
-            LoadingCK3Library.Add(results, ScriptContext.Laws);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/lifestyle_perks", startDir, ScriptContext.LifestylePerks);
-            LoadingCK3Library.Add(results, ScriptContext.LifestylePerks);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/lifestyles", startDir, ScriptContext.Lifestyles);
-            LoadingCK3Library.Add(results, ScriptContext.Lifestyles);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/modifiers", startDir, ScriptContext.StaticModifiers);
-            LoadingCK3Library.Add(results, ScriptContext.StaticModifiers);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/nicknames", startDir, ScriptContext.Nicknames);
-            LoadingCK3Library.Add(results, ScriptContext.Nicknames);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/on_action", startDir, ScriptContext.OnActions);
-            LoadingCK3Library.Add(results, ScriptContext.OnActions);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/opinion_modifiers", startDir, ScriptContext.OptionModifiers);
-            LoadingCK3Library.Add(results, ScriptContext.OptionModifiers);
-
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/religion/doctrines", startDir, ScriptContext.Doctrines);
-            LoadingCK3Library.Add(results, ScriptContext.Doctrines);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/religion/fervor_modifiers", startDir, ScriptContext.FervorModifiers);
-            LoadingCK3Library.Add(results, ScriptContext.FervorModifiers);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/religion/holy_sites", startDir, ScriptContext.HolySites);
-            LoadingCK3Library.Add(results, ScriptContext.HolySites);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/religion/religion_families", startDir, ScriptContext.ReligionFamilys);
-            LoadingCK3Library.Add(results, ScriptContext.ReligionFamilys);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/religion/religions", startDir, ScriptContext.Religions);
-            LoadingCK3Library.Add(results, ScriptContext.Religions);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/schemes", startDir, ScriptContext.Schemes);
-            LoadingCK3Library.Add(results, ScriptContext.Schemes);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/scripted_character_templates", startDir, ScriptContext.ScriptedCharacterTemplates);
-            LoadingCK3Library.Add(results, ScriptContext.ScriptedCharacterTemplates);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/scripted_effects", startDir, ScriptContext.ScriptedEffects);
-            LoadingCK3Library.Add(results, ScriptContext.ScriptedEffects);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/scripted_lists", startDir, ScriptContext.ScriptedLists);
-            LoadingCK3Library.Add(results, ScriptContext.ScriptedLists);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/scripted_modifiers", startDir, ScriptContext.ScriptedModifiers);
-            LoadingCK3Library.Add(results, ScriptContext.ScriptedModifiers);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/scripted_relations", startDir, ScriptContext.ScriptedRelations);
-            LoadingCK3Library.Add(results, ScriptContext.ScriptedRelations);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/scripted_rules", startDir, ScriptContext.ScriptedRules);
-            LoadingCK3Library.Add(results, ScriptContext.ScriptedRules);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/scripted_triggers", startDir, ScriptContext.ScriptedTriggers);
-            LoadingCK3Library.Add(results, ScriptContext.ScriptedTriggers);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/secret_types", startDir, ScriptContext.SecretTypes);
-            LoadingCK3Library.Add(results, ScriptContext.SecretTypes);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/story_cycles", startDir, ScriptContext.StoryCycles);
-            LoadingCK3Library.Add(results, ScriptContext.StoryCycles);
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/succession_election", startDir, ScriptContext.SuccessionElections);
-            LoadingCK3Library.Add(results, ScriptContext.SuccessionElections);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/traits", startDir, ScriptContext.Traits);
-            LoadingCK3Library.Add(results, ScriptContext.Traits);
-
-            results = FileTokenizer.Instance.LoadDirectory(startDir + "common/vassal_contracts", startDir, ScriptContext.VassalContracts);
-            LoadingCK3Library.Add(results, ScriptContext.VassalContracts);
-            
+            }
 
             LoadingCK3Library.ConnectEventNetwork();
 
@@ -1122,227 +1073,232 @@ namespace JominiParse
         #endregion
 
 
-        public ScriptObject Get(string name, ScriptContext context)
+        public ScriptObject Get(string name, ScriptContext context, bool forceBase=false)
         {
+            var lib = ModCK3Library;
+
+            if (forceBase)
+                lib = BaseCK3Library;
+
             switch (context)
             {
 
                 case ScriptContext.VassalContracts:
-                    return ModCK3Library.GetVassalContract(name);
+                    return lib.GetVassalContract(name);
                     break;
 
 
                 case ScriptContext.Characters:
-                    return ModCK3Library.GetCharacter(name);
+                    return lib.GetCharacter(name);
                     break;
 
 
                 case ScriptContext.Traits:
-                    return ModCK3Library.GetTrait(name);
+                    return lib.GetTrait(name);
                     break;
 
                 case ScriptContext.SuccessionElections:
-                    return ModCK3Library.GetSuccessionElection(name);
+                    return lib.GetSuccessionElection(name);
                     break;
 
 
                 case ScriptContext.StoryCycles:
-                    return ModCK3Library.GetStoryCycle(name);
+                    return lib.GetStoryCycle(name);
                     break;
 
 
                 case ScriptContext.SecretTypes:
-                    return ModCK3Library.GetSecretType(name);
+                    return lib.GetSecretType(name);
                     break;
 
 
                 case ScriptContext.ScriptedTriggers:
-                    return ModCK3Library.GetScriptedTrigger(name);
+                    return lib.GetScriptedTrigger(name);
                     break;
 
 
                 case ScriptContext.ScriptedRules:
-                    return ModCK3Library.GetScriptedRule(name);
+                    return lib.GetScriptedRule(name);
                     break;
 
                 case ScriptContext.ScriptedRelations:
-                    return ModCK3Library.GetScriptedRelation(name);
+                    return lib.GetScriptedRelation(name);
                     break;
 
 
                 case ScriptContext.ScriptedLists:
-                    return ModCK3Library.GetScriptedList(name);
+                    return lib.GetScriptedList(name);
                     break;
 
 
                 case ScriptContext.ScriptedEffects:
-                    return ModCK3Library.GetScriptedEffect(name);
+                    return lib.GetScriptedEffect(name);
                     break;
 
 
 
                 case ScriptContext.ScriptedCharacterTemplates:
-                    return ModCK3Library.GetScriptedCharacterTemplate(name);
+                    return lib.GetScriptedCharacterTemplate(name);
                     break;
 
 
                 case ScriptContext.Schemes:
-                    return ModCK3Library.GetScheme(name);
+                    return lib.GetScheme(name);
                     break;
 
                 case ScriptContext.Religions:
-                    return ModCK3Library.GetReligion(name);
+                    return lib.GetReligion(name);
                     break;
 
 
                 case ScriptContext.ReligionFamilys:
-                    return ModCK3Library.GetReligionFamily(name);
+                    return lib.GetReligionFamily(name);
                     break;
 
                 case ScriptContext.HolySites:
-                    return ModCK3Library.GetHolySite(name);
+                    return lib.GetHolySite(name);
                     break;
 
 
                 case ScriptContext.FervorModifiers:
-                    return ModCK3Library.GetFervorModifier(name);
+                    return lib.GetFervorModifier(name);
                     break;
 
 
                 case ScriptContext.Doctrines:
-                    return ModCK3Library.GetDoctrine(name);
+                    return lib.GetDoctrine(name);
                     break;
 
 
                 case ScriptContext.OptionModifiers:
-                    return ModCK3Library.GetOptionModifier(name);
+                    return lib.GetOptionModifier(name);
                     break;
 
 
                 case ScriptContext.OnActions:
-                    return ModCK3Library.GetOnAction(name);
+                    return lib.GetOnAction(name);
                     break;
 
 
                 case ScriptContext.Nicknames:
-                    return ModCK3Library.GetNickname(name);
+                    return lib.GetNickname(name);
                     break;
 
 
                 case ScriptContext.StaticModifiers:
-                    return ModCK3Library.GetStaticModifier(name);
+                    return lib.GetStaticModifier(name);
                     break;
 
 
                 case ScriptContext.ScriptedModifiers:
-                    return ModCK3Library.GetScriptedModifier(name);
+                    return lib.GetScriptedModifier(name);
                     break;
 
                 case ScriptContext.Lifestyles:
-                    return ModCK3Library.GetLifestyle(name);
+                    return lib.GetLifestyle(name);
                     break;
 
                 case ScriptContext.LifestylePerks:
-                    return ModCK3Library.GetLifestylePerk(name);
+                    return lib.GetLifestylePerk(name);
                     break;
 
 
                 case ScriptContext.Laws:
-                    return ModCK3Library.GetLaw(name);
+                    return lib.GetLaw(name);
                     break;
 
 
                 case ScriptContext.LandedTitles:
-                    return ModCK3Library.GetLandedTitle(name);
+                    return lib.GetLandedTitle(name);
                     break;
 
 
                 case ScriptContext.ImportantActions:
-                    return ModCK3Library.GetImportantAction(name);
+                    return lib.GetImportantAction(name);
                     break;
 
                 case ScriptContext.HookTypes:
-                    return ModCK3Library.GetHookType(name);
+                    return lib.GetHookType(name);
                     break;
 
 
                 case ScriptContext.Holdings:
-                    return ModCK3Library.GetHolding(name);
+                    return lib.GetHolding(name);
                     break;
 
 
                 case ScriptContext.Governments:
-                    return ModCK3Library.GetGovernment(name);
+                    return lib.GetGovernment(name);
                     break;
 
                 case ScriptContext.GameRules:
-                    return ModCK3Library.GetGameRule(name);
+                    return lib.GetGameRule(name);
                     break;
 
                 case ScriptContext.Focuses:
-                    return ModCK3Library.GetFocus(name);
+                    return lib.GetFocus(name);
                     break;
 
 
                 case ScriptContext.Factions:
-                    return ModCK3Library.GetFaction(name);
+                    return lib.GetFaction(name);
                     break;
 
 
                 case ScriptContext.EventThemes:
-                    return ModCK3Library.GetEventTheme(name);
+                    return lib.GetEventTheme(name);
                     break;
 
 
                 case ScriptContext.EventBackgrounds:
-                    return ModCK3Library.GetEventBackground(name);
+                    return lib.GetEventBackground(name);
                     break;
 
 
                 case ScriptContext.DynastyPerks:
-                    return ModCK3Library.GetDynastyPerk(name);
+                    return lib.GetDynastyPerk(name);
                     break;
 
 
                 case ScriptContext.DynastyLegacies:
-                    return ModCK3Library.GetDynastyLegacy(name);
+                    return lib.GetDynastyLegacy(name);
                     break;
 
 
                 case ScriptContext.CouncilTasks:
-                    return ModCK3Library.GetCouncilTask(name);
+                    return lib.GetCouncilTask(name);
                     break;
 
                 case ScriptContext.Defines:
-                    return ModCK3Library.GetDefine(name);
+                    return lib.GetDefine(name);
                     break;
 
                 case ScriptContext.CouncilPositions:
-                    return ModCK3Library.GetCouncilPosition(name);
+                    return lib.GetCouncilPosition(name);
                     break;
                 case ScriptContext.CharacterInteractions:
-                    return ModCK3Library.GetCharacterInteraction(name);
+                    return lib.GetCharacterInteraction(name);
                     break;
                 case ScriptContext.CasusBelliType:
-                    return ModCK3Library.GetCasusBelliType(name);
+                    return lib.GetCasusBelliType(name);
                     break;
                 case ScriptContext.Bookmark:
-                    return ModCK3Library.GetBookmark(name);
+                    return lib.GetBookmark(name);
                     break;
                 case ScriptContext.Buildings:
-                    return ModCK3Library.GetBuilding(name);
+                    return lib.GetBuilding(name);
                     break;
                 case ScriptContext.Events:
-                    return ModCK3Library.GetEvent(name);
+                    return lib.GetEvent(name);
                     break;
                 case ScriptContext.Decisions:
-                    return ModCK3Library.GetDecision(name);
+                    return lib.GetDecision(name);
                     break;
                 case ScriptContext.Activities:
-                    return ModCK3Library.GetActivity(name);
+                    return lib.GetActivity(name);
                     break;
                 case ScriptContext.ScriptValues:
-                    return ModCK3Library.GetScriptValue(name);
+                    return lib.GetScriptValue(name);
                     break;
             }
 
@@ -1352,6 +1308,11 @@ namespace JominiParse
         public ScriptEvent GetEvent(string name)
         {
             return ModCK3Library.GetEvent(name);
+        }
+
+        public string GetDirectoryFromContext(ScriptContext context)
+        {
+            return ContextData[context].Directory;
         }
     }
 }

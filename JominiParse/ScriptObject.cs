@@ -119,6 +119,7 @@ namespace JominiParse
                     {
                         SetScopeType(t.First().GetScopeType());
                     }
+
                 }
             }
         }

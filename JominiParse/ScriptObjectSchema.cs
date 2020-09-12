@@ -22,11 +22,12 @@ namespace JominiParse
 
     public class ScriptObjectSchema
     {
-        Dictionary<string, SchemaChild> children = new Dictionary<string, SchemaChild>();
+        public Dictionary<string, SchemaChild> children = new Dictionary<string, SchemaChild>();
         public bool Soft { get; set; }
-        private ScopeType scope = ScopeType.none;
-        private string scopeChildId { get; set; }
+        public ScopeType scope = ScopeType.none;
+        public string scopeChildId { get; set; }
         public BlockType blockType { get; set; }
+
 
         public void Load(string filename)
         {
@@ -200,6 +201,40 @@ namespace JominiParse
             SchemaMap[type] = s;
 
             return s;
+        }
+
+        public void CreateScopeSchema(ScopeType fromScope, ScopeChangeDefinition scopeDef, BlockType blockType)
+        {
+            ScriptObjectSchema schema = new ScriptObjectSchema();
+
+            schema.Soft = true;
+            schema.blockType = BlockType.inheritparent;
+            schema.scope = scopeDef.toType;
+
+            if (blockType == BlockType.condition_scope_change)
+            {
+                var a = new SchemaChild();
+                string name = "scopeconditions";
+                string type = "scopeconditions";
+
+                a.Name = name;
+                a.Type = type;
+                schema.children[name] = a;
+            }
+
+            if (blockType == BlockType.effect_scope_change)
+            {
+                var a = new SchemaChild();
+                string name = "scopeeffects";
+                string type = "scopeeffects";
+
+                a.Name = name;
+                a.Type = type;
+                schema.children[name] = a;
+            }
+
+
+            SoftSchemaMap[scopeDef.text] = schema;
         }
 
         public ScriptObjectSchema GetSchema(string type)

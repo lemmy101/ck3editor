@@ -53,6 +53,7 @@
         SuccessionElections,
         Traits,
         VassalContracts,
-        Characters
+        Characters,
+        Max
     }
 }

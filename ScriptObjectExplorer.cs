@@ -398,9 +398,13 @@ namespace CK3ScriptEditor
             foreach (var name in names)
             {
                 ScriptObject e = Core.Instance.Get(name, context);
-
+              
                 if (e != null)
                 {
+                    if (e.Name == "education_intrigue_1")
+                    {
+
+                    }
                     var namesp = defaultNamespace;
                     if (!string.IsNullOrEmpty(e.Namespace))
                     {

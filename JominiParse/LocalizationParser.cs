@@ -26,6 +26,9 @@ namespace JominiParse
 
         private void LoadLocalizationDir(string dir, Dictionary<string, LocalizationEntry> results)
         {
+            if (!Directory.Exists(dir))
+                return;
+
             var dirs = Directory.GetDirectories(dir);
 
             foreach (var s in dirs)

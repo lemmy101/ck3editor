@@ -30,7 +30,7 @@ namespace CK3ScriptEditor
         private List<DarkDockContent> _toolWindows = new List<DarkDockContent>();
         internal FileOverviewToolWindow fileOverview;
         internal ProjectExplorer projectExplorer;
-        private ScriptObjectExplorer soExplorer;
+        internal ScriptObjectExplorer soExplorer;
         private void ToggleToolWindow(DarkToolWindow toolWindow)
         {
             if (toolWindow.DockPanel == null)
@@ -59,7 +59,7 @@ namespace CK3ScriptEditor
             ScopeManager.Instance.LoadConditionDefinitions("Conditions.xml");
             Core.Instance.Init();
 
-            Core.Instance.LoadMod("LemmyBalanceMod");
+            Core.Instance.CreateOrLoadMod("TestMod");
 
             Application.AddMessageFilter(new ControlScrollFilter());
             // Add the dock content drag message filter to handle moving dock content around.
@@ -158,6 +158,7 @@ namespace CK3ScriptEditor
             if (e.Content is ScriptWindow)
             {
                 var sw = e.Content as ScriptWindow;
+                sw.RemoveEventHandlers();
                 this.baseTextEditors.Remove(sw.Filename);
                 this.modTextEditors.Remove(sw.Filename);
                 this.openBaseScriptWindows.Remove(sw.Filename);
@@ -174,6 +175,7 @@ namespace CK3ScriptEditor
                 lastActive = (DockPanel.ActiveContent as ScriptWindow);
             }
         }
+
 
         public void LoadCK3File(string filename)
         {
@@ -227,6 +229,7 @@ namespace CK3ScriptEditor
             
             openScriptWindows[filename] = window;
             DockPanel.AddContent(window);
+            DockPanel.ActiveContent = window;
             string startDir = fromBase ? Globals.CK3Path : Core.Instance.ModCK3Library.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
             window.Filename = filename;
             AllowUpdateFile = false;
@@ -245,6 +248,18 @@ namespace CK3ScriptEditor
 
         private void windowToolStripMenuItem_Click(object sender, EventArgs e)
         {
+
+        }
+
+        public void CloseDocument(bool mod, string path)
+        {
+            var textEditors = !mod ? baseTextEditors : modTextEditors;
+            var openScriptWindows = !mod ? openBaseScriptWindows : openModScriptWindows;
+
+            if(openScriptWindows.ContainsKey(path))
+            {
+                DockPanel.RemoveContent(openScriptWindows[path]);
+            }
 
         }
     }

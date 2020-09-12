@@ -117,9 +117,10 @@ namespace ICSharpCode.TextEditor
 			Document.UpdateCommited  += DocumentUpdateCommitted;
 
             ContextMenuStrip = new ContextMenu(this);
+            
 		}
 
-        public void Undo() {
+		public void Undo() {
             motherTextEditorControl.Undo();
         }
 		

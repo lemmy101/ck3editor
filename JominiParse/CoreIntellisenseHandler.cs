@@ -87,21 +87,21 @@ namespace JominiParse
             }
 
 
-            if (inside.Schema != null)
+            if (inside != null && inside.Parent != null)
             {
                 // add enum options
-                results.AddRange(inside.Schema.GetChoices(child));
+                results.AddRange(inside.Parent.Schema.GetChoices(child));
 
-                string type = inside.Schema.GetChildType(child);
+                string type = inside.Parent.Schema.GetChildType(child);
 
                 if (type == null)
                 {
                     List<string> results2 = new List<string>();
-                    inside.Schema.AddChildrenToList(results2);
+                    inside.Parent.Schema.AddChildrenToList(results2);
                     if (results2.Contains("scopeconditions"))
                     {
                         results2.Remove("scopeconditions");
-                        var scope = inside.GetScopeType();
+                        var scope = inside.Parent.GetScopeType();
                         {
                             var condition = ScopeManager.Instance.GetCondition(scope, child);
                             if (condition != null)
@@ -119,7 +119,7 @@ namespace JominiParse
                     if (results.Contains("scopeeffects"))
                     {
                         results.Remove("scopeeffects");
-                        var scope = inside.GetScopeType();
+                        var scope = inside.Parent.GetScopeType();
 
                     }
 
@@ -158,6 +158,13 @@ namespace JominiParse
 
                         if(condition != null)
                             return condition.Properties.Count > 0;
+                    }
+
+                    var schema = SchemaManager.Instance.GetSchema(child);
+
+                    if (schema != null)
+                    {
+                        return true;
                     }
                 }
 

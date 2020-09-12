@@ -13,6 +13,7 @@ namespace JominiParse
         public bool IsBase { get; set; }
         public bool Overridden { get; set; }
         public ScriptContext Context { get; set; }
+        public string Namespace { get; set; }
 
         public Dictionary<string, ScriptObject> Map = new Dictionary<string, ScriptObject>();
     }
@@ -24,7 +25,7 @@ namespace JominiParse
     }
     public class ScriptLibrary
     {
-        
+        public Dictionary<string, ScriptObject> AllTypeMap = new Dictionary<string, ScriptObject>();
         public Dictionary<string, ScriptObject> CasusBelliTypeMap = new Dictionary<string, ScriptObject>();
         public Dictionary<string, ScriptObject> BookmarkMap = new Dictionary<string, ScriptObject>();
         public Dictionary<string, ScriptObject> BuildingMap = new Dictionary<string, ScriptObject>();
@@ -73,14 +74,13 @@ namespace JominiParse
         public Dictionary<string, ScriptObject> TraitsMap = new Dictionary<string, ScriptObject>();
 
         public Dictionary<string, ScriptObject> VassalContractsMap = new Dictionary<string, ScriptObject>();
-        
-
-        public Dictionary<string, ScriptFile> FileMap = new Dictionary<string, ScriptFile>();
         public Dictionary<string, ScriptDecision> DecisionMap = new Dictionary<string, ScriptDecision>();
         public Dictionary<string, ScriptValue> ScriptValueMap = new Dictionary<string, ScriptValue>();
         public Dictionary<string, ScriptEvent> EventMap = new Dictionary<string, ScriptEvent>();
         public Dictionary<string, ScriptActivity> ActivityMap = new Dictionary<string, ScriptActivity>();
 
+        public Dictionary<string, ScriptFile> FileMap = new Dictionary<string, ScriptFile>();
+     
         List<trigger_event> unprocessedTriggers = new List<trigger_event>();
 
         public void LoadLocalizations(string dir)
@@ -722,10 +722,88 @@ namespace JominiParse
         #endregion
 
 
+        public void Remove(string key, ScriptContext valueContext)
+        {
+      
+            AllTypeMap.Remove(key);
+            CasusBelliTypeMap.Remove(key); //new Dicti
+            BookmarkMap.Remove(key); //new Dictionary<
+            BuildingMap.Remove(key); //new Dictionary<
+            CharacterInteractionMap.Remove(key); //new
+            CharactersMap.Remove(key); //new Dictionar
+            CouncilPositionsMap.Remove(key); //new Dic
+            CouncilTasksMap.Remove(key); //new Diction
+            DefinesMap.Remove(key); //new Dictionary<s
+            DynastyLegaciesMap.Remove(key); //new Dict
+            DynastyPerksMap.Remove(key); //new Diction
+            EventBackgroundsMap.Remove(key); //new Dic
+            EventThemesMap.Remove(key); //new Dictiona
+            FactionsMap.Remove(key); //new Dictionary<
+            FocusMap.Remove(key); //new Dictionary<str
+            GameRulesMap.Remove(key); //new Dictionary
+            GovernmentsMap.Remove(key); //new Dictiona
+            HoldingsMap.Remove(key); //new Dictionary<
+            HookTypesMap.Remove(key); //new Dictionary
+            ImportantActionsMap.Remove(key); //new Dic
+            LandedTitleMap.Remove(key); //new Dictiona
+            LawsMap.Remove(key); //new Dictionary<stri
+            LifestylePerksMap.Remove(key); //new Dicti
+            LifestylesMap.Remove(key); //new Dictionar
+            ScriptedModifiersMap.Remove(key); //new Di
+            StaticModifiersMap.Remove(key); //new Dict
+            NicknamesMap.Remove(key); //new Dictionary
+            OnActionsMap.Remove(key); //new Dictionary
+            OptionModifiersMap.Remove(key); //new Dict
+
+            DoctrinesMap.Remove(key); //new Dictionary
+            FervorModifiersMap.Remove(key); //new Dict
+            HolySitesMap.Remove(key); //new Dictionary
+            ReligionFamilysMap.Remove(key); //new Dict
+            ReligionsMap.Remove(key); //new Dictionary
+
+            SchemesMap.Remove(key); //new Dictionary<s
+            ScriptedCharacterTemplatesMap.Remove(key);
+            ScriptedEffectsMap.Remove(key); //new Dict
+            ScriptedListsMap.Remove(key); //new Dictio
+            ScriptedRelationsMap.Remove(key); //new Di
+            ScriptedRulesMap.Remove(key); //new Dictio
+            ScriptedTriggersMap.Remove(key); //new Dic
+            SecretTypesMap.Remove(key); //new Dictiona
+            StoryCyclesMap.Remove(key); //new Dictiona
+            SuccessionElectionsMap.Remove(key); //new
+            TraitsMap.Remove(key); //new Dictionary<st
+
+            VassalContractsMap.Remove(key); //new Dict
+            DecisionMap.Remove(key); //new Dictionar
+            ScriptValueMap.Remove(key); //new Dictionar
+            EventMap.Remove(key); //new Dictionary<stri
+            ActivityMap.Remove(key); //new Dictionar
+        }
 
         public void Add(List<ScriptObject> objects, ScriptContext context)
         {
-         
+
+            foreach (var dec in objects)
+            {
+                ScriptFile f = null;
+                {
+                    if (FileMap.ContainsKey(dec.Filename))
+                        f = FileMap[dec.Filename];
+                    else
+                    {
+                        f = new ScriptFile();
+                        f.IsBase = this == Core.Instance.BaseCK3Library;
+                        f.Filename = dec.Filename;
+                        f.Context = context;
+                        FileMap[dec.Filename] = f;
+                    }
+
+                    dec.Context = context;
+                    dec.ScriptFile = f;
+                    f.Map[dec.Name] = dec;
+                }
+            }
+        
             switch (context)
             {
 
@@ -1516,6 +1594,8 @@ namespace JominiParse
         }
         private void DoFile(ScriptObject dec, ScriptContext context)
         {
+            AllTypeMap[dec.Name] = dec;
+
             ScriptFile f;
             if (FileMap.ContainsKey(dec.Filename))
                 f = FileMap[dec.Filename];
@@ -1544,16 +1624,17 @@ namespace JominiParse
             return null;
         }
 
-        public void EnsureFile(string filename)
+        public ScriptFile EnsureFile(string filename, ScriptContext context)
         {
             if(FileMap.ContainsKey(filename))
             {
-                return;
+                return FileMap[filename];
             }
 
             ScriptFile file = new ScriptFile();
             file.IsBase = this == Core.Instance.BaseCK3Library;
             file.Filename = filename;
+            file.Context = context;
             FileMap[filename] = file;
 
             if (!file.IsBase && Parent != null && Parent.FileMap.ContainsKey(filename))
@@ -1565,6 +1646,8 @@ namespace JominiParse
                     mapValue.Overridden = true;
                 }
             }
+
+            return file;
         }
 
         public void SaveBinary(string filename)
@@ -1635,5 +1718,46 @@ namespace JominiParse
                 }
             }
         }
+
+        public bool Has(ScriptObject inside)
+        {
+            if (AllTypeMap.ContainsKey(inside.Name))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public List<string> GetDirectoryListFromContext(ScriptContext context, string requiredNamespace)
+        {
+            List<string> results = new List<string>();
+            foreach (var keyValuePair in FileMap)
+            {
+                if (keyValuePair.Value.Context == context)
+                {
+                    if (String.IsNullOrWhiteSpace(requiredNamespace) || (keyValuePair.Value.Namespace == requiredNamespace))
+                    {
+                        results.Add(keyValuePair.Value.Filename);
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        public void ClearFile(string filename)
+        {
+            if(FileMap.ContainsKey(filename))
+            {
+                var file = FileMap[filename];
+
+                foreach (var keyValuePair in file.Map)
+                {
+                    Remove(keyValuePair.Key, keyValuePair.Value.Context);
+                }
+            }
+        }
+
     }
 }

@@ -112,7 +112,25 @@ namespace JominiParse
                 LoadScope(el);
                 el = el.NextSibling;
 
-            } 
+            }
+
+            foreach (var scopeTypeDef in Defs)
+            {
+                foreach (var valueValidConditionScope in scopeTypeDef.Value.ValidConditionScopes)
+                {
+                    CreateScopeSchema(scopeTypeDef.Key, valueValidConditionScope.Value, BlockType.condition_scope_change);
+                }
+
+                foreach (var valueValidEffectScope in scopeTypeDef.Value.ValidEffectScopes)
+                {
+                    CreateScopeSchema(scopeTypeDef.Key, valueValidEffectScope.Value, BlockType.effect_scope_change);
+                }
+            }
+        }
+
+        private void CreateScopeSchema(ScopeType fromScope, ScopeChangeDefinition scopeDef, BlockType blockType)
+        {
+            SchemaManager.Instance.CreateScopeSchema(fromScope, scopeDef, blockType);
         }
 
         public ConditionDef GetCondition(ScopeType scope, string child)

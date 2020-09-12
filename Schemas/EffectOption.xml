@@ -1,0 +1,5 @@
+<ScriptObject blockType="schema_block" parent="">
+	<Child name="name" type="localized"/>
+	<Child name="trigger" type="TriggerBlock" blockType="schema_block" isBlock="yes"/>
+	<Child name="scopeeffects" type="scopeeffects"/>
+</ScriptObject>
