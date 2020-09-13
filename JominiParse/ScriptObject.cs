@@ -24,6 +24,7 @@ namespace JominiParse
             public string Name { get; set; }
             public ScopeType To { get; set; }
             public ScriptObject Declared { get; set; }
+            public bool RequiresScopeTag { get; set; }
         }
 
         public Dictionary<string, ScriptScope> scriptScopes = new Dictionary<string, ScriptScope>();
@@ -430,5 +431,9 @@ namespace JominiParse
             return o;
         }
 
+        public void AddScriptScope(string name, ScriptObject scriptObject, ScopeType to, bool requiresScopeTag)
+        {
+            scriptScopes[name] = new ScriptScope() {Declared = null, Name = name, Temporary = true, To = to, RequiresScopeTag=requiresScopeTag};
+        }
     }
 }

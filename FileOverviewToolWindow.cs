@@ -71,8 +71,6 @@ namespace CK3ScriptEditor
 
         public bool IsBaseFile { get; set; }
 
-
-      
         Dictionary<object, DarkTreeNode> fileOverviewNodes = new Dictionary<object, DarkTreeNode>();
        
         private void FillTreeData(DarkTreeNode treeNode, ScriptObject ev, int lineNumber)

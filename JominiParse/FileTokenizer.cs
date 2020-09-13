@@ -236,33 +236,7 @@ namespace JominiParse
         }
         private ScriptObject ParseResult(ScriptObject parent, ScriptParsedSegment parsableResult, ScriptContext context)
         {
-            switch (context)
-            {
-                case ScriptContext.ScriptValues:
-                    return ScriptValueParser.Instance.ParseScriptValue(parent, parsableResult);
-                    break;
-                case ScriptContext.Activities:
-                    return ScriptActivityParser.Instance.ParseActivity(parent, parsableResult);
-                    break;
-                case ScriptContext.Decisions:
-                    return DecisionParser.Instance.ParseDecision(parent, parsableResult);
-                    break;
-                case ScriptContext.Events:
-                    return EventParser.Instance.ParseEvent(parent, parsableResult);
-                    break;
-                /*
-                case ScriptContext.ConditionBlock:
-                    return EffectParser.Instance.ParseCondition(parent, parsableResult);
-                    break;
-                case ScriptContext.EffectBlock:
-                    return EffectParser.Instance.ParseEffect(parent, parsableResult);
-                    break;
-                case ScriptContext.ScriptedModifiers:
-                    return ScriptedModifierParser.Instance.ParseModifier(parent, parsableResult);
-                    break;*/
-            }
-
-            return new ScriptObject(parent, parsableResult);
+            return ScriptObjectFactory.Instance.CreateScriptObject(context, parsableResult, parent);
         }
 
         public ScriptObject ParseUnknown(ScriptObject parent, ScriptParsedSegment segment, ScriptContext context)

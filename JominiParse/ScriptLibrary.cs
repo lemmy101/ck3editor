@@ -20,7 +20,7 @@ namespace JominiParse
     {
         public ScriptObject FromCommand { get; set; }
         public ScriptObject From { get; set; }
-        public ScriptEvent To { get; set; }
+        public ScriptObject To { get; set; }
     }
 
     public class ScriptLibrary
@@ -74,10 +74,10 @@ namespace JominiParse
         public Dictionary<string, ScriptObject> TraitsMap = new Dictionary<string, ScriptObject>();
 
         public Dictionary<string, ScriptObject> VassalContractsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptDecision> DecisionMap = new Dictionary<string, ScriptDecision>();
+        public Dictionary<string, ScriptObject> DecisionMap = new Dictionary<string, ScriptObject>();
         public Dictionary<string, ScriptValue> ScriptValueMap = new Dictionary<string, ScriptValue>();
-        public Dictionary<string, ScriptEvent> EventMap = new Dictionary<string, ScriptEvent>();
-        public Dictionary<string, ScriptActivity> ActivityMap = new Dictionary<string, ScriptActivity>();
+        public Dictionary<string, ScriptObject> EventMap = new Dictionary<string, ScriptObject>();
+        public Dictionary<string, ScriptObject> ActivityMap = new Dictionary<string, ScriptObject>();
 
         public Dictionary<string, ScriptFile> FileMap = new Dictionary<string, ScriptFile>();
      
@@ -465,7 +465,7 @@ namespace JominiParse
             return DefinesMap[str];
         }
 
-        public ScriptEvent GetEvent(string str)
+        public ScriptObject GetEvent(string str)
         {
             if (!EventMap.ContainsKey(str))
             {
@@ -554,7 +554,7 @@ namespace JominiParse
 
             return BookmarkMap[str];
         }
-        public ScriptActivity GetActivity(string str)
+        public ScriptObject GetActivity(string str)
         {
             if (!ActivityMap.ContainsKey(str))
             {
@@ -566,7 +566,7 @@ namespace JominiParse
 
             return ActivityMap[str];
         }
-        public ScriptDecision GetDecision(string str)
+        public ScriptObject GetDecision(string str)
         {
             if (!DecisionMap.ContainsKey(str))
             {
@@ -1466,7 +1466,7 @@ namespace JominiParse
                 {
                     foreach (var scriptObject in objects)
                     {
-                        var dec = scriptObject as ScriptDecision;
+                        var dec = scriptObject as ScriptObject;
 
                         DecisionMap[dec.Name] = dec;
                         DoFile(dec, context);
@@ -1493,7 +1493,7 @@ namespace JominiParse
                 {
                     foreach (var scriptObject in objects)
                     {
-                        var dec = scriptObject as ScriptEvent;
+                        var dec = scriptObject as ScriptObject;
                         if (dec != null)
                         {
                             EventMap[dec.Name] = dec;
@@ -1508,7 +1508,7 @@ namespace JominiParse
                 {
                     foreach (var scriptObject in objects)
                     {
-                        var dec = scriptObject as ScriptActivity;
+                        var dec = scriptObject as ScriptObject;
                         if (dec != null)
                         {
                             ActivityMap[dec.Name] = dec;

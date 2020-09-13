@@ -1318,7 +1318,7 @@ namespace JominiParse
             return null;
         }
 
-        public ScriptEvent GetEvent(string name)
+        public ScriptObject GetEvent(string name)
         {
             return ModCK3Library.GetEvent(name);
         }
