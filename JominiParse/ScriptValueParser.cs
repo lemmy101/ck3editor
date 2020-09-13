@@ -53,20 +53,8 @@ namespace JominiParse
                 for (var index = 0; index < scriptParsedSegment.children.Count; index++)
                 {
                     var parsedSegment = scriptParsedSegment.children[index];
-                    if (parsedSegment.name == "if")
+                    
                     {
-                        int range;
-                        value.Operations.Add(FileTokenizer.Instance.ParseIf(value, scriptParsedSegment.children, index,
-                            ScriptContext.ScriptValues, out range));
-                        index += range - 1;
-                    }
-                    else
-                    {
-                        if (parsedSegment.name == "desc")
-                        {
-                            value.desc = new LocalizedString(value, parsedSegment) {Name = parsedSegment.name, key = parsedSegment.value[0]};
-                            continue;
-                        }
                         value.Operations.Add(FileTokenizer.Instance.ParseUnknown(value, parsedSegment,
                             ScriptContext.ScriptValues));
 

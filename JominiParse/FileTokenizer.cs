@@ -271,34 +271,6 @@ namespace JominiParse
         }
 
 
-        public If ParseIf(ScriptObject parent, List<ScriptParsedSegment> results, int index, ScriptContext context, out int range)
-        {
-            for (int i = index+1; i < results.Count; i++)
-            {
-                if (results[i].name != "elseif" && results[i].name != "else_if" && results[i].name != "else")
-                {
-                    range = i - index;
-                    return IfParser.Instance.ParseIf(parent, results.GetRange(index, i - index), context);
-                }
-
-                if (i == results.Count - 1)
-                {
-                    range = (i - index) + 1;
-                    return IfParser.Instance.ParseIf(parent, results.GetRange(index, (i - index) + 1), context);
-
-                }
-            }
-
-            if (results.Count==index+1)
-            {
-                range = 1;
-                return IfParser.Instance.ParseIf(parent, results.GetRange(0, 1), context);
-
-            }
-
-            range = 1;
-            return null;
-        }
 
         public List<ScriptParsedSegment> ParseTokens(List<string> tokens, List<int> lineNumbers, string filename)
         {

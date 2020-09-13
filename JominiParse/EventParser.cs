@@ -8,30 +8,9 @@ namespace JominiParse
         public static EventParser Instance = new EventParser();
 
         
-        public EventOption ParseOption(ScriptObject parent, ScriptParsedSegment segment)
-        {
-            EventOption option = new EventOption(parent, segment);
-
-            ReadParsedChildSegment(option, segment, option, "name");
-            ReadParsedChildSegment(option, segment, option, "trigger");
-            ReadParsedChildSegment(option, segment, option, "ai_chance");
-
-            segment.children.RemoveAll(a => a.name == "trigger" || a.name == "name" || a.name == "ai_chance");
-
-
-            EffectBlock b = new EffectBlock(parent, segment);
-            b.Parse(segment, ScriptContext.EffectBlock);
-            option.Effect = b;
-
-            return option;
-        }
-
         public ScriptObject ParseEvent(ScriptObject parent, ScriptParsedSegment segment)
         {
-            if (segment.name == "feast_default.0001")
-            {
-
-            }
+          
             if (segment.name.StartsWith("scripted_trigger"))
             {
                 return ParseScriptedTrigger(parent, segment);
@@ -83,8 +62,7 @@ namespace JominiParse
             {
 
             }
-            effect.Effect = new EffectBlock(effect, segment);
-            effect.Effect.Parse(segment, ScriptContext.EffectBlock);
+           
             string toScript = effect.ToScript();
             return effect;
         }
@@ -94,8 +72,7 @@ namespace JominiParse
             ScriptedTrigger trigger = new ScriptedTrigger(parent, segment);
 
             trigger.Name = segment.name.Split(' ')[1];
-            trigger.Condition = new ConditionBlock(trigger, segment);
-            trigger.Condition.Parse(segment, ScriptContext.ConditionBlock);
+           
             string toScript = trigger.ToScript();
             return trigger;
         }

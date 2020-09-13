@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using JominiParse.EffectCommands;
 
 namespace JominiParse
 {
@@ -23,6 +22,7 @@ namespace JominiParse
         public ScriptObject From { get; set; }
         public ScriptEvent To { get; set; }
     }
+
     public class ScriptLibrary
     {
         public Dictionary<string, ScriptObject> AllTypeMap = new Dictionary<string, ScriptObject>();

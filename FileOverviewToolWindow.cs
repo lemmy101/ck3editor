@@ -72,72 +72,9 @@ namespace CK3ScriptEditor
         public bool IsBaseFile { get; set; }
 
 
-        private void FillDecisionTreeData(DarkTreeNode treeNode, ScriptDecision decision, int lineNumber)
-        {
-
-            if (decision.picture != null)
-            {
-                var n = new DarkTreeNode(decision.picture.ToString()) { Tag = decision.picture };
-                treeNode.Nodes.Add(n);
-            }
-
-            AddTreeNode(treeNode, decision.major);
-            AddTreeNode(treeNode, decision.ai_check_interval);
-            AddTreeNode(treeNode, decision.desc);
-            AddTreeNode(treeNode, decision.selection_tooltip);
-            AddTreeNode(treeNode, decision.cooldown);
-            AddTreeNode(treeNode, decision.cost);
-            AddTreeNode(treeNode, decision.is_shown);
-            AddTreeNode(treeNode, decision.is_valid);
-            AddTreeNode(treeNode, decision.is_valid_showing_failures_only);
-            AddTreeNode(treeNode, decision.ai_will_do);
-            AddTreeNode(treeNode, decision.ai_potential);
-            AddTreeNode(treeNode, decision.effect);
-
-
-        }
+      
         Dictionary<object, DarkTreeNode> fileOverviewNodes = new Dictionary<object, DarkTreeNode>();
-        private void FillEventTreeData(DarkTreeNode treeNode, ScriptEvent ev, int lineNumber)
-        {
-            fileOverviewNodes.Clear();
-            var triggeredBy = new DarkTreeNode("Triggered By");
-            bool hasReferencedBy = false;
-            foreach (var eventConnection in ev.Connections)
-            {
-                if (eventConnection.To == ev)
-                {
-                    DarkTreeNode n = new DarkTreeNode(eventConnection.From.Name);
-                    n.Tag = eventConnection.FromCommand;
-                    fileOverviewNodes[n.Tag] = n;
-                    triggeredBy.Nodes.Add(n);
-                    hasReferencedBy = true;
-                }
-            }
-
-            if (hasReferencedBy)
-            {
-                treeNode.Nodes.Add(triggeredBy);
-            }
-
-            if (ev.title != null)
-                treeNode.Text = treeNode.Text + " - " + ev.title.Localized();
-
-            AddTreeNode(treeNode, ev.type);
-            AddTreeNode(treeNode, ev.title);
-            AddTreeNode(treeNode, ev.desc);
-            AddTreeNode(treeNode, ev.theme);
-            AddTreeNode(treeNode, ev.trigger);
-            AddTreeNode(treeNode, ev.weight_multiplier);
-            AddTreeNode(treeNode, ev.immediate);
-            foreach (var eventOption in ev.options)
-            {
-                AddTreeNode(treeNode, eventOption);
-            }
-            AddTreeNode(treeNode, ev.after);
-
-            treeNode.Expanded = false;
-            //    treeNode.Nodes.Add(new TreeNode(decision.picture.ToString()) { Tag = decision.picture });
-        }
+       
         private void FillTreeData(DarkTreeNode treeNode, ScriptObject ev, int lineNumber)
         {
             fileOverviewNodes.Clear();
@@ -178,28 +115,6 @@ namespace CK3ScriptEditor
             var n = new DarkTreeNode(obj.Name);
             n.Tag = obj;
             treeNode.Nodes.Add(n);
-
-            if (obj is EffectBlock)
-            {
-                var e = obj as EffectBlock;
-
-                foreach (var effectBase in e.Effects)
-                {
-            //        AddTreeNode(n, effectBase);
-
-                }
-            }
-
-            if (obj is ConditionBlock)
-            {
-                var e = obj as ConditionBlock;
-
-                foreach (var effectBase in e.conditions)
-                {
-          //          AddTreeNode(n, effectBase);
-
-                }
-            }
 
             n.Expanded = false;
         }
