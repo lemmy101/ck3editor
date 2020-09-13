@@ -1,0 +1,7 @@
+<ScriptObject blockType="schema_block">
+
+	<Child name="chance" type="num"/>
+	<Child name="modifier" type="modifier"/>
+	<Child name="scopeeffects" type="scopeeffects"/>
+	
+</ScriptObject>

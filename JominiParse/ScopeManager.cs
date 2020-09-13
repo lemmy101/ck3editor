@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 
@@ -14,7 +15,6 @@ namespace JominiParse
         realm,
         dynasty,
         culture,
-        county,
         province,
         house,
         war,
@@ -39,6 +39,7 @@ namespace JominiParse
     {
         public ScopeType toType;
         public string text;
+        public bool singular { get; set; }
     }
     public class ConditionDef
     {
@@ -51,6 +52,7 @@ namespace JominiParse
         public string type { get; set; }
         public ScopeType validscope { get; set; }
         public string specialrules { get; set; }
+        public bool treatAsScope { get; set; }
 
         public List<ConditionProperty> Properties = new List<ConditionProperty>();
     }
@@ -226,7 +228,11 @@ namespace JominiParse
             string from = el.Attributes["from"].InnerText;
             string to = el.Attributes["to"].InnerText;
             string type = el.Attributes["type"].InnerText;
-
+            bool singular = false;
+            if(el.Attributes["singular"] != null)
+            {
+                singular = el.Attributes["singular"].InnerText == "yes";
+            }
             ScopeType f = ScopeType.none;
             ScopeType t = ScopeType.none;
             if (!Enum.TryParse(from, out f))
@@ -239,7 +245,7 @@ namespace JominiParse
                 throw new Exception();
             }
 
-            CreateScopeChange(f, name, t, type);
+            CreateScopeChange(f, name, t, type, singular);
         }
         private void LoadCondition(XmlNode el)
         {
@@ -255,12 +261,18 @@ namespace JominiParse
                     throw new Exception();
                 }
 
+                cd.type = el.Attributes["type"] != null ? el.Attributes["type"].InnerText : null;
                 cd.validscope = f;
                 cd.name = name;
 
                 if (el.Attributes["specialrules"] != null)
                 {
                     cd.specialrules = el.Attributes["specialrules"].InnerText;
+                }
+
+                if (el.Attributes["treatAsScope"] != null)
+                {
+                    cd.treatAsScope = el.Attributes["treatAsScope"].InnerText=="yes";
                 }
 
                 var c = el.FirstChild;
@@ -294,6 +306,10 @@ namespace JominiParse
                     cd.specialrules = el.Attributes["specialrules"].InnerText;
                 }
 
+                if (el.Attributes["treatAsScope"] != null)
+                {
+                    cd.treatAsScope = el.Attributes["treatAsScope"].InnerText == "yes";
+                }
                 cd.validscope = f;
                 Defs[f].ValidConditions.Add(cd);
                 Defs[f].ValidConditionMap[cd.name] = cd;
@@ -314,6 +330,7 @@ namespace JominiParse
                     throw new Exception();
                 }
 
+                cd.type = el.Attributes["type"] != null ? el.Attributes["type"].InnerText : null;
                 cd.validscope = f;
                 cd.name = name;
 
@@ -360,7 +377,7 @@ namespace JominiParse
             }
         }
 
-        private void CreateScopeChange(ScopeType from, string name, ScopeType to, string type)
+        private void CreateScopeChange(ScopeType from, string name, ScopeType to, string type, bool singular=false)
         {
             ScopeTypeDef def = null;
             if (!Defs.ContainsKey(from))
@@ -375,17 +392,17 @@ namespace JominiParse
 
             if (type == "effect")
             {
-                def.ValidEffectScopes[name] = new ScopeChangeDefinition() { text = name, toType = to };
+                def.ValidEffectScopes[name] = new ScopeChangeDefinition() { text = name, toType = to, singular=singular };
             }
             else if(type=="condition")
             {
-                def.ValidConditionScopes[name] = new ScopeChangeDefinition() { text = name, toType = to };
+                def.ValidConditionScopes[name] = new ScopeChangeDefinition() { text = name, toType = to, singular = singular };
 
             }
             else
             {
-                def.ValidEffectScopes[name] = new ScopeChangeDefinition() { text = name, toType = to };
-                def.ValidConditionScopes[name] = new ScopeChangeDefinition() { text = name, toType = to };
+                def.ValidEffectScopes[name] = new ScopeChangeDefinition() { text = name, toType = to, singular = singular };
+                def.ValidConditionScopes[name] = new ScopeChangeDefinition() { text = name, toType = to, singular = singular };
             }
         }
 
@@ -456,7 +473,30 @@ namespace JominiParse
                 }
               
             }
-           
+
+            string scopeName = name;
+            ScopeType scope = from;
+            if (scopeName.Contains("."))
+            {
+                var stu = scope;
+                string[] split = scopeName.Split('.');
+
+                for (var index = 0; index < split.Length; index++)
+                {
+                    var s = split[index];
+
+                    {
+
+                        var newScope = ChangeScope(stu, s, out success, parent);
+                        if (!success)
+                            break;
+                        stu = newScope;
+                    }
+
+                }
+                if(success)
+                    return stu;
+            }
 
             {
                 if (parent != null && isEffectScopeInside(from, name, parent))
@@ -469,9 +509,29 @@ namespace JominiParse
             return from;
         }
 
-        public ScopeType ChangeConditionScope(ScopeType from, string name, out bool success, ScriptObject parent=null)
+        public ScopeType ChangeConditionScope(ScopeType from, string name, out bool success, ScriptObject parent = null)
         {
             success = false;
+
+            if (name == "root")
+            {
+                success = true;
+                
+                return parent.GetRootScopeType();
+            }
+
+            if (name == "prev")
+            {
+                success = true;
+                return parent.GetPrevScopeType();
+            }
+
+            if (name == "this")
+            {
+                success = true;
+                return from;
+            }
+
 
             if (Defs.ContainsKey(from))
             {
@@ -485,9 +545,33 @@ namespace JominiParse
                     success = true;
                     return Defs[from].ValidConditionScopes[name].toType;
                 }
-               
+
             }
-           
+
+            string scopeName = name;
+            ScopeType scope = from;
+            if (scopeName.Contains("."))
+            {
+                var stu = scope;
+                string[] split = scopeName.Split('.');
+
+                for (var index = 0; index < split.Length; index++)
+                {
+                    var s = split[index];
+
+                    {
+
+                        var newScope = ChangeConditionScope(stu, s, out success, parent);
+                        if (!success)
+                            break;
+                        stu = newScope;
+                    }
+
+                }
+                if(success)
+                    return stu;
+            }
+
             {
 
                 if (parent != null && isConditionScopeInside(from, name, parent))
@@ -520,11 +604,27 @@ namespace JominiParse
             if (name.Contains("."))
             {
                 string[] split = name.Split('.');
-                if (Defs.ContainsKey(current) && Defs[current].ValidEffectScopes.ContainsKey(split[0].Trim()))
-                    return true;
-                if (Defs.ContainsKey(current) && Defs[ScopeType.any].ValidEffectScopes.ContainsKey(split[0].Trim()))
-                    return true;
 
+                foreach (var s in split)
+                {
+                    if (!((Defs.ContainsKey(current) && Defs[current].ValidEffectScopes.ContainsKey(s.Trim()) &&
+                           Defs[current].ValidEffectScopes[s.Trim()].singular) ||
+                          (Defs.ContainsKey(ScopeType.any) &&
+                           Defs[ScopeType.any].ValidEffectScopes.ContainsKey(s.Trim()) &&
+                           Defs[ScopeType.any].ValidEffectScopes[s.Trim()].singular)))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        if (Defs[current].ValidEffectScopes.ContainsKey(s.Trim()))
+                            current = Defs[current].ValidEffectScopes[s.Trim()].toType;
+                        else if (Defs[ScopeType.any].ValidEffectScopes.ContainsKey(s.Trim()))
+                            current = Defs[ScopeType.any].ValidEffectScopes[s.Trim()].toType;
+                    }
+
+
+                }
             }
 
             return false;
@@ -534,7 +634,7 @@ namespace JominiParse
             if (Defs.ContainsKey(scope) && Defs[scope].ValidConditionMap.ContainsKey(name.Trim()))
                 return true;
             if (scope != ScopeType.any)
-                return isEffect(ScopeType.any, name);
+                return isCondition(ScopeType.any, name);
 
             return false;
         }
@@ -550,6 +650,73 @@ namespace JominiParse
 
         }
 
+        public bool isSingularConditionScope(ScopeType current, string name, out ScopeType resScope, ScriptObject parent = null)
+        {
+            resScope = current;
+            bool inside = isConditionScopeInside(current, name, parent);
+            bool condition = isConditionScope(current, name);
+
+            if (!condition && !inside)
+                return false;
+
+            if (inside)
+            {
+                if(name.Contains("."))
+                {
+                    string test = name.Substring(0, name.LastIndexOf("."));
+                    var secondLast = getConditionScopeInside(current, test, parent);
+                    string final = name.Substring(name.LastIndexOf(".")+1);
+                    
+                    if (Defs[secondLast].ValidConditionScopes.ContainsKey(final) && Defs[secondLast].ValidConditionScopes[final].singular)
+                    {
+                        resScope = Defs[secondLast].ValidConditionScopes[final].toType;
+                        return true;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            if (Defs[current].ValidConditionScopes.ContainsKey(name) && Defs[current].ValidConditionScopes[name].singular)
+            {
+                resScope = Defs[current].ValidConditionScopes[name].toType;
+                return true;
+            }
+
+            if (name.Contains("."))
+            {
+                string[] split = name.Split('.');
+
+                foreach (var s in split)
+                {
+                    if (!((Defs.ContainsKey(current) && Defs[current].ValidConditionScopes.ContainsKey(s.Trim()) &&
+                         Defs[current].ValidConditionScopes[s.Trim()].singular) ||
+                        (Defs.ContainsKey(ScopeType.any) && Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()) &&
+                        Defs[ScopeType.any].ValidConditionScopes[s.Trim()].singular)))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        if (Defs[current].ValidConditionScopes.ContainsKey(s.Trim()))
+                            current = Defs[current].ValidConditionScopes[s.Trim()].toType;
+                        else
+                        if (Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()))
+                            current = Defs[ScopeType.any].ValidConditionScopes[s.Trim()].toType;
+                    }
+
+
+                }
+
+
+                return true;
+
+            }
+
+            return false;
+        }
         public bool isConditionScope(ScopeType current, string name)
         {
             if (name == null)
@@ -560,18 +727,37 @@ namespace JominiParse
 
             if (Defs.ContainsKey(current) && Defs[current].ValidConditionScopes.ContainsKey(name))
                 return true;
-            if (name.StartsWith("any_"))
-                return true;
             if (Defs.ContainsKey(current) && Defs[ScopeType.any].ValidConditionScopes.ContainsKey(name))
                 return true;
+
 
             if (name.Contains("."))
             {
                 string[] split = name.Split('.');
-                if (Defs.ContainsKey(current) && Defs[current].ValidConditionScopes.ContainsKey(split[0].Trim()))
-                    return true;
-                if (Defs.ContainsKey(current) && Defs[ScopeType.any].ValidConditionScopes.ContainsKey(split[0].Trim()))
-                    return true;
+
+                foreach (var s in split)
+                {
+                    if (!((Defs.ContainsKey(current) && Defs[current].ValidConditionScopes.ContainsKey(s.Trim()) &&
+                           Defs[current].ValidConditionScopes[s.Trim()].singular) ||
+                          (Defs.ContainsKey(ScopeType.any) && Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()) &&
+                           Defs[ScopeType.any].ValidConditionScopes[s.Trim()].singular)))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        if(Defs[current].ValidConditionScopes.ContainsKey(s.Trim()))
+                            current = Defs[current].ValidConditionScopes[s.Trim()].toType;
+                        else
+                        if (Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()))
+                            current = Defs[ScopeType.any].ValidConditionScopes[s.Trim()].toType;
+                    }
+
+
+                }
+
+
+                return true;
 
             }
 
@@ -664,6 +850,9 @@ namespace JominiParse
             if (!name.StartsWith("scope:"))
                 return false;
 
+            if (scriptObjectParent == null)
+                return false;
+
             string scopeName = name.Substring(name.IndexOf(":") + 1);
 
             if (scopeName.Contains("."))
@@ -677,7 +866,7 @@ namespace JominiParse
                     if (index == 0)
                     {
                         bool success;
-                        var newScope = ChangeConditionScope(stu, "scope:"+s, out success, scriptObjectParent);
+                        var newScope = ChangeConditionScope(stu, "scope:" + s, out success, scriptObjectParent);
                         if (!success)
                             return false;
                         stu = newScope;
@@ -701,7 +890,61 @@ namespace JominiParse
 
             if (results.Any(a => a.Name == scopeName))
                 return true;
-           
+
+            if (scope != ScopeType.any)
+                return isConditionScopeInside(ScopeType.any, name, scriptObjectParent);
+
+            return false;
+        }
+        public bool isConditionScopeEndParamInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
+        {
+            if (!name.StartsWith("scope:"))
+                return false;
+
+            if (scriptObjectParent == null)
+                return false;
+
+            string scopeName = name.Substring(name.IndexOf(":") + 1);
+
+            if (scopeName.Contains("."))
+            {
+                var stu = scope;
+                string[] split = scopeName.Split('.');
+
+                for (var index = 0; index < split.Length-1; index++)
+                {
+                    var s = split[index];
+                    if (index == 0)
+                    {
+                        bool success;
+                        var newScope = ChangeConditionScope(stu, "scope:" + s, out success, scriptObjectParent);
+                        if (!success)
+                            return false;
+                        stu = newScope;
+                    }
+                    else
+                    {
+                        bool success;
+                        var newScope = ChangeConditionScope(stu, s, out success);
+                        if (!success)
+                            return false;
+                        stu = newScope;
+                    }
+
+                }
+
+                if (isCondition(stu, split[split.Length - 1]))
+                    return true;
+
+                return false;
+            }
+
+            List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
+            scriptObjectParent.GetValidScriptScopes(results, true);
+
+            if (results.Any(a => a.Name == scopeName))
+                return true;
+
             if (scope != ScopeType.any)
                 return isConditionScopeInside(ScopeType.any, name, scriptObjectParent);
 
@@ -751,7 +994,7 @@ namespace JominiParse
             if (results.Any(a => a.Name == scopeName))
             {
 
-                return results.First().To;
+                return results.First(a => a.Name == scopeName).To;
             }
 
             if (scope != ScopeType.any)
@@ -803,7 +1046,7 @@ namespace JominiParse
             if (results.Any(a => a.Name == scopeName))
             {
 
-                return results.First().To;
+                return results.First(a => a.Name == scopeName).To;
             }
 
             if (scope != ScopeType.any)
@@ -811,5 +1054,7 @@ namespace JominiParse
 
             return scope;
         }
+
+
     }
 }

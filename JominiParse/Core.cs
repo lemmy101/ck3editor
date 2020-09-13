@@ -21,8 +21,9 @@ namespace JominiParse
             ModCK3Library = new ScriptLibrary();
             LoadingCK3Library = BaseCK3Library;
             BaseCK3Library.Path = Globals.CK3Path;
+            EnumManager.Instance.Load();
             LoadCK3Scripts(BaseCK3Library);
-           
+            
         }
 
         public void CreateOrLoadMod(string mod)
@@ -38,6 +39,8 @@ namespace JominiParse
             ModCK3Library.Parent = BaseCK3Library;
             ModCK3Library.Name = mod;
 
+            PostInitialize();
+
         }
         public void LoadMod(string mod)
         {
@@ -48,6 +51,8 @@ namespace JominiParse
 
             LoadingCK3Library = ModCK3Library;
             LoadCK3Scripts(ModCK3Library);
+
+            PostInitialize();
         }
 
         private void LoadModFiles(string mod)
@@ -148,6 +153,7 @@ namespace JominiParse
         public class ContextInfo
         {
             public string Directory;
+            public string Dictionary;
 //            public delegate HashSet<string> GetNameSet(bool modOnly);
         }
 
@@ -208,6 +214,18 @@ namespace JominiParse
    
         };
 
+        public void PostInitialize()
+        {
+
+            ModCK3Library.ConnectEventNetwork();
+
+            foreach (var scriptObject in ScriptObject.DeferedInitializationList)
+            {
+                scriptObject.PostInitialize();
+            }
+
+            ScriptObject.DeferedInitializationList.Clear();
+        }
         public void LoadCK3Scripts(ScriptLibrary lib)
         {
             LoadingCK3Library = lib;
@@ -227,16 +245,12 @@ namespace JominiParse
                 }
 
             }
-
-          
-            LoadingCK3Library.ConnectEventNetwork();
-            
             foreach (var scriptObject in ScriptObject.DeferedInitializationList)
             {
                 scriptObject.Initialize();
             }
+        
 
-            ScriptObject.DeferedInitializationList.Clear();
         }
 
 
@@ -257,12 +271,16 @@ namespace JominiParse
             catch (Exception e)
             {
             }
+            foreach (var scriptObject in ScriptObject.DeferedInitializationList)
+            {
+                scriptObject.Initialize();
+            }
 
             ModCK3Library.ConnectEventNetwork();
            
             foreach (var scriptObject in ScriptObject.DeferedInitializationList)
             {
-                scriptObject.Initialize();
+                scriptObject.PostInitialize();
             }
             ScriptObject.DeferedInitializationList.Clear();
 
@@ -500,6 +518,20 @@ namespace JominiParse
                 return eventNames;
 
             eventNames.UnionWith(BaseCK3Library.TraitsMap.Keys);
+
+            foreach (var v in ModCK3Library.TraitsMap.Values)
+            {
+                var r = v.Children.Where(a => a.Name == "group");
+                if (r.Any())
+                    eventNames.Add(r.First().GetStringValue());
+            }
+
+            foreach (var v in BaseCK3Library.TraitsMap.Values)
+            {
+                var r = v.Children.Where(a => a.Name == "group");
+                if (r.Any())
+                    eventNames.Add(r.First().GetStringValue());
+            }
 
             return eventNames;
         }
@@ -741,6 +773,20 @@ namespace JominiParse
                 return eventNames;
 
             eventNames.UnionWith(BaseCK3Library.StaticModifiersMap.Keys);
+
+            return eventNames;
+        }
+        public HashSet<string> GetModifierNameSet(bool modOnly)
+        {
+            HashSet<string> eventNames = new HashSet<string>();
+
+            eventNames.UnionWith(ModCK3Library.StaticModifiersMap.Keys);
+            eventNames.UnionWith(ModCK3Library.ScriptedModifiersMap.Keys);
+            if (modOnly)
+                return eventNames;
+
+            eventNames.UnionWith(BaseCK3Library.StaticModifiersMap.Keys);
+            eventNames.UnionWith(BaseCK3Library.ScriptedModifiersMap.Keys);
 
             return eventNames;
         }
@@ -1330,8 +1376,16 @@ namespace JominiParse
 
         public HashSet<string> GetNameSetFromEnumType(string type)
         {
+            if (type == "scripted_trigger")
+                return GetScriptedTriggerNameSet(false);
+            if (type == "opinion")
+                return GetOptionModifierNameSet(false);
+            if (type == "hook")
+                return GetHookTypeNameSet(false);
             if (type == "on_action")
                 return GetOnActionNameSet(false);
+            if (type == "modifier")
+                return GetStaticModifierNameSet(false);
             if (type == "event_theme")
                 return GetEventThemeNameSet(false);
             if (type == "trait")
@@ -1340,6 +1394,8 @@ namespace JominiParse
                 return GetDecisionNameSet(false);
             if (type == "event")
                 return GetEventNameSet(false);
+  //          if (type == "tooltip")
+//                return GetEventNameSet(false);
 
             return new HashSet<string>();
         }

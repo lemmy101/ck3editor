@@ -1,15 +1,15 @@
 <Scopes>
 
 
-  <Scope name="joined_faction" from="character" to="faction" type="both" />
-  <Scope name="pregnancy_real_father" from="character" to="character" type="both" />
-  <Scope name="top_liege" from="character" to="character" type="both" />
-  <Scope name="enemy_side" from="combat_side" to="combat_side" type="both" />
-  <Scope name="side_commander" from="combat_side" to="character" type="both" />
-  <Scope name="side_primary_participant" from="combat_side" to="character" type="both" />
+  <Scope name="joined_faction" from="character" to="faction" type="both" singular="yes" />
+  <Scope name="pregnancy_real_father" from="character" to="character" type="both" singular="yes" />
+  <Scope name="top_liege" from="character" to="character" type="both" singular="yes" />
+  <Scope name="enemy_side" from="combat_side" to="combat_side" type="both" singular="yes" />
+  <Scope name="side_commander" from="combat_side" to="character" type="both" singular="yes" />
+  <Scope name="side_primary_participant" from="combat_side" to="character" type="both" singular="yes" />
 
 
-  <Scope name="location" from="character" to="province" type="both" />
+  <Scope name="location" from="character" to="province" type="both" singular="yes" />
 
   <Scope name="any_ally" from="character" to="character" type="condition" />
   <Scope name="any_character_war" from="character" to="war" type="condition" />
@@ -56,6 +56,10 @@
   <Scope name="any_secret" from="character" to="secret" type="condition" />
   <Scope name="any_sibling" from="character" to="character" type="condition" />
   <Scope name="any_spouse" from="character" to="character" type="condition" />
+  <Scope name="any_former_spouse" from="character" to="character" type="condition" />
+  <Scope name="any_former_concubine" from="character" to="character" type="condition" />
+  <Scope name="any_former_concubinist" from="character" to="character" type="condition" />
+  
   <Scope name="any_sub_realm_barony" from="character" to="title" type="condition" />
   <Scope name="any_sub_realm_county" from="character" to="title" type="condition" />
   <Scope name="any_sub_realm_duchy" from="character" to="title" type="condition" />
@@ -74,40 +78,48 @@
   <Scope name="any_ruler" from="any" to="character" type="condition" />
   <Scope name="any_theocratic_ruler" from="faith" to="character" type="condition" />
  
-  <Scope name="court_owner" from="character" to="character" type="both" />
-  <Scope name="imprisoner" from="character" to="character" type="both" />
+  <Scope name="court_owner" from="character" to="character" type="both" singular="yes" />
+  <Scope name="imprisoner" from="character" to="character" type="both" singular="yes" />
 
-  <Scope name="activity_owner" from="activity" to="character" type="both" />
-  <Scope name="ghw_war_declarer" from="ghw" to="character" type="both" />
-  <Scope name="ghw_target_title" from="ghw" to="title" type="both" />
-  <Scope name="ghw_war" from="ghw" to="war" type="both" />
-  <Scope name="primary_attacker" from="war" to="character" type="both" />
-  <Scope name="primary_defender" from="war" to="character" type="both" />
-  <Scope name="religious_head" from="faith" to="character" type="both" />
-  <Scope name="religious_head_title" from="faith" to="title" type="both" />
+  <Scope name="house_head" from="house" to="character" type="any" singular="yes" />
   
-  <Scope name="great_holy_war" from="faith" to="ghw" type="both" />
+  <Scope name="activity_owner" from="activity" to="character" type="both" singular="yes" />
+  <Scope name="ghw_war_declarer" from="ghw" to="character" type="both" singular="yes" />
+  <Scope name="ghw_target_title" from="ghw" to="title" type="both" singular="yes" />
+  <Scope name="ghw_war" from="ghw" to="war" type="both" singular="yes" />
+  <Scope name="primary_attacker" from="war" to="character" type="both" singular="yes" />
+  <Scope name="primary_defender" from="war" to="character" type="both" singular="yes" />
+  <Scope name="religious_head" from="faith" to="character" type="both" singular="yes" />
+  <Scope name="religious_head_title" from="faith" to="title" type="both" singular="yes" />
+  <Scope name="scheme_target" from="scheme" to="character" type="both" singular="yes" />
+  	
+  <Scope name="great_holy_war" from="faith" to="ghw" type="both" singular="yes" />
   
-  <Scope name="holder" from="county" to="character" type="both" />
+  <Scope name="holder" from="title" to="character" type="both" singular="yes" />
+  <Scope name="holder" from="title" to="character" type="both" singular="yes"/>
   
-  <Scope name="county" from="province" to="county" type="both" />
+  <Scope name="county" from="province" to="title" type="both" singular="yes" />
 
-  <Scope name="title_province" from="county" to="title" type="both" />
-  <Scope name="county" from="province" to="county" type="both" />
-  <Scope name="county" from="title" to="county" type="both" />
-  <Scope name="barony" from="province" to="title" type="both" />
+  <Scope name="title_province" from="title" to="title" type="both" singular="yes" />
+  <Scope name="county" from="province" to="title" type="both" singular="yes" />
+  <Scope name="county" from="title" to="title" type="both" singular="yes" />
+  <Scope name="barony" from="province" to="title" type="both" singular="yes" />
+  
+  <Scope name="capital_county" from="character" to="title" type="both" singular="yes" />
 
-  <Scope name="army_commander" from="army" to="character" type="both" />
+  <Scope name="army_commander" from="army" to="character" type="both" singular="yes" />
 
-  <Scope name="betrothed" from="character" to="character" type="both" />
-  <Scope name="capital_county" from="character" to="county" type="effect" />
-  <Scope name="capital_province" from="character" to="province" type="effect" />
-  <Scope name="culture" from="character" to="culture" type="effect" />
-  <Scope name="dynasty" from="character" to="dynasty" type="effect" />
+  <Scope name="betrothed" from="character" to="character" type="both" singular="yes" />
+  <Scope name="capital_county" from="character" to="title" type="effect" singular="yes" />
+  <Scope name="capital_province" from="character" to="province" type="effect" singular="yes" />
+  <Scope name="culture" from="character" to="culture" type="effect" singular="yes" />
+  <Scope name="dynasty" from="character" to="dynasty" type="both" singular="yes" />
+  <Scope name="dynast" from="dynasty" to="character" type="both" singular="yes" />
   <Scope name="every_ally" from="character" to="character" type="effect" />
   <Scope name="every_ancestor" from="character" to="character" type="effect" />
   <Scope name="every_character_war" from="character" to="war" type="effect" />
   <Scope name="every_child" from="character" to="character" type="effect" />
+  <Scope name="every_county" from="any" to="title" type="effect" />  
   <Scope name="every_close_family_member" from="character" to="character" type="effect" />
   <Scope name="every_close_or_extended_family_member" from="character" to="character" type="effect" />
   <Scope name="every_consort" from="character" to="character" type="effect" />
@@ -141,22 +153,23 @@
   <Scope name="every_secret" from="character" to="secret" type="effect" />
   <Scope name="every_sibling" from="character" to="character" type="effect" />
   <Scope name="every_spouse" from="character" to="character" type="effect" />
-  <Scope name="every_sub_realm_county" from="character" to="county" type="effect" />
+  <Scope name="every_sub_realm_county" from="character" to="title" type="effect" />
   <Scope name="every_theocratic_vassal" from="character" to="character" type="effect" />
   <Scope name="every_vassal" from="character" to="character" type="effect" />
   <Scope name="every_vassal_or_below" from="character" to="character" type="effect" />
-  <Scope name="faith" from="character" to="faith" type="both" />
-  <Scope name="father" from="character" to="character" type="both" />
-  <Scope name="host" from="character" to="character" type="both" />
-  <Scope name="house" from="character" to="house" type="both" />
-  <Scope name="house_head" from="character" to="character" type="both" />
-  <Scope name="liege" from="character" to="character" type="both" />
-  <Scope name="mother" from="character" to="character" type="both" />
-  <Scope name="player_heir" from="character" to="character" type="both" />
-  <Scope name="primary_heir" from="character" to="character" type="both" />
-  <Scope name="primary_partner" from="character" to="character" type="both" />
-  <Scope name="primary_spouse" from="character" to="character" type="both" />
-  <Scope name="primary_title" from="character" to="title" type="both" />
+  <Scope name="faith" from="character" to="faith" type="both"  singular="yes"/>
+  <Scope name="faith" from="title" to="faith" type="both"  singular="yes"/>
+  <Scope name="father" from="character" to="character" type="both" singular="yes" />
+  <Scope name="host" from="character" to="character" type="both" singular="yes" />
+  <Scope name="house" from="character" to="house" type="both" singular="yes" />
+  <Scope name="house_head" from="character" to="character" type="both" singular="yes" />
+  <Scope name="liege" from="character" to="character" type="both" singular="yes" />
+  <Scope name="mother" from="character" to="character" type="both" singular="yes" />
+  <Scope name="player_heir" from="character" to="character" type="both" singular="yes" />
+  <Scope name="primary_heir" from="character" to="character" type="both" singular="yes" />
+  <Scope name="primary_partner" from="character" to="character" type="both" singular="yes" />
+  <Scope name="primary_spouse" from="character" to="character" type="both" singular="yes" />
+  <Scope name="primary_title" from="character" to="title" type="both" singular="yes" />
   <Scope name="random_ancestor" from="character" to="character" type="effect" />
   <Scope name="random_character_war" from="character" to="war" type="effect" />
   <Scope name="random_child" from="character" to="character" type="effect" />
@@ -200,7 +213,9 @@
   <Scope name="random_vassal" from="character" to="character" type="effect" />
   <Scope name="random_vassal_or_below" from="character" to="character" type="effect" />
   <Scope name="random_war_enemy" from="character" to="character" type="effect" />
-  <Scope name="real_father" from="character" to="character" type="effect" />
-  <Scope name="root" from="any" to="character" type="effect" />
-  <Scope name="this" from="any" to="character" type="effect" />
+  <Scope name="real_father" from="character" to="character" type="both" />
+  <Scope name="faction_target" from="faction" to="character" type="both" singular="yes" />
+  <Scope name="root" from="any" to="any" type="both" singular="yes" />
+  <Scope name="this" from="any" to="any" type="both" singular="yes" />
+  <Scope name="prev" from="any" to="any" type="both" singular="yes" />
 </Scopes>

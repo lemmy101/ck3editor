@@ -1,0 +1,6 @@
+<Schema blockType="inheritparent">
+	<Child name="factor" type="num"/>
+	<Child name="add" type="num"/>
+	<Child name="scopeconditions" type="scopeconditions"/>
+	<Child name="scriptedtriggers" type="bool" namesFrom="scripted_trigger"/>
+</Schema>

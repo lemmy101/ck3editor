@@ -1,4 +1,4 @@
-<SyntaxDefinition name="Behaviour" extensions=".txt">
+﻿<SyntaxDefinition name="Behaviour" extensions=".txt">
   <Properties>
     <Property name="LineComment" value="//" />
   </Properties>

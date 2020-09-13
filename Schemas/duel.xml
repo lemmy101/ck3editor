@@ -1,0 +1,6 @@
+<Schema blockType="inheritparent">
+	<Child name="skill" type="skill"/>
+	<Child name="target" type="character"/>
+	<Child name="chance" type="random_list_entry" isBlock="yes" namesFrom="num"/>
+
+</Schema>

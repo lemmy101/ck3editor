@@ -1,0 +1,5 @@
+<ScriptObject blockType="schema_block">
+
+	<Child name="chance" type="random_list_entry" isBlock="yes" namesFrom="num"/>
+	
+</ScriptObject>

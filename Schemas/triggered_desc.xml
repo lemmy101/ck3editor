@@ -1,0 +1,4 @@
+<ScriptObject parent="">
+	<Child name="trigger" type="trigger" isBlock="yes"/>
+	<Child name="desc" type="localized"/>
+</ScriptObject>

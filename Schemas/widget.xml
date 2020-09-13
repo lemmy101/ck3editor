@@ -1,0 +1,4 @@
+<Schema blockType="inheritparent">
+	<Child name="gui" type="string"/>
+	<Child name="container" type="string"/>
+</Schema>

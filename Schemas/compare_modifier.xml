@@ -1,0 +1,7 @@
+<Schema blockType="inheritparent">
+	<Child name="value" type="num"/>
+	<Child name="multiplier" type="num"/>
+	<Child name="min" type="num"/>
+	<Child name="max" type="num"/>
+	
+</Schema>

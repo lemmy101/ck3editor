@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -96,6 +97,16 @@ namespace JominiParse
         public string Path { get; set; }
 
         #region Get Objects
+
+        private ScriptObject Get(string name)
+        {
+            if (!AllTypeMap.ContainsKey(name))
+                return null;
+
+            return AllTypeMap[name];
+        }
+
+
         public ScriptObject GetCharacter(string str)
         {
             if (!CharactersMap.ContainsKey(str))
@@ -1496,7 +1507,14 @@ namespace JominiParse
                         var dec = scriptObject as ScriptObject;
                         if (dec != null)
                         {
-                            EventMap[dec.Name] = dec;
+                            if(dec.Name.StartsWith("scripted_trigger "))
+                            {
+                                ScriptedTriggersMap[dec.Name.Substring(dec.Name.IndexOf(" ")+1)] = dec;
+                            }
+                            else
+                            {
+                                EventMap[dec.Name] = dec;
+                            }
                             DoFile(dec, context);
 
                         }
@@ -1524,6 +1542,13 @@ namespace JominiParse
             {
                 foreach (var scriptObject in objects)
                 {
+                    if (scriptObject.Library == Core.Instance.ModCK3Library)
+                    {
+                        var res = Parent.Get(scriptObject.Name);
+                        if (res != null)
+                            res.Overridden = true;
+                    }
+
                     if (!Parent.FileMap.ContainsKey(scriptObject.Filename))
                         continue;
 
@@ -1533,10 +1558,13 @@ namespace JominiParse
                     {
                         mapValue.Overridden = true;
                     }
+
+                  
                 }
             }
          
         }
+
 
         public string GetLocalizedText(string tag)
         {
@@ -1554,9 +1582,172 @@ namespace JominiParse
             return Localization[tag].english;
         }
 
-        public void RegisterTrigger(trigger_event triggerEvent)
+        public void RegisterRandomOnActionTrigger(ScriptObject node)
         {
-            unprocessedTriggers.Add(triggerEvent);
+            if (node.Children.Count > 0)
+            {
+                foreach (var scriptObject in node.Children)
+                {
+                    int result;
+                    if (Int32.TryParse(scriptObject.Name, out result))
+                    {
+                        var e = scriptObject.GetStringValue();
+                        // found a random event...
+                        if (GetOnAction(e) != null)
+                        {
+                            trigger_event n = new trigger_event();
+
+                            n.on_action = e;
+                            n.Function = node;
+                            n.Topmost = node.Topmost;
+                            unprocessedTriggers.Add(n);
+                        }
+                    }
+                }
+
+            }
+        }
+        public void RegisteFirstValidOnActionTrigger(ScriptObject node)
+        {
+            if (node.Children.Count > 0)
+            {
+                foreach (var scriptObject in node.Children)
+                {
+                    int result;
+                   
+                    {
+                        var e = scriptObject.Name;
+                        // found a random event...
+                        if (GetOnAction(e) != null)
+                        {
+                            trigger_event n = new trigger_event();
+
+                            n.on_action = e;
+                            n.Function = node;
+                            n.Topmost = node.Topmost;
+                            unprocessedTriggers.Add(n);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        public void RegisterRandomEventsTrigger(ScriptObject node)
+        {
+            if (node.Children.Count > 0)
+            {
+                foreach (var scriptObject in node.Children)
+                {
+                    int result;
+                    if (Int32.TryParse(scriptObject.Name, out result))
+                    {
+                        var e = scriptObject.GetStringValue();
+                        // found a random event...
+                        if (GetEvent(e) != null)
+                        {
+                            trigger_event n = new trigger_event();
+                            if (e == "abduct_outcome.1001")
+                            {
+
+                            }
+                            n.id = e;
+                            n.Function = node;
+                            n.Topmost = node.Topmost;
+                            unprocessedTriggers.Add(n);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        public void RegisterFirstValidEventsTrigger(ScriptObject node)
+        {
+            if (node.Children.Count > 0)
+            {
+                foreach (var scriptObject in node.Children)
+                {
+                    int result;
+                 
+                    {
+                        var e = scriptObject.Name;
+                        // found a random event...
+                        if (GetEvent(e) != null)
+                        {
+                            trigger_event n = new trigger_event();
+                           
+                            n.id = e;
+                            n.Function = node;
+                            n.Topmost = node.Topmost;
+                            unprocessedTriggers.Add(n);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        public void RegisterTrigger(ScriptObject node)
+        {
+            if (node.Topmost.Name == "abduct_outcome.0001")
+            {
+
+            }
+               
+            if (node.Children.Count > 0)
+            {
+                var idNodes = node.Children.Where(a => a.Name == "id");
+                var dayNodes = node.Children.Where(a => a.Name == "days");
+                var onActionNodes = node.Children.Where(a => a.Name == "on_action");
+                trigger_event n = new trigger_event();
+                
+                if (dayNodes.Any())
+                {
+                    string val = dayNodes.First().GetStringValue();
+                    if (val == null)
+                    {
+                        var c = dayNodes.First().Children;
+                        n.days_from = c[0].Name;
+                        n.days_to  =c[1].Name;
+                    }
+                    else
+                    {
+                        n.days_from = val;
+                        n.days_to = val;
+
+                    }
+                }
+                string on_action = null;
+                string id = null;
+
+                if (idNodes.Any())
+                {
+                    id = idNodes.First().GetStringValue();
+                }
+                if (onActionNodes.Any())
+                {
+                    on_action = onActionNodes.First().GetStringValue();
+                }
+
+                n.on_action = on_action;
+                n.Topmost = node.Topmost;
+                n.Function = node;
+                n.id = id;
+                unprocessedTriggers.Add(n);
+
+            }
+            else
+            {
+                trigger_event n = new trigger_event();
+
+                n.Topmost = node.Topmost;
+                n.Function = node;
+                n.days_from = null;
+                n.days_to = null;
+                n.id = node.GetStringValue();
+                unprocessedTriggers.Add(n);
+            }
         }
 
         public void ConnectEventNetwork()
@@ -1565,33 +1756,72 @@ namespace JominiParse
             {
                 var fromTop = triggerEvent.Topmost;
                 var from = triggerEvent;
-                if (!EventMap.ContainsKey(triggerEvent.id.GetStringValue()))
-                    continue;
+                if (triggerEvent.id != null)
+                {
+                    if (!EventMap.ContainsKey(triggerEvent.id))
+                        continue;
 
-                var to = EventMap[triggerEvent.id.GetStringValue()];
+                    var to = EventMap[triggerEvent.id];
+                //    fromTop.Connections.RemoveAll(a => a.To.Filename == to.Filename);
+                }
+                else
+                {
+                    if (!OnActionsMap.ContainsKey(triggerEvent.on_action))
+                        continue;
 
-                fromTop.Connections.RemoveAll(a => a.To.Filename == to.Filename);
+                    var to = OnActionsMap[triggerEvent.on_action];
+               //     fromTop.Connections.RemoveAll(a => a.To.Filename == to.Filename);
+
+                }
             }
 
-            foreach (var triggerEvent in unprocessedTriggers)
+            for (var index = 0; index < unprocessedTriggers.Count; index++)
             {
+                var triggerEvent = unprocessedTriggers[index];
                 var fromTop = triggerEvent.Topmost;
                 var from = triggerEvent;
 
-                var to = GetEvent(triggerEvent.id.GetStringValue());
+                if (index == 1313)
+                {
 
-                if (to == null)
-                    continue;
+                }
 
-                fromTop.Connections.RemoveAll(a => a.To.Filename == to.Filename);
+                if (triggerEvent.id == "abduct_outcome.1001")
+                {
+                }
 
-                EventConnection c = new EventConnection();
-                c.From = fromTop;
-                c.FromCommand = from;
-                c.To = to;
-                c.To.AddEventConnection(c);
-                c.From.AddEventConnection(c);
+                if (triggerEvent.id != null)
+                {
+                    var to = GetEvent(triggerEvent.id);
 
+                    if (to == null)
+                        continue;
+
+                //    fromTop.Connections.RemoveAll(a => a.To.Filename == to.Filename);
+
+                    EventConnection c = new EventConnection();
+                    c.From = fromTop;
+                    c.FromCommand = @from.Function;
+                    c.To = to;
+                    c.To.AddEventConnection(c);
+                    c.From.AddEventConnection(c);
+                }
+                else
+                {
+                    var to = GetOnAction(triggerEvent.on_action);
+
+                    if (to == null)
+                        continue;
+
+                 //   fromTop.Connections.RemoveAll(a => a.To.Filename == to.Filename);
+
+                    EventConnection c = new EventConnection();
+                    c.From = fromTop;
+                    c.FromCommand = @from.Function;
+                    c.To = to;
+                    c.To.AddEventConnection(c);
+                    c.From.AddEventConnection(c);
+                }
             }
 
             unprocessedTriggers.Clear();

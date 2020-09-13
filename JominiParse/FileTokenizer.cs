@@ -216,15 +216,7 @@ namespace JominiParse
                     SetNamespace(scriptParsedSegment.value[0]);
                     continue;
                 }
-                /*
-                if (scriptParsedSegment.name == "if" || scriptParsedSegment.name == "trigger_if")
-                {
-                    int range;
-                    results.Add(ParseIf(parent, parsableResults, index, context, out range));
-                    index += range - 1;
-                    continue;
-                }
-                */
+              
                 var r = ParseResult(parent, scriptParsedSegment, context);
                 if(r != null)
                     results.Add(r);
@@ -236,7 +228,7 @@ namespace JominiParse
         }
         private ScriptObject ParseResult(ScriptObject parent, ScriptParsedSegment parsableResult, ScriptContext context)
         {
-            return ScriptObjectFactory.Instance.CreateScriptObject(context, parsableResult, parent);
+            return ScriptObjectFactory.Instance.CreateScriptObject(context, parsableResult, parent, ScriptNamespace);
         }
 
         public ScriptObject ParseUnknown(ScriptObject parent, ScriptParsedSegment segment, ScriptContext context)

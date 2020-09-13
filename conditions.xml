@@ -45,25 +45,44 @@
 	<Property name="value" type="num" />
 </Condition>  
 <Condition name="pilgrimage_is_to" validscope="character" >
-	<Property name="DESTINATION" type="county"/>	
+	<Property name="DESTINATION" type="title"/>	
 </Condition>  
 <Condition name="reverse_opinion" validscope="character" >
 	<Property name="target" type="character"/>	
 	<Property name="value" type="num" />
 </Condition>  
+<Condition name="squared_distance" validscope="title">
+	<Property name="target" type="title"/>	
+	<Property name="value" type="num"/>	
+</Condition>
+
 <Condition name="time_in_prison_type" validscope="character"  >
 	<Property name="days" type="num"/>	
 	<Property name="months" type="num"/>	
 	<Property name="years" type="num"/>	
 </Condition>  
+<Condition name="prev" validscope="any" type="scope" treatAsScope="yes"/>
+<Condition name="this" validscope="any" type="scope" treatAsScope="yes"/>
+<Condition name="root" validscope="any" type="scope" treatAsScope="yes" />
 <Condition name="age" validscope="character" type="num" />
 <Condition name="ai_compassion" validscope="character" type="num" />
 <Condition name="ai_honor" validscope="character" type="num" />
 <Condition name="ai_zeal" validscope="character" type="num" />
+
+<Condition name="scheme_number_of_agents" validscope="scheme" type="num" />
+<Condition name="is_at_same_location" validscope="character" type="character" />
+
+<Condition name="count" validscope="any" type="num" />
+<Condition name="even_if_dead" validscope="character" type="bool" />
+
+<Condition name="county_control" validscope="title" type="num"/>
+<Condition name="scheme_progress" validscope="scheme" type="num"/>
+
 <Condition name="attraction" validscope="character" type="num"/>
 <Condition name="basic_is_available_ai" validscope="character" />
 <Condition name="completely_controls_region" validscope="character" />
 <Condition name="culture" validscope="character" type="culture" />
+<Condition name="prowess" validscope="character" type="num" />
 <Condition name="current_weight" validscope="character" />
 <Condition name="days_of_continuous_peace" validscope="character" />
 <Condition name="days_of_continuous_war" validscope="character" />
@@ -171,7 +190,8 @@
 <Condition name="tier" validscope="title" type="num" />
 <Condition name="religion" validscope="character" type="religion" />
 <Condition name="religion_tag" validscope="character" type="religion_tag" />
-<Condition name="save_temporary_scope_as" validscope="character" type="tag" />
+<Condition name="save_scope_as" validscope="any" type="scope" />
+<Condition name="save_temporary_scope_as" validscope="any" type="scope" />
 <Condition name="short_term_gold" validscope="character"  type="num"/>
 <Condition name="stewardship" validscope="character" type="num"/>
 <Condition name="stress" validscope="character"  type="num"/>

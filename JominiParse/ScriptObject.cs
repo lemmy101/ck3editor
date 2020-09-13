@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,9 +21,29 @@ namespace JominiParse
 
         public class ScriptScope
         {
+            private ScopeType toScope;
             public bool Temporary { get; set; }
             public string Name { get; set; }
-            public ScopeType To { get; set; }
+
+            public ScopeType To
+            {
+                get
+                {
+                    if (ToObj != null)
+                        return ToObj.GetScopeType();
+
+                    return toScope;
+                }
+                set
+                {
+                    toScope = value;
+                    ToObj = null;
+                }
+            }
+
+
+            public ScriptObject ToObj { get; set; }
+
             public ScriptObject Declared { get; set; }
             public bool RequiresScopeTag { get; set; }
         }
@@ -56,49 +77,142 @@ namespace JominiParse
         {
 
         }
-        public void Initialize()
+
+        public virtual void Initialize()
         {
+            EnumExtractorUtility.Instance.Add(this);
+
+            if (Name == "events")
+            {
+                Core.Instance.LoadingCK3Library.RegisterFirstValidEventsTrigger(this);
+            }
+            
+            if (Name == "trigger_event")
+            {
+                Core.Instance.LoadingCK3Library.RegisterTrigger(this);
+            }
+            if (Name == "first_valid_on_action")
+            {
+                Core.Instance.LoadingCK3Library.RegisteFirstValidOnActionTrigger(this);
+            }
+            if (Name == "random_on_action")
+            {
+                Core.Instance.LoadingCK3Library.RegisterRandomOnActionTrigger(this);
+            }
+            if (Name == "on_actions")
+            {
+                Core.Instance.LoadingCK3Library.RegisteFirstValidOnActionTrigger(this);
+            }
+
+            if (Name == "random_events")
+            {
+                Core.Instance.LoadingCK3Library.RegisterRandomEventsTrigger(this);
+            }
+            if (Name == "first_valid")
+            {
+                Core.Instance.LoadingCK3Library.RegisterFirstValidEventsTrigger(this);
+            }
+            HandleScopeDeclarationFunctions(this, this.Parent);
+
+            foreach (var scriptObject in Children)
+            {
+                scriptObject.Initialize();
+            }
+        }
+
+        public virtual void PostInitialize()
+        {
+            if (Name == "OR" && LineStart == 34 && Filename.Contains("black"))
+            {
+
+            }
+            if (Name == "scope:target.location.county.holder.capital_county" && LineStart == 43 && Filename.Contains("test"))
+            {
+
+            }
+            
+            if (Name == "root")
+                SetScopeType(Topmost.GetScopeType());
+
             if (Schema == null && Parent != null)
             {
                 // may be a scope...
                 if (Name != null)
                 {
-                    if (ScopeManager.Instance.isConditionScope(Parent.GetScopeType(), Name) || ScopeManager.Instance.isConditionScopeInside(Parent.GetScopeType(), Name, Parent))
+               
+
+                    if (Parent.Schema != null && Parent.Schema.SupportsConditions())
                     {
-                        bool success;
-
-                        var s = ScopeManager.Instance.ChangeConditionScope(Parent.GetScopeType(), Name, out success,
-                            Parent);
-                        if (success)
+                        if (ScopeManager.Instance.isConditionScope(Parent.GetScopeType(), Name) || ScopeManager.Instance.isConditionScopeInside(Parent.GetScopeType(), Name, Parent) || ScopeManager.Instance.isConditionScopeEndParamInside(Parent.GetScopeType(), Name, Parent))
                         {
-                            SetScopeType(s);
-                            Schema = SchemaManager.Instance.GetDefaultConditionScopeSchema();
-                        }
+                            bool success;
 
+                            var s = ScopeManager.Instance.ChangeConditionScope(Parent.GetScopeType(), Name, out success,
+                                Parent);
+                            if (success)
+                            {
+                                SetScopeType(s);
+                                Schema = SchemaManager.Instance.GetDefaultConditionScopeSchema();
+                                isScope = true;
+                            }
+                            else
+                            {
+                                s = ScopeManager.Instance.ChangeConditionScope(Parent.GetScopeType(), Name.Substring(0, Name.LastIndexOf(".")), out success,
+                                    Parent);
+                                if (success)
+                                {
+                                    if(ScopeManager.Instance.isCondition(s, Name.Substring(Name.LastIndexOf(".")+1)))
+                                    {
+                                        SetScopeType(s);
+                                        Schema = SchemaManager.Instance.GetDefaultConditionScopeSchema();
+                                        isScope = true;
+                                        isConditionEnd = true;
+
+                                    }
+                                    else
+                                    {
+                                        
+                                    }
+                                }
+                            }
+
+                        }
                     }
-                    if (ScopeManager.Instance.isEffectScope(Parent.GetScopeType(), Name) || ScopeManager.Instance.isEffectScopeInside(Parent.GetScopeType(), Name, Parent))
+
+                    if (Parent.Schema != null && Parent.Schema.SupportsEffects())
                     {
-                        bool success;
-                        var s = (ScopeManager.Instance.ChangeScope(Parent.GetScopeType(), Name, out success, Parent));
-
-                        if (success)
+                        if (ScopeManager.Instance.isEffectScope(Parent.GetScopeType(), Name) || ScopeManager.Instance.isEffectScopeInside(Parent.GetScopeType(), Name, Parent))
                         {
-                            SetScopeType(s);
-                            Schema = SchemaManager.Instance.GetDefaultEffectScopeSchema();
+                            bool success;
+                            var s = (ScopeManager.Instance.ChangeScope(Parent.GetScopeType(), Name, out success, Parent));
+
+                            if (success)
+                            {
+                                SetScopeType(s);
+                                Schema = SchemaManager.Instance.GetDefaultEffectScopeSchema();
+                                isScope = true;
+                            }
                         }
                     }
+                 
                 }
 
             }
+
+            foreach (var scriptObject in Children)
+            {
+                scriptObject.PostInitialize();
+            }
         }
-        public ScriptObject(ScriptObject parent, ScriptParsedSegment seg)
+        public ScriptObject(ScriptObject parent, ScriptParsedSegment seg, ScriptObjectSchema schema = null)
         {
-            DeferedInitializationList.Add(this);
+            if(parent==null)
+                DeferedInitializationList.Add(this);
             if (seg == null)
             {
                 return;
             }
-
+         
             this.Name = seg.name;
             this.Filename = seg.filename;
             this.LineStart = seg.lineNumbers.First();
@@ -106,17 +220,12 @@ namespace JominiParse
             this.Parent = parent;
             this.Library = Core.Instance.LoadingCK3Library;
         
-            Schema = SchemaManager.Instance.GetSchema(GetType());
-            if (Name == "if")
-            {
+            Schema = schema;
+        
 
-            }
-            if (Schema != null)
-            {
-
-            }
             if (parent != null)
             {
+             
                 parent.Children.Add(this);
                 if (parent.Schema != null && seg.name != null)
                 {
@@ -135,12 +244,27 @@ namespace JominiParse
                         }
                     }
                 }
-                if (Schema == null && seg.name != null)
+                if (seg.name != null)
                 {
-        
-                    Schema = SchemaManager.Instance.GetSchema(seg.name);
+                    var alt= SchemaManager.Instance.GetSchema(seg.name);
+                    if (alt != null)
+                        Schema = alt;
 
                 }
+
+                int result;
+                if (Int32.TryParse(Name, out result))
+                {
+                    if (parent.Schema != null)
+                    {
+                        var b = parent.Schema.children.Where(a => a.Value.NamesFrom == "num").ToList();
+                        if (b.Count > 0)
+                        {
+                            Schema = SchemaManager.Instance.GetSchema(b[0].Value.Type);
+                        }
+                    }
+                }
+
             }
 
             if (Schema != null)
@@ -165,14 +289,12 @@ namespace JominiParse
                 if (scriptParsedSegment.value.Count > 0)
                 {
                     so = ScriptValueParser.Instance.ParseScriptValue(this, scriptParsedSegment);
-                    so.HandleScopeDeclarationFunctions(so, this, seg);
-
+             
                 }
                 else
                 {
                     so = new ScriptObject(this, scriptParsedSegment);
-                    so.HandleScopeDeclarationFunctions(this, parent, seg);
-                }
+                 }
               
                 if (BlockType == BlockType.effect_block)
                 {
@@ -182,6 +304,7 @@ namespace JominiParse
 
                 OnPostInitializeChild(so);
             }
+           
 
             if (Schema != null)
             {
@@ -205,10 +328,14 @@ namespace JominiParse
 
         }
 
-        private void HandleScopeDeclarationFunctions(ScriptObject scriptObject, ScriptObject parent, ScriptParsedSegment seg)
+        private void HandleScopeDeclarationFunctions(ScriptObject scriptObject, ScriptObject parent)
         {
             if (Name == "save_scope_as")
             {
+                if (scriptObject.GetStringValue() == "departure" && scriptObject.Filename.Contains("test"))
+                {
+
+                }
                 scriptObject.Topmost.AddScope(this, false);
             }
             else if (Name == "save_temporary_scope_as")
@@ -217,23 +344,48 @@ namespace JominiParse
             }
 
         }
-
+        static List<ScriptObject> visited = new List<ScriptObject>();
         public void GetValidScriptScopes(List<ScriptScope> results, bool allowTemp = true)
         {
+            if (Topmost != this || allowTemp)
+            {
+                visited.Clear();
+            }
             if (Topmost != this)
             {
                 Topmost.GetValidScriptScopes(results, allowTemp);
                 return;
             }
-                
-            if(allowTemp)
-                results.AddRange(scriptScopes.Values);
+
+            if (visited.Contains(this))
+                return;
+
+            visited.Add(this);
+
+
+            if (allowTemp)
+            {
+                foreach (var scriptScopesValue in scriptScopes.Values)
+                {
+                    if(!results.Any(a=>a.Name == scriptScopesValue.Name))
+                        results.Add(scriptScopesValue);
+                }
+
+//                results.AddRange(scriptScopes.Values);
+            }
             else
-                results.AddRange(scriptScopes.Values.Where(a=> !a.Temporary));
+            {
+                foreach (var scriptScopesValue in scriptScopes.Values)
+                {
+                    if (!scriptScopesValue.Temporary && !results.Any(a => a.Name == scriptScopesValue.Name))
+                        results.Add(scriptScopesValue);
+                }
+
+            }
 
             foreach (var eventConnection in Connections)
             {
-                if (this == eventConnection.To)
+                if (this == eventConnection.To && eventConnection.From != this)
                 {
                     eventConnection.From.GetValidScriptScopes(results, false);
                 }
@@ -246,9 +398,18 @@ namespace JominiParse
             var sc = (scope_command as ScriptValue);
             if (sc != null)
             {
+                
                 s.Temporary = temporary;
                 s.Name = sc.GetStringValue();
-                s.To = scope_command.Parent.ScopeType;
+                if (scriptScopes.ContainsKey(s.Name))
+                    return;
+
+                if (s.Name == "departure" && scope_command.LineStart == 44)
+                {
+
+                }
+
+                s.ToObj = scope_command.Parent;
                 s.Declared = scope_command;
                 scriptScopes[s.Name] = s;
             }
@@ -285,7 +446,7 @@ namespace JominiParse
         }
 
         private BlockType BlockType { get; set; }
-        private ScopeType ScopeType { get; set; } = ScopeType.character;
+        private ScopeType ScopeType { get; set; } = ScopeType.inheritparent;
         public ScriptObject Parent { get; set; }
 
         public int LineEnd { get; set; }
@@ -326,7 +487,7 @@ namespace JominiParse
             this.Library = Core.Instance.LoadingCK3Library;
             this.ScriptFile = file;
             Parent = parent;
-            Schema = SchemaManager.Instance.GetSchema(GetType());
+         
             if (parent != null)
             {
               //  parent.Children.Add(this);
@@ -412,6 +573,8 @@ namespace JominiParse
 
         public List<EventConnection> Connections = new List<EventConnection>();
         public List<ScriptObject> Children = new List<ScriptObject>();
+        private bool isScope;
+        private bool isConditionEnd;
 
         public void AddEventConnection(EventConnection eventConnection)
         {
@@ -431,9 +594,46 @@ namespace JominiParse
             return o;
         }
 
-        public void AddScriptScope(string name, ScriptObject scriptObject, ScopeType to, bool requiresScopeTag)
+        public void AddScriptScope(string name, ScriptObject scriptObject, ScopeType to, bool temporary, bool requiresScopeTag)
         {
-            scriptScopes[name] = new ScriptScope() {Declared = null, Name = name, Temporary = true, To = to, RequiresScopeTag=requiresScopeTag};
+            scriptScopes[name] = new ScriptScope() {Declared = null, Name = name, Temporary = temporary, To = to, RequiresScopeTag=requiresScopeTag};
+        }
+
+        public string GetStringValue()
+        {
+            if (!(this is ScriptValue))
+                return null;
+
+            return ((this as ScriptValue).GetStringValue());
+        }
+
+        public ScopeType GetPrevScopeType()
+        {
+            var par = this;
+            while (par != null)
+            {
+                if (par.ScopeType != ScopeType.inheritparent)
+                {
+                    return par.Parent.GetScopeType();
+                }
+
+                par = par.Parent;
+            }
+
+            return GetScopeType();
+        }
+        public ScopeType GetRootScopeType()
+        {
+            return Topmost.GetScopeType();
+        }
+
+        public bool IsScope()
+        {
+            return isScope;
+        }
+        public bool IsConditionEnd()
+        {
+            return isConditionEnd;
         }
     }
 }

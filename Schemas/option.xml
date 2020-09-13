@@ -3,9 +3,12 @@
 	<Child name="exclusive" type="bool"/>
 	<Child name="trigger" type="TriggerBlock" blockType="effect_block" isBlock="yes"/>
    <Child name="show_as_unavailable" type="condition_block" />
+	<Child name="duel" type="duel" />
 	<Child name="skill" type="skill" />
 	<Child name="trait" type="trait" />
 	<Child name="stress_impact" type="stress_impact" />
-	<Child name="ai_chance" type="ai_chance" />
+	<Child name="ai_chance" type="value_modifier" />
+	<Child name="custom_tooltip" type="localized"/>
 	<Child name="scopeeffects" type="scopeeffects"/>
+	
 </ScriptObject>

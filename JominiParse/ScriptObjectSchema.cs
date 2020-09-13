@@ -11,6 +11,7 @@ namespace JominiParse
         public BlockType blockType { get; set; }
         public ScopeType scopeType { get; set; }
         public string Name { get; set; }
+        public string NamesFrom { get; set; }
         public string Type { get; set; }
         public bool IsBlock { get; set; }
     }
@@ -27,7 +28,7 @@ namespace JominiParse
         public ScopeType scope = ScopeType.none;
         public string scopeChildId { get; set; }
         public BlockType blockType { get; set; }
-
+        public string simpleType { get; set; }
        
 
         public void Load(string filename)
@@ -36,7 +37,14 @@ namespace JominiParse
 
             doc.Load(filename);
 
-            XmlNode el = doc.DocumentElement.FirstChild;
+            var docEl = doc.DocumentElement;
+
+            XmlNode el = docEl.FirstChild;
+
+            if (docEl.Attributes["simpleType"] != null)
+            {
+                simpleType = docEl.Attributes["simpleType"].InnerText;
+            }
 
             while (el != null)
             {
@@ -60,7 +68,15 @@ namespace JominiParse
 
                     c = e;
                 }
+
+                string namesFrom = null;
+
+                if (el.Attributes["namesFrom"] != null)
+                {
+                    namesFrom = el.Attributes["namesFrom"].InnerText;
+                }
                 c.Name = name;
+                c.NamesFrom = namesFrom;
                 c.Type = type;
                 c.IsBlock = isBlock;
 
@@ -167,16 +183,42 @@ namespace JominiParse
             return scope;
         }
 
+        public bool SupportsConditions()
+        {
+            return children.Any(a => a.Key == "scopeconditions");
+        }
+        public bool SupportsEffects()
+        {
+            return children.Any(a => a.Key == "scopeeffects");
+        }
     }
 
     public class SchemaManager
     {
         public static SchemaManager Instance = new SchemaManager();
         List<string> schemaFilenames = new List<string>();
-        Dictionary<Type, ScriptObjectSchema> SchemaMap = new Dictionary<Type, ScriptObjectSchema>();
-        Dictionary<String, ScriptObjectSchema> SoftSchemaMap = new Dictionary<String, ScriptObjectSchema>();
+        Dictionary<String, ScriptObjectSchema> SchemaMap = new Dictionary<String, ScriptObjectSchema>();
         private ScriptObjectSchema DefaultCScope = null;
         private ScriptObjectSchema DefaultEScope = null;
+
+        public SchemaManager()
+        {
+            var files = Directory.GetFiles(".\\Schemas");
+
+            foreach (var file in files)
+            {
+                string l = file.Substring(file.LastIndexOf("\\") + 1).Replace(".xml", "");
+
+
+                ScriptObjectSchema s = new ScriptObjectSchema();
+
+                s.Load("Schemas/" + l + ".xml");
+                s.Soft = true;
+
+                SchemaMap[l] = s;
+            }
+        }
+
         public ScriptObjectSchema GetDefaultConditionScopeSchema()
         {
             if (DefaultCScope == null)
@@ -198,37 +240,11 @@ namespace JominiParse
             return DefaultEScope;
         }
 
-        public ScriptObjectSchema GetSchema(Type type)
-        {
-            if (schemaFilenames.Count == 0)
-            {
-                string[] dir = Directory.GetFiles("Schemas/");
-                foreach (var s1 in dir)
-                {
-                    schemaFilenames.Add(s1);
-                }
-
-            }
-
-            if (SchemaMap.ContainsKey(type))
-                return SchemaMap[type];
-
-            if (!schemaFilenames.Contains("Schemas/" + type.Name + ".xml"))
-                return null;
-
-            ScriptObjectSchema s = new ScriptObjectSchema();
-            if (!File.Exists("Schemas/" + type.Name + ".xml"))
-                return null;
-
-            s.Load("Schemas/" + type.Name + ".xml");
-            s.Soft = false;
-            SchemaMap[type] = s;
-
-            return s;
-        }
 
         public void CreateScopeFunction(ScopeType key, ConditionDef def, BlockType bt)
         {
+            if (GetSchema(def.name) != null)
+                return;
             ScriptObjectSchema schema = new ScriptObjectSchema();
 
 
@@ -247,10 +263,13 @@ namespace JominiParse
                 schema.children[name] = a;
             }
 
-            SoftSchemaMap[def.name] = schema;
+            SchemaMap[def.name] = schema;
         }
         public void CreateScopeFunction(ScopeType key, EffectDef def, BlockType bt)
         {
+
+            if (GetSchema(def.name) != null)
+                return;
             ScriptObjectSchema schema = new ScriptObjectSchema();
 
 
@@ -269,10 +288,14 @@ namespace JominiParse
                 schema.children[name] = a;
             }
 
-            SoftSchemaMap[def.name] = schema;
+            SchemaMap[def.name] = schema;
         }
         public void CreateScopeSchema(ScopeType fromScope, ScopeChangeDefinition scopeDef, BlockType blockType)
         {
+       
+            if (GetSchema(scopeDef.text) != null)
+                return;
+
             ScriptObjectSchema schema = new ScriptObjectSchema();
 
             schema.Soft = true;
@@ -302,34 +325,17 @@ namespace JominiParse
             }
 
 
-            SoftSchemaMap[scopeDef.text] = schema;
+            SchemaMap[scopeDef.text] = schema;
         }
 
         public ScriptObjectSchema GetSchema(string type)
         {
-            if (schemaFilenames.Count == 0)
-            {
-                string[] dir = Directory.GetFiles("Schemas/");
-                foreach (var s1 in dir)
-                {
-                    schemaFilenames.Add(s1);
-                }
-                
-            }
-            if (SoftSchemaMap.ContainsKey(type))
-                return SoftSchemaMap[type];
+            
+            if (SchemaMap.ContainsKey(type))
+                return SchemaMap[type];
+  
 
-            if (!schemaFilenames.Contains("Schemas/" + type + ".xml"))
-                return null;
-          
-            ScriptObjectSchema s = new ScriptObjectSchema();
-
-            s.Load("Schemas/" + type + ".xml");
-            s.Soft = true;
-
-            SoftSchemaMap[type] = s;
-
-            return s;
+            return null;
         }
 
     }

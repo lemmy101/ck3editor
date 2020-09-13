@@ -5,6 +5,13 @@
     <Property name="months" type="num"/>
     <Property name="years" type="num"/>
   </Effect>
+  
+  <Effect name="add_scheme_modifier" validscope="scheme">
+    <Property name="type" type="modifier"/>
+    <Property name="days" type="num"/>
+    <Property name="months" type="num"/>
+    <Property name="years" type="num"/>
+  </Effect>  
   <Effect name="add_character_modifier" validscope="character">
     <Property name="modifier" type="modifier"/>
     <Property name="days" type="num"/>
@@ -31,7 +38,7 @@
   <Effect name="add_martial_skill" validscope="character" type="num"/>
   <Effect name="add_opinion" validscope="character">
     <Property name="target" type="character"/>
-    <Property name="modifier" type="num"/>
+    <Property name="modifier" type="opinion"/>
   </Effect>
   <Effect name="add_piety" validscope="character" type="num" />
   <Effect name="add_piety_level" validscope="character" type="num" />
@@ -67,7 +74,6 @@
   <Effect name="clear_saved_scope" validscope="character" type="scope"/>
   <Effect name="clear_variable_list" validscope="character" type="list" />
   <Effect name="create_title_and_vassal_change" validscope="character" />
-  <Effect name="custom_tooltip" validscope="character" type="tooltip" />
   <Effect name="death" validscope="character" >
     <Property name="death_reason" type="deathreason"/>
     <Property name="killer" type="character"/>
@@ -92,7 +98,9 @@
     <Property name="gold" type="num"/>
     <Property name="yearly_income" type="bool"/>
   </Effect>
-  <Effect name="play_music_cue" validscope="character" type="music" />
+  
+  <Effect name="end_scheme" validscope="scheme" type="bool" />
+  <Effect name="play_music_cue" validscope="character" type="string" />
   <Effect name="recruit_courtier" validscope="character" type="character"/>
   <Effect name="remove_character_flag" validscope="character" type="any" />
   <Effect name="remove_character_modifier" validscope="character" type="modifier" />
@@ -115,7 +123,7 @@
   <Effect name="remove_relation_rival" validscope="character"  type="character" />
   <Effect name="remove_short_term_gold" validscope="character" type="num" />
   <Effect name="remove_trait" validscope="character" type="trait" />
-  <Effect name="remove_variable" validscope="character" type="variable"/>
+  <Effect name="remove_variable" validscope="character" type="any"/>
   <Effect name="resolve_title_and_vassal_change" validscope="character" type="change" />
   <Effect name="reverse_add_opinion" validscope="character">
     <Property name="target" type="character"/>
@@ -130,6 +138,12 @@
   <Effect name="send_interface_toast" validscope="character">
     <Property name="dummy" type="dummy"/>
   </Effect>
+  <Effect name="custom_tooltip" validscope="any" type="localized"/>
+  <Effect name="random" validscope="any"/>
+  <Effect name="random_list" validscope="any"/>
+  <Effect name="expose_secret" validscope="character" type="character"/>
+  <Effect name="disable_exposure_by" validscope="character" type="character"/>
+    
   <Effect name="set_character_faith" validscope="character" type="faith" />
   <Effect name="set_character_faith_with_conversion" validscope="character" type="faith"/>
   <Effect name="set_culture" validscope="character" type="culture" />
@@ -138,10 +152,18 @@
     <Property name="name" type="any"/>
     <Property name="value" type="any"/>
   </Effect>
+  <Effect name="send_interface_message" validscope="character" >
+   
+  </Effect>
+  
+  <Effect name="assert_if" validscope="any" type="any" />
+  <Effect name="set_house" validscope="character" type="house" />
+  <Effect name="add_scheme_progress" validscope="scheme" type="num" />
   <Effect name="set_player_character" validscope="character" type="character" />
   <Effect name="set_realm_capital" validscope="character" type="title" />
   <Effect name="set_relation_best_friend" validscope="character" type="character" />
   <Effect name="set_relation_crush" validscope="character" type="character" />
+  <Effect name="set_relation_bully" validscope="character" type="character" />
   <Effect name="set_relation_friend" validscope="character" type="character" />
   <Effect name="set_relation_lover" validscope="character" type="character" />
   <Effect name="set_relation_mentor" validscope="character" type="character" />
@@ -149,7 +171,7 @@
   <Effect name="set_relation_rival" validscope="character" type="character" />
   <Effect name="set_relation_soulmate" validscope="character" type="character" />
   <Effect name="set_sexuality" validscope="character" type="sexuality"/>
-  <Effect name="set_variable" validscope="character"  >
+  <Effect name="set_variable" validscope="any"  >
     <Property name="name" type="any"/>
     <Property name="value" type="any"/>
     <Property name="days" type="num"/>
@@ -171,7 +193,7 @@
     <Property name="target" type="character"/>
     <Property name="casus_belli" type="casus_belli"/>
   </Effect>
-  <Effect name="trigger_event" validscope="any"   >
+  <Effect name="trigger_event" validscope="any" type="event">
     <Property name="id" type="event"/>
     <Property name="days" type="num"/>
     <Property name="on_action" type="on_action"/>

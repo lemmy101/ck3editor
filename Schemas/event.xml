@@ -1,16 +1,21 @@
 <ScriptObject name="ScriptEvent" blockType="schema_block" scopeType="character">
 	<Child name="type" type="enum">
 	  <Enum>character_event</Enum>
-	</Child>
+	  <Enum>letter_event</Enum>
+	</Child>	
 	<Child name="title" type="localized"/>
+	<Child name="opening" type="localized"/>
+	<Child name="sender" type="character"/>	
 	<Child name="desc" type="localized"/>
 	<Child name="theme" type="event_theme"/>
 	<Child name="left_portrait" type="character"/>
 	<Child name="right_portrait" type="character"/>
+	<Child name="widget" type="widget"/>
 	<Child name="hidden" type="bool"/>
+	<Child name="override_icon" type="override_icon"/>
 	<Child name="immediate" type="EffectBlock" isBlock="yes" blockType="effect_block"/>
 	<Child name="trigger" type="TriggerBlock" isBlock="yes" blockType="condition_block"/>
-  <Child name="weight_multiplier" type="value_modifier" isBlock="yes"/>
+	<Child name="weight_multiplier" type="value_modifier" isBlock="yes"/>
 	<Child name="option" type="option" isBlock="yes" blockType="effect_block"/>
 	<Child name="after" type="EffectBlock" isBlock="yes" blockType="effect_block"/>
 </ScriptObject>

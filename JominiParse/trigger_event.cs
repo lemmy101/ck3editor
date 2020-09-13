@@ -1,13 +1,13 @@
 ﻿namespace JominiParse
 {
-    public class trigger_event : ScriptObject
+    public class trigger_event
     {
-        public ScriptValue id { get; set; }
-        public int days { get; set; }
+        public string on_action { get; set; }
+        public string id { get; set; }
+        public string days_from { get; set; }
+        public string days_to { get; set; }
         public ScriptObject Topmost { get; set; }
+        public ScriptObject Function { get; set; }
 
-        public trigger_event(ScriptObject parent, ScriptParsedSegment seg) : base(parent, seg)
-        {
-        }
     }
 }

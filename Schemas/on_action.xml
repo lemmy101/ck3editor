@@ -1,0 +1,9 @@
+<ScriptObject blockType="schema_block" scopeType="character">
+
+	<Child name="trigger" type="TriggerBlock" isBlock="yes" blockType="condition_block"/>
+	<Child name="random_events" type="random_events" isBlock="yes" blockType="effect_block"/>
+	<Child name="random_on_action" type="random_on_action" isBlock="yes" blockType="effect_block"/>
+	
+	<Child name="fallback" type="on_action"/>
+
+</ScriptObject>

@@ -1,0 +1,18 @@
+<Schema blockType="inheritparent">
+	<Child name="ai_boldness" type="num"/>
+	<Child name="ai_vengefulness" type="num"/>
+	<Child name="ai_compassion" type="num"/>
+	<Child name="ai_honor" type="num"/>
+	<Child name="ai_greed" type="num"/>
+	<Child name="ai_boldness" type="num"/>
+	<Child name="ai_zeal" type="num"/>
+	<Child name="ai_energy" type="num"/>
+	<Child name="ai_rationality" type="num"/>
+	
+	<Child name="min" type="num"/>
+	<Child name="max" type="num"/>
+	
+	<Child name="who" type="character"/>
+	<Child name="trigger" type="trigger"/>
+			
+</Schema>

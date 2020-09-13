@@ -3,4 +3,5 @@
 	<Child name="trigger_else_if" type="TriggerIf" isBlock="yes"/>
 	<Child name="trigger_else" type="inheritparent" blockType="inheritparent" isBlock="yes"/>
 	<Child name="scopeconditions" type="scopeconditions"/>
+	<Child name="scriptedtriggers" type="bool" namesFrom="scripted_trigger"/>
 </Schema>

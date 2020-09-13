@@ -99,68 +99,18 @@ namespace CK3ScriptEditor
             // Add the history panel to the layer panel group
             //     DockPanel.AddContent(_dockHistory, _dockLayers.DockGroup);
 
+            EnumExtractorUtility.Instance.Export("p.txt");
 
 
 
-            XmlDocument d = new XmlDocument();
-/*            {
-           
-            d.InnerXml = "<Scopes></Scopes>";
 
-            for(int n=0;n<(int)ScopeType.max;n++)
-            {
-                if(!ScopeManager.Instance.Defs.ContainsKey((ScopeType)n))
-                continue;
-
-                var l = ScopeManager.Instance.Defs[(ScopeType)n].ValidConditionScopes.Values.OrderBy(a => a.text).ToList();
-
-                foreach (var instanceKnownCharacterEffectScope in l)
-                {
-                    var fe = (XmlElement)d.FirstChild;
-
-                    fe.InnerXml += "<Scope name=\"" + instanceKnownCharacterEffectScope.text + "\" from=\""+((ScopeType)n).ToString()+"\" to=\"\" type=\"condition\"/>";
-
-                }
-
-
-            }
-            d.Save("Scopes2.xml");
-                 
-            }
-*/
-            /*
-            d.InnerXml = "<Effects></Effects>";
-
-            for (int n = 0; n < (int)ScopeType.max; n++)
-            {
-                if (!ScopeManager.Instance.Defs.ContainsKey((ScopeType)n))
-                    continue;
-
-                var l = ScopeManager.Instance.Defs[(ScopeType)n].ValidEffectMap.Values.OrderBy(a => a.name).ToList();
-
-                foreach (var instanceKnownCharacterEffectScope in l)
-                {
-                    if (Core.Instance.GetScriptedEffectNameSet(false).Contains(instanceKnownCharacterEffectScope.name))
-                        continue;
-                    if (instanceKnownCharacterEffectScope.name.Contains("scripted_effect"))
-                        continue;
-
-                    var fe = (XmlElement)d.FirstChild;
-
-                    fe.InnerXml += "<Effect name=\"" + instanceKnownCharacterEffectScope.name + "\" validscope=\"" + ((ScopeType)n).ToString() + "\"/>";
-
-                }
-
-
-            }
-            d.Save("Effects2.xml");
-*/            
-
-            var fsmProvider = new FileSyntaxModeProvider("./");
+                       var fsmProvider = new FileSyntaxModeProvider("./");
 
             HighlightingManager.Manager.AddSyntaxModeFileProvider(fsmProvider); // Attach to the text editor.
 
             BackupManager.Instance.UpdateTick();
+            
+            GetTextEditor("events/war.txt", false);
 
         }
 

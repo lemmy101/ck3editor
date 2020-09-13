@@ -1,3 +1,3 @@
-<Schema>
+<Schema scope="inheritparent">
 	<Child name="scopeconditions" type="scopeconditions"/>
 </Schema>
