@@ -121,9 +121,12 @@
     <Property name="target" type="character"/>
     <Property name="modifier" type="num"/>
   </Effect>
-  <Effect name="save_scope_as" validscope="character" type="any" />
-  <Effect name="save_scope_value_as" validscope="character" />
-  <Effect name="save_temporary_scope_as" validscope="character" type="any" />
+  <Effect name="save_scope_as" validscope="any" type="scope" />
+  <Effect name="save_scope_value_as" validscope="character">
+	<Property name="name" type="any"/>
+    <Property name="value" type="any"/>
+  </Effect>
+  <Effect name="save_temporary_scope_as" validscope="any" type="scope" />
   <Effect name="send_interface_toast" validscope="character">
     <Property name="dummy" type="dummy"/>
   </Effect>
@@ -168,9 +171,10 @@
     <Property name="target" type="character"/>
     <Property name="casus_belli" type="casus_belli"/>
   </Effect>
-  <Effect name="trigger_event" validscope="character"   >
+  <Effect name="trigger_event" validscope="any"   >
     <Property name="id" type="event"/>
     <Property name="days" type="num"/>
+    <Property name="on_action" type="on_action"/>
   </Effect>
   <Effect name="use_hook" validscope="character" type="character"/>
 </Effects>

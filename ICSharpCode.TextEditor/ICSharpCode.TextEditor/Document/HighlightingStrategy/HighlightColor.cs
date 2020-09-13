@@ -43,22 +43,26 @@ namespace ICSharpCode.TextEditor.Document
 		/// <value>
 		/// If true the font will be displayed bold style
 		/// </value>
-		public bool Bold {
-			get {
+		public bool Bold
+        {
+            get {
 				return bold;
 			}
-		}
-		
-		/// <value>
+            set => bold = value;
+        }
+
+        /// <value>
 		/// If true the font will be displayed italic style
 		/// </value>
-		public bool Italic {
-			get {
+		public bool Italic
+        {
+            get {
 				return italic;
 			}
-		}
-		
-		/// <value>
+            set => italic = value;
+        }
+
+        /// <value>
 		/// The background color used
 		/// </value>
 		public Color BackgroundColor

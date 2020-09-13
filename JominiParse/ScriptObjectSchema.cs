@@ -28,6 +28,7 @@ namespace JominiParse
         public string scopeChildId { get; set; }
         public BlockType blockType { get; set; }
 
+       
 
         public void Load(string filename)
         {
@@ -174,6 +175,29 @@ namespace JominiParse
         List<string> schemaFilenames = new List<string>();
         Dictionary<Type, ScriptObjectSchema> SchemaMap = new Dictionary<Type, ScriptObjectSchema>();
         Dictionary<String, ScriptObjectSchema> SoftSchemaMap = new Dictionary<String, ScriptObjectSchema>();
+        private ScriptObjectSchema DefaultCScope = null;
+        private ScriptObjectSchema DefaultEScope = null;
+        public ScriptObjectSchema GetDefaultConditionScopeSchema()
+        {
+            if (DefaultCScope == null)
+            {
+                DefaultCScope = new ScriptObjectSchema();
+                DefaultCScope.children["scopeconditions"] = (new SchemaChild() { blockType = BlockType.condition_block, Name = "scopeconditions", IsBlock = true });
+            }
+
+            return DefaultCScope;
+        }
+        public ScriptObjectSchema GetDefaultEffectScopeSchema()
+        {
+            if (DefaultEScope == null)
+            {
+                DefaultEScope = new ScriptObjectSchema();
+                DefaultEScope.children["scopeeffects"] = (new SchemaChild() { blockType = BlockType.condition_block, Name = "scopeeffects", IsBlock = true });
+            }
+
+            return DefaultEScope;
+        }
+
         public ScriptObjectSchema GetSchema(Type type)
         {
             if (schemaFilenames.Count == 0)

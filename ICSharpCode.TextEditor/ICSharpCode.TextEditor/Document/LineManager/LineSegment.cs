@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace ICSharpCode.TextEditor.Document
@@ -255,5 +256,52 @@ namespace ICSharpCode.TextEditor.Document
 			}
 		}
 		#endregion
-	}
+
+        string GetStringForIndices(int from, int to)
+        {
+			StringBuilder s = new StringBuilder();
+            for (int i = from; i < to; i++)
+            {
+                s.Append(Words[i].Word);
+            }
+
+            return s.ToString();
+        }
+        public bool ColorWord(string word, Color color, bool bold, bool italic)
+        {
+
+            int start = 0;
+            int end = Words.Count;
+
+            for (int i = 0; i < end; i++)
+            {
+                if (GetStringForIndices(i, end).Trim().StartsWith(word) )
+                {
+                    for (int e = end; e > i; e--)
+                    {
+                        if (GetStringForIndices(i, e).Trim() == (word))
+                        {
+                            for (int j = i; j < e; j++)
+                            {
+                                if (Words[j].SyntaxColor != null)
+                                {
+                                    Words[j].SyntaxColor.Color = color;
+                                    Words[j].SyntaxColor.Bold = bold;
+                                    Words[j].SyntaxColor.Italic = italic;
+
+								}
+							}
+
+                            return true;
+                        }
+                    }
+                  
+
+                }
+            }
+
+
+            return false;
+        }
+    }
 }

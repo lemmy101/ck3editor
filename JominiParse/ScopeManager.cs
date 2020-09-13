@@ -203,6 +203,10 @@ namespace JominiParse
             if (Defs[scope].ValidEffectMap.ContainsKey(child))
                 return Defs[scope].ValidEffectMap[child];
 
+            if (scope != ScopeType.any)
+                return GetEffect(ScopeType.any, child);
+
+
             return null;
 
         }
@@ -210,6 +214,9 @@ namespace JominiParse
         {
             if(Defs[scope].ValidConditionMap.ContainsKey(child))
                 return Defs[scope].ValidConditionMap[child];
+
+            if (scope != ScopeType.any)
+                return GetCondition(ScopeType.any, child);
 
             return null;
         }
@@ -624,7 +631,7 @@ namespace JominiParse
 
         }
 
-        private ScopeType ChangeScope(ScopeType from, string name, out bool success)
+        public ScopeType ChangeScope(ScopeType from, string name, out bool success, ScriptObject parent = null)
         {
             success = false;
 
@@ -640,17 +647,22 @@ namespace JominiParse
                     success = true;
                     return Defs[from].ValidEffectScopes[name].toType;
                 }
-                else
-                {
-                    return from;
-                }
+              
             }
-            else
+           
+
             {
-                return from;
-            }
+                if (parent != null && isEffectScopeInside(from, name, parent))
+                {
+                    success = true;
+                    return getEffectScopeInside(from, name, parent);
+                }
+
+             }
+            return from;
         }
-        private ScopeType ChangeConditionScope(ScopeType from, string name, out bool success)
+
+        public ScopeType ChangeConditionScope(ScopeType from, string name, out bool success, ScriptObject parent=null)
         {
             success = false;
 
@@ -666,15 +678,20 @@ namespace JominiParse
                     success = true;
                     return Defs[from].ValidConditionScopes[name].toType;
                 }
-                else
-                {
-                    return from;
-                }
+               
             }
-            else
+           
             {
-                return from;
+
+                if (parent != null && isConditionScopeInside(from, name, parent))
+                {
+                    success = true;
+                    return getConditionScopeInside(from, name, parent);
+                }
+
+              
             }
+            return from;
         }
 
         public Dictionary<string, HashSet<string>> otherScopes = new Dictionary<string, HashSet<string>>();
@@ -705,6 +722,27 @@ namespace JominiParse
 
             return false;
         }
+        public bool isCondition(ScopeType scope, string name)
+        {
+            if (Defs.ContainsKey(scope) && Defs[scope].ValidConditionMap.ContainsKey(name.Trim()))
+                return true;
+            if (scope != ScopeType.any)
+                return isEffect(ScopeType.any, name);
+
+            return false;
+        }
+
+        public bool isEffect(ScopeType scope, string name)
+        {
+            if (Defs.ContainsKey(scope) && Defs[scope].ValidEffectMap.ContainsKey(name.Trim()))
+                return true;
+
+            if (scope != ScopeType.any)
+                return isEffect(ScopeType.any, name);
+            return false;
+
+        }
+
         public bool isConditionScope(ScopeType current, string name)
         {
             if (name == null)
@@ -765,5 +803,206 @@ namespace JominiParse
             results.Add("hidden_effect");
         }
 
+        public bool isEffectScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
+        {
+            if (!name.StartsWith("scope:"))
+                return false;
+
+            string scopeName = name.Substring(name.IndexOf(":") + 1);
+
+            if (scopeName.Contains("."))
+            {
+                var stu = scope;
+                string[] split = scopeName.Split('.');
+
+                for (var index = 0; index < split.Length; index++)
+                {
+                    var s = split[index];
+                    if (index == 0)
+                    {
+                        bool success;
+                        var newScope = ChangeScope(stu, "scope:"+s, out success, scriptObjectParent);
+                        if (!success)
+                            return false;
+                        stu = newScope;
+                    }
+                    else
+                    {
+                        bool success;
+                        var newScope = ChangeScope(stu, s, out success, scriptObjectParent);
+                        if (!success)
+                            return false;
+                        stu = newScope;
+                    }
+
+                }
+
+                return true;
+            }
+
+            List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
+            scriptObjectParent.GetValidScriptScopes(results, true);
+
+            if (results.Any(a => a.Name == scopeName))
+                return true;
+           
+            if (scope != ScopeType.any)
+                return isEffectScopeInside(ScopeType.any, name, scriptObjectParent);
+
+            return false;
+        }
+
+        public bool isConditionScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
+        {
+            if (!name.StartsWith("scope:"))
+                return false;
+
+            string scopeName = name.Substring(name.IndexOf(":") + 1);
+
+            if (scopeName.Contains("."))
+            {
+                var stu = scope;
+                string[] split = scopeName.Split('.');
+
+                for (var index = 0; index < split.Length; index++)
+                {
+                    var s = split[index];
+                    if (index == 0)
+                    {
+                        bool success;
+                        var newScope = ChangeConditionScope(stu, "scope:"+s, out success, scriptObjectParent);
+                        if (!success)
+                            return false;
+                        stu = newScope;
+                    }
+                    else
+                    {
+                        bool success;
+                        var newScope = ChangeConditionScope(stu, s, out success);
+                        if (!success)
+                            return false;
+                        stu = newScope;
+                    }
+
+                }
+
+                return true;
+            }
+
+            List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
+            scriptObjectParent.GetValidScriptScopes(results, true);
+
+            if (results.Any(a => a.Name == scopeName))
+                return true;
+           
+            if (scope != ScopeType.any)
+                return isConditionScopeInside(ScopeType.any, name, scriptObjectParent);
+
+            return false;
+        }
+        public ScopeType getEffectScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
+        {
+            if (!name.StartsWith("scope:"))
+                return scope;
+
+            string scopeName = name.Substring(name.IndexOf(":") + 1);
+
+            if (scopeName.Contains("."))
+            {
+                var stu = scope;
+                string[] split = scopeName.Split('.');
+
+                for (var index = 0; index < split.Length; index++)
+                {
+                    var s = split[index];
+                    if (index == 0)
+                    {
+                        bool success;
+                        var newScope = ChangeScope(stu, "scope:" + s, out success, scriptObjectParent);
+                        if (!success)
+                            return scope;
+                        stu = newScope;
+                    }
+                    else
+                    {
+                        bool success;
+                        var newScope = ChangeScope(stu, s, out success);
+                        if (!success)
+                            return scope;
+                        stu = newScope;
+                    }
+
+                }
+
+                return stu;
+            }
+
+            List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
+            scriptObjectParent.GetValidScriptScopes(results, true);
+
+
+            if (results.Any(a => a.Name == scopeName))
+            {
+
+                return results.First().To;
+            }
+
+            if (scope != ScopeType.any)
+                return getEffectScopeInside(ScopeType.any, name, scriptObjectParent);
+
+            return scope;
+        }
+
+        public ScopeType getConditionScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
+        {
+            if (!name.StartsWith("scope:"))
+                return scope;
+
+            string scopeName = name.Substring(name.IndexOf(":") + 1);
+
+            if (scopeName.Contains("."))
+            {
+                var stu = scope;
+                string[] split = scopeName.Split('.');
+
+                for (var index = 0; index < split.Length; index++)
+                {
+                    var s = split[index];
+                    if (index == 0)
+                    {
+                        bool success;
+                        var newScope = ChangeConditionScope(stu, "scope:" + s, out success, scriptObjectParent);
+                        if (!success)
+                            return scope;
+                        stu = newScope;
+                    }
+                    else
+                    {
+                        bool success;
+                        var newScope = ChangeConditionScope(stu, s, out success);
+                        if (!success)
+                            return scope;
+                        stu = newScope;
+                    }
+
+                }
+
+                return stu;
+            }
+
+            List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
+            scriptObjectParent.GetValidScriptScopes(results, true);
+
+            if (results.Any(a => a.Name == scopeName))
+            {
+
+                return results.First().To;
+            }
+
+            if (scope != ScopeType.any)
+                return getConditionScopeInside(ScopeType.any, name, scriptObjectParent);
+
+            return scope;
+        }
     }
 }

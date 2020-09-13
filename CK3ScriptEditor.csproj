@@ -112,6 +112,7 @@
     <Compile Include="ScriptWindow.Designer.cs">
       <DependentUpon>ScriptWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="SyntaxHighlightingManager.cs" />
     <EmbeddedResource Include="CK3ScriptEd.resx">
       <DependentUpon>CK3ScriptEd.cs</DependentUpon>
     </EmbeddedResource>

@@ -8,6 +8,9 @@
   <Scope name="side_commander" from="combat_side" to="character" type="both" />
   <Scope name="side_primary_participant" from="combat_side" to="character" type="both" />
 
+
+  <Scope name="location" from="character" to="province" type="both" />
+
   <Scope name="any_ally" from="character" to="character" type="condition" />
   <Scope name="any_character_war" from="character" to="war" type="condition" />
   <Scope name="any_child" from="character" to="character" type="condition" />
@@ -86,6 +89,8 @@
   <Scope name="great_holy_war" from="faith" to="ghw" type="both" />
   
   <Scope name="holder" from="county" to="character" type="both" />
+  
+  <Scope name="county" from="province" to="county" type="both" />
 
   <Scope name="title_province" from="county" to="title" type="both" />
   <Scope name="county" from="province" to="county" type="both" />

@@ -244,8 +244,8 @@ namespace CK3ScriptEditor
             string startDir = fromBase ? Globals.CK3Path : Core.Instance.ModCK3Library.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
             window.Filename = filename;
             AllowUpdateFile = false;
-            textEditors[filename] = window.LoadFile(startDir+filename);
             window.ScriptFile = Core.Instance.GetFile(filename, fromBase);
+            textEditors[filename] = window.LoadFile(startDir+filename);
             window.UpdateLocalizations();
             AllowUpdateFile = true;
             fileOverview.UpdateTree(filename, textEditors[filename].ActiveTextAreaControl.Caret.Line, fromBase);

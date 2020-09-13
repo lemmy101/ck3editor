@@ -1,4 +1,4 @@
 <Schema blockType="inheritparent">
-	<Child name="limit" type="Limit" isBlock="yes"/>
+	<Child name="limit" type="limit" isBlock="yes" blockType="condition_block"/>
 	<Child name="scopeconditions" type="scopeconditions"/>
 </Schema>

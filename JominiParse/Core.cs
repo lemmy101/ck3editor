@@ -22,7 +22,7 @@ namespace JominiParse
             LoadingCK3Library = BaseCK3Library;
             BaseCK3Library.Path = Globals.CK3Path;
             LoadCK3Scripts(BaseCK3Library);
-           // BaseCK3Library.LoadBinary("baseData.dat");
+           
         }
 
         public void CreateOrLoadMod(string mod)
@@ -228,8 +228,15 @@ namespace JominiParse
 
             }
 
+          
             LoadingCK3Library.ConnectEventNetwork();
+            
+            foreach (var scriptObject in ScriptObject.DeferedInitializationList)
+            {
+                scriptObject.Initialize();
+            }
 
+            ScriptObject.DeferedInitializationList.Clear();
         }
 
 
@@ -250,7 +257,14 @@ namespace JominiParse
             catch (Exception e)
             {
             }
+
             ModCK3Library.ConnectEventNetwork();
+           
+            foreach (var scriptObject in ScriptObject.DeferedInitializationList)
+            {
+                scriptObject.Initialize();
+            }
+            ScriptObject.DeferedInitializationList.Clear();
 
         }
 
@@ -1316,6 +1330,10 @@ namespace JominiParse
 
         public HashSet<string> GetNameSetFromEnumType(string type)
         {
+            if (type == "on_action")
+                return GetOnActionNameSet(false);
+            if (type == "event_theme")
+                return GetEventThemeNameSet(false);
             if (type == "trait")
                 return GetTraitNameSet(false);
             if (type == "decision")

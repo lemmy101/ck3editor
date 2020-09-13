@@ -434,11 +434,13 @@ namespace CK3ScriptEditor
                         {
                             if (lineSegmentWord.SyntaxColor != null)
                             {
+                                lineSegmentWord.SyntaxColor = new HighlightColor(lineSegmentWord.SyntaxColor.Color, lineSegmentWord.SyntaxColor.BackgroundColor, lineSegmentWord.SyntaxColor.Bold, lineSegmentWord.SyntaxColor.Italic);
                                 lineSegmentWord.SyntaxColor.BackgroundColor = c;
                             }
                         }
                     }
                     
+                    SyntaxHighlightingManager.Instance.DoDocument(textEditorControl1.Document, ScriptFile);
 
                 }
 
@@ -461,14 +463,16 @@ namespace CK3ScriptEditor
                         {
                             if (lineSegmentWord.SyntaxColor != null)
                             {
+                                lineSegmentWord.SyntaxColor = new HighlightColor(lineSegmentWord.SyntaxColor.Color, lineSegmentWord.SyntaxColor.BackgroundColor, lineSegmentWord.SyntaxColor.Bold, lineSegmentWord.SyntaxColor.Italic);
                                 lineSegmentWord.SyntaxColor.BackgroundColor = c;
                             }
                         }
                     }
                     
                 }
+                SyntaxHighlightingManager.Instance.DoDocument(textEditorControl1.Document, ScriptFile);
             }
-            
+
             return textEditorControl1;
         }
 
@@ -478,7 +482,7 @@ namespace CK3ScriptEditor
             if (Filename != null)
             {
                 CK3ScriptEd.Instance.fileOverview.UpdateTree(Filename, textEditorControl1.ActiveTextAreaControl.Caret.Line, IsBaseFile);
-
+                /*
                 if (IsBaseFile)
                 {
                     textEditorControl1.Document.ReadOnly = true;
@@ -535,7 +539,7 @@ namespace CK3ScriptEditor
 
                     }
                 }
-
+                */
                 if(ScriptFile!=null)
                     UpdateLocalizations();
             }

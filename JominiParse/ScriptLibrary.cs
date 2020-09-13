@@ -1540,6 +1540,9 @@ namespace JominiParse
 
         public string GetLocalizedText(string tag)
         {
+            if (Localization == null)
+                return tag;
+
             if (!Localization.ContainsKey(tag))
             {
                 if (Parent != null)
@@ -1588,6 +1591,7 @@ namespace JominiParse
                 c.To = to;
                 c.To.AddEventConnection(c);
                 c.From.AddEventConnection(c);
+
             }
 
             unprocessedTriggers.Clear();

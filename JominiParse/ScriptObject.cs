@@ -9,12 +9,24 @@ namespace JominiParse
     public class ScriptObject
     {
         public static Dictionary<int, Type> TypeMap = new Dictionary<int, Type>();
+        
+        public static List<ScriptObject> DeferedInitializationList = new List<ScriptObject>();
 
         public string Namespace { get; set; }
         public ScriptObjectSchema Schema;
         public SchemaChild SchemaChild;
         public ScriptFile ScriptFile { get; set; }
         public bool Overridden { get; set; }
+
+        public class ScriptScope
+        {
+            public bool Temporary { get; set; }
+            public string Name { get; set; }
+            public ScopeType To { get; set; }
+            public ScriptObject Declared { get; set; }
+        }
+
+        public Dictionary<string, ScriptScope> scriptScopes = new Dictionary<string, ScriptScope>();
 
         protected ScriptObject FindChild(string name)
         {
@@ -43,9 +55,44 @@ namespace JominiParse
         {
 
         }
+        public void Initialize()
+        {
+            if (Schema == null && Parent != null)
+            {
+                // may be a scope...
+                if (Name != null)
+                {
+                    if (ScopeManager.Instance.isConditionScope(Parent.GetScopeType(), Name) || ScopeManager.Instance.isConditionScopeInside(Parent.GetScopeType(), Name, Parent))
+                    {
+                        bool success;
 
+                        var s = ScopeManager.Instance.ChangeConditionScope(Parent.GetScopeType(), Name, out success,
+                            Parent);
+                        if (success)
+                        {
+                            SetScopeType(s);
+                            Schema = SchemaManager.Instance.GetDefaultConditionScopeSchema();
+                        }
+
+                    }
+                    if (ScopeManager.Instance.isEffectScope(Parent.GetScopeType(), Name) || ScopeManager.Instance.isEffectScopeInside(Parent.GetScopeType(), Name, Parent))
+                    {
+                        bool success;
+                        var s = (ScopeManager.Instance.ChangeScope(Parent.GetScopeType(), Name, out success, Parent));
+
+                        if (success)
+                        {
+                            SetScopeType(s);
+                            Schema = SchemaManager.Instance.GetDefaultEffectScopeSchema();
+                        }
+                    }
+                }
+
+            }
+        }
         public ScriptObject(ScriptObject parent, ScriptParsedSegment seg)
         {
+            DeferedInitializationList.Add(this);
             if (seg == null)
             {
                 return;
@@ -59,6 +106,10 @@ namespace JominiParse
             this.Library = Core.Instance.LoadingCK3Library;
         
             Schema = SchemaManager.Instance.GetSchema(GetType());
+            if (Name == "if")
+            {
+
+            }
             if (Schema != null)
             {
 
@@ -94,12 +145,17 @@ namespace JominiParse
             if (Schema != null)
             {
                 BlockType = Schema.blockType;
+                if (Schema.GetScope() != ScopeType.none && Schema.blockType != BlockType.function_block)
+                {
+                    SetScopeType(Schema.scope);
+                }
             }
 
+          
             if (Parent != null)
             {
-                if(GetScopeType()==ScopeType.none || GetScopeType() == ScopeType.inheritparent)
-                    SetScopeType(Parent.GetScopeType());
+                if(GetScopeType()==ScopeType.none)
+                    SetScopeType(ScopeType.inheritparent);
             }
 
             foreach (var scriptParsedSegment in seg.children)
@@ -108,16 +164,15 @@ namespace JominiParse
                 if (scriptParsedSegment.value.Count > 0)
                 {
                     so = ScriptValueParser.Instance.ParseScriptValue(this, scriptParsedSegment);
+                    so.HandleScopeDeclarationFunctions(so, this, seg);
+
                 }
                 else
                 {
                     so = new ScriptObject(this, scriptParsedSegment);
+                    so.HandleScopeDeclarationFunctions(this, parent, seg);
                 }
-                if(Name == "immediate")
-                {
-
-                }
-
+              
                 if (BlockType == BlockType.effect_block)
                 {
                     ScopeManager.Instance.AddScopeFunction(so.GetScopeType(), so.Name);
@@ -146,6 +201,57 @@ namespace JominiParse
 
                 }
             }
+
+        }
+
+        private void HandleScopeDeclarationFunctions(ScriptObject scriptObject, ScriptObject parent, ScriptParsedSegment seg)
+        {
+            if (Name == "save_scope_as")
+            {
+                scriptObject.Topmost.AddScope(this, false);
+            }
+            else if (Name == "save_temporary_scope_as")
+            {
+                scriptObject.Topmost.AddScope(this, true);
+            }
+
+        }
+
+        public void GetValidScriptScopes(List<ScriptScope> results, bool allowTemp = true)
+        {
+            if (Topmost != this)
+            {
+                Topmost.GetValidScriptScopes(results, allowTemp);
+                return;
+            }
+                
+            if(allowTemp)
+                results.AddRange(scriptScopes.Values);
+            else
+                results.AddRange(scriptScopes.Values.Where(a=> !a.Temporary));
+
+            foreach (var eventConnection in Connections)
+            {
+                if (this == eventConnection.To)
+                {
+                    eventConnection.From.GetValidScriptScopes(results, false);
+                }
+            }
+        }
+
+        private void AddScope(ScriptObject scope_command, bool temporary)
+        {
+            ScriptScope s = new ScriptScope();
+            var sc = (scope_command as ScriptValue);
+            if (sc != null)
+            {
+                s.Temporary = temporary;
+                s.Name = sc.GetStringValue();
+                s.To = scope_command.Parent.ScopeType;
+                s.Declared = scope_command;
+                scriptScopes[s.Name] = s;
+            }
+            
         }
 
         public ScriptLibrary Library { get; set; }
@@ -163,6 +269,13 @@ namespace JominiParse
 
         public virtual ScopeType GetScopeType()
         {
+            if (ScopeType == ScopeType.inheritparent)
+            {
+                if (Parent == null)
+                    return ScopeType.character;
+
+                return Parent.GetScopeType();
+            }
             return ScopeType;
         }
         public virtual void SetScopeType(ScopeType type)
@@ -171,7 +284,7 @@ namespace JominiParse
         }
 
         private BlockType BlockType { get; set; }
-        private ScopeType ScopeType { get; set; }
+        private ScopeType ScopeType { get; set; } = ScopeType.character;
         public ScriptObject Parent { get; set; }
 
         public int LineEnd { get; set; }

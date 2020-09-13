@@ -172,25 +172,29 @@ namespace ICSharpCode.TextEditor.Document
 			}
 		}
 		
-		public bool Bold {
-			get {
+		public bool Bold
+        {
+            get {
 				if (color == null)
 					return false;
 				else
 					return color.Bold;
 			}
-		}
-		
-		public bool Italic {
-			get {
+            set => color.Bold = value;
+        }
+
+        public bool Italic
+        {
+            get {
 				if (color == null)
 					return false;
 				else
 					return color.Italic;
 			}
-		}
-		
-		public HighlightColor SyntaxColor {
+            set => color.Italic = value;
+        }
+
+        public HighlightColor SyntaxColor {
 			get {
 				return color;
 			}

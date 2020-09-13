@@ -1,4 +1,0 @@
-<if>
-	<Child name="limit" type="Limit" isBlock="yes"/>
-	<Child name="scopeeffects" type="scopeeffects"/>
-</if>

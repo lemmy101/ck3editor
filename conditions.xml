@@ -53,6 +53,7 @@
 </Condition>  
 <Condition name="time_in_prison_type" validscope="character"  >
 	<Property name="days" type="num"/>	
+	<Property name="months" type="num"/>	
 	<Property name="years" type="num"/>	
 </Condition>  
 <Condition name="age" validscope="character" type="num" />
@@ -69,12 +70,12 @@
 <Condition name="diplomacy" validscope="character" type="num" />
 <Condition name="dread" validscope="character" type="num" />
 <Condition name="dynasty" validscope="character" type="dynasty" />
-<Condition name="exists" validscope="any" type="any" />
+<Condition name="exists" validscope="any" type="scope" />
 <Condition name="geographical_region" validscope="character" type="geographical_region"/>
 <Condition name="gold" validscope="character" type="num" />
 <Condition name="has_any_nickname" validscope="character" type="bool" />
 <Condition name="has_bad_nickname" validscope="character" type="bool" />
-<Condition name="has_character_flag" validscope="character" type="tag" />
+<Condition name="has_character_flag" validscope="character" type="any" />
 <Condition name="has_character_modifier" validscope="character" type="modifier" />
 <Condition name="has_council_position" validscope="character" type="council_position" />
 <Condition name="has_county_modifier" validscope="character" type="modifier" />
