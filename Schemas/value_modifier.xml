@@ -4,5 +4,7 @@
 	<Child name="factor" type="num"/>
 	<Child name="ai_value_modifier" type="ai_value_modifier"/>
 	<Child name="compare_modifier" type="compare_modifier"/>
+	<Child name="scriptedmodifier" type="scripted_modifier" namesFrom="scripted_modifier"/>
+	<Child name="opinion_modifier" type="opinion_modifier"/>
 	
 </Schema>

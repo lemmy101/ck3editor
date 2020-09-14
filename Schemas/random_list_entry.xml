@@ -1,5 +1,6 @@
 <Schema>
 	<Child name="if" type="if"/>
+	<Child name="desc" type="localized"/>
 	<Child name="else_if" type="if"/>
 	<Child name="else" type="inheritparent" blockType="inheritparent"/>
 	<Child name="trigger" type="trigger" blockType="inheritparent"/>

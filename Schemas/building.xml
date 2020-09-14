@@ -1,0 +1,23 @@
+<ScriptObject>	
+	<Child name="asset" type="asset"/>
+	<Child name="construction_time" type="num"/>
+	<Child name="type_icon" type="string"/>
+	<Child name="can_construct" type="ConditionBlock"/>
+	<Child name="can_construct_potential" type="ConditionBlock"/>
+	<Child name="is_enabled" type="ConditionBlock"/>
+	<Child name="cost_gold" type="num"/>
+	
+	<Child name="character_modifier" type="character_modifier"/>
+	<Child name="county_modifier" type="county_modifier"/>
+	<Child name="province_modifier" type="province_modifier"/>
+	
+	<Child name="show_disabled" type="bool"/>
+	<Child name="levy" type="num"/>
+	
+	<Child name="ai_value" type="value_modifier"/>
+	
+	<Child name="next_building" type="building"/>
+
+	<Child name="type" type="building_type"/>
+
+</ScriptObject>

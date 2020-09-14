@@ -1,0 +1,17 @@
+<ScriptObject>	
+	<Child name="expiration_days" type="num"/>
+	<Child name="has_activity_window" type="bool"/>
+	<Child name="days_until_auto_start" type="num"/>
+	<Child name="frame" type="num"/>
+	<Child name="color" type="color"/>
+	<Child name="valid" type="ConditionBlock" isBlock="yes" blockType="condition_block"/>
+	<Child name="on_spawn" type="EffectBlock" isBlock="yes" blockType="effect_block"/>
+	<Child name="on_activate" type="EffectBlock" isBlock="yes" blockType="effect_block"/>
+	<Child name="on_complete" type="EffectBlock" isBlock="yes" blockType="effect_block"/>
+	<Child name="on_participant_death" type="EffectBlock" isBlock="yes" blockType="effect_block"/>
+	<Child name="on_expire" type="EffectBlock" isBlock="yes" blockType="effect_block"/>
+	<Child name="on_invalidated" type="EffectBlock" isBlock="yes" blockType="effect_block"/>
+	
+	
+	
+</ScriptObject>

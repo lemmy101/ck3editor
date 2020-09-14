@@ -455,7 +455,7 @@ namespace JominiParse
             "modifier",
         };
     
-        public ScopeType ChangeScope(ScopeType from, string name, out bool success, ScriptObject parent = null)
+        public ScopeType ChangeScope(ScopeType from, string name, out bool success, ScriptObject parent = null, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
         {
             success = false;
 
@@ -487,7 +487,7 @@ namespace JominiParse
 
                     {
 
-                        var newScope = ChangeScope(stu, s, out success, parent);
+                        var newScope = ChangeScope(stu, s, out success, parent, findType);
                         if (!success)
                             break;
                         stu = newScope;
@@ -499,7 +499,7 @@ namespace JominiParse
             }
 
             {
-                if (parent != null && isEffectScopeInside(from, name, parent))
+                if (parent != null && isEffectScopeInside(from, name, parent, findType))
                 {
                     success = true;
                     return getEffectScopeInside(from, name, parent);
@@ -509,7 +509,7 @@ namespace JominiParse
             return from;
         }
 
-        public ScopeType ChangeConditionScope(ScopeType from, string name, out bool success, ScriptObject parent = null)
+        public ScopeType ChangeConditionScope(ScopeType from, string name, out bool success, ScriptObject parent = null, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
         {
             success = false;
 
@@ -561,7 +561,7 @@ namespace JominiParse
 
                     {
 
-                        var newScope = ChangeConditionScope(stu, s, out success, parent);
+                        var newScope = ChangeConditionScope(stu, s, out success, parent, findType);
                         if (!success)
                             break;
                         stu = newScope;
@@ -574,10 +574,10 @@ namespace JominiParse
 
             {
 
-                if (parent != null && isConditionScopeInside(from, name, parent))
+                if (parent != null && isConditionScopeInside(from, name, parent, findType))
                 {
                     success = true;
-                    return getConditionScopeInside(from, name, parent);
+                    return getConditionScopeInside(from, name, parent, findType);
                 }
 
               
@@ -796,7 +796,7 @@ namespace JominiParse
             results.Add("hidden_effect");
         }
 
-        public bool isEffectScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
+        public bool isEffectScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent, ScriptObject.ScopeFindType findType= ScriptObject.ScopeFindType.Object)
         {
             if (!name.StartsWith("scope:"))
                 return false;
@@ -814,7 +814,7 @@ namespace JominiParse
                     if (index == 0)
                     {
                         bool success;
-                        var newScope = ChangeScope(stu, "scope:"+s, out success, scriptObjectParent);
+                        var newScope = ChangeScope(stu, "scope:"+s, out success, scriptObjectParent, findType);
                         if (!success)
                             return false;
                         stu = newScope;
@@ -822,7 +822,7 @@ namespace JominiParse
                     else
                     {
                         bool success;
-                        var newScope = ChangeScope(stu, s, out success, scriptObjectParent);
+                        var newScope = ChangeScope(stu, s, out success, scriptObjectParent, findType);
                         if (!success)
                             return false;
                         stu = newScope;
@@ -834,18 +834,18 @@ namespace JominiParse
             }
 
             List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
-            scriptObjectParent.GetValidScriptScopes(results, true);
+            scriptObjectParent.GetValidScriptScopes(results, true, findType);
 
             if (results.Any(a => a.Name == scopeName))
                 return true;
            
             if (scope != ScopeType.any)
-                return isEffectScopeInside(ScopeType.any, name, scriptObjectParent);
+                return isEffectScopeInside(ScopeType.any, name, scriptObjectParent, findType);
 
             return false;
         }
 
-        public bool isConditionScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
+        public bool isConditionScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
         {
             if (!name.StartsWith("scope:"))
                 return false;
@@ -866,7 +866,7 @@ namespace JominiParse
                     if (index == 0)
                     {
                         bool success;
-                        var newScope = ChangeConditionScope(stu, "scope:" + s, out success, scriptObjectParent);
+                        var newScope = ChangeConditionScope(stu, "scope:" + s, out success, scriptObjectParent, findType);
                         if (!success)
                             return false;
                         stu = newScope;
@@ -874,7 +874,7 @@ namespace JominiParse
                     else
                     {
                         bool success;
-                        var newScope = ChangeConditionScope(stu, s, out success);
+                        var newScope = ChangeConditionScope(stu, s, out success, null, findType);
                         if (!success)
                             return false;
                         stu = newScope;
@@ -886,13 +886,13 @@ namespace JominiParse
             }
 
             List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
-            scriptObjectParent.GetValidScriptScopes(results, true);
+            scriptObjectParent.GetValidScriptScopes(results, true, findType);
 
             if (results.Any(a => a.Name == scopeName))
                 return true;
 
             if (scope != ScopeType.any)
-                return isConditionScopeInside(ScopeType.any, name, scriptObjectParent);
+                return isConditionScopeInside(ScopeType.any, name, scriptObjectParent, findType);
 
             return false;
         }
@@ -1003,7 +1003,7 @@ namespace JominiParse
             return scope;
         }
 
-        public ScopeType getConditionScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
+        public ScopeType getConditionScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
         {
             if (!name.StartsWith("scope:"))
                 return scope;
@@ -1021,7 +1021,7 @@ namespace JominiParse
                     if (index == 0)
                     {
                         bool success;
-                        var newScope = ChangeConditionScope(stu, "scope:" + s, out success, scriptObjectParent);
+                        var newScope = ChangeConditionScope(stu, "scope:" + s, out success, scriptObjectParent, findType);
                         if (!success)
                             return scope;
                         stu = newScope;
@@ -1029,7 +1029,7 @@ namespace JominiParse
                     else
                     {
                         bool success;
-                        var newScope = ChangeConditionScope(stu, s, out success);
+                        var newScope = ChangeConditionScope(stu, s, out success, null, findType);
                         if (!success)
                             return scope;
                         stu = newScope;
@@ -1041,7 +1041,7 @@ namespace JominiParse
             }
 
             List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
-            scriptObjectParent.GetValidScriptScopes(results, true);
+            scriptObjectParent.GetValidScriptScopes(results, true, findType);
 
             if (results.Any(a => a.Name == scopeName))
             {
@@ -1050,7 +1050,7 @@ namespace JominiParse
             }
 
             if (scope != ScopeType.any)
-                return getConditionScopeInside(ScopeType.any, name, scriptObjectParent);
+                return getConditionScopeInside(ScopeType.any, name, scriptObjectParent, findType);
 
             return scope;
         }

@@ -92,6 +92,9 @@
   <Scope name="religious_head" from="faith" to="character" type="both" singular="yes" />
   <Scope name="religious_head_title" from="faith" to="title" type="both" singular="yes" />
   <Scope name="scheme_target" from="scheme" to="character" type="both" singular="yes" />
+  <Scope name="scheme_owner" from="scheme" to="character" type="both" singular="yes" />
+  
+  <Scope name="every_participant" from="activity" to="character" type="effect"/>
   	
   <Scope name="great_holy_war" from="faith" to="ghw" type="both" singular="yes" />
   

@@ -20,8 +20,9 @@
 	<Property name="type" type="hook" />
 	<Property name="target" type="character" />
 </Condition>  
+
 <Condition name="has_opinion_modifier" validscope="character" >
-	<Property name="modifier" type="num" />
+	<Property name="modifier" type="opinion" />
 	<Property name="target" type="character" />
 </Condition>  
 <Condition name="has_trait_rank" validscope="character">
@@ -65,9 +66,26 @@
 <Condition name="this" validscope="any" type="scope" treatAsScope="yes"/>
 <Condition name="root" validscope="any" type="scope" treatAsScope="yes" />
 <Condition name="age" validscope="character" type="num" />
-<Condition name="ai_compassion" validscope="character" type="num" />
-<Condition name="ai_honor" validscope="character" type="num" />
-<Condition name="ai_zeal" validscope="character" type="num" />
+<Condition name="ai_boldness" validscope="character" type="num"/>
+<Condition name="ai_vengefulness" validscope="character" type="num"/>
+<Condition name="ai_compassion" validscope="character" type="num"/>
+<Condition name="ai_honor" validscope="character" type="num"/>
+<Condition name="ai_greed" validscope="character" type="num"/>
+<Condition name="ai_boldness" validscope="character" type="num"/>
+<Condition name="ai_zeal" validscope="character" type="num"/>
+<Condition name="ai_energy" validscope="character" type="num"/>
+<Condition name="ai_rationality" validscope="character" type="num"/>
+<Condition name="custom_description" validscope="any" type="custom_description"/>
+<Condition name="scheme_type" validscope="scheme" type="scheme_type"/>
+
+<Condition name="has_innovation" validscope="culture" type="innovation"/>
+<Condition name="is_holy_site_of" validscope="character" type="faith"/>
+
+
+<Condition name="building_requirement_tribal" validscope="province" type="bool"/>
+	
+	
+<Condition name="has_scheme_modifier" validscope="scheme" type="modifier" />
 
 <Condition name="scheme_number_of_agents" validscope="scheme" type="num" />
 <Condition name="is_at_same_location" validscope="character" type="character" />
@@ -78,6 +96,7 @@
 <Condition name="county_control" validscope="title" type="num"/>
 <Condition name="scheme_progress" validscope="scheme" type="num"/>
 
+<Condition name="always" validscope="any" type="bool"/>
 <Condition name="attraction" validscope="character" type="num"/>
 <Condition name="basic_is_available_ai" validscope="character" />
 <Condition name="completely_controls_region" validscope="character" />

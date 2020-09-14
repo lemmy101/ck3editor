@@ -228,6 +228,10 @@ namespace JominiParse
         }
         private ScriptObject ParseResult(ScriptObject parent, ScriptParsedSegment parsableResult, ScriptContext context)
         {
+            if (ScriptNamespace != null && context == ScriptContext.Activities)
+            {
+
+            }
             return ScriptObjectFactory.Instance.CreateScriptObject(context, parsableResult, parent, ScriptNamespace);
         }
 

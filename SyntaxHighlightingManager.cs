@@ -31,6 +31,7 @@ namespace CK3ScriptEditor
             "trigger_else_if",
             "trigger_else",
             "limit",
+            "alternative_limit",
             "NOT",
             "NOR",
             "OR",
@@ -44,23 +45,34 @@ namespace CK3ScriptEditor
         private Color OverriddenColor = Color.FromArgb(128, 96, 96);
         private Color StringColor = Color.FromArgb(241, 250, 140);
         private Color NumberColor = Color.FromArgb(189, 147, 249);
-        
+
         private Color BaseCommandColor = Color.FromArgb(228, 112, 198);
         private Color ReferencedObjectColor = Color.FromArgb(208, 176, 113);
         private Color LocalizedStringColor = Color.FromArgb(133, 113, 208);
-        
 
+        ScriptObjectSchema AssumedSchema = new ScriptObjectSchema();
         private void DoScriptObject(ScriptObject scriptObject, IDocument doc)
         {
-            
-            int line = scriptObject.LineStart - 1;
+            AssumedSchema.children.Clear();
 
-            bool avoidRed = scriptObject.Topmost.Name.StartsWith("scripted_trigger");
-         
             string name = scriptObject.Name;
 
-            var lineSeg = doc.LineSegmentCollection[line];
+            if(name == "culture")
+            {
+
+            }
+            int line = scriptObject.LineStart - 1;
+
+            bool parentAvoidRed = false;
+
+            var p = scriptObject.Parent;
            
+
+      
+            bool avoidRed = scriptObject.Topmost.Name.StartsWith("scripted_trigger") || parentAvoidRed;
+
+            var lineSeg = doc.LineSegmentCollection[line];
+
             var col = Color.Red;
             bool scopeConditionsAreValid = false;
 
@@ -68,7 +80,7 @@ namespace CK3ScriptEditor
             bool italic = false;
             if (scriptObject == scriptObject.Topmost && scriptObject.Overridden)
             {
-                ColorEntireObject(OverriddenColor, doc, scriptObject.LineStart-1, scriptObject.LineEnd);
+                ColorEntireObject(OverriddenColor, doc, scriptObject.LineStart - 1, scriptObject.LineEnd);
                 return;
             }
 
@@ -76,29 +88,24 @@ namespace CK3ScriptEditor
             {
                 return;
             }
-            
-            if (name.StartsWith("scope:recipient.primary_title.tier"))
-            {
 
-            }
-            bool scopeEffectsAreValid = false;
-            bool scopeTriggerAreValid = false;
             if (scriptObject.Parent != null && scriptObject.Parent.Schema != null)
             {
-                var parentSchema = scriptObject.Parent.Schema;
-
-                if (parentSchema.children.ContainsKey("scopeconditions"))
+                foreach (var sc in scriptObject.Parent.Schema.children)
                 {
-                    scopeConditionsAreValid = true;
+                    AssumedSchema.children[sc.Key] = sc.Value;
                 }
-                if (parentSchema.children.ContainsKey("scopeeffects"))
-                {
-                    scopeEffectsAreValid = true;
-                }
+            }
 
+          
+            bool scopeEffectsAreValid = false;
+            bool scopeTriggerAreValid = false;
+            if (scriptObject.Parent != null)
+            {
+           
                 var par = scriptObject.Parent;
 
-                while(par != null && par.Parent != null)
+                while (par != null && par.Parent != null)
                 {
                     bool isScope = false;
 
@@ -123,16 +130,33 @@ namespace CK3ScriptEditor
 
                     if (!isScope)
                     {
-                        if (par.Name == "trigger")
+                        if (par.Name == "trigger" || par.Name == "limit" || par.Name == "alternative_limit" || par.Name == "modifier")
                         {
                             scopeTriggerAreValid = true;
                         }
+
+                        if (par != null && par.Schema != null)
+                        {
+                            foreach (var sc in par.Schema.children)
+                            {
+                                AssumedSchema.children[sc.Key] = sc.Value;
+                            }
+                        }
+
                         break;
                     }
                     par = par.Parent;
                 }
-               
-                if(parentSchema.children.ContainsKey(name))
+                if (AssumedSchema.children.ContainsKey("scopeconditions"))
+                {
+                    scopeConditionsAreValid = true;
+                }
+                if (AssumedSchema.children.ContainsKey("scopeeffects"))
+                {
+                    scopeEffectsAreValid = true;
+                }
+
+                if (AssumedSchema.children.ContainsKey(name))
                 {
                     col = FunctionColor;
                 }
@@ -142,7 +166,7 @@ namespace CK3ScriptEditor
             {
                 col = ReferencedObjectColor;
             }
-                
+
             if (scriptObject.Parent != null)
             {
                 var scope = scriptObject.Parent.GetScopeType();
@@ -177,7 +201,7 @@ namespace CK3ScriptEditor
                     col = ScopeColor;
                 }
 
-                if(scopeConditionsAreValid && ScopeManager.Instance.isConditionScopeEndParamInside(scope, name, scriptObject.Parent))
+                if (scopeConditionsAreValid && ScopeManager.Instance.isConditionScopeEndParamInside(scope, name, scriptObject.Parent))
                 {
                     col = ScopeColor;
                 }
@@ -193,27 +217,27 @@ namespace CK3ScriptEditor
 
                 // try scripted effects?
 
-                if (Core.Instance.GetScriptedEffectNameSet(false).Contains(name))
+                if (Core.Instance.GetNameSet(ScriptContext.ScriptedEffects, false).Contains(name))
                 {
                     col = ReferencedObjectColor;
                 }
             }
 
             string nameForType = null;
-            if(col == Color.Red)
+            if (col == Color.Red)
             {
-                if (scriptObject.Parent != null && scriptObject.Parent.Schema != null)
+                if (scriptObject.Parent != null && AssumedSchema != null)
                 {
-                    var namesFromList = scriptObject.Parent.Schema.children.Where(a => a.Value.NamesFrom != null).ToList();
+                    var namesFromList = AssumedSchema.children.Where(a => a.Value.NamesFrom != null).ToList();
 
                     foreach (var keyValuePair in namesFromList)
                     {
                         string namesFrom = keyValuePair.Value.NamesFrom;
 
-                        if(namesFrom == "num")
+                        if (namesFrom == "num")
                         {
                             int result;
-                            if(Int32.TryParse(name, out result))
+                            if (Int32.TryParse(name, out result))
                             {
                                 col = NumberColor;
                                 break;
@@ -225,24 +249,24 @@ namespace CK3ScriptEditor
 
                             if (list.Contains(name))
                             {
-                                col = FunctionColor;
+                                col = ReferencedObjectColor;
                                 nameForType = keyValuePair.Value.Type;
                                 break;
                             }
                         }
-                   
+
                     }
                 }
             }
-            if(col == Color.Red)
+            if (col == Color.Red)
             {
-                if(scopeTriggerAreValid)
+                if (scopeTriggerAreValid)
                 {
                     var list = Core.Instance.GetNameSetFromEnumType("scripted_trigger");
 
                     if (list.Contains(name))
                     {
-                        col = FunctionColor;
+                        col = ReferencedObjectColor;
                     }
                 }
             }
@@ -264,14 +288,14 @@ namespace CK3ScriptEditor
             if (name.StartsWith("scripted_trigger "))
             {
                 ColourName("scripted_trigger ", doc, lineSeg, BaseCommandColor, bold, italic);
-                ColourName(name.Substring(name.IndexOf(' ')+1), doc, lineSeg, ReferencedObjectColor, bold, italic);
+                ColourName(name.Substring(name.IndexOf(' ') + 1), doc, lineSeg, ReferencedObjectColor, bold, italic);
             }
             else
             {
                 ColourName(name, doc, lineSeg, col, bold, italic);
             }
 
-            
+
 
 
             if (scriptObject is ScriptValue && !(scriptObject is StaticScriptValue))
@@ -284,57 +308,57 @@ namespace CK3ScriptEditor
                 {
 
                 }
-                if(strVal != "yes" && strVal != "no")
+                if (strVal != "yes" && strVal != "no")
                 {
                     if (strVal == "is_in_event_abduct_outcome_0001")
                     {
 
                     }
-                    if (scriptObject.Parent != null && scriptObject.Parent.Schema != null)
+                    if (scriptObject.Parent != null && AssumedSchema != null)
                     {
-                        var parentSchema = scriptObject.Parent.Schema;
+                        var parentSchema = AssumedSchema;
                         var ch = parentSchema.GetChild(name);
                         var scope = scriptObject.Parent.GetScopeType();
 
-                      
-                         if (ch != null)
-                         {
 
-                             col = TestPropertyType(scriptObject, ch.Type, strVal, col, scopeConditionsAreValid,
-                                 scopeEffectsAreValid);
+                        if (ch != null)
+                        {
 
-                             if (ch is SchemaEnum)
-                             {
-                                 if ((ch as SchemaEnum).choices.Contains(strVal))
-                                 {
-                                     col = FunctionColor;
-                                 }
+                            col = TestPropertyType(scriptObject, ch.Type, strVal, col, scopeConditionsAreValid,
+                                scopeEffectsAreValid);
 
-                             }
+                            if (ch is SchemaEnum)
+                            {
+                                if ((ch as SchemaEnum).choices.Contains(strVal))
+                                {
+                                    col = FunctionColor;
+                                }
 
-                             if (Core.Instance.GetNameSetFromEnumType(ch.Type).Contains(strVal))
-                             {
-                                 col = ReferencedObjectColor;
-                                 italic = true;
-                             }
-                             else if (ch.Type == "localized")
-                             {
-                                 col = LocalizedStringColor;
-                             }
-                             else if (ch.Type == "any")
-                             {
-                                 col = FunctionColor;
-                                 italic = true;
-                                 bold = false;
+                            }
 
-                             }
-                             else if (ch.Type == "string")
-                             {
-                                 col = StringColor;
-                                 italic = true;
-                                 bold = false;
+                            if (Core.Instance.GetNameSetFromEnumType(ch.Type).Contains(strVal))
+                            {
+                                col = ReferencedObjectColor;
+                                italic = true;
+                            }
+                            else if (ch.Type == "localized")
+                            {
+                                col = LocalizedStringColor;
+                            }
+                            else if (ch.Type == "any")
+                            {
+                                col = FunctionColor;
+                                italic = true;
+                                bold = false;
 
-                             }
+                            }
+                            else if (ch.Type == "string")
+                            {
+                                col = StringColor;
+                                italic = true;
+                                bold = false;
+
+                            }
                         }
                         else if (scopeConditionsAreValid)
                         {
@@ -361,7 +385,7 @@ namespace CK3ScriptEditor
                             {
                                 if (con != null)
                                 {
-                                    col = TestPropertyType(scriptObject,con.type, strVal, col, scopeConditionsAreValid, scopeEffectsAreValid);
+                                    col = TestPropertyType(scriptObject, con.type, strVal, col, scopeConditionsAreValid, scopeEffectsAreValid);
 
 
                                 }
@@ -390,18 +414,36 @@ namespace CK3ScriptEditor
                                             }
                                         }
                                     }
-                                    if (ScopeManager.Instance.isConditionScopeEndParamInside(scope, name, scriptObject.Parent))
+
+                                    bool isInside =
+                                        ScopeManager.Instance.isConditionScopeEndParamInside(scope, name,
+                                            scriptObject.Parent);
+
+                                    if (isInside && name.Contains("."))
                                     {
                                         var ns = ScopeManager.Instance.getConditionScopeInside(scope,
                                             name.Substring(0, name.LastIndexOf(".")), scriptObject.Parent);
                                         var condition = ScopeManager.Instance.GetCondition(ns,
                                             name.Substring(name.LastIndexOf(".") + 1));
 
-                                        if(condition != null)
+                                        if (condition != null)
                                         {
                                             col = TestPropertyType(scriptObject, condition.type, strVal, col, scopeConditionsAreValid, scopeEffectsAreValid);
 
                                         }
+                                    } else if (isInside)
+                                    {
+                                        var ns = ScopeManager.Instance.getConditionScopeInside(scope,
+                                            name, scriptObject.Parent);
+                                        var condition = ScopeManager.Instance.GetCondition(ns,
+                                            name + 1);
+
+                                        if (condition != null)
+                                        {
+                                            col = TestPropertyType(scriptObject, condition.type, strVal, col, scopeConditionsAreValid, scopeEffectsAreValid);
+
+                                        }
+
                                     }
                                 }
                             }
@@ -431,7 +473,7 @@ namespace CK3ScriptEditor
 
                         }
 
-                         if(col == Color.Red && nameForType != null)
+                        if (col == Color.Red && nameForType != null)
                         {
                             col = TestPropertyType(scriptObject, nameForType, strVal, col, scopeConditionsAreValid, scopeEffectsAreValid);
 
@@ -475,31 +517,59 @@ namespace CK3ScriptEditor
         {
             bool requiresTest = true;
             ScopeType required = ScopeType.any;
-
+            ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object;
             switch (t)
             {
                 case "num":
-                {
-                    if (Core.Instance.GetScriptValueNameSet(false).Contains(strVal))
+                    {
+                        if (Core.Instance.GetNameSet(ScriptContext.ScriptValues, false).Contains(strVal))
+                            col = ReferencedObjectColor;
+                        else if (Core.Instance.LocalVarListFromObjectFile(scriptObject, ScriptObject.ScopeVarType.Number).Contains(strVal))
+                            col = ReferencedObjectColor;
+
+
+                    }
+                    break;
+                case "bool":
+                    if (Core.Instance.LocalVarListFromObjectFile(scriptObject, ScriptObject.ScopeVarType.Bool).Contains(strVal))
                         col = ReferencedObjectColor;
-                }
                     break;
                 case "scope":
-                    
+
                     break;
-                case "string":
-                {
-                    requiresTest = false;
-                    col = StringColor;
-                }
-                    break;
-                default:
-                {
-                    if (!Enum.TryParse(t, out required))
+                case "list":
+                    if (scriptObject.Topmost.scriptLists.ContainsKey(strVal))
                     {
+                        col = ReferencedObjectColor;
                         requiresTest = false;
                     }
-                }
+                    break;
+
+                case "scopevar":
+                    findType = ScriptObject.ScopeFindType.Value;
+                    break;
+                case "scopeany":
+                    findType = ScriptObject.ScopeFindType.Any;
+                    break;
+                case "string":
+                    {
+                        if (Core.Instance.LocalVarListFromObjectFile(scriptObject, ScriptObject.ScopeVarType.String).Contains(strVal))
+                            col = ReferencedObjectColor;
+                        else
+                        {
+                            requiresTest = false;
+                            col = StringColor;
+
+                        }
+                    }
+                    break;
+                default:
+                    {
+                        if (!Enum.TryParse(t, out required))
+                        {
+                            requiresTest = false;
+                        }
+                    }
                     break;
             }
 
@@ -522,46 +592,53 @@ namespace CK3ScriptEditor
             if (requiresTest)
             {
                 var str = strVal;
-                if (CheckIsValidScope(str, scriptObject, scopeConditionsAreValid, scopeEffectsAreValid, required))
+                if (CheckIsValidScope(str, scriptObject, scopeConditionsAreValid, scopeEffectsAreValid, required, findType))
                 {
                     col = ScopeColor;
                 }
                 if (!str.StartsWith("scope:"))
                     str = "scope:" + str;
-                if (CheckIsValidScope(str, scriptObject, scopeConditionsAreValid, scopeEffectsAreValid, required))
+                if (CheckIsValidScope(str, scriptObject, scopeConditionsAreValid, scopeEffectsAreValid, required, findType))
                 {
                     col = ScopeColor;
                 }
             }
-            else if(t != null)
+            else if (t != null)
             {
                 var list = EnumManager.Instance.GetEnums(t);
 
-                if(list.Contains(strVal))
+                if (list.Contains(strVal))
                 {
                     col = ReferencedObjectColor;
+                }
+                else
+                {
+                    var r = Core.Instance.GetNameSetFromEnumType(t);
+
+                    if (r.Contains(strVal))
+                        col = ReferencedObjectColor;
                 }
             }
 
 
 
-          
+
 
             return col;
         }
 
 
-        private bool CheckIsValidScope(string strVal, ScriptObject scriptObject, bool scopeConditionsAreValid, bool scopeEffectsAreValid, ScopeType typeRequired = ScopeType.any)
+        private bool CheckIsValidScope(string strVal, ScriptObject scriptObject, bool scopeConditionsAreValid, bool scopeEffectsAreValid, ScopeType typeRequired = ScopeType.any, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
         {
             if (strVal == "scope:target.location.county.holder.capital_county")
             {
 
             }
-         //   if (scopeConditionsAreValid)
+            //   if (scopeConditionsAreValid)
             {
                 bool success;
                 var res = ScopeManager.Instance.ChangeConditionScope(scriptObject.GetScopeType(), strVal, out success,
-                    scriptObject);
+                    scriptObject, findType);
 
                 if (success)
                 {
@@ -571,11 +648,11 @@ namespace CK3ScriptEditor
                     return true;
                 }
             }
-        //    if (scopeEffectsAreValid)
+            //    if (scopeEffectsAreValid)
             {
                 bool success;
                 var res = ScopeManager.Instance.ChangeScope(scriptObject.GetScopeType(), strVal, out success,
-                    scriptObject);
+                    scriptObject, findType);
 
                 if (success)
                 {
@@ -610,7 +687,7 @@ namespace CK3ScriptEditor
         {
             if (!line.ColorWord(name, color, bold, italic))
             {
-          
+
             }
         }
     }

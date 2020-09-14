@@ -1,5 +1,5 @@
 <Schema blockType="inheritparent">
 	<Child name="limit" type="limit" isBlock="yes" blockType="condition_block"/>
-	<Child name="alternative_limit" type="limit" isBlock="yes" blockType="condition_block"/>
+	<Child name="type" type="relation"/>
 	<Child name="scopeeffects" type="scopeeffects"/>
 </Schema>

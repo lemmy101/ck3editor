@@ -33,6 +33,7 @@ namespace CK3ScriptEditor
         internal FileOverviewToolWindow fileOverview;
         internal ProjectExplorer projectExplorer;
         internal ScriptObjectExplorer soExplorer;
+        internal ObjectDetailsExplorer detailsExplorer;
        // internal EventRepresentationPanel eventPreview;
         private void ToggleToolWindow(DarkToolWindow toolWindow)
         {
@@ -51,6 +52,7 @@ namespace CK3ScriptEditor
             fileOverview.UpdateTreeSelection(tagFilename, tagLineStart);
             text.ActiveTextAreaControl.TextArea.Focus();
             fileOverview.Invalidate();
+            
         }
 
         public CK3ScriptEd()
@@ -76,11 +78,13 @@ namespace CK3ScriptEditor
 
             fileOverview = new FileOverviewToolWindow();
             soExplorer = new ScriptObjectExplorer();
+            detailsExplorer = new ObjectDetailsExplorer();
             projectExplorer = new ProjectExplorer();
-        //    eventPreview = new EventRepresentationPanel();
+            //    eventPreview = new EventRepresentationPanel();
             //              DockPanel.AddContent(_dockHistory, _dockLayers.DockGroup);
 
-
+            
+            _toolWindows.Add(detailsExplorer);
             _toolWindows.Add(projectExplorer);
             _toolWindows.Add(soExplorer);
             _toolWindows.Add(fileOverview);
@@ -110,7 +114,7 @@ namespace CK3ScriptEditor
 
             BackupManager.Instance.UpdateTick();
             
-            GetTextEditor("events/war.txt", false);
+            GetTextEditor("common/activities/a.txt", false);
 
         }
 
@@ -163,13 +167,22 @@ namespace CK3ScriptEditor
 
         private TextEditorControl GetTextEditor(string filename, bool fromBase = true)
         {
+
+            string startDir = fromBase ? Globals.CK3Path : Core.Instance.ModCK3Library.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
+
+            if (!File.Exists(startDir + filename))
+                fromBase = !fromBase;
+
             var textEditors = fromBase ? baseTextEditors : modTextEditors;
             var openScriptWindows = fromBase ? openBaseScriptWindows : openModScriptWindows;
 
             if (textEditors.ContainsKey(filename))
             {
              
+
                 DockPanel.ActiveContent = openScriptWindows[filename];
+
+                openScriptWindows[filename].GetInside();
 
                 CurrentFile = filename;
                 return textEditors[filename];

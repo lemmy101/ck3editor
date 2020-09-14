@@ -10,6 +10,8 @@
 	<Child name="theme" type="event_theme"/>
 	<Child name="left_portrait" type="character"/>
 	<Child name="right_portrait" type="character"/>
+	<Child name="override_background" type="override_background"/>
+	
 	<Child name="widget" type="widget"/>
 	<Child name="hidden" type="bool"/>
 	<Child name="override_icon" type="override_icon"/>

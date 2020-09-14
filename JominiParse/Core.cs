@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace JominiParse
 {
@@ -67,7 +68,7 @@ namespace JominiParse
 
         ScriptContext GetContextFromDirectory(string dir)
         {
-            var res = ContextData.Where(a => dir.StartsWith(a.Value.Directory)).ToList();
+            var res = BaseCK3Library.ContextData.Where(a => dir.StartsWith(a.Value.Directory)).ToList();
 
             if(res.Any())
 
@@ -93,10 +94,10 @@ namespace JominiParse
 
             BaseCK3Library.Add(results, context);
 
-            BaseCK3Library.ConnectEventNetwork();
         }
         public bool LoadCK3File(string filename, bool forceBase=false, bool forceReload = false)
         {
+            ScriptObject.DeferedInitializationList.Clear();
             bool fromBase = false;
             if (!ModCK3Library.FileMap.ContainsKey(filename))
                 fromBase = true;
@@ -133,8 +134,6 @@ namespace JominiParse
 
             LoadingCK3Library.Add(results, context);
 
-            LoadingCK3Library.ConnectEventNetwork();
-
             return fromBase;
         }
 
@@ -150,74 +149,9 @@ namespace JominiParse
             return ModCK3Library.GetFile(file);
         }
        
-        public class ContextInfo
-        {
-            public string Directory;
-            public string Dictionary;
-//            public delegate HashSet<string> GetNameSet(bool modOnly);
-        }
-
-        private Dictionary<ScriptContext, ContextInfo> ContextData = new Dictionary<ScriptContext, ContextInfo>()
-        {
-            { ScriptContext.Events, new ContextInfo() {Directory = "events"}},
-            { ScriptContext.Decisions, new ContextInfo() {Directory = "common/decisions"}},
-            { ScriptContext.ScriptValues, new ContextInfo() {Directory = "common/script_values"}},
-            { ScriptContext.Activities, new ContextInfo() {Directory = "common/activities"}},
-            { ScriptContext.Bookmark, new ContextInfo() {Directory = "common/bookmarks"}},
-            { ScriptContext.Buildings, new ContextInfo() {Directory = "common/buildings"}},
-            { ScriptContext.CasusBelliType, new ContextInfo() {Directory = "common/casus_belli_types"}},
-            { ScriptContext.CharacterInteractions, new ContextInfo() {Directory = "common/character_interactions"}},
-            { ScriptContext.Characters, new ContextInfo() {Directory = "history/characters"}},
-            { ScriptContext.CouncilPositions, new ContextInfo() {Directory = "common/council_positions"}},
-            { ScriptContext.CouncilTasks, new ContextInfo() {Directory = "common/council_tasks"}},
-            { ScriptContext.Defines, new ContextInfo() {Directory = "common/Defines"}},
-            { ScriptContext.DynastyLegacies, new ContextInfo() {Directory = "common/dynasty_legacies"}},
-            { ScriptContext.DynastyPerks, new ContextInfo() {Directory = "common/dynasty_perks"}},
-            { ScriptContext.EventBackgrounds, new ContextInfo() {Directory = "common/event_backgrounds"}},
-            { ScriptContext.EventThemes, new ContextInfo() {Directory = "common/event_themes"}},
-            { ScriptContext.Factions, new ContextInfo() {Directory = "common/factions"}},
-            { ScriptContext.Focuses, new ContextInfo() {Directory = "common/focuses"}},
-            { ScriptContext.GameRules, new ContextInfo() {Directory = "common/game_rules"}},
-            { ScriptContext.Governments, new ContextInfo() {Directory = "common/governments"}},
-            { ScriptContext.Holdings, new ContextInfo() {Directory = "common/holdings"}},
-            { ScriptContext.HookTypes, new ContextInfo() {Directory = "common/hook_types"}},
-            { ScriptContext.ImportantActions, new ContextInfo() {Directory = "common/important_actions"}},
-            { ScriptContext.LandedTitles, new ContextInfo() {Directory = "common/landed_titles"}},
-
-            { ScriptContext.Laws, new ContextInfo() {Directory = "common/laws"}},
-            { ScriptContext.LifestylePerks, new ContextInfo() {Directory = "common/lifestyle_perks"}},
-            { ScriptContext.Lifestyles, new ContextInfo() {Directory = "common/lifestyles"}},
-            { ScriptContext.StaticModifiers, new ContextInfo() {Directory = "common/modifiers"}},
-            { ScriptContext.Nicknames, new ContextInfo() {Directory = "common/nicknames"}},
-            { ScriptContext.OnActions, new ContextInfo() {Directory = "common/on_action"}},
-            { ScriptContext.OptionModifiers, new ContextInfo() {Directory = "common/opinion_modifiers"}},
-            { ScriptContext.Doctrines, new ContextInfo() {Directory = "common/religion/doctrines"}},
-            { ScriptContext.FervorModifiers, new ContextInfo() {Directory = "common/religion/fervor_modifiers"}},
-
-            { ScriptContext.HolySites, new ContextInfo() {Directory = "common/religion/holy_sites"}},
-            { ScriptContext.ReligionFamilys, new ContextInfo() {Directory = "common/religion/religion_families"}},
-            { ScriptContext.Religions, new ContextInfo() {Directory = "common/religion/religions"}},
-
-            { ScriptContext.Schemes, new ContextInfo() {Directory = "common/schemes"}},
-            { ScriptContext.ScriptedCharacterTemplates, new ContextInfo() {Directory = "common/scripted_character_templates"}},
-            { ScriptContext.ScriptedEffects, new ContextInfo() {Directory = "common/scripted_effects"}},
-            { ScriptContext.ScriptedLists, new ContextInfo() {Directory = "common/scripted_lists"}},
-            { ScriptContext.ScriptedModifiers, new ContextInfo() {Directory = "common/scripted_modifiers"}},
-            { ScriptContext.ScriptedRelations, new ContextInfo() {Directory = "common/scripted_relations"}},
-            { ScriptContext.ScriptedRules, new ContextInfo() {Directory = "common/scripted_rules"}},
-            { ScriptContext.ScriptedTriggers, new ContextInfo() {Directory = "common/scripted_triggers"}},
-            { ScriptContext.SecretTypes, new ContextInfo() {Directory = "common/secret_types"}},
-            { ScriptContext.StoryCycles, new ContextInfo() {Directory = "common/story_cycles"}},
-            { ScriptContext.SuccessionElections, new ContextInfo() {Directory = "common/succession_election"}},
-            { ScriptContext.Traits, new ContextInfo() {Directory = "common/traits"}},
-            { ScriptContext.VassalContracts, new ContextInfo() {Directory = "common/vassal_contracts"}},
-   
-        };
-
+       
         public void PostInitialize()
         {
-
-            ModCK3Library.ConnectEventNetwork();
 
             foreach (var scriptObject in ScriptObject.DeferedInitializationList)
             {
@@ -237,9 +171,9 @@ namespace JominiParse
 
             for(int x=0;x<(int)ScriptContext.Max;x++)
             {
-                if(ContextData.ContainsKey((ScriptContext)x))
+                if(LoadingCK3Library.ContextData.ContainsKey((ScriptContext)x))
                 {
-                    ContextInfo info = ContextData[(ScriptContext)x];
+                    ScriptLibrary.ContextInfo info = LoadingCK3Library.ContextData[(ScriptContext)x];
                     var r = FileTokenizer.Instance.LoadDirectory(startDir + info.Directory + "/", startDir, (ScriptContext)x);
                     LoadingCK3Library.Add(r, (ScriptContext)x);
                 }
@@ -249,13 +183,16 @@ namespace JominiParse
             {
                 scriptObject.Initialize();
             }
-        
+
+            LoadingCK3Library.RecalculateGroups();
 
         }
 
 
         public void UpdateFile(string filename, string text)
         {
+            ScriptObject.DeferedInitializationList.Clear();
+
             string startDir = ModCK3Library.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
             
             LoadingCK3Library = ModCK3Library;
@@ -276,1128 +213,175 @@ namespace JominiParse
                 scriptObject.Initialize();
             }
 
-            ModCK3Library.ConnectEventNetwork();
-           
             foreach (var scriptObject in ScriptObject.DeferedInitializationList)
             {
                 scriptObject.PostInitialize();
             }
             ScriptObject.DeferedInitializationList.Clear();
 
+
+            LoadingCK3Library.RecalculateGroups();
         }
 
-        public HashSet<string> GetNameSet(bool modOnly, ScriptContext context)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-            
-            switch (context)
-            {
-
-
-                case ScriptContext.Focuses:
-                    return GetFocusNameSet(modOnly);
-                    break;
-                case ScriptContext.Characters:
-                    return GetCharacterNameSet(modOnly);
-                    break;
-
-                case ScriptContext.DynastyPerks:
-                    return GetDynastyPerkNameSet(modOnly);
-                    break;
-                case ScriptContext.DynastyLegacies:
-                    return GetDynastyLegacyNameSet(modOnly);
-                    break;
-
-                case ScriptContext.Defines:
-                    return GetDefineNameSet(modOnly);
-                    break;
-                case ScriptContext.CouncilTasks:
-                    return GetCouncilTaskNameSet(modOnly);
-                    break;
-                case ScriptContext.CouncilPositions:
-                    return GetCouncilPositionNameSet(modOnly);
-                    break;
-                case ScriptContext.CharacterInteractions:
-                    return GetCharacterInteractionNameSet(modOnly);
-                    break;
-                case ScriptContext.CasusBelliType:
-                    return GetCasusBelliTypeNameSet(modOnly);
-                    break;
-                case ScriptContext.Bookmark:
-                    return GetBookmarkNameSet(modOnly);
-                    break;
-                case ScriptContext.Events:
-                    return GetEventNameSet(modOnly);
-                    break;
-                case ScriptContext.Decisions:
-                    return GetDecisionNameSet(modOnly);
-                    break;
-                case ScriptContext.ScriptValues:
-                    return GetScriptValueNameSet(modOnly);
-                    break;
-                case ScriptContext.Activities:
-                    return GetActivityNameSet(modOnly);
-                    break;
-                case ScriptContext.Buildings:
-                    return GetBuildingNameSet(modOnly);
-                    break;
-
-                case ScriptContext.EventBackgrounds:
-                    return GetEventBackgroundNameSet(modOnly);
-                    break;
-
-                case ScriptContext.EventThemes:
-                    return GetEventThemeNameSet(modOnly);
-                    break;
-
-                case ScriptContext.Factions:
-                    return GetFactionNameSet(modOnly);
-                    break;
-
-                case ScriptContext.GameRules:
-                    return GetGameRuleNameSet(modOnly);
-                    break;
-
-                case ScriptContext.Governments:
-                    return GetGovernmentNameSet(modOnly);
-                    break;
-                case ScriptContext.Holdings:
-                    return GetHoldingNameSet(modOnly);
-                    break;
-
-                case ScriptContext.HookTypes:
-                    return GetHookTypeNameSet(modOnly);
-                    break;
-
-                case ScriptContext.ImportantActions:
-                    return GetImportantActionNameSet(modOnly);
-                    break;
-
-                case ScriptContext.LandedTitles:
-                    return GetLandedTitleNameSet(modOnly);
-                    break;
-
-                case ScriptContext.Laws:
-                    return GetLawNameSet(modOnly);
-                    break;
-
-                case ScriptContext.LifestylePerks:
-                    return GetLifestylePerkNameSet(modOnly);
-                    break;
-
-                case ScriptContext.Lifestyles:
-                    return GetLifestyleNameSet(modOnly);
-                    break;
-
-                case ScriptContext.ScriptedModifiers:
-                    return GetScriptedModifierNameSet(modOnly);
-                    break;
-
-                case ScriptContext.StaticModifiers:
-                    return GetStaticModifierNameSet(modOnly);
-                    break;
-
-                case ScriptContext.Nicknames:
-                    return GetNicknameNameSet(modOnly);
-                    break;
-
-                case ScriptContext.OnActions:
-                    return GetOnActionNameSet(modOnly);
-                    break;
-
-                case ScriptContext.OptionModifiers:
-                    return GetOptionModifierNameSet(modOnly);
-                    break;
-
-                case ScriptContext.Doctrines:
-                    return GetDoctrineNameSet(modOnly);
-                    break;
-
-                case ScriptContext.FervorModifiers:
-                    return GetFervorModifierNameSet(modOnly);
-                    break;
-
-                case ScriptContext.HolySites:
-                    return GetHolySiteNameSet(modOnly);
-                    break;
-
-                case ScriptContext.ReligionFamilys:
-                    return GetReligionFamilyNameSet(modOnly);
-                    break;
-
-                case ScriptContext.Religions:
-                    return GetReligionNameSet(modOnly);
-                    break;
-
-                case ScriptContext.Schemes:
-                    return GetSchemeNameSet(modOnly);
-                    break;
-
-                case ScriptContext.ScriptedCharacterTemplates:
-                    return GetScriptedCharacterTemplateNameSet(modOnly);
-                    break;
-
-                case ScriptContext.ScriptedEffects:
-                    return GetScriptedEffectNameSet(modOnly);
-                    break;
-
-                case ScriptContext.ScriptedLists:
-                    return GetScriptedListNameSet(modOnly);
-                    break;
-
-                case ScriptContext.ScriptedRelations:
-                    return GetScriptedRelationNameSet(modOnly);
-                    break;
-
-                case ScriptContext.ScriptedRules:
-                    return GetScriptedRuleNameSet(modOnly);
-                    break;
-
-                case ScriptContext.ScriptedTriggers:
-                    return GetScriptedTriggerNameSet(modOnly);
-                    break;
-
-                case ScriptContext.SecretTypes:
-                    return GetSecretTypeNameSet(modOnly);
-                    break;
-
-                case ScriptContext.StoryCycles:
-                    return GetStoryCycleNameSet(modOnly);
-                    break;
-
-                case ScriptContext.SuccessionElections:
-                    return GetSuccessionElectionNameSet(modOnly);
-                    break;
-
-                case ScriptContext.Traits:
-                    return GetTraitNameSet(modOnly);
-                    break;
-
-                case ScriptContext.VassalContracts:
-                    return GetVassalContractNameSet(modOnly);
-                    break;
-            }
-
-            return eventNames;
-        }
-
-        #region Get Objects
-
-        public HashSet<string> GetVassalContractNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.VassalContractsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.VassalContractsMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetCharacterNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.CharactersMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.CharactersMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetTraitNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.TraitsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.TraitsMap.Keys);
-
-            foreach (var v in ModCK3Library.TraitsMap.Values)
-            {
-                var r = v.Children.Where(a => a.Name == "group");
-                if (r.Any())
-                    eventNames.Add(r.First().GetStringValue());
-            }
-
-            foreach (var v in BaseCK3Library.TraitsMap.Values)
-            {
-                var r = v.Children.Where(a => a.Name == "group");
-                if (r.Any())
-                    eventNames.Add(r.First().GetStringValue());
-            }
-
-            return eventNames;
-        }
-        public HashSet<string> GetSuccessionElectionNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.SuccessionElectionsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.SuccessionElectionsMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetScriptedTriggerNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ScriptedTriggersMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ScriptedTriggersMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetStoryCycleNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.StoryCyclesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.StoryCyclesMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetSecretTypeNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.SecretTypesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.SecretTypesMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetScriptedRelationNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ScriptedRelationsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ScriptedRelationsMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetScriptedRuleNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ScriptedRulesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ScriptedRulesMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetScriptedListNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ScriptedListsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ScriptedListsMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetScriptedEffectNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ScriptedEffectsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ScriptedEffectsMap.Keys);
-
-            return eventNames;
-        }
-
-
-        public HashSet<string> GetScriptedCharacterTemplateNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ScriptedCharacterTemplatesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ScriptedCharacterTemplatesMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetSchemeNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.SchemesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.SchemesMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetReligionNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ReligionsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ReligionsMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetReligionFamilyNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ReligionFamilysMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ReligionFamilysMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetHolySiteNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.HolySitesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.HolySitesMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetFervorModifierNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.FervorModifiersMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.FervorModifiersMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetDoctrineNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.DoctrinesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.DoctrinesMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetOptionModifierNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.OptionModifiersMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.OptionModifiersMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetOnActionNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.OnActionsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.OnActionsMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetNicknameNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.NicknamesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.NicknamesMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetStaticModifierNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.StaticModifiersMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.StaticModifiersMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetModifierNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.StaticModifiersMap.Keys);
-            eventNames.UnionWith(ModCK3Library.ScriptedModifiersMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.StaticModifiersMap.Keys);
-            eventNames.UnionWith(BaseCK3Library.ScriptedModifiersMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetScriptedModifierNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ScriptedModifiersMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ScriptedModifiersMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetLifestyleNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.LifestylesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.LifestylesMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetLifestylePerkNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.LifestylePerksMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.LifestylePerksMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetLawNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.LawsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.LawsMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetImportantActionNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ImportantActionsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ImportantActionsMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetLandedTitleNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.LandedTitleMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.LandedTitleMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetHookTypeNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.HookTypesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.HookTypesMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetFactionNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.FactionsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.FactionsMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetDynastyLegacyNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.DynastyLegaciesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.DynastyLegaciesMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetDefineNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.DefinesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.DefinesMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetCouncilTaskNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.CouncilTasksMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.CouncilTasksMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetCouncilPositionNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.CouncilPositionsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.CouncilPositionsMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetBuildingNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.BuildingMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.BuildingMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetActivityNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ActivityMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ActivityMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetScriptValueNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.ScriptValueMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.ScriptValueMap.Keys);
-
-            return eventNames;
-        }
         
-        public HashSet<string> GetCasusBelliTypeNameSet(bool modOnly)
+        public HashSet<string> GetGroupNameList(ScriptGroupContext context, bool modOnly)
         {
             HashSet<string> eventNames = new HashSet<string>();
 
-            eventNames.UnionWith(ModCK3Library.CasusBelliTypeMap.Keys);
+            eventNames.UnionWith(ModCK3Library.GroupContextData[context].Keys());
             if (modOnly)
                 return eventNames;
 
-            eventNames.UnionWith(BaseCK3Library.CasusBelliTypeMap.Keys);
+            eventNames.UnionWith(BaseCK3Library.GroupContextData[context].Keys());
 
             return eventNames;
         }
-        public HashSet<string> GetBookmarkNameSet(bool modOnly)
+        public HashSet<string> GetNameSet(ScriptContext context, bool modOnly)
         {
             HashSet<string> eventNames = new HashSet<string>();
 
-            eventNames.UnionWith(ModCK3Library.BookmarkMap.Keys);
+            eventNames.UnionWith(ModCK3Library.ContextData[context].Keys());
             if (modOnly)
                 return eventNames;
 
-            eventNames.UnionWith(BaseCK3Library.BookmarkMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetEventNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.EventMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.EventMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetDecisionNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.DecisionMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.DecisionMap.Keys);
+            eventNames.UnionWith(BaseCK3Library.ContextData[context].Keys());
 
             return eventNames;
         }
 
-        public HashSet<string> GetCharacterInteractionNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
 
-            eventNames.UnionWith(ModCK3Library.CharacterInteractionMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.CharacterInteractionMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetDynastyPerkNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.DynastyPerksMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.DynastyPerksMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetEventBackgroundNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.EventBackgroundsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.EventBackgroundsMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetEventThemeNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.EventThemesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.EventThemesMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetFocusNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.FocusMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.FocusMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetGameRuleNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.GameRulesMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.GameRulesMap.Keys);
-
-            return eventNames;
-        }
-        public HashSet<string> GetGovernmentNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.GovernmentsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.GovernmentsMap.Keys);
-
-            return eventNames;
-        }
-
-        public HashSet<string> GetHoldingNameSet(bool modOnly)
-        {
-            HashSet<string> eventNames = new HashSet<string>();
-
-            eventNames.UnionWith(ModCK3Library.HoldingsMap.Keys);
-            if (modOnly)
-                return eventNames;
-
-            eventNames.UnionWith(BaseCK3Library.HoldingsMap.Keys);
-
-            return eventNames;
-        }
-
-        #endregion
-
-
-        public ScriptObject Get(string name, ScriptContext context, bool forceBase=false)
+        public ScriptObject Get(ScriptContext context, string name, bool forceBase = false)
         {
             var lib = ModCK3Library;
 
             if (forceBase)
                 lib = BaseCK3Library;
 
-            switch (context)
+            var res = lib.Get(context, name);
+
+            if (res == null)
             {
-
-                case ScriptContext.VassalContracts:
-                    return lib.GetVassalContract(name);
-                    break;
-
-
-                case ScriptContext.Characters:
-                    return lib.GetCharacter(name);
-                    break;
-
-
-                case ScriptContext.Traits:
-                    return lib.GetTrait(name);
-                    break;
-
-                case ScriptContext.SuccessionElections:
-                    return lib.GetSuccessionElection(name);
-                    break;
-
-
-                case ScriptContext.StoryCycles:
-                    return lib.GetStoryCycle(name);
-                    break;
-
-
-                case ScriptContext.SecretTypes:
-                    return lib.GetSecretType(name);
-                    break;
-
-
-                case ScriptContext.ScriptedTriggers:
-                    return lib.GetScriptedTrigger(name);
-                    break;
-
-
-                case ScriptContext.ScriptedRules:
-                    return lib.GetScriptedRule(name);
-                    break;
-
-                case ScriptContext.ScriptedRelations:
-                    return lib.GetScriptedRelation(name);
-                    break;
-
-
-                case ScriptContext.ScriptedLists:
-                    return lib.GetScriptedList(name);
-                    break;
-
-
-                case ScriptContext.ScriptedEffects:
-                    return lib.GetScriptedEffect(name);
-                    break;
-
-
-
-                case ScriptContext.ScriptedCharacterTemplates:
-                    return lib.GetScriptedCharacterTemplate(name);
-                    break;
-
-
-                case ScriptContext.Schemes:
-                    return lib.GetScheme(name);
-                    break;
-
-                case ScriptContext.Religions:
-                    return lib.GetReligion(name);
-                    break;
-
-
-                case ScriptContext.ReligionFamilys:
-                    return lib.GetReligionFamily(name);
-                    break;
-
-                case ScriptContext.HolySites:
-                    return lib.GetHolySite(name);
-                    break;
-
-
-                case ScriptContext.FervorModifiers:
-                    return lib.GetFervorModifier(name);
-                    break;
-
-
-                case ScriptContext.Doctrines:
-                    return lib.GetDoctrine(name);
-                    break;
-
-
-                case ScriptContext.OptionModifiers:
-                    return lib.GetOptionModifier(name);
-                    break;
-
-
-                case ScriptContext.OnActions:
-                    return lib.GetOnAction(name);
-                    break;
-
-
-                case ScriptContext.Nicknames:
-                    return lib.GetNickname(name);
-                    break;
-
-
-                case ScriptContext.StaticModifiers:
-                    return lib.GetStaticModifier(name);
-                    break;
-
-
-                case ScriptContext.ScriptedModifiers:
-                    return lib.GetScriptedModifier(name);
-                    break;
-
-                case ScriptContext.Lifestyles:
-                    return lib.GetLifestyle(name);
-                    break;
-
-                case ScriptContext.LifestylePerks:
-                    return lib.GetLifestylePerk(name);
-                    break;
-
-
-                case ScriptContext.Laws:
-                    return lib.GetLaw(name);
-                    break;
-
-
-                case ScriptContext.LandedTitles:
-                    return lib.GetLandedTitle(name);
-                    break;
-
-
-                case ScriptContext.ImportantActions:
-                    return lib.GetImportantAction(name);
-                    break;
-
-                case ScriptContext.HookTypes:
-                    return lib.GetHookType(name);
-                    break;
-
-
-                case ScriptContext.Holdings:
-                    return lib.GetHolding(name);
-                    break;
-
-
-                case ScriptContext.Governments:
-                    return lib.GetGovernment(name);
-                    break;
-
-                case ScriptContext.GameRules:
-                    return lib.GetGameRule(name);
-                    break;
-
-                case ScriptContext.Focuses:
-                    return lib.GetFocus(name);
-                    break;
-
-
-                case ScriptContext.Factions:
-                    return lib.GetFaction(name);
-                    break;
-
-
-                case ScriptContext.EventThemes:
-                    return lib.GetEventTheme(name);
-                    break;
-
-
-                case ScriptContext.EventBackgrounds:
-                    return lib.GetEventBackground(name);
-                    break;
-
-
-                case ScriptContext.DynastyPerks:
-                    return lib.GetDynastyPerk(name);
-                    break;
-
-
-                case ScriptContext.DynastyLegacies:
-                    return lib.GetDynastyLegacy(name);
-                    break;
-
-
-                case ScriptContext.CouncilTasks:
-                    return lib.GetCouncilTask(name);
-                    break;
-
-                case ScriptContext.Defines:
-                    return lib.GetDefine(name);
-                    break;
-
-                case ScriptContext.CouncilPositions:
-                    return lib.GetCouncilPosition(name);
-                    break;
-                case ScriptContext.CharacterInteractions:
-                    return lib.GetCharacterInteraction(name);
-                    break;
-                case ScriptContext.CasusBelliType:
-                    return lib.GetCasusBelliType(name);
-                    break;
-                case ScriptContext.Bookmark:
-                    return lib.GetBookmark(name);
-                    break;
-                case ScriptContext.Buildings:
-                    return lib.GetBuilding(name);
-                    break;
-                case ScriptContext.Events:
-                    return lib.GetEvent(name);
-                    break;
-                case ScriptContext.Decisions:
-                    return lib.GetDecision(name);
-                    break;
-                case ScriptContext.Activities:
-                    return lib.GetActivity(name);
-                    break;
-                case ScriptContext.ScriptValues:
-                    return lib.GetScriptValue(name);
-                    break;
+                if (lib.Parent != null)
+                {
+                    return lib.Parent.Get(context, name);
+                }
             }
 
-            return null;
+            return res;
+
+        }
+
+        public ScriptObject Get(string name, bool forceBase = false)
+        {
+            var lib = ModCK3Library;
+
+            if (forceBase)
+                lib = BaseCK3Library;
+
+            var res = lib.Get(name);
+
+            if (res == null)
+            {
+                if (lib.Parent != null)
+                {
+                    return lib.Parent.Get(name);
+                }
+            }
+
+            return res;
+
         }
 
         public ScriptObject GetEvent(string name)
         {
-            return ModCK3Library.GetEvent(name);
+            return ModCK3Library.Get(ScriptContext.Events, name);
         }
 
         public string GetDirectoryFromContext(ScriptContext context)
         {
-            return ContextData[context].Directory;
+            return BaseCK3Library.ContextData[context].Directory;
         }
 
         public HashSet<string> GetNameSetFromEnumType(string type)
         {
+
+            //  if (type == "building_type")
+            //    return GetNameSet(ScriptContext.Buildings, false);
+            if (type == "innovation")
+                return GetNameSet(ScriptContext.CulturalInnovations, false);
+            if (type == "building")
+                return GetNameSet(ScriptContext.Buildings, false);
+            if (type == "event_background")
+                return GetNameSet(ScriptContext.EventBackgrounds, false);
+            if (type == "scheme_type")
+                return GetNameSet(ScriptContext.Schemes, false);
+            if (type == "relation")
+                return GetNameSet(ScriptContext.ScriptedRelations, false);
+            if (type == "scripted_modifier")
+                return GetNameSet(ScriptContext.ScriptedModifiers, false);
             if (type == "scripted_trigger")
-                return GetScriptedTriggerNameSet(false);
+                return GetNameSet(ScriptContext.ScriptedTriggers, false);
             if (type == "opinion")
-                return GetOptionModifierNameSet(false);
+                return GetNameSet(ScriptContext.OptionModifiers, false);
             if (type == "hook")
-                return GetHookTypeNameSet(false);
+                return GetNameSet(ScriptContext.HookTypes, false);
             if (type == "on_action")
-                return GetOnActionNameSet(false);
+                return GetNameSet(ScriptContext.OnActions, false);
             if (type == "modifier")
-                return GetStaticModifierNameSet(false);
+                return GetNameSet(ScriptContext.StaticModifiers, false);
             if (type == "event_theme")
-                return GetEventThemeNameSet(false);
-            if (type == "trait")
-                return GetTraitNameSet(false);
+                return GetNameSet(ScriptContext.EventThemes, false);
+                 if (type == "perk")
+                return GetNameSet(ScriptContext.LifestylePerks, false);
             if (type == "decision")
-                return GetDecisionNameSet(false);
+                return GetNameSet(ScriptContext.Decisions, false);
             if (type == "event")
-                return GetEventNameSet(false);
-  //          if (type == "tooltip")
-//                return GetEventNameSet(false);
+                return GetNameSet(ScriptContext.Events, false);
+            if(type == "culture_group")
+                return GetNameSet(ScriptContext.CultureGroups, false).PrependToken("culture_group:");
+            if (type == "trait")
+            {
+                var a = GetNameSet(ScriptContext.Traits, false);
+                var b = GetGroupNameList(ScriptGroupContext.TraitGroups, false);
+                var h = new HashSet<string>();
+
+                foreach (var v in a)
+                {
+                    h.Add(v);
+                }
+                foreach (var v in b)
+                {
+                    h.Add(v);
+                }
+
+                return h;
+            }
+            //          if (type == "tooltip")
+            //                return GetEventNameSet(false);
 
             return new HashSet<string>();
+        }
+
+        public HashSet<string> LocalVarListFromObjectFile(ScriptObject o)
+        {
+            HashSet<string> s = new HashSet<string>();
+            var v = o.Topmost.ScriptFile.LocalVarNamelist(o.GetVarType());
+            foreach (var d in v)
+            {
+                s.Add(d);
+            }
+
+            return s;
+        }
+        public HashSet<string> LocalVarListFromObjectFile(ScriptObject o, ScriptObject.ScopeVarType type)
+        {
+            HashSet<string> s = new HashSet<string>();
+            var v = o.Topmost.ScriptFile.LocalVarNamelist(o.GetVarType());
+            foreach (var d in v)
+            {
+                s.Add(d);
+            }
+            return s;
         }
     }
 }

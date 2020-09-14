@@ -391,13 +391,13 @@ namespace CK3ScriptEditor
         private void FillBranch(DarkTreeNode parent, ScriptContext context)
         {
             namespaces.Clear();
-            var names = Core.Instance.GetNameSet(this.showModOnly.CheckState != CheckState.Checked, context).OrderBy(a => a).ToList();
+            var names = Core.Instance.GetNameSet(context, this.showModOnly.CheckState != CheckState.Checked).OrderBy(a => a).ToList();
 
             NamespaceItems defaultNamespace = new NamespaceItems();
 
             foreach (var name in names)
             {
-                ScriptObject e = Core.Instance.Get(name, context);
+                ScriptObject e = Core.Instance.Get(context, name);
               
                 if (e != null)
                 {
@@ -521,14 +521,13 @@ namespace CK3ScriptEditor
         private void FillBranchFiles(DarkTreeNode parent, ScriptContext context)
         {
             namespaces.Clear();
-            var names = Core.Instance.GetNameSet(this.showModOnly.CheckState != CheckState.Checked, context).OrderBy(a => a).ToList();
+            var names = Core.Instance.GetNameSet(context, this.showModOnly.CheckState != CheckState.Checked).OrderBy(a => a).ToList();
 
             NamespaceItems defaultNamespace = new NamespaceItems();
 
             foreach (var name in names)
             {
-                ScriptObject e = Core.Instance.Get(name, context);
-
+                ScriptObject e = Core.Instance.Get( context, name);
                 string ff = e.Filename.Substring(e.Filename.LastIndexOf("/")+1).Replace(".txt", "");
 
                 if (e != null)

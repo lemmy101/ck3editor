@@ -112,7 +112,7 @@ namespace CK3ScriptEditor
             {
                 ScriptObject toClone = prms[1] as ScriptObject;
 
-                var got = Core.Instance.Get(toClone.Name, toClone.Context, true);
+                var got = Core.Instance.Get(toClone.Context, toClone.Name,  true);
 
                 CK3ScriptEd.Instance.Goto(got.Filename, got.LineStart-1, true);
             }
@@ -120,7 +120,7 @@ namespace CK3ScriptEditor
             if (command == "gotoMod")
             {
                 ScriptObject toClone = prms[1] as ScriptObject;
-                var got = Core.Instance.Get(toClone.Name, toClone.Context, false);
+                var got = Core.Instance.Get(toClone.Context, toClone.Name, false);
                 CK3ScriptEd.Instance.Goto(got.Filename, got.LineStart - 1, false);
             }
             var cm = ((ContextMenu)textEditorControl1.ActiveTextAreaControl.ContextMenuStrip);
@@ -283,7 +283,7 @@ namespace CK3ScriptEditor
             }
         }
 
-        private ScriptObject GetInside()
+        public ScriptObject GetInside()
         {
             var line = textEditorControl1.ActiveTextAreaControl.Caret.Line + 1;
 
@@ -294,6 +294,9 @@ namespace CK3ScriptEditor
                 if (scriptObject.LineStart <= line && scriptObject.LineEnd >= line)
                 {
                     var res = GetInside(scriptObject);
+
+                    if(res != null)
+                        CK3ScriptEd.Instance.detailsExplorer.SetObject(res);
 
                     return res;
                 }

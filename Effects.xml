@@ -5,13 +5,13 @@
     <Property name="months" type="num"/>
     <Property name="years" type="num"/>
   </Effect>
-  
+
   <Effect name="add_scheme_modifier" validscope="scheme">
     <Property name="type" type="modifier"/>
     <Property name="days" type="num"/>
     <Property name="months" type="num"/>
     <Property name="years" type="num"/>
-  </Effect>  
+  </Effect>
   <Effect name="add_character_modifier" validscope="character">
     <Property name="modifier" type="modifier"/>
     <Property name="days" type="num"/>
@@ -39,6 +39,12 @@
   <Effect name="add_opinion" validscope="character">
     <Property name="target" type="character"/>
     <Property name="modifier" type="opinion"/>
+    <Property name="opinion" type="num"/>
+    <Property name="days" type="num"/>
+    <Property name="months" type="num"/>
+    <Property name="years" type="num"/>
+	
+	
   </Effect>
   <Effect name="add_piety" validscope="character" type="num" />
   <Effect name="add_piety_level" validscope="character" type="num" />
@@ -71,7 +77,6 @@
     <Property name="multiply" type="num"/>
     <Property name="divide" type="num"/>
   </Effect>
-  <Effect name="clear_saved_scope" validscope="character" type="scope"/>
   <Effect name="clear_variable_list" validscope="character" type="list" />
   <Effect name="create_title_and_vassal_change" validscope="character" />
   <Effect name="death" validscope="character" >
@@ -98,7 +103,7 @@
     <Property name="gold" type="num"/>
     <Property name="yearly_income" type="bool"/>
   </Effect>
-  
+
   <Effect name="end_scheme" validscope="scheme" type="bool" />
   <Effect name="play_music_cue" validscope="character" type="string" />
   <Effect name="recruit_courtier" validscope="character" type="character"/>
@@ -127,13 +132,28 @@
   <Effect name="resolve_title_and_vassal_change" validscope="character" type="change" />
   <Effect name="reverse_add_opinion" validscope="character">
     <Property name="target" type="character"/>
-    <Property name="modifier" type="num"/>
+    <Property name="modifier" type="opinion"/>
+    <Property name="opinion" type="num"/>
+    <Property name="days" type="num"/>
+		
   </Effect>
+  <Effect name="stress_impact" validscope="character"/>
+  <Effect name="clear_saved_scope" validscope="any" type="scopeany" />
   <Effect name="save_scope_as" validscope="any" type="scope" />
-  <Effect name="save_scope_value_as" validscope="character">
-	<Property name="name" type="any"/>
-    <Property name="value" type="any"/>
+  <Effect name="save_scope_value_as" validscope="any" >
+    <Property name="name" type="any"/>
+    <Property name="value" type="scopevalue"/>
   </Effect>
+
+  <Effect name="invite_character_to_activity" validscope="activity" type="character"/>
+  <Effect name="complete_activity" validscope="activity" type="bool"/>
+  <Effect name="every_in_list" validscope="any"/>
+  <Effect name="random_in_list" validscope="any"/>
+  
+  <Effect name="add_to_temporary_list" validscope="any" type="list" />
+  <Effect name="add_to_list" validscope="any" type="list" />
+  
+  <Effect name="custom_description_no_bullet" validscope="any" type="custom_description_no_bullet" />
   <Effect name="save_temporary_scope_as" validscope="any" type="scope" />
   <Effect name="send_interface_toast" validscope="character">
     <Property name="dummy" type="dummy"/>
@@ -142,8 +162,8 @@
   <Effect name="random" validscope="any"/>
   <Effect name="random_list" validscope="any"/>
   <Effect name="expose_secret" validscope="character" type="character"/>
-  <Effect name="disable_exposure_by" validscope="character" type="character"/>
-    
+  <Effect name="disable_exposure_by" validscope="secret" type="character"/>
+
   <Effect name="set_character_faith" validscope="character" type="faith" />
   <Effect name="set_character_faith_with_conversion" validscope="character" type="faith"/>
   <Effect name="set_culture" validscope="character" type="culture" />
@@ -153,9 +173,9 @@
     <Property name="value" type="any"/>
   </Effect>
   <Effect name="send_interface_message" validscope="character" >
-   
+
   </Effect>
-  
+
   <Effect name="assert_if" validscope="any" type="any" />
   <Effect name="set_house" validscope="character" type="house" />
   <Effect name="add_scheme_progress" validscope="scheme" type="num" />

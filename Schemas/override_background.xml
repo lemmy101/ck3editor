@@ -1,0 +1,3 @@
+<Schema blockType="inheritparent">
+	<Child name="event_background" type="event_background"/>
+</Schema>

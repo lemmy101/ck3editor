@@ -30,6 +30,7 @@ namespace JominiParse
         public BlockType blockType { get; set; }
         public string simpleType { get; set; }
        
+        public bool AvoidRed { get; set; }
 
         public void Load(string filename)
         {
@@ -45,7 +46,11 @@ namespace JominiParse
             {
                 simpleType = docEl.Attributes["simpleType"].InnerText;
             }
-
+            if (docEl.Attributes["AvoidRed"] != null)
+            {
+                simpleType = docEl.Attributes["AvoidRed"].InnerText;
+            }
+            
             while (el != null)
             {
                 string name = el.Attributes["name"].InnerText;
@@ -224,7 +229,7 @@ namespace JominiParse
             if (DefaultCScope == null)
             {
                 DefaultCScope = new ScriptObjectSchema();
-                DefaultCScope.children["scopeconditions"] = (new SchemaChild() { blockType = BlockType.condition_block, Name = "scopeconditions", IsBlock = true });
+     //           DefaultCScope.children["scopeconditions"] = (new SchemaChild() { blockType = BlockType.condition_block, Name = "scopeconditions", IsBlock = true });
             }
 
             return DefaultCScope;
@@ -234,7 +239,7 @@ namespace JominiParse
             if (DefaultEScope == null)
             {
                 DefaultEScope = new ScriptObjectSchema();
-                DefaultEScope.children["scopeeffects"] = (new SchemaChild() { blockType = BlockType.condition_block, Name = "scopeeffects", IsBlock = true });
+            //    DefaultEScope.children["scopeeffects"] = (new SchemaChild() { blockType = BlockType.condition_block, Name = "scopeeffects", IsBlock = true });
             }
 
             return DefaultEScope;
@@ -304,24 +309,12 @@ namespace JominiParse
 
             if (blockType == BlockType.condition_scope_change)
             {
-                var a = new SchemaChild();
-                string name = "scopeconditions";
-                string type = "scopeconditions";
-
-                a.Name = name;
-                a.Type = type;
-                schema.children[name] = a;
+            
             }
 
             if (blockType == BlockType.effect_scope_change)
             {
-                var a = new SchemaChild();
-                string name = "scopeeffects";
-                string type = "scopeeffects";
-
-                a.Name = name;
-                a.Type = type;
-                schema.children[name] = a;
+             
             }
 
 
@@ -337,6 +330,11 @@ namespace JominiParse
 
             return null;
         }
-
+        ScriptObjectSchema defaultSchema = new ScriptObjectSchema();
+        public ScriptObjectSchema GetDefaultSchema()
+        {
+            defaultSchema.AvoidRed = true;
+            return defaultSchema;
+        }
     }
 }

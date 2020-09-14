@@ -1,0 +1,3 @@
+<Schema blockType="inheritparent">
+	<Child name="days" type="num"/>
+</Schema>

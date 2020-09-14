@@ -91,6 +91,12 @@
     <Compile Include="IntellisenseDlg.Designer.cs">
       <DependentUpon>IntellisenseDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="ObjectDetailsExplorer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ObjectDetailsExplorer.Designer.cs">
+      <DependentUpon>ObjectDetailsExplorer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="ProjectExplorer.cs">
       <SubType>UserControl</SubType>
@@ -130,6 +136,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="IntellisenseDlg.resx">
       <DependentUpon>IntellisenseDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ObjectDetailsExplorer.resx">
+      <DependentUpon>ObjectDetailsExplorer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ProjectExplorer.resx">
       <DependentUpon>ProjectExplorer.cs</DependentUpon>

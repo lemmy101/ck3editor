@@ -16,73 +16,211 @@ namespace JominiParse
         public string Namespace { get; set; }
 
         public Dictionary<string, ScriptObject> Map = new Dictionary<string, ScriptObject>();
-    }
-    public class EventConnection
-    {
-        public ScriptObject FromCommand { get; set; }
-        public ScriptObject From { get; set; }
-        public ScriptObject To { get; set; }
+
+        Dictionary<string, ScriptObject> LocalVars = new Dictionary<string, ScriptObject>();
+
+        public void AddLocalVars(List<ScriptObject> vars)
+        {
+            foreach (var scriptObject in vars)
+                LocalVars[scriptObject.Name] = scriptObject;
+
+
+        }
+
+        public ScriptObject.ScopeVarType GetVarType(string name)
+        {
+            if (!LocalVars.ContainsKey(name))
+                return ScriptObject.ScopeVarType.None;
+
+            return GetVarType(LocalVars[name]);
+        }
+        public ScriptObject.ScopeVarType GetVarType(ScriptObject v)
+        {
+            return v.GetVarType();
+
+        }
+
+        public List<string> LocalVarNamelist()
+        {
+            return LocalVars.Keys.ToList();
+        }
+        public List<string> LocalVarNamelist(ScriptObject.ScopeVarType type)
+        {
+            var l = LocalVars.Keys.ToList();
+
+            return l.Where(a => GetVarType(a) == type).ToList();
+
+        }
     }
 
     public class ScriptLibrary
     {
         public Dictionary<string, ScriptObject> AllTypeMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> CasusBelliTypeMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> BookmarkMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> BuildingMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> CharacterInteractionMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> CharactersMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> CouncilPositionsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> CouncilTasksMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> DefinesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> DynastyLegaciesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> DynastyPerksMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> EventBackgroundsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> EventThemesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> FactionsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> FocusMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> GameRulesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> GovernmentsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> HoldingsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> HookTypesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> ImportantActionsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> LandedTitleMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> LawsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> LifestylePerksMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> LifestylesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> ScriptedModifiersMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> StaticModifiersMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> NicknamesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> OnActionsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> OptionModifiersMap = new Dictionary<string, ScriptObject>();
-
-        public Dictionary<string, ScriptObject> DoctrinesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> FervorModifiersMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> HolySitesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> ReligionFamilysMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> ReligionsMap = new Dictionary<string, ScriptObject>();
-
-        public Dictionary<string, ScriptObject> SchemesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> ScriptedCharacterTemplatesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> ScriptedEffectsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> ScriptedListsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> ScriptedRelationsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> ScriptedRulesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> ScriptedTriggersMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> SecretTypesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> StoryCyclesMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> SuccessionElectionsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> TraitsMap = new Dictionary<string, ScriptObject>();
-
-        public Dictionary<string, ScriptObject> VassalContractsMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> DecisionMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptValue> ScriptValueMap = new Dictionary<string, ScriptValue>();
-        public Dictionary<string, ScriptObject> EventMap = new Dictionary<string, ScriptObject>();
-        public Dictionary<string, ScriptObject> ActivityMap = new Dictionary<string, ScriptObject>();
-
+   
         public Dictionary<string, ScriptFile> FileMap = new Dictionary<string, ScriptFile>();
-     
-        List<trigger_event> unprocessedTriggers = new List<trigger_event>();
+
+        public class GroupContextInfo
+        {
+            public ScriptContext GroupItemContext { get; set; }
+            public string GroupVariable { get; set; }
+
+            Dictionary<string, List<ScriptObject>> Map = new Dictionary<string, List<ScriptObject>>();
+
+            public void Add(string s, ScriptObject o)
+            {
+                if(Map.ContainsKey(s))
+                    Map[s].Add(o);
+                else
+                    Map[s] = new List<ScriptObject>() {o};
+            }
+
+            public void Remove(string s)
+            {
+                Map.Remove(s);
+            }
+            //            public delegate HashSet<string> GetNameSet(bool modOnly);
+            public List<ScriptObject> Get(string s)
+            {
+                if (!Map.ContainsKey(s))
+                    return null;
+
+                return Map[s];
+            }
+        
+            public bool Has(string s)
+            {
+                return Map.ContainsKey(s);
+            }
+
+            public IEnumerable<string> Keys()
+            {
+                return Map.Keys;
+            }
+            public IEnumerable<List<ScriptObject>> Values()
+            {
+                return Map.Values;
+            }
+
+            public void Clear()
+            {
+                foreach (var scriptObjects in Map.Values) 
+                    scriptObjects.Clear();
+            }
+        }
+        public class ContextInfo
+        {
+            public string Directory;
+            public List<ScriptGroupContext> Groups = new List<ScriptGroupContext>();
+            Dictionary<string, ScriptObject> Map = new Dictionary<string, ScriptObject>();
+
+            public void Add(string s, ScriptObject o)
+            {
+                Map[s] = o;
+            }
+
+            public void Remove(string s)
+            {
+                Map.Remove(s);
+            }
+            //            public delegate HashSet<string> GetNameSet(bool modOnly);
+            public ScriptObject Get(string s)
+            {
+                if (!Map.ContainsKey(s))
+                    return null;
+
+                return Map[s];
+            }
+            public ScriptValue GetValue(string s)
+            {
+                if (!Map.ContainsKey(s))
+                    return null;
+
+                return Map[s] as ScriptValue;
+            }
+
+            public bool Has(string s)
+            {
+                return Map.ContainsKey(s);
+            }
+
+            public IEnumerable<string> Keys()
+            {
+                return Map.Keys;
+            }
+            public IEnumerable<ScriptObject> Values()
+            {
+                return Map.Values;
+            }
+        }
+
+        public Dictionary<ScriptGroupContext, GroupContextInfo> GroupContextData =
+            new Dictionary<ScriptGroupContext, GroupContextInfo>()
+            {
+                {
+                    ScriptGroupContext.TraitGroups,
+                    new GroupContextInfo() {GroupItemContext = ScriptContext.Traits, GroupVariable = "group"}
+                }
+            };
+
+        public Dictionary<ScriptContext, ContextInfo> ContextData = new Dictionary<ScriptContext, ContextInfo>()
+        {
+            { ScriptContext.Events, new ContextInfo() {Directory = "events"}},
+            { ScriptContext.CultureGroups, new ContextInfo() {Directory = "common/culture/cultures"}},
+            { ScriptContext.CulturalInnovations, new ContextInfo() {Directory = "common/culture/innovations"}},
+            { ScriptContext.Decisions, new ContextInfo() {Directory = "common/decisions"}},
+            { ScriptContext.ScriptValues, new ContextInfo() {Directory = "common/script_values"}},
+            { ScriptContext.Activities, new ContextInfo() {Directory = "common/activities"}},
+            { ScriptContext.Bookmark, new ContextInfo() {Directory = "common/bookmarks"}},
+            { ScriptContext.Buildings, new ContextInfo() {Directory = "common/buildings"}},
+            { ScriptContext.CasusBelliType, new ContextInfo() {Directory = "common/casus_belli_types"}},
+            { ScriptContext.CharacterInteractions, new ContextInfo() {Directory = "common/character_interactions"}},
+            { ScriptContext.Characters, new ContextInfo() {Directory = "history/characters"}},
+            { ScriptContext.CouncilPositions, new ContextInfo() {Directory = "common/council_positions"}},
+            { ScriptContext.CouncilTasks, new ContextInfo() {Directory = "common/council_tasks"}},
+            { ScriptContext.Defines, new ContextInfo() {Directory = "common/Defines"}},
+            { ScriptContext.DynastyLegacies, new ContextInfo() {Directory = "common/dynasty_legacies"}},
+            { ScriptContext.DynastyPerks, new ContextInfo() {Directory = "common/dynasty_perks"}},
+            { ScriptContext.EventBackgrounds, new ContextInfo() {Directory = "common/event_backgrounds"}},
+            { ScriptContext.EventThemes, new ContextInfo() {Directory = "common/event_themes"}},
+            { ScriptContext.Factions, new ContextInfo() {Directory = "common/factions"}},
+            { ScriptContext.Focuses, new ContextInfo() {Directory = "common/focuses"}},
+            { ScriptContext.GameRules, new ContextInfo() {Directory = "common/game_rules"}},
+            { ScriptContext.Governments, new ContextInfo() {Directory = "common/governments"}},
+            { ScriptContext.Holdings, new ContextInfo() {Directory = "common/holdings"}},
+            { ScriptContext.HookTypes, new ContextInfo() {Directory = "common/hook_types"}},
+            { ScriptContext.ImportantActions, new ContextInfo() {Directory = "common/important_actions"}},
+            { ScriptContext.LandedTitles, new ContextInfo() {Directory = "common/landed_titles"}},
+
+            { ScriptContext.Laws, new ContextInfo() {Directory = "common/laws"}},
+            { ScriptContext.LifestylePerks, new ContextInfo() {Directory = "common/lifestyle_perks"}},
+            { ScriptContext.Lifestyles, new ContextInfo() {Directory = "common/lifestyles"}},
+            { ScriptContext.StaticModifiers, new ContextInfo() {Directory = "common/modifiers"}},
+            { ScriptContext.Nicknames, new ContextInfo() {Directory = "common/nicknames"}},
+            { ScriptContext.OnActions, new ContextInfo() {Directory = "common/on_action"}},
+            { ScriptContext.OptionModifiers, new ContextInfo() {Directory = "common/opinion_modifiers"}},
+            { ScriptContext.Doctrines, new ContextInfo() {Directory = "common/religion/doctrines"}},
+            { ScriptContext.FervorModifiers, new ContextInfo() {Directory = "common/religion/fervor_modifiers"}},
+
+            { ScriptContext.HolySites, new ContextInfo() {Directory = "common/religion/holy_sites"}},
+            { ScriptContext.ReligionFamilys, new ContextInfo() {Directory = "common/religion/religion_families"}},
+            { ScriptContext.Religions, new ContextInfo() {Directory = "common/religion/religions"}},
+
+            { ScriptContext.Schemes, new ContextInfo() {Directory = "common/schemes"}},
+            { ScriptContext.ScriptedCharacterTemplates, new ContextInfo() {Directory = "common/scripted_character_templates"}},
+            { ScriptContext.ScriptedEffects, new ContextInfo() {Directory = "common/scripted_effects"}},
+            { ScriptContext.ScriptedLists, new ContextInfo() {Directory = "common/scripted_lists"}},
+            { ScriptContext.ScriptedModifiers, new ContextInfo() {Directory = "common/scripted_modifiers"}},
+            { ScriptContext.ScriptedRelations, new ContextInfo() {Directory = "common/scripted_relations"}},
+            { ScriptContext.ScriptedRules, new ContextInfo() {Directory = "common/scripted_rules"}},
+            { ScriptContext.ScriptedTriggers, new ContextInfo() {Directory = "common/scripted_triggers"}},
+            { ScriptContext.SecretTypes, new ContextInfo() {Directory = "common/secret_types"}},
+            { ScriptContext.StoryCycles, new ContextInfo() {Directory = "common/story_cycles"}},
+            { ScriptContext.SuccessionElections, new ContextInfo() {Directory = "common/succession_election"}},
+            { ScriptContext.Traits, new ContextInfo() {Directory = "common/traits", Groups = new List<ScriptGroupContext>() {ScriptGroupContext.TraitGroups}}},
+            { ScriptContext.VassalContracts, new ContextInfo() {Directory = "common/vassal_contracts"}},
+
+        };
+
 
         public void LoadLocalizations(string dir)
         {
@@ -96,703 +234,60 @@ namespace JominiParse
         public string Name { get; set; }
         public string Path { get; set; }
 
-        #region Get Objects
 
-        private ScriptObject Get(string name)
+        public bool Has(string name)
+        {
+            bool b = AllTypeMap.ContainsKey(name);
+
+            if(!b && Parent != null)
+                return Parent.Has(name);
+
+            return b;
+        }
+        public bool Has(ScriptContext context, string name)
+        {
+            var v = ContextData[context].Has(name);
+            
+            if (!v && Parent != null)
+                return Parent.Has(context, name);
+
+            return v;
+        }
+
+        public ScriptObject Get(string name)
         {
             if (!AllTypeMap.ContainsKey(name))
+            {
+                if (Parent != null)
+                    return Parent.Get(name);
                 return null;
+            }
 
             return AllTypeMap[name];
         }
-
-
-        public ScriptObject GetCharacter(string str)
+        public ScriptObject Get(ScriptContext context, string name)
         {
-            if (!CharactersMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetCharacter(str);
+            var v = ContextData[context].Get(name);
 
-                return null;
-            }
+            if (v == null && Parent != null)
+                return Parent.Get(context, name);
 
-            return CharactersMap[str];
+            return v;
         }
-        public ScriptObject GetVassalContract(string str)
-        {
-            if (!VassalContractsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetVassalContract(str);
-
-                return null;
-            }
-
-            return VassalContractsMap[str];
-        }
-        public ScriptObject GetSuccessionElection(string str)
-        {
-            if (!SuccessionElectionsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetSuccessionElection(str);
-
-                return null;
-            }
-
-            return SuccessionElectionsMap[str];
-        }
-
-        public ScriptObject GetTrait(string str)
-        {
-            if (!TraitsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetTrait(str);
-
-                return null;
-            }
-
-            return TraitsMap[str];
-        }
-
-        public ScriptObject GetScriptedTrigger(string str)
-        {
-            if (!ScriptedTriggersMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetScriptedTrigger(str);
-
-                return null;
-            }
-
-            return ScriptedTriggersMap[str];
-        }
-
-        public ScriptObject GetSecretType(string str)
-        {
-            if (!SecretTypesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetSecretType(str);
-
-                return null;
-            }
-
-            return SecretTypesMap[str];
-        }
-
-
-        public ScriptObject GetStoryCycle(string str)
-        {
-            if (!StoryCyclesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetStoryCycle(str);
-
-                return null;
-            }
-
-            return StoryCyclesMap[str];
-        }
-
-        public ScriptObject GetScriptedList(string str)
-        {
-            if (!ScriptedListsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetScriptedList(str);
-
-                return null;
-            }
-
-            return ScriptedListsMap[str];
-        }
-
-        public ScriptObject GetScriptedRelation(string str)
-        {
-            if (!ScriptedRelationsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetScriptedRelation(str);
-
-                return null;
-            }
-
-            return ScriptedRelationsMap[str];
-        }
-
-        public ScriptObject GetScriptedRule(string str)
-        {
-            if (!ScriptedRulesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetScriptedRule(str);
-
-                return null;
-            }
-
-            return ScriptedRulesMap[str];
-        }
-        public ScriptObject GetScriptedCharacterTemplate(string str)
-        {
-            if (!ScriptedCharacterTemplatesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetScriptedCharacterTemplate(str);
-
-                return null;
-            }
-
-            return ScriptedCharacterTemplatesMap[str];
-        }
-
-        public ScriptObject GetScriptedEffect(string str)
-        {
-            if (!ScriptedEffectsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetScriptedEffect(str);
-
-                return null;
-            }
-
-            return ScriptedEffectsMap[str];
-        }
-
-        public ScriptObject GetReligionFamily(string str)
-        {
-            if (!ReligionFamilysMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetReligionFamily(str);
-
-                return null;
-            }
-
-            return ReligionFamilysMap[str];
-        }
-
-        public ScriptObject GetReligion(string str)
-        {
-            if (!ReligionsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetReligion(str);
-
-                return null;
-            }
-
-            return ReligionsMap[str];
-        }
-
-        public ScriptObject GetScheme(string str)
-        {
-            if (!SchemesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetScheme(str);
-
-                return null;
-            }
-
-            return SchemesMap[str];
-        }
-        public ScriptObject GetDoctrine(string str)
-        {
-            if (!DoctrinesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetDoctrine(str);
-
-                return null;
-            }
-
-            return DoctrinesMap[str];
-        }
-
-        public ScriptObject GetFervorModifier(string str)
-        {
-            if (!FervorModifiersMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetFervorModifier(str);
-
-                return null;
-            }
-
-            return FervorModifiersMap[str];
-        }
-
-        public ScriptObject GetHolySite(string str)
-        {
-            if (!HolySitesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetHolySite(str);
-
-                return null;
-            }
-
-            return HolySitesMap[str];
-        }
-
-        public ScriptObject GetNickname(string str)
-        {
-            if (!NicknamesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetNickname(str);
-
-                return null;
-            }
-
-            return NicknamesMap[str];
-        }
-
-        public ScriptObject GetOnAction(string str)
-        {
-            if (!OnActionsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetOnAction(str);
-
-                return null;
-            }
-
-            return OnActionsMap[str];
-        }
-
-        public ScriptObject GetOptionModifier(string str)
-        {
-            if (!OptionModifiersMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetOptionModifier(str);
-
-                return null;
-            }
-
-            return OptionModifiersMap[str];
-        }
-        public ScriptObject GetLifestyle(string str)
-        {
-            if (!LifestylesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetLifestyle(str);
-
-                return null;
-            }
-
-            return LifestylesMap[str];
-        }
-
-        public ScriptObject GetScriptedModifier(string str)
-        {
-            if (!ScriptedModifiersMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetScriptedModifier(str);
-
-                return null;
-            }
-
-            return ScriptedModifiersMap[str];
-        }
-        public ScriptObject GetStaticModifier(string str)
-        {
-            if (!StaticModifiersMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetStaticModifier(str);
-
-                return null;
-            }
-
-            return StaticModifiersMap[str];
-        }
-        public ScriptObject GetLaw(string str)
-        {
-            if (!LawsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetLaw(str);
-
-                return null;
-            }
-
-            return LawsMap[str];
-        }
-
-        public ScriptObject GetLifestylePerk(string str)
-        {
-            if (!LifestylePerksMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetLifestylePerk(str);
-
-                return null;
-            }
-
-            return LifestylePerksMap[str];
-        }
-        public ScriptObject GetImportantAction(string str)
-        {
-            if (!ImportantActionsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetImportantAction(str);
-
-                return null;
-            }
-
-            return ImportantActionsMap[str];
-        }
-
-        public ScriptObject GetLandedTitle(string str)
-        {
-            if (!LandedTitleMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetLandedTitle(str);
-
-                return null;
-            }
-
-            return LandedTitleMap[str];
-        }
-        public ScriptObject GetDefine(string str)
-        {
-            if (!DefinesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetDefine(str);
-
-                return null;
-            }
-
-            return DefinesMap[str];
-        }
-
-        public ScriptObject GetEvent(string str)
-        {
-            if (!EventMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetEvent(str);
-
-                return null;
-            }
-
-            return EventMap[str];
-        }
-
-
-        public ScriptObject GetCouncilTask(string str)
-        {
-            if (!CouncilTasksMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetCouncilTask(str);
-
-                return null;
-            }
-
-            return CouncilTasksMap[str];
-        }
-        public ScriptValue GetScriptValue(string str)
-        {
-            if (!ScriptValueMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetScriptValue(str);
-
-                return null;
-            }
-
-            return ScriptValueMap[str];
-        }
-
-        public ScriptObject GetCharacterInteraction(string str)
-        {
-            if (!CharacterInteractionMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetCharacterInteraction(str);
-
-                return null;
-            }
-
-            return CharacterInteractionMap[str];
-        }
-
-        public ScriptObject GetBuilding(string str)
-        {
-            if (!BuildingMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetBuilding(str);
-
-                return null;
-            }
-
-            return BuildingMap[str];
-        }
-        
-        public ScriptObject GetCasusBelliType(string str)
-        {
-            if (!CasusBelliTypeMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetCasusBelliType(str);
-
-                return null;
-            }
-
-            return CasusBelliTypeMap[str];
-        }
-        public ScriptObject GetBookmark(string str)
-        {
-            if (!BookmarkMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetBookmark(str);
-
-                return null;
-            }
-
-            return BookmarkMap[str];
-        }
-        public ScriptObject GetActivity(string str)
-        {
-            if (!ActivityMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetActivity(str);
-
-                return null;
-            }
-
-            return ActivityMap[str];
-        }
-        public ScriptObject GetDecision(string str)
-        {
-            if (!DecisionMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetDecision(str);
-
-                return null;
-            }
-
-            return DecisionMap[str];
-        }
-
-        public ScriptObject GetCouncilPosition(string str)
-        {
-            if (!CouncilPositionsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetCouncilPosition(str);
-
-                return null;
-            }
-
-            return CouncilPositionsMap[str];
-        }
-        public ScriptObject GetDynastyLegacy(string str)
-        {
-            if (!DynastyLegaciesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetDynastyLegacy(str);
-
-                return null;
-            }
-
-            return DynastyLegaciesMap[str];
-        }
-        public ScriptObject GetDynastyPerk(string str)
-        {
-            if (!DynastyPerksMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetDynastyPerk(str);
-
-                return null;
-            }
-
-            return DynastyPerksMap[str];
-        }
-        public ScriptObject GetEventBackground(string str)
-        {
-            if (!EventBackgroundsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetEventBackground(str);
-
-                return null;
-            }
-
-            return EventBackgroundsMap[str];
-        }
-
-        public ScriptObject GetEventTheme(string str)
-        {
-            if (!EventThemesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetEventTheme(str);
-
-                return null;
-            }
-
-            return EventThemesMap[str];
-        }
-
-        public ScriptObject GetFaction(string str)
-        {
-            if (!FactionsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetFaction(str);
-
-                return null;
-            }
-
-            return FactionsMap[str];
-        }
-
-        public ScriptObject GetFocus(string str)
-        {
-            if (!FocusMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetFocus(str);
-
-                return null;
-            }
-
-            return FocusMap[str];
-        }
-
-        public ScriptObject GetGameRule(string str)
-        {
-            if (!GameRulesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetGameRule(str);
-
-                return null;
-            }
-
-            return GameRulesMap[str];
-        }
-
-        public ScriptObject GetGovernment(string str)
-        {
-            if (!GovernmentsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetGovernment(str);
-
-                return null;
-            }
-
-            return GovernmentsMap[str];
-        }
-
-        public ScriptObject GetHolding(string str)
-        {
-            if (!HoldingsMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetHolding(str);
-
-                return null;
-            }
-
-            return HoldingsMap[str];
-        }
-
-        public ScriptObject GetHookType(string str)
-        {
-            if (!HookTypesMap.ContainsKey(str))
-            {
-                if (Parent != null)
-                    return Parent.GetHookType(str);
-
-                return null;
-            }
-
-            return HookTypesMap[str];
-        }
-
-        #endregion
 
 
         public void Remove(string key, ScriptContext valueContext)
         {
       
             AllTypeMap.Remove(key);
-            CasusBelliTypeMap.Remove(key); //new Dicti
-            BookmarkMap.Remove(key); //new Dictionary<
-            BuildingMap.Remove(key); //new Dictionary<
-            CharacterInteractionMap.Remove(key); //new
-            CharactersMap.Remove(key); //new Dictionar
-            CouncilPositionsMap.Remove(key); //new Dic
-            CouncilTasksMap.Remove(key); //new Diction
-            DefinesMap.Remove(key); //new Dictionary<s
-            DynastyLegaciesMap.Remove(key); //new Dict
-            DynastyPerksMap.Remove(key); //new Diction
-            EventBackgroundsMap.Remove(key); //new Dic
-            EventThemesMap.Remove(key); //new Dictiona
-            FactionsMap.Remove(key); //new Dictionary<
-            FocusMap.Remove(key); //new Dictionary<str
-            GameRulesMap.Remove(key); //new Dictionary
-            GovernmentsMap.Remove(key); //new Dictiona
-            HoldingsMap.Remove(key); //new Dictionary<
-            HookTypesMap.Remove(key); //new Dictionary
-            ImportantActionsMap.Remove(key); //new Dic
-            LandedTitleMap.Remove(key); //new Dictiona
-            LawsMap.Remove(key); //new Dictionary<stri
-            LifestylePerksMap.Remove(key); //new Dicti
-            LifestylesMap.Remove(key); //new Dictionar
-            ScriptedModifiersMap.Remove(key); //new Di
-            StaticModifiersMap.Remove(key); //new Dict
-            NicknamesMap.Remove(key); //new Dictionary
-            OnActionsMap.Remove(key); //new Dictionary
-            OptionModifiersMap.Remove(key); //new Dict
 
-            DoctrinesMap.Remove(key); //new Dictionary
-            FervorModifiersMap.Remove(key); //new Dict
-            HolySitesMap.Remove(key); //new Dictionary
-            ReligionFamilysMap.Remove(key); //new Dict
-            ReligionsMap.Remove(key); //new Dictionary
-
-            SchemesMap.Remove(key); //new Dictionary<s
-            ScriptedCharacterTemplatesMap.Remove(key);
-            ScriptedEffectsMap.Remove(key); //new Dict
-            ScriptedListsMap.Remove(key); //new Dictio
-            ScriptedRelationsMap.Remove(key); //new Di
-            ScriptedRulesMap.Remove(key); //new Dictio
-            ScriptedTriggersMap.Remove(key); //new Dic
-            SecretTypesMap.Remove(key); //new Dictiona
-            StoryCyclesMap.Remove(key); //new Dictiona
-            SuccessionElectionsMap.Remove(key); //new
-            TraitsMap.Remove(key); //new Dictionary<st
-
-            VassalContractsMap.Remove(key); //new Dict
-            DecisionMap.Remove(key); //new Dictionar
-            ScriptValueMap.Remove(key); //new Dictionar
-            EventMap.Remove(key); //new Dictionary<stri
-            ActivityMap.Remove(key); //new Dictionar
+            ContextData[valueContext].Remove(key);
         }
 
         public void Add(List<ScriptObject> objects, ScriptContext context)
         {
+         
+
 
             foreach (var dec in objects)
             {
@@ -814,729 +309,35 @@ namespace JominiParse
                     f.Map[dec.Name] = dec;
                 }
             }
-        
-            switch (context)
+            
+            var vals = objects.Where(a => a.Name.StartsWith("@")).ToList();
+
+            objects.RemoveAll(a => vals.Contains(a));
+
+            if (vals.Count > 0)
             {
-
-                case ScriptContext.VassalContracts:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            VassalContractsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.Characters:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            CharactersMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-
-                case ScriptContext.Traits:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            TraitsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.SuccessionElections:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            SuccessionElectionsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.StoryCycles:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            StoryCyclesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.SecretTypes:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            SecretTypesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.ScriptedTriggers:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            ScriptedTriggersMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.ScriptedRules:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            ScriptedRulesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.ScriptedRelations:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            ScriptedRelationsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.ScriptedLists:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            ScriptedListsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.ScriptedEffects:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            ScriptedEffectsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-
-                case ScriptContext.ScriptedCharacterTemplates:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            ScriptedCharacterTemplatesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.Schemes:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            SchemesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.Religions:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            ReligionsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.ReligionFamilys:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            ReligionFamilysMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.HolySites:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            HolySitesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.FervorModifiers:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            FervorModifiersMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-
-                case ScriptContext.Doctrines:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            DoctrinesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.OptionModifiers:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            OptionModifiersMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.OnActions:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            OnActionsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-
-                case ScriptContext.Nicknames:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            NicknamesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.StaticModifiers:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            StaticModifiersMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.ScriptedModifiers:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            ScriptedModifiersMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.Lifestyles:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            LifestylesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.LifestylePerks:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            LifestylePerksMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.Laws:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            LawsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.LandedTitles:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            LandedTitleMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.ImportantActions:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            ImportantActionsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.HookTypes:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            HookTypesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.Holdings:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            HoldingsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.Governments:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            GovernmentsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.GameRules:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            GameRulesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.Focuses:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            FocusMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.Factions:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            FactionsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.EventThemes:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            EventThemesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.EventBackgrounds:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            EventBackgroundsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.DynastyPerks:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            DynastyPerksMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-
-                case ScriptContext.DynastyLegacies:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            DynastyLegaciesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.Defines:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            DefinesMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.CouncilTasks:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            CouncilTasksMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.CouncilPositions:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            CouncilPositionsMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.CharacterInteractions:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            CharacterInteractionMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-
-                case ScriptContext.Buildings:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject;
-
-                        BuildingMap[dec.Name] = dec;
-
-                        DoFile(dec, context);
-                    }
-
-                }
-                    break;
-                case ScriptContext.CasusBelliType:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject;
-
-                        CasusBelliTypeMap[dec.Name] = dec;
-
-                        DoFile(dec, context);
-                    }
-
-                }
-                    break;
-                case ScriptContext.Bookmark:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject;
-
-                        BookmarkMap[dec.Name] = dec;
-
-                        DoFile(dec, context);
-                    }
-
-                }
-                    break;
-                case ScriptContext.Decisions:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-
-                        DecisionMap[dec.Name] = dec;
-                        DoFile(dec, context);
-
-
-                    }
-                }
-                break;
-                case ScriptContext.ScriptValues:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptValue;
-                        if (dec != null)
-                        {
-                            ScriptValueMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.Events:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            if(dec.Name.StartsWith("scripted_trigger "))
-                            {
-                                ScriptedTriggersMap[dec.Name.Substring(dec.Name.IndexOf(" ")+1)] = dec;
-                            }
-                            else
-                            {
-                                EventMap[dec.Name] = dec;
-                            }
-                            DoFile(dec, context);
-
-                        }
-
-                    }
-                }
-                    break;
-                case ScriptContext.Activities:
-                {
-                    foreach (var scriptObject in objects)
-                    {
-                        var dec = scriptObject as ScriptObject;
-                        if (dec != null)
-                        {
-                            ActivityMap[dec.Name] = dec;
-                            DoFile(dec, context);
-                        }
-
-                        }
-                }
-                    break;
+                vals[0].ScriptFile.AddLocalVars(vals);
             }
+            foreach (var scriptObject in objects)
+            {
+                var dec = scriptObject as ScriptObject;
+                if (dec != null)
+                {
+                    if (dec.Name.StartsWith("scripted_trigger"))
+                    {
+                        ContextData[ScriptContext.ScriptedTriggers].Add(dec.Name.Substring(dec.Name.IndexOf(' ') + 1), dec);
+
+                    }
+                    else
+                    {
+                        ContextData[context].Add(dec.Name, dec);
+
+                    }
+                    DoFile(dec, context);
+                }
+
+            }
+           
             // if file exists in base scripts, all entires are overridden
             if (Parent != null)
             {
@@ -1593,14 +394,15 @@ namespace JominiParse
                     {
                         var e = scriptObject.GetStringValue();
                         // found a random event...
-                        if (GetOnAction(e) != null)
+                        if (ContextData[ScriptContext.OnActions].Get(e) != null)
                         {
                             trigger_event n = new trigger_event();
 
                             n.on_action = e;
                             n.Function = node;
                             n.Topmost = node.Topmost;
-                            unprocessedTriggers.Add(n);
+                            ReferenceManager.Instance.AddConnection(n.Topmost, n.Function, e);
+
                         }
                     }
                 }
@@ -1618,14 +420,14 @@ namespace JominiParse
                     {
                         var e = scriptObject.Name;
                         // found a random event...
-                        if (GetOnAction(e) != null)
+                        if (ContextData[ScriptContext.OnActions].Get(e) != null)
                         {
                             trigger_event n = new trigger_event();
 
                             n.on_action = e;
                             n.Function = node;
                             n.Topmost = node.Topmost;
-                            unprocessedTriggers.Add(n);
+                            ReferenceManager.Instance.AddConnection(n.Topmost, n.Function, e);
                         }
                     }
                 }
@@ -1644,7 +446,7 @@ namespace JominiParse
                     {
                         var e = scriptObject.GetStringValue();
                         // found a random event...
-                        if (GetEvent(e) != null)
+                        if (ContextData[ScriptContext.Events].Get(e) != null)
                         {
                             trigger_event n = new trigger_event();
                             if (e == "abduct_outcome.1001")
@@ -1654,7 +456,7 @@ namespace JominiParse
                             n.id = e;
                             n.Function = node;
                             n.Topmost = node.Topmost;
-                            unprocessedTriggers.Add(n);
+                            ReferenceManager.Instance.AddConnection(n.Topmost, n.Function, e);
                         }
                     }
                 }
@@ -1673,14 +475,14 @@ namespace JominiParse
                     {
                         var e = scriptObject.Name;
                         // found a random event...
-                        if (GetEvent(e) != null)
+                        if (ContextData[ScriptContext.Events].Get(e) != null)
                         {
                             trigger_event n = new trigger_event();
                            
                             n.id = e;
                             n.Function = node;
                             n.Topmost = node.Topmost;
-                            unprocessedTriggers.Add(n);
+                            ReferenceManager.Instance.AddConnection(n.Topmost, n.Function, e);
                         }
                     }
                 }
@@ -1734,7 +536,7 @@ namespace JominiParse
                 n.Topmost = node.Topmost;
                 n.Function = node;
                 n.id = id;
-                unprocessedTriggers.Add(n);
+                ReferenceManager.Instance.AddConnection(n.Topmost, n.Function, on_action != null ? on_action : id);
 
             }
             else
@@ -1746,86 +548,11 @@ namespace JominiParse
                 n.days_from = null;
                 n.days_to = null;
                 n.id = node.GetStringValue();
-                unprocessedTriggers.Add(n);
+                ReferenceManager.Instance.AddConnection(n.Topmost, n.Function, node.GetStringValue());
             }
         }
 
-        public void ConnectEventNetwork()
-        {
-            foreach (var triggerEvent in unprocessedTriggers)
-            {
-                var fromTop = triggerEvent.Topmost;
-                var from = triggerEvent;
-                if (triggerEvent.id != null)
-                {
-                    if (!EventMap.ContainsKey(triggerEvent.id))
-                        continue;
-
-                    var to = EventMap[triggerEvent.id];
-                //    fromTop.Connections.RemoveAll(a => a.To.Filename == to.Filename);
-                }
-                else
-                {
-                    if (!OnActionsMap.ContainsKey(triggerEvent.on_action))
-                        continue;
-
-                    var to = OnActionsMap[triggerEvent.on_action];
-               //     fromTop.Connections.RemoveAll(a => a.To.Filename == to.Filename);
-
-                }
-            }
-
-            for (var index = 0; index < unprocessedTriggers.Count; index++)
-            {
-                var triggerEvent = unprocessedTriggers[index];
-                var fromTop = triggerEvent.Topmost;
-                var from = triggerEvent;
-
-                if (index == 1313)
-                {
-
-                }
-
-                if (triggerEvent.id == "abduct_outcome.1001")
-                {
-                }
-
-                if (triggerEvent.id != null)
-                {
-                    var to = GetEvent(triggerEvent.id);
-
-                    if (to == null)
-                        continue;
-
-                //    fromTop.Connections.RemoveAll(a => a.To.Filename == to.Filename);
-
-                    EventConnection c = new EventConnection();
-                    c.From = fromTop;
-                    c.FromCommand = @from.Function;
-                    c.To = to;
-                    c.To.AddEventConnection(c);
-                    c.From.AddEventConnection(c);
-                }
-                else
-                {
-                    var to = GetOnAction(triggerEvent.on_action);
-
-                    if (to == null)
-                        continue;
-
-                 //   fromTop.Connections.RemoveAll(a => a.To.Filename == to.Filename);
-
-                    EventConnection c = new EventConnection();
-                    c.From = fromTop;
-                    c.FromCommand = @from.Function;
-                    c.To = to;
-                    c.To.AddEventConnection(c);
-                    c.From.AddEventConnection(c);
-                }
-            }
-
-            unprocessedTriggers.Clear();
-        }
+      
         private void DoFile(ScriptObject dec, ScriptContext context)
         {
             AllTypeMap[dec.Name] = dec;
@@ -1993,5 +720,28 @@ namespace JominiParse
             }
         }
 
+        public void RecalculateGroups()
+        {
+            foreach (var groupContextInfo in GroupContextData.Values)
+            {
+                groupContextInfo.Clear();
+            }
+
+            foreach (var value in GroupContextData.Values)
+            {
+                var getFrom = this.ContextData[value.GroupItemContext];
+
+                var vals = getFrom.Values();
+
+                foreach (var scriptObject in vals)
+                {
+                    var group = scriptObject.GetChildStringValue("group");
+                    if (group != null)
+                    {
+                        value.Add(group, scriptObject);
+                    }
+                }
+            }
+        }
     }
 }

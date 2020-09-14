@@ -24,9 +24,41 @@ namespace JominiParse
             string scriptNamespace)
         {
             ScriptObject obj = null;
+
+            if (parent == null)
+            {
+                if (Core.Instance.LoadingCK3Library == Core.Instance.ModCK3Library)
+                {
+
+                    ReferenceManager.Instance.ClearConnectionsFrom(segment.name);
+                }
+
+            }
+
+            if (parent == null && segment.name.StartsWith("@"))
+            {
+                obj = ScriptValueParser.Instance.ParseScriptValue(parent, segment);
+                InitializeObject(obj, context);
+
+                obj.Namespace = scriptNamespace;
+                if (string.IsNullOrEmpty(scriptNamespace))
+                    obj.Namespace = null;
+
+                return obj;
+            }
+
             switch (context)
             {
-                  case ScriptContext.ScriptValues:
+                case ScriptContext.Buildings:
+                    obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("building"));
+                    break;
+                case ScriptContext.Activities:
+                    obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("activity"));
+                    break;
+                case ScriptContext.Decisions:
+                    obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("decision"));
+                    break;
+                case ScriptContext.ScriptValues:
                     obj = ScriptValueParser.Instance.ParseScriptValue(parent, segment);
                     break;
                 case ScriptContext.Events:
@@ -46,11 +78,15 @@ namespace JominiParse
 
             InitializeObject(obj, context);
 
+
             AddScriptScope("root", obj, obj.GetScopeType(), true, false);
             AddScriptScope("this", obj, obj.GetScopeType(), true, false);
 
 
             obj.Namespace = scriptNamespace;
+
+            if (string.IsNullOrEmpty(scriptNamespace))
+                obj.Namespace = null;
 
             return obj;
 
@@ -58,11 +94,23 @@ namespace JominiParse
 
         private void AddScriptScope(string name, ScriptObject obj, ScopeType to, bool temp, bool requiresScopeTag)
         {
-            obj.AddScriptScope(name, obj, to, temp, requiresScopeTag);
+            var r = obj.AddScriptScope(name, obj, to, temp, requiresScopeTag);
+            if (r.Declared == null)
+                r.Declared = obj;
         }
 
         private void InitializeObject(ScriptObject scriptObject, ScriptContext context)
         {
+            if (context == ScriptContext.Buildings)
+            {
+                InitBuilding(scriptObject);
+                scriptObject.SetScopeType(ScopeType.province);
+            }
+            if (context == ScriptContext.Activities)
+            {
+                InitActivity(scriptObject);
+                scriptObject.SetScopeType(ScopeType.activity);
+            }
             if (context == ScriptContext.OnActions)
             {
                 InitOnAction(scriptObject);
@@ -78,16 +126,18 @@ namespace JominiParse
                 InitEvent(scriptObject);
                 scriptObject.SetScopeType(ScopeType.character);
             }
-            if (context == ScriptContext.Activities)
-            {
-                InitActivity(scriptObject);
-                scriptObject.SetScopeType(ScopeType.character);
-            }
+           
             if (context == ScriptContext.Schemes)
             {
                 InitScheme(scriptObject);
                 scriptObject.SetScopeType(ScopeType.character);
             }
+        }
+
+        private void InitBuilding(ScriptObject scriptObject)
+        {
+            AddScriptScope("holder", scriptObject, ScopeType.character, false, true);
+
         }
 
         private void InitCharacterInteraction(ScriptObject scriptObject)
@@ -121,7 +171,9 @@ namespace JominiParse
 
         private void InitActivity(ScriptObject scriptObject)
         {
-            
+            AddScriptScope("activity_owner", scriptObject, ScopeType.character, false, true);
+            AddScriptScope("activity", scriptObject, ScopeType.activity, false, true);
+       
         }
 
         private void InitEvent(ScriptObject scriptObject)

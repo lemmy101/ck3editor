@@ -1,0 +1,4 @@
+<Schema blockType="inheritparent">
+	<Child name="type" type="relation"/>
+	<Child name="scopeconditions" type="scopeconditions"/>
+</Schema>

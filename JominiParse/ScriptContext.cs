@@ -2,6 +2,7 @@
 {
     public enum ScriptContext
     {
+        All,
         ScriptValues,
         Decisions,
         ConditionBlock,
@@ -54,6 +55,14 @@
         Traits,
         VassalContracts,
         Characters,
-        Max
+        CultureGroups,
+        CulturalInnovations,
+        Max,
+    }
+
+    public enum ScriptGroupContext
+    {
+        TraitGroups,
+        Max,
     }
 }

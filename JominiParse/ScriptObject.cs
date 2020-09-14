@@ -19,11 +19,29 @@ namespace JominiParse
         public ScriptFile ScriptFile { get; set; }
         public bool Overridden { get; set; }
 
+        public enum ScopeVarType
+        {
+            Bool,
+            Number,
+            None,
+            String
+        }
+        public class ScriptList
+        {
+            public string Name { get; set; }
+            public ScopeVarType VarType { get; set; }
+            public ScopeType VarScopeType { get; set; }
+            public bool IsVarList { get; set; }
+            public ScriptObject Declared { get; set; }
+            public bool Temporary { get; set; }
+        }
         public class ScriptScope
         {
             private ScopeType toScope;
             public bool Temporary { get; set; }
             public string Name { get; set; }
+            public bool IsValue { get; set; }
+            public ScopeVarType VarType { get; set; }
 
             public ScopeType To
             {
@@ -46,9 +64,22 @@ namespace JominiParse
 
             public ScriptObject Declared { get; set; }
             public bool RequiresScopeTag { get; set; }
+
+            public bool Show(ScopeFindType values)
+            {
+                if (values == ScopeFindType.Any)
+                    return true;
+                if (values == ScopeFindType.Object && !IsValue)
+                    return true;
+                else if (values != ScopeFindType.Object && IsValue)
+                    return true;
+
+                return false;
+            }
         }
 
         public Dictionary<string, ScriptScope> scriptScopes = new Dictionary<string, ScriptScope>();
+        public Dictionary<string, ScriptList> scriptLists = new Dictionary<string, ScriptList>();
 
         protected ScriptObject FindChild(string name)
         {
@@ -130,7 +161,20 @@ namespace JominiParse
             {
 
             }
-            
+
+            if (Name == "befriend_ongoing_dislike.0001")
+            {
+            }
+
+            if (Name == "scope:scheme")
+            {
+                if (Topmost.Name == "befriend_ongoing_dislike.0001")
+                {
+
+                }
+            }
+
+
             if (Name == "root")
                 SetScopeType(Topmost.GetScopeType());
 
@@ -206,8 +250,12 @@ namespace JominiParse
         }
         public ScriptObject(ScriptObject parent, ScriptParsedSegment seg, ScriptObjectSchema schema = null)
         {
-            if(parent==null)
-                DeferedInitializationList.Add(this);
+
+            if (parent == null)
+            {
+                ScriptObject.DeferedInitializationList.Add(this);
+            }
+
             if (seg == null)
             {
                 return;
@@ -219,7 +267,10 @@ namespace JominiParse
             this.LineEnd = seg.lineNumbers.Last();
             this.Parent = parent;
             this.Library = Core.Instance.LoadingCK3Library;
-        
+            if (Name == "liege")
+            {
+            }
+
             Schema = schema;
         
 
@@ -265,6 +316,7 @@ namespace JominiParse
                     }
                 }
 
+
             }
 
             if (Schema != null)
@@ -288,12 +340,13 @@ namespace JominiParse
                 ScriptObject so = null;
                 if (scriptParsedSegment.value.Count > 0)
                 {
+ 
                     so = ScriptValueParser.Instance.ParseScriptValue(this, scriptParsedSegment);
              
                 }
                 else
                 {
-                    so = new ScriptObject(this, scriptParsedSegment);
+                    so = ScriptObjectFactory.Instance.CreateScriptObject(Context,scriptParsedSegment, this, Namespace);
                  }
               
                 if (BlockType == BlockType.effect_block)
@@ -330,13 +383,22 @@ namespace JominiParse
 
         private void HandleScopeDeclarationFunctions(ScriptObject scriptObject, ScriptObject parent)
         {
+            
+            if (Name == "add_to_temporary_list")
+            {
+                scriptObject.Topmost.AddList(this, true);
+            }
+            if (Name == "add_to_list")
+            {
+                scriptObject.Topmost.AddList(this, false);
+            }
             if (Name == "save_scope_as")
             {
-                if (scriptObject.GetStringValue() == "departure" && scriptObject.Filename.Contains("test"))
-                {
-
-                }
                 scriptObject.Topmost.AddScope(this, false);
+            }
+            if (Name == "save_scope_value_as")
+            {
+                scriptObject.Topmost.AddScopeVar(this, false);
             }
             else if (Name == "save_temporary_scope_as")
             {
@@ -344,8 +406,15 @@ namespace JominiParse
             }
 
         }
+
+        public enum ScopeFindType
+        {
+            Object,
+            Value,
+            Any,
+        }
         static List<ScriptObject> visited = new List<ScriptObject>();
-        public void GetValidScriptScopes(List<ScriptScope> results, bool allowTemp = true)
+        public void GetValidScriptScopes(List<ScriptScope> results, bool allowTemp = true, ScopeFindType values =ScopeFindType.Object)
         {
             if (Topmost != this || allowTemp)
             {
@@ -353,7 +422,7 @@ namespace JominiParse
             }
             if (Topmost != this)
             {
-                Topmost.GetValidScriptScopes(results, allowTemp);
+                Topmost.GetValidScriptScopes(results, allowTemp, values);
                 return;
             }
 
@@ -367,7 +436,7 @@ namespace JominiParse
             {
                 foreach (var scriptScopesValue in scriptScopes.Values)
                 {
-                    if(!results.Any(a=>a.Name == scriptScopesValue.Name))
+                    if(!results.Any(a=>a.Name == scriptScopesValue.Name && a.Show(values)))
                         results.Add(scriptScopesValue);
                 }
 
@@ -377,15 +446,16 @@ namespace JominiParse
             {
                 foreach (var scriptScopesValue in scriptScopes.Values)
                 {
-                    if (!scriptScopesValue.Temporary && !results.Any(a => a.Name == scriptScopesValue.Name))
+                    if (!scriptScopesValue.Temporary && !results.Any(a => a.Name == scriptScopesValue.Name && a.Show(values)))
                         results.Add(scriptScopesValue);
                 }
 
             }
 
+            var Connections = ReferenceManager.Instance.GetConnectionsTo(this.Topmost.Name);
             foreach (var eventConnection in Connections)
             {
-                if (this == eventConnection.To && eventConnection.From != this)
+//                if (this == eventConnection.To && eventConnection.From != this)
                 {
                     eventConnection.From.GetValidScriptScopes(results, false);
                 }
@@ -394,11 +464,16 @@ namespace JominiParse
 
         private void AddScope(ScriptObject scope_command, bool temporary)
         {
+            if (!(this == Topmost))
+            {
+                AddScope(scope_command, temporary);
+                return;
+            }
             ScriptScope s = new ScriptScope();
             var sc = (scope_command as ScriptValue);
             if (sc != null)
             {
-                
+
                 s.Temporary = temporary;
                 s.Name = sc.GetStringValue();
                 if (scriptScopes.ContainsKey(s.Name))
@@ -411,9 +486,95 @@ namespace JominiParse
 
                 s.ToObj = scope_command.Parent;
                 s.Declared = scope_command;
+                if (scope_command == null)
+                {
+
+                }
                 scriptScopes[s.Name] = s;
             }
-            
+
+        }
+        private void AddList(ScriptObject addToListCommand, bool temp)
+        {
+            if (!(this == Topmost))
+            {
+                AddList(addToListCommand, temp);
+                return;
+            }
+
+            ScriptList s = new ScriptList();
+            var sc = (addToListCommand as ScriptValue);
+            if (sc != null)
+            {
+
+                s.Name = sc.GetStringValue();
+                s.Temporary = temp;
+                if (scriptLists.ContainsKey(s.Name))
+                    return;
+
+                s.Declared = addToListCommand;
+                scriptLists[s.Name] = s;
+            }
+
+        }
+
+        private void AddScopeVar(ScriptObject scope_command, bool temporary, ScopeVarType varType)
+        {
+            if (!(this == Topmost))
+            {
+                AddScopeVar(scope_command, temporary);
+                return;
+            }
+            ScriptScope s = new ScriptScope();
+            s.IsValue = true;
+            s.VarType = varType;
+          //  var sc = (scope_command as ScriptValue);
+         //   if (sc != null)
+            {
+
+                s.Temporary = temporary;
+                s.Name = scope_command.GetChildStringValue("name");//.GetStringValue();
+                if (scriptScopes.ContainsKey(s.Name))
+                    return;
+
+                s.ToObj = scope_command.Parent;
+                s.Declared = scope_command;
+                if (scope_command == null)
+                {
+
+                }
+                scriptScopes[s.Name] = s;
+            }
+
+        }
+
+        public string GetChildStringValue(string name)
+        {
+            if (!Children.Any(a => a.Name == name))
+                return null;
+
+            return Children.Where(a => a.Name == name).ToList()[0].GetStringValue();
+        }
+
+        private void AddScopeVar(ScriptObject scope_command, bool temporary)
+        {
+            var w = scope_command.Children.Where(a => a.Name == "value");
+            ScopeVarType type = ScopeVarType.Bool;
+
+            if (w.Count() > 0)
+            {
+                var f = w.First();
+
+                string s = f.GetStringValue();
+
+                if (!(s == "yes" || s == "no"))
+                {
+                    type = ScopeVarType.Number;
+                }
+
+            }
+            AddScopeVar(scope_command, temporary, type);
+
         }
 
         public ScriptLibrary Library { get; set; }
@@ -571,15 +732,9 @@ namespace JominiParse
         }
 
 
-        public List<EventConnection> Connections = new List<EventConnection>();
         public List<ScriptObject> Children = new List<ScriptObject>();
         private bool isScope;
         private bool isConditionEnd;
-
-        public void AddEventConnection(EventConnection eventConnection)
-        {
-            Connections.Add(eventConnection);
-        }
 
       
 
@@ -594,9 +749,12 @@ namespace JominiParse
             return o;
         }
 
-        public void AddScriptScope(string name, ScriptObject scriptObject, ScopeType to, bool temporary, bool requiresScopeTag)
+        public ScriptScope AddScriptScope(string name, ScriptObject scriptObject, ScopeType to, bool temporary, bool requiresScopeTag)
         {
-            scriptScopes[name] = new ScriptScope() {Declared = null, Name = name, Temporary = temporary, To = to, RequiresScopeTag=requiresScopeTag};
+            var ss = new ScriptScope()
+                {Declared = null, Name = name, Temporary = temporary, To = to, RequiresScopeTag = requiresScopeTag};
+            scriptScopes[name] = ss;
+            return ss;
         }
 
         public string GetStringValue()
@@ -634,6 +792,23 @@ namespace JominiParse
         public bool IsConditionEnd()
         {
             return isConditionEnd;
+        }
+
+        public ScopeVarType GetVarType()
+        {
+            string val = GetStringValue();
+
+            if (val == null)
+                return ScopeVarType.None;
+
+            if (val == "yes" || val == "no")
+                return ScriptObject.ScopeVarType.Bool;
+
+            if (val.Contains("\""))
+                return ScriptObject.ScopeVarType.String;
+
+
+            return ScriptObject.ScopeVarType.Number;
         }
     }
 }
