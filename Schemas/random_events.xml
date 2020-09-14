@@ -1,6 +1,6 @@
 <ScriptObject blockType="schema_block">
 
-	<Child name="chance_to_happen" type="num"/>
+	<Child name="chance_to_happen" type="num" namesFrom="num"/>
 	<Child name="weight_multiplier" type="modifier"/>
 	
 </ScriptObject>

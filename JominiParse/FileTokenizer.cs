@@ -361,7 +361,7 @@ namespace JominiParse
                     }
 
                 }
-
+                bool isBlock = false;
                 if (second == "=" || second == ">" || second == "<" || second == ">=" || second == "<=" || second == "!=" || second == "==")
                 {
                     if (third == "{")
@@ -376,6 +376,8 @@ namespace JominiParse
                             lineNumbers.Add(lineNumbers.Last()+1);
                             range = tokens.Count-1;
                         }
+
+                        isBlock = true;
 
                         tokensForObject = tokens.GetRange(0, range+1);
 
@@ -417,7 +419,7 @@ namespace JominiParse
                     ScriptParsedSegment parsable = new ScriptParsedSegment();
                     parsable.lineNumbers = lineNumbersForObject;
                     parsable.filename = filename;
-
+                    parsable.isBlock = isBlock;
                     if (parsable.lineNumbers[0] == 125 && filename.Equals("common/on_action/childhood_on_actions.txt"))
                     {
 

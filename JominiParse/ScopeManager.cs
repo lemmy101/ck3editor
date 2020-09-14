@@ -41,40 +41,24 @@ namespace JominiParse
         public string text;
         public bool singular { get; set; }
     }
-    public class ConditionDef
+    public class FunctionDef
     {
-        public class ConditionProperty
-        {
-            public string name { get; set; }
-            public string type { get; set; }
-        }
+    
         public string name { get; set; }
         public string type { get; set; }
         public ScopeType validscope { get; set; }
         public string specialrules { get; set; }
         public bool treatAsScope { get; set; }
 
-        public List<ConditionProperty> Properties = new List<ConditionProperty>();
+        public List<FunctionProperty> Properties = new List<FunctionProperty>();
     }
-    public class EffectDef
+
+    public class FunctionProperty
     {
-        public class EffectProperty
-        {
-            public string name { get; set; }
-            public string type { get; set; }
-        }
         public string name { get; set; }
         public string type { get; set; }
-        public ScopeType validscope { get; set; }
-        public string specialrules { get; set; }
-
-        public override string ToString()
-        {
-            return name;
-        }
-
-        public List<EffectProperty> Properties = new List<EffectProperty>();
     }
+
 
     public class ScopeTypeDef
     {
@@ -82,10 +66,10 @@ namespace JominiParse
 
         public Dictionary<string, ScopeChangeDefinition> ValidConditionScopes = new Dictionary<string, ScopeChangeDefinition>();
         public Dictionary<string, ScopeChangeDefinition> ValidEffectScopes = new Dictionary<string, ScopeChangeDefinition>();
-         public HashSet<EffectDef> ValidEffects = new HashSet<EffectDef>();
-        public HashSet<ConditionDef> ValidConditions = new HashSet<ConditionDef>();
-        public Dictionary<string, ConditionDef> ValidConditionMap = new Dictionary<string, ConditionDef>();
-        public Dictionary<string, EffectDef> ValidEffectMap = new Dictionary<string, EffectDef>();
+         public HashSet<FunctionDef> ValidEffects = new HashSet<FunctionDef>();
+        public HashSet<FunctionDef> ValidConditions = new HashSet<FunctionDef>();
+        public Dictionary<string, FunctionDef> ValidConditionMap = new Dictionary<string, FunctionDef>();
+        public Dictionary<string, FunctionDef> ValidEffectMap = new Dictionary<string, FunctionDef>();
     }
 
     public class ScopeManager
@@ -200,7 +184,7 @@ namespace JominiParse
             SchemaManager.Instance.CreateScopeSchema(fromScope, scopeDef, blockType);
         }
 
-        public EffectDef GetEffect(ScopeType scope, string child)
+        public FunctionDef GetEffect(ScopeType scope, string child)
         {
             if (Defs[scope].ValidEffectMap.ContainsKey(child))
                 return Defs[scope].ValidEffectMap[child];
@@ -212,7 +196,7 @@ namespace JominiParse
             return null;
 
         }
-        public ConditionDef GetCondition(ScopeType scope, string child)
+        public FunctionDef GetCondition(ScopeType scope, string child)
         {
             if(Defs[scope].ValidConditionMap.ContainsKey(child))
                 return Defs[scope].ValidConditionMap[child];
@@ -251,7 +235,7 @@ namespace JominiParse
         {
             string name = el.Attributes["name"].InnerText;
             string validscope = el.Attributes["validscope"].InnerText;
-            var cd = new ConditionDef();
+            var cd = new FunctionDef();
 
             if (el.FirstChild != null)
             {
@@ -282,7 +266,7 @@ namespace JominiParse
                     string pn = c.Attributes["name"].InnerText;
                     string pt = c.Attributes["type"].InnerText;
 
-                    cd.Properties.Add(new ConditionDef.ConditionProperty() { name = pn, type = pt });
+                    cd.Properties.Add(new FunctionProperty() { name = pn, type = pt });
 
                     c = c.NextSibling;
                 }
@@ -320,7 +304,7 @@ namespace JominiParse
         {
             string name = el.Attributes["name"].InnerText;
             string validscope = el.Attributes["validscope"].InnerText;
-            var cd = new EffectDef();
+            var cd = new FunctionDef();
 
             if (el.FirstChild != null)
             {
@@ -346,7 +330,7 @@ namespace JominiParse
                     string pn = c.Attributes["name"].InnerText;
                     string pt = c.Attributes["type"].InnerText;
 
-                    cd.Properties.Add(new EffectDef.EffectProperty() { name = pn, type = pt });
+                    cd.Properties.Add(new FunctionProperty() { name = pn, type = pt });
 
                     c = c.NextSibling;
                 }
@@ -428,7 +412,7 @@ namespace JominiParse
 
             if (!def.ValidEffectScopes.ContainsKey(name))
             {
-                def.ValidEffects.Add(new EffectDef() {name=name});
+                def.ValidEffects.Add(new FunctionDef() {name=name});
                 def.ValidEffectMap[name] = def.ValidEffects.Last();
             }
 
@@ -516,13 +500,16 @@ namespace JominiParse
             if (name == "root")
             {
                 success = true;
-                
+                if (parent == null)
+                    return from;
                 return parent.GetRootScopeType();
             }
 
             if (name == "prev")
             {
                 success = true;
+                if (parent == null)
+                    return from;
                 return parent.GetPrevScopeType();
             }
 
@@ -625,6 +612,50 @@ namespace JominiParse
 
 
                 }
+            }
+
+            return false;
+        }
+        public bool isEffectScopeToParam(ScopeType current, string name)
+        {
+            if (name == null)
+                return false;
+
+            if (name.StartsWith("scope:"))
+                return false;
+
+            if (Defs.ContainsKey(current) && Defs[current].ValidEffectScopes.ContainsKey(name))
+                return true;
+
+            if (Defs.ContainsKey(current) && Defs[ScopeType.any].ValidEffectScopes.ContainsKey(name))
+                return true;
+
+            if (name.Contains("."))
+            {
+                string[] split = name.Split('.');
+
+                for (var index = 0; index < split.Length-1; index++)
+                {
+                    var s = split[index];
+                    if (!((Defs.ContainsKey(current) && Defs[current].ValidEffectScopes.ContainsKey(s.Trim()) &&
+                           Defs[current].ValidEffectScopes[s.Trim()].singular) ||
+                          (Defs.ContainsKey(ScopeType.any) &&
+                           Defs[ScopeType.any].ValidEffectScopes.ContainsKey(s.Trim()) &&
+                           Defs[ScopeType.any].ValidEffectScopes[s.Trim()].singular)))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        if (Defs[current].ValidEffectScopes.ContainsKey(s.Trim()))
+                            current = Defs[current].ValidEffectScopes[s.Trim()].toType;
+                        else if (Defs[ScopeType.any].ValidEffectScopes.ContainsKey(s.Trim()))
+                            current = Defs[ScopeType.any].ValidEffectScopes[s.Trim()].toType;
+                    }
+                }
+
+                if (isEffect(current, split[split.Length - 1]))
+                    return true;
             }
 
             return false;
@@ -746,7 +777,7 @@ namespace JominiParse
                     }
                     else
                     {
-                        if(Defs[current].ValidConditionScopes.ContainsKey(s.Trim()))
+                        if (Defs[current].ValidConditionScopes.ContainsKey(s.Trim()))
                             current = Defs[current].ValidConditionScopes[s.Trim()].toType;
                         else
                         if (Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()))
@@ -758,6 +789,52 @@ namespace JominiParse
 
 
                 return true;
+
+            }
+
+            return false;
+        }
+        public bool isConditionScopeToParam(ScopeType current, string name)
+        {
+            if (name == null)
+                return false;
+
+            if (name.StartsWith("scope:"))
+                return false;
+
+            if (Defs.ContainsKey(current) && Defs[current].ValidConditionScopes.ContainsKey(name))
+                return true;
+            if (Defs.ContainsKey(current) && Defs[ScopeType.any].ValidConditionScopes.ContainsKey(name))
+                return true;
+
+
+            if (name.Contains("."))
+            {
+                string[] split = name.Split('.');
+
+                for (var index = 0; index < split.Length - 1; index++)
+                {
+                    var s = split[index];
+                    if (!((Defs.ContainsKey(current) && Defs[current].ValidConditionScopes.ContainsKey(s.Trim()) &&
+                           Defs[current].ValidConditionScopes[s.Trim()].singular) ||
+                          (Defs.ContainsKey(ScopeType.any) &&
+                           Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()) &&
+                           Defs[ScopeType.any].ValidConditionScopes[s.Trim()].singular)))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        if (Defs[current].ValidConditionScopes.ContainsKey(s.Trim()))
+                            current = Defs[current].ValidConditionScopes[s.Trim()].toType;
+                        else if (Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()))
+                            current = Defs[ScopeType.any].ValidConditionScopes[s.Trim()].toType;
+                    }
+                }
+
+                if (isCondition(current, split[split.Length - 1]))
+                    return true;
+
 
             }
 
@@ -848,7 +925,7 @@ namespace JominiParse
         public bool isConditionScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
         {
             if (!name.StartsWith("scope:"))
-                return false;
+                name = "scope:" + name;
 
             if (scriptObjectParent == null)
                 return false;

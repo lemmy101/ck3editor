@@ -151,24 +151,23 @@ namespace CK3ScriptEditor
             var ls = Control.Document.GetLineSegment(Control.ActiveTextAreaControl.Caret.Line);
             var t = suggestionListbox.Items[suggestionListbox.SelectedIndices[0]].Text;
             string tabs = TabSpacing;
-            
-            var needBraces = CoreIntellisenseHandler.Instance.GetNeedBraces(Inside, t);
+
+            var needBraces = false;//CoreIntellisenseHandler.Instance.GetNeedBraces(Inside, t);
             if (!autoCompletePostEquals)
             {
-                if (needBraces)
-                {
-                    t += " = {\n"+ tabs + "\t\n"+ tabs + "}";
-                }
-                else
-                {
-                    t += " ";
-
-                }
+                t += " = ";
             }
             else
             {
                 StartText = StartText.TrimEnd(new char[] {' '});
-                t = " " + t;
+                if (t == "{ }")
+                {
+                    t = "";
+                    t += " {\n" + tabs + "\t\n" + tabs + "}";
+                    needBraces = true;
+                }
+                else
+                    t = " " + t;
             }
 
             
@@ -212,6 +211,11 @@ namespace CK3ScriptEditor
             suggestionListbox.EnsureVisible();
             suggestionListbox.Invalidate();
 
+        }
+
+        private void suggestionListbox_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            DoComplete();
         }
     }
 }

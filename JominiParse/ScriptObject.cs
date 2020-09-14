@@ -151,97 +151,15 @@ namespace JominiParse
             }
         }
 
+        public ScriptObjectBehaviourData BehaviourData { get; set; }
+
         public virtual void PostInitialize()
         {
-            if (Name == "OR" && LineStart == 34 && Filename.Contains("black"))
-            {
-
-            }
-            if (Name == "scope:target.location.county.holder.capital_county" && LineStart == 43 && Filename.Contains("test"))
-            {
-
-            }
-
-            if (Name == "befriend_ongoing_dislike.0001")
-            {
-            }
-
-            if (Name == "scope:scheme")
-            {
-                if (Topmost.Name == "befriend_ongoing_dislike.0001")
-                {
-
-                }
-            }
-
 
             if (Name == "root")
                 SetScopeType(Topmost.GetScopeType());
 
-            if (Schema == null && Parent != null)
-            {
-                // may be a scope...
-                if (Name != null)
-                {
-               
-
-                    if (Parent.Schema != null && Parent.Schema.SupportsConditions())
-                    {
-                        if (ScopeManager.Instance.isConditionScope(Parent.GetScopeType(), Name) || ScopeManager.Instance.isConditionScopeInside(Parent.GetScopeType(), Name, Parent) || ScopeManager.Instance.isConditionScopeEndParamInside(Parent.GetScopeType(), Name, Parent))
-                        {
-                            bool success;
-
-                            var s = ScopeManager.Instance.ChangeConditionScope(Parent.GetScopeType(), Name, out success,
-                                Parent);
-                            if (success)
-                            {
-                                SetScopeType(s);
-                                Schema = SchemaManager.Instance.GetDefaultConditionScopeSchema();
-                                isScope = true;
-                            }
-                            else
-                            {
-                                s = ScopeManager.Instance.ChangeConditionScope(Parent.GetScopeType(), Name.Substring(0, Name.LastIndexOf(".")), out success,
-                                    Parent);
-                                if (success)
-                                {
-                                    if(ScopeManager.Instance.isCondition(s, Name.Substring(Name.LastIndexOf(".")+1)))
-                                    {
-                                        SetScopeType(s);
-                                        Schema = SchemaManager.Instance.GetDefaultConditionScopeSchema();
-                                        isScope = true;
-                                        isConditionEnd = true;
-
-                                    }
-                                    else
-                                    {
-                                        
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-
-                    if (Parent.Schema != null && Parent.Schema.SupportsEffects())
-                    {
-                        if (ScopeManager.Instance.isEffectScope(Parent.GetScopeType(), Name) || ScopeManager.Instance.isEffectScopeInside(Parent.GetScopeType(), Name, Parent))
-                        {
-                            bool success;
-                            var s = (ScopeManager.Instance.ChangeScope(Parent.GetScopeType(), Name, out success, Parent));
-
-                            if (success)
-                            {
-                                SetScopeType(s);
-                                Schema = SchemaManager.Instance.GetDefaultEffectScopeSchema();
-                                isScope = true;
-                            }
-                        }
-                    }
-                 
-                }
-
-            }
+            ScriptObjectBehaviourManager.Instance.ProcessObject(this);
 
             foreach (var scriptObject in Children)
             {
@@ -250,7 +168,7 @@ namespace JominiParse
         }
         public ScriptObject(ScriptObject parent, ScriptParsedSegment seg, ScriptObjectSchema schema = null)
         {
-
+            IsBlock = seg.isBlock;
             if (parent == null)
             {
                 ScriptObject.DeferedInitializationList.Add(this);
@@ -324,7 +242,7 @@ namespace JominiParse
                 BlockType = Schema.blockType;
                 if (Schema.GetScope() != ScopeType.none && Schema.blockType != BlockType.function_block)
                 {
-                    SetScopeType(Schema.scope);
+                //    SetScopeType(Schema.scope);
                 }
             }
 
@@ -362,7 +280,7 @@ namespace JominiParse
             if (Schema != null)
             {
                 var s = Schema.GetScope();
-                if (s != ScopeType.none)
+                if (s != ScopeType.none && s != ScopeType.any)
                 {
                     SetScopeType(s);
                 }
@@ -603,6 +521,10 @@ namespace JominiParse
         }
         public virtual void SetScopeType(ScopeType type)
         {
+            if(type == ScopeType.any)
+            {
+
+            }
             ScopeType = type;
         }
 
@@ -616,8 +538,8 @@ namespace JominiParse
 
         public string Filename { get; set; }
         public virtual string Name { get; set; }
-        public bool IsThen { get; set; }
         public ScriptContext Context { get; set; }
+        public bool IsBlock { get; set; }
 
         public virtual void Write(BinaryWriter writer)
         {

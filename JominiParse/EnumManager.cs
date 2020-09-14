@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace JominiParse
@@ -9,7 +10,7 @@ namespace JominiParse
     public class EnumManager
     {
         public static EnumManager Instance = new EnumManager();
-        Dictionary<string, List<string>> Enums = new Dictionary<string, List<string>>();
+        Dictionary<string, HashSet<string>> Enums = new Dictionary<string, HashSet<string>>();
         public void Load()
         {
             var files = Directory.GetFiles("./HardcodedEnums");
@@ -18,6 +19,9 @@ namespace JominiParse
             {
                 Load(file);
             }
+
+            Enums["bool"] = new HashSet<string>() { "yes", "no" };
+            Enums["event_type"] = new HashSet<string>() { "character_event", "letter_event" };
         }
 
         private void Load(string file)
@@ -26,14 +30,34 @@ namespace JominiParse
 
             string[] strs = text.Split('\n');
 
+            var l = strs.ToList();
 
-            Enums[file.Substring(file.LastIndexOf("\\") + 1).Replace(".txt", "")] = strs.ToList();
+            HashSet<string> m = new HashSet<string>();
+
+            m.UnionWith(l);
+
+            Enums[file.Substring(file.LastIndexOf("\\") + 1).Replace(".txt", "")] = m;
         }
 
-        public List<string> GetEnums(string type)
+        public HashSet<string> GetEnums(string[] types)
         {
-            if(!Enums.ContainsKey(type))
-                return new List<string>();
+            HashSet<string> results = new HashSet<string>();
+
+            foreach (var type in types)
+            {
+                results.UnionWith(GetEnums(type));
+            }
+
+           
+            return results;
+        }
+
+        public HashSet<string> GetEnums(string type)
+        {
+            if (!Enums.ContainsKey(type))
+            {
+                return Core.Instance.GetNameSetFromEnumType(type);
+            }
 
             return Enums[type];
         }

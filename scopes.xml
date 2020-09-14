@@ -113,7 +113,6 @@
   <Scope name="army_commander" from="army" to="character" type="both" singular="yes" />
 
   <Scope name="betrothed" from="character" to="character" type="both" singular="yes" />
-  <Scope name="capital_county" from="character" to="title" type="effect" singular="yes" />
   <Scope name="capital_province" from="character" to="province" type="effect" singular="yes" />
   <Scope name="culture" from="character" to="culture" type="effect" singular="yes" />
   <Scope name="dynasty" from="character" to="dynasty" type="both" singular="yes" />

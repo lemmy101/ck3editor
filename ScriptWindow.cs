@@ -37,7 +37,7 @@ namespace CK3ScriptEditor
            
 
             textEditorControl1.ActiveTextAreaControl.Caret.PositionChanged += CaretOnPositionChanged;
-            textEditorControl1.Document.LineCountChanged += ActiveTextAreaControlOnTextChanged;
+            textEditorControl1.Document.DocumentChanged += ActiveTextAreaControlOnTextChanged;
             textEditorControl1.Document.TextContentChanged += ActiveTextAreaControlOnTextChanged;
             textEditorControl1.ActiveTextAreaControl.TextArea.KeyEventHandler += TextArea_KeyEventHandler;
             textEditorControl1.ActiveTextAreaControl.TextArea.DoProcessDialogKey += TextArea_DoProcessDialogKey;
@@ -148,13 +148,26 @@ namespace CK3ScriptEditor
                 ForceDoIntellisense();
                 return true;
             }
-          
+
             if (CurrentIntellisense != null && (keyData == Keys.Up || keyData == Keys.Down))
             {
-                if(keyData == Keys.Up)
+                if (keyData == Keys.Up)
                     CurrentIntellisense.SelectUp();
                 else
                     CurrentIntellisense.SelectDown();
+                return true;
+            }
+            if (CurrentIntellisense != null && (keyData == Keys.PageUp || keyData == Keys.PageDown))
+            {
+                if (keyData == Keys.PageUp)
+                {
+                    for(int x=0;x<10;x++) CurrentIntellisense.SelectUp();
+                }
+                else
+                {
+                    for (int x = 0; x < 10; x++) CurrentIntellisense.SelectDown();
+
+                }
                 return true;
             }
             if (CurrentIntellisense != null && (keyData == Keys.Left || keyData == Keys.Right))
@@ -215,11 +228,16 @@ namespace CK3ScriptEditor
         {
             if (Filename == null)
                 return;
-            if(CK3ScriptEd.Instance.AllowUpdateFile)
+            if (CK3ScriptEd.Instance.AllowUpdateFile)
+            {
                 Core.Instance.UpdateFile(Filename, this.textEditorControl1.Document.TextContent);
+                SyntaxHighlightingManager.Instance.DoDocument(this.textEditorControl1.Document, backgroundColor, Core.Instance.GetFile(Filename));
+                
+            }
         }
         private void DoIntellisense(bool force=false, bool onlyUpdate=false)
         {
+        
             if(CurrentIntellisense != null)
             {
                 CurrentIntellisense.Force = true;
@@ -332,6 +350,7 @@ namespace CK3ScriptEditor
         }
 
         public int lineForIntellisense;
+        private Color backgroundColor;
         public IntellisenseDlg CurrentIntellisense { get; set; }
 
         private void CaretOnPositionChanged(object sender, EventArgs e)
@@ -430,7 +449,10 @@ namespace CK3ScriptEditor
                   //  d.environmentColors["VRuler"].BackgroundColor = c;
                     d.DigitColor.BackgroundColor = c;
                     d.DefaultTextColor.BackgroundColor = c;
-                    
+
+                    backgroundColor = c;
+
+
                     foreach (var lineSegment in textEditorControl1.Document.LineSegmentCollection)
                     {
                         foreach (var lineSegmentWord in lineSegment.Words)
@@ -443,7 +465,7 @@ namespace CK3ScriptEditor
                         }
                     }
                     
-                    SyntaxHighlightingManager.Instance.DoDocument(textEditorControl1.Document, ScriptFile);
+                    SyntaxHighlightingManager.Instance.DoDocument(textEditorControl1.Document, backgroundColor, ScriptFile);
 
                 }
 
@@ -459,7 +481,8 @@ namespace CK3ScriptEditor
                     var s = Color.FromArgb(255, 70, 73, 92);
                     var cl = Color.FromArgb(255, 40, 43, 62);
 
-                    
+                    backgroundColor = c;
+
                     foreach (var lineSegment in textEditorControl1.Document.LineSegmentCollection)
                     {
                         foreach (var lineSegmentWord in lineSegment.Words)
@@ -473,7 +496,7 @@ namespace CK3ScriptEditor
                     }
                     
                 }
-                SyntaxHighlightingManager.Instance.DoDocument(textEditorControl1.Document, ScriptFile);
+                SyntaxHighlightingManager.Instance.DoDocument(textEditorControl1.Document, backgroundColor, ScriptFile);
             }
 
             return textEditorControl1;

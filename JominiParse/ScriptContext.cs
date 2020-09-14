@@ -2,6 +2,7 @@
 {
     public enum ScriptContext
     {
+        None,
         All,
         ScriptValues,
         Decisions,
@@ -25,6 +26,7 @@
         Factions,
         Focuses,
         GameRules,
+        GameRuleCategories,
         Governments,
         Holdings,
         HookTypes,

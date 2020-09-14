@@ -267,7 +267,7 @@ namespace ICSharpCode.TextEditor.Document
 
             return s.ToString();
         }
-        public bool ColorWord(string word, Color color, bool bold, bool italic)
+        public bool ColorWord(string word, Color color, bool bold, bool italic, Color backgroundColor)
         {
 
             int start = 0;
@@ -285,9 +285,7 @@ namespace ICSharpCode.TextEditor.Document
                             {
                                 if (Words[j].SyntaxColor != null)
                                 {
-                                    Words[j].SyntaxColor.Color = color;
-                                    Words[j].SyntaxColor.Bold = bold;
-                                    Words[j].SyntaxColor.Italic = italic;
+                                    Words[j].SyntaxColor = new HighlightColor(color, backgroundColor, bold, italic);
 
 								}
 							}

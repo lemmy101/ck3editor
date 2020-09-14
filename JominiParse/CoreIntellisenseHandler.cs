@@ -9,7 +9,30 @@ namespace JominiParse
     {
         public static CoreIntellisenseHandler Instance = new CoreIntellisenseHandler();
 
+        List<ScriptObject> visited = new List<ScriptObject>();
+        private void GetScriptScopesFromReferences(ScriptObject eventConnectionFrom, HashSet<ScriptObject.ScriptScope> scopes)
+        {
+            if (visited.Contains(eventConnectionFrom))
+                return;
 
+            visited.Add(eventConnectionFrom);
+
+            foreach (var keyValuePair in eventConnectionFrom.scriptScopes)
+            {
+                if (!keyValuePair.Value.Temporary)
+                    scopes.Add(keyValuePair.Value);
+            }
+
+
+            var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(eventConnectionFrom.Name).Distinct();
+
+            foreach (var eventConnection in ConnectionsIn)
+            {
+                GetScriptScopesFromReferences(eventConnection.From, scopes);
+            }
+
+
+        }
         public List<string> GetValidTokens(ScriptObject inside, string match)
         {
             List<string> results = new List<string>();
@@ -19,81 +42,55 @@ namespace JominiParse
                 return results;
             }
 
+            if (!string.IsNullOrEmpty(match))
+                inside = inside.Parent;
+            if (inside == null)
+                return results;
 
-            if (inside.Parent != null && inside.Parent.Schema != null && inside.Name != null)
+            var scope = inside.GetScopeType();
+
+            if (inside.BehaviourData.ExpectConditions)
             {
-                List<string> results2 = new List<string>();
-                inside.Parent.Schema.AddChildrenToList(results2);
-                if (results2.Contains("scopeconditions"))
-                {
-                    results2.Remove("scopeconditions");
-                    // can use condition commands...
+                results.AddRange(ScopeManager.Instance.Defs[scope].ValidConditionMap.Keys);
+                results.AddRange(ScopeManager.Instance.Defs[scope].ValidConditionScopes.Keys);
 
-                    var condition = ScopeManager.Instance.GetCondition(inside.Parent.GetScopeType(), inside.Name);
-
-                    if (condition != null)
-                    {
-                        foreach (var c in condition.Properties)
-                        {
-                            results.Add(c.name);
-                        }
-                        results.RemoveAll(a => !a.ToLower().StartsWith(match.ToLower()));
-
-                        results = results.OrderBy(a => a).ToList();
-
-                        return results;
-                    }
-
-                }
-                if (results2.Contains("scopeeffects"))
-                {
-                    results2.Remove("scopeeffects");
-                    // can use condition commands...
-
-                    var condition = ScopeManager.Instance.GetEffect(inside.Parent.GetScopeType(), inside.Name);
-
-                    if (condition != null)
-                    {
-                        foreach (var c in condition.Properties)
-                        {
-                            results.Add(c.name);
-                        }
-                        results.RemoveAll(a => !a.ToLower().StartsWith(match.ToLower()));
-
-                        results = results.OrderBy(a => a).ToList();
-
-                        return results;
-                    }
-
-                }
             }
-
-
-
-            if (inside.Schema != null)
+            if (inside.BehaviourData.ExpectEffects)
             {
-                inside.Schema.AddChildrenToList(results);
-                if (results.Contains("scopeconditions"))
-                {
-                    results.Remove("scopeconditions");
-                    var scope = inside.GetScopeType();
-                    ScopeManager.Instance.AddCompleteScopeConditionResults(scope, results);
-                }
-                if (results.Contains("scopeeffects"))
-                {
-                    results.Remove("scopeeffects");
-                    var scope = inside.GetScopeType();
-                    ScopeManager.Instance.AddCompleteScopeEffectResults(scope, results);
-
-                }
-            }
-            // is a child of an object with a schema so we can ascertain things from it...
-            else if (inside.SchemaChild != null)
-            {
+                results.AddRange(ScopeManager.Instance.Defs[scope].ValidEffectMap.Keys);
+                results.AddRange(ScopeManager.Instance.Defs[scope].ValidEffectScopes.Keys);
 
             }
 
-             results.RemoveAll(a => !a.ToLower().StartsWith(match.ToLower()));
+            if (inside.BehaviourData.ExpectConditions || inside.BehaviourData.ExpectEffects)
+            {
+                var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(inside.Topmost.Name);
+                HashSet<ScriptObject.ScriptScope> Scopes = new HashSet<ScriptObject.ScriptScope>();
+                visited.Clear();
+                foreach (var eventConnection in ConnectionsIn)
+                {
+                    GetScriptScopesFromReferences(eventConnection.From, Scopes);
+                }
+
+                foreach (var scriptScope in inside.scriptScopes.Values)
+                {
+                    if (scriptScope.RequiresScopeTag)
+                        results.Add("scope:" + scriptScope.Name);
+                    else
+                        results.Add(scriptScope.Name);
+                }
+                foreach (var scriptScope in Scopes)
+                {
+                    if (scriptScope.RequiresScopeTag)
+                        results.Add("scope:" + scriptScope.Name);
+                    else
+                        results.Add(scriptScope.Name);
+                }
+
+            }
+
+
+            results.RemoveAll(a => !a.ToLower().StartsWith(match.ToLower()));
 
             results = results.OrderBy(a => a).Distinct().ToList();
 
@@ -107,68 +104,26 @@ namespace JominiParse
 
                 return results;
             }
-            
-            if (inside != null && inside.Parent != null && inside.Parent.Schema != null)
+
+            var expected = inside.BehaviourData.TypeExpected;
+
+            if (expected != null)
             {
-                // add enum options
-                results.AddRange(inside.Parent.Schema.GetChoices(child));
-
-                string type = inside.Parent.Schema.GetChildType(child);
-
-                if (type == null)
-                {
-                    List<string> results2 = new List<string>();
-                    inside.Parent.Schema.AddChildrenToList(results2);
-                    if (results2.Contains("scopeconditions"))
-                    {
-                        results2.Remove("scopeconditions");
-                        var scope = inside.Parent.GetScopeType();
-                        {
-                            var condition = ScopeManager.Instance.GetCondition(scope, child);
-                            if (condition != null)
-                            {
-                                type = condition.type;
-                            }
-                        }
-                    }
-                    if (results2.Contains("scopeeffects"))
-                    {
-                        results2.Remove("scopeeffects");
-                        var scope = inside.Parent.GetScopeType();
-                        {
-                            var eff = ScopeManager.Instance.GetEffect(scope, child);
-                            if (eff != null)
-                            {
-                                type = eff.type;
-                            }
-                        }
-
-                    }
-                    results.AddRange(results2);
-                }
-
-            
-                if (type != null)
-                {
-                    switch (type)
-                    {
-                        case "bool":
-                            results.Add("yes");
-                            results.Add("no");
-                            break;
-                        default:
-                            results.AddRange(Core.Instance.GetNameSetFromEnumType(type));
-                            break;
-                    }
-                }
-               
+                results.AddRange(EnumManager.Instance.GetEnums(expected));
             }
+
             results = results.OrderBy(a => a).Distinct().ToList();
             if(sofar != null)
                 results.RemoveAll(a => !a.ToLower().StartsWith(sofar.ToLower()));
 
+
             if(results.Count==1 && results[0] == sofar)
                 results.Clear();
+
+            if (inside.BehaviourData.IsScope && string.IsNullOrEmpty(sofar))
+            {
+                results.Insert(0, "{ }");
+            }
 
             return results;
         }

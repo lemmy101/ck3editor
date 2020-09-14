@@ -68,7 +68,7 @@ namespace JominiParse
 
         ScriptContext GetContextFromDirectory(string dir)
         {
-            var res = BaseCK3Library.ContextData.Where(a => dir.StartsWith(a.Value.Directory)).ToList();
+            var res = BaseCK3Library.ContextData.Where(a => a.Value.Directory != null && dir.StartsWith(a.Value.Directory)).ToList();
 
             if(res.Any())
 
@@ -173,9 +173,13 @@ namespace JominiParse
             {
                 if(LoadingCK3Library.ContextData.ContainsKey((ScriptContext)x))
                 {
-                    ScriptLibrary.ContextInfo info = LoadingCK3Library.ContextData[(ScriptContext)x];
-                    var r = FileTokenizer.Instance.LoadDirectory(startDir + info.Directory + "/", startDir, (ScriptContext)x);
-                    LoadingCK3Library.Add(r, (ScriptContext)x);
+                    if(!string.IsNullOrEmpty(LoadingCK3Library.ContextData[(ScriptContext)x].Directory))
+                    {
+                        ScriptLibrary.ContextInfo info = LoadingCK3Library.ContextData[(ScriptContext)x];
+                        var r = FileTokenizer.Instance.LoadDirectory(startDir + info.Directory + "/", startDir, (ScriptContext)x);
+                        LoadingCK3Library.Add(r, (ScriptContext)x);
+
+                    }
                 }
 
             }
@@ -212,6 +216,8 @@ namespace JominiParse
             {
                 scriptObject.Initialize();
             }
+          
+            LoadingCK3Library.RecalculateGroups();
 
             foreach (var scriptObject in ScriptObject.DeferedInitializationList)
             {
@@ -220,7 +226,7 @@ namespace JominiParse
             ScriptObject.DeferedInitializationList.Clear();
 
 
-            LoadingCK3Library.RecalculateGroups();
+
         }
 
         
@@ -245,6 +251,38 @@ namespace JominiParse
                 return eventNames;
 
             eventNames.UnionWith(BaseCK3Library.ContextData[context].Keys());
+
+            return eventNames;
+        }
+
+        public List<string> GetNameSet(string type, ScriptLibrary lib)
+        {
+            List<string> l = new List<string>();
+            var where = lib.ContextData.Where(a => a.Value.Type == type);
+
+            foreach (var keyValuePair in where)
+            {
+                l.AddRange(keyValuePair.Value.Keys());
+            }
+            var where2 = lib.GroupContextData.Where(a => a.Value.Type == type);
+
+            foreach (var keyValuePair in where2)
+            {
+                l.AddRange(keyValuePair.Value.Keys());
+            }
+
+            return l;
+        }
+
+        public HashSet<string> GetNameSet(string type, bool modOnly)
+        {
+            HashSet<string> eventNames = new HashSet<string>();
+
+            eventNames.UnionWith(GetNameSet(type, ModCK3Library));
+            if (modOnly)
+                return eventNames;
+
+            eventNames.UnionWith(GetNameSet(type, BaseCK3Library));
 
             return eventNames;
         }
@@ -305,61 +343,12 @@ namespace JominiParse
         public HashSet<string> GetNameSetFromEnumType(string type)
         {
 
+            
+
             //  if (type == "building_type")
             //    return GetNameSet(ScriptContext.Buildings, false);
-            if (type == "innovation")
-                return GetNameSet(ScriptContext.CulturalInnovations, false);
-            if (type == "building")
-                return GetNameSet(ScriptContext.Buildings, false);
-            if (type == "event_background")
-                return GetNameSet(ScriptContext.EventBackgrounds, false);
-            if (type == "scheme_type")
-                return GetNameSet(ScriptContext.Schemes, false);
-            if (type == "relation")
-                return GetNameSet(ScriptContext.ScriptedRelations, false);
-            if (type == "scripted_modifier")
-                return GetNameSet(ScriptContext.ScriptedModifiers, false);
-            if (type == "scripted_trigger")
-                return GetNameSet(ScriptContext.ScriptedTriggers, false);
-            if (type == "opinion")
-                return GetNameSet(ScriptContext.OptionModifiers, false);
-            if (type == "hook")
-                return GetNameSet(ScriptContext.HookTypes, false);
-            if (type == "on_action")
-                return GetNameSet(ScriptContext.OnActions, false);
-            if (type == "modifier")
-                return GetNameSet(ScriptContext.StaticModifiers, false);
-            if (type == "event_theme")
-                return GetNameSet(ScriptContext.EventThemes, false);
-                 if (type == "perk")
-                return GetNameSet(ScriptContext.LifestylePerks, false);
-            if (type == "decision")
-                return GetNameSet(ScriptContext.Decisions, false);
-            if (type == "event")
-                return GetNameSet(ScriptContext.Events, false);
-            if(type == "culture_group")
-                return GetNameSet(ScriptContext.CultureGroups, false).PrependToken("culture_group:");
-            if (type == "trait")
-            {
-                var a = GetNameSet(ScriptContext.Traits, false);
-                var b = GetGroupNameList(ScriptGroupContext.TraitGroups, false);
-                var h = new HashSet<string>();
+            return GetNameSet(type, false);
 
-                foreach (var v in a)
-                {
-                    h.Add(v);
-                }
-                foreach (var v in b)
-                {
-                    h.Add(v);
-                }
-
-                return h;
-            }
-            //          if (type == "tooltip")
-            //                return GetEventNameSet(false);
-
-            return new HashSet<string>();
         }
 
         public HashSet<string> LocalVarListFromObjectFile(ScriptObject o)
@@ -382,6 +371,43 @@ namespace JominiParse
                 s.Add(d);
             }
             return s;
+        }
+
+        public bool AnyNameLists(string name)
+        {
+            if (BaseCK3Library.ContextData.Any(a => a.Value.Type == name))
+                return true;
+            if (BaseCK3Library.GroupContextData.Any(a => a.Value.Type == name))
+                return true;
+
+            return false;
+        }
+
+        public ScriptObject Get(string id, string expectedType)
+        {
+            if (ModCK3Library.ContextData.Any(a => a.Value.Type == expectedType))
+            {
+                var l = ModCK3Library.ContextData.Where(a => a.Value.Type == expectedType).ToList();
+
+                foreach (var keyValuePair in l)
+                {
+                    if (keyValuePair.Value.Has(id))
+                        return keyValuePair.Value.Get(id);
+                }
+            }
+            if (BaseCK3Library.ContextData.Any(a => a.Value.Type == expectedType))
+            {
+                var l = BaseCK3Library.ContextData.Where(a => a.Value.Type == expectedType).ToList();
+
+                foreach (var keyValuePair in l)
+                {
+                    if (keyValuePair.Value.Has(id))
+                        return keyValuePair.Value.Get(id);
+                }
+            }
+
+            return null;
+
         }
     }
 }

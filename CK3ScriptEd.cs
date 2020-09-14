@@ -114,7 +114,9 @@ namespace CK3ScriptEditor
 
             BackupManager.Instance.UpdateTick();
             
-            GetTextEditor("common/activities/a.txt", false);
+            //GetTextEditor("common/activities/a.txt", false);
+
+            ScriptObjectBehaviourManager.Instance.PrintDebug();
 
         }
 
@@ -215,7 +217,7 @@ namespace CK3ScriptEditor
 
 
         }
-
+      
         public bool AllowUpdateFile { get; set; }
 
         public IHighlightingStrategy HighlightStrategy { get; set; }

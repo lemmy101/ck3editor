@@ -43,6 +43,7 @@
             this.suggestionListbox.SelectedIndicesChanged += new System.EventHandler(this.suggestionListbox_SelectedIndicesChanged);
             this.suggestionListbox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.suggestionListbox_KeyPress);
             this.suggestionListbox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.suggestionListbox_KeyUp);
+            this.suggestionListbox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.suggestionListbox_MouseDoubleClick);
             // 
             // IntellisenseDlg
             // 

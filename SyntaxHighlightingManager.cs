@@ -13,13 +13,14 @@ namespace CK3ScriptEditor
     {
         public static SyntaxHighlightingManager Instance = new SyntaxHighlightingManager();
 
-        public void DoDocument(IDocument doc, ScriptFile file)
+        public void DoDocument(IDocument doc, Color backgroundColor, ScriptFile file)
         {
             foreach (var scriptObject in file.Map.Values)
             {
-                DoScriptObject(scriptObject, doc);
+              //  ColorEntireObject(Color.White, backgroundColor, doc, scriptObject.LineStart - 1, scriptObject.LineEnd);
+                DoScriptObject(scriptObject, backgroundColor, doc);
             }
-
+    
         }
 
         private List<string> baseCommands = new List<string>()
@@ -51,7 +52,131 @@ namespace CK3ScriptEditor
         private Color LocalizedStringColor = Color.FromArgb(133, 113, 208);
 
         ScriptObjectSchema AssumedSchema = new ScriptObjectSchema();
-        private void DoScriptObject(ScriptObject scriptObject, IDocument doc)
+
+        private void DoScriptObject(ScriptObject scriptObject, Color backgroundColor, IDocument doc)
+        {
+            string name = scriptObject.Name;
+            int line = scriptObject.LineStart - 1;
+            var lineSeg = doc.LineSegmentCollection[line];
+            if(name == "add_trait")
+            {
+
+            }
+            var col = Color.Red;
+
+            bool bold = false;
+            bool italic = false;
+            if (scriptObject == scriptObject.Topmost && scriptObject.Overridden)
+            {
+                ColorEntireObject(OverriddenColor, backgroundColor, doc, scriptObject.LineStart - 1, scriptObject.LineEnd);
+                return;
+            }
+
+            if (scriptObject.Topmost.Overridden)
+            {
+                return;
+            }
+
+            var data = scriptObject.BehaviourData;
+            if (data == null)
+                return;
+            switch (data.Type)
+            {
+                case ScriptObjectBehaviourType.FunctionParameter:
+                    col = FunctionColor;
+                    break;
+                case ScriptObjectBehaviourType.FunctionMultiline:
+                case ScriptObjectBehaviourType.FunctionSingleLine:
+                    col = FunctionColor;
+                    bold = true;
+                    break;
+                case ScriptObjectBehaviourType.InherentScopeBlock:
+                case ScriptObjectBehaviourType.InherentScopeToProperty:
+                case ScriptObjectBehaviourType.SavedScopeBlock:
+                case ScriptObjectBehaviourType.SavedScopeToProperty:
+                    col = ScopeColor;
+                    bold = true;
+                    break;
+                case ScriptObjectBehaviourType.RootObject:
+                    col = ReferencedObjectColor;
+                    bold = true;
+                    break;
+                case ScriptObjectBehaviourType.RootObjectProperty:
+                case ScriptObjectBehaviourType.RootObjectPropertyBlock:
+                case ScriptObjectBehaviourType.Limit:
+                case ScriptObjectBehaviourType.If:
+                case ScriptObjectBehaviourType.TriggerIf:
+                case ScriptObjectBehaviourType.Else:
+                case ScriptObjectBehaviourType.TriggerElse:
+                case ScriptObjectBehaviourType.Trigger:
+                case ScriptObjectBehaviourType.FunctionNamedFromParameterSingleLine:
+                case ScriptObjectBehaviourType.FunctionNamedFromParameterBlock:
+                    col = BaseCommandColor;
+                    bold = true;
+                    break;
+                  
+            }
+
+            if (baseCommands.Contains(name))
+                col = BaseCommandColor;
+            else
+            {
+                
+            }
+
+
+            ColourName(name, doc, lineSeg, col, backgroundColor, bold, italic);
+
+
+            if (scriptObject is ScriptValue && !(scriptObject is StaticScriptValue))
+            {
+                col = Color.Red;
+
+                var strVal = (scriptObject as ScriptValue).GetStringValue();
+
+                if (data.ReferencedObject != null)
+                {
+                    col = ReferencedObjectColor;
+                    italic = true;
+                    bold = true;
+                    ColourName(strVal, doc, lineSeg, col, backgroundColor, bold, italic);
+                }
+                else
+                {
+                    if (data.ValueFound)
+                    {
+                        if (data.ValueIsScope)
+                        {
+                            col = ScopeColor;
+                            bold = true;
+                        }
+                        else if (data.TypeExpected == "localized")
+                            col = LocalizedStringColor;
+                        else
+                            col = FunctionColor;
+                    }
+                    else if (data.TypeExpected == "string" && strVal != null)
+                    {
+                        col = StringColor;
+                    }
+                    else if (data.TypeExpected == "any" && strVal != null)
+                    {
+                        col = FunctionColor;
+                        italic = true;
+                    }
+
+                    ColourName(strVal, doc,  lineSeg, col, backgroundColor, bold, italic);
+
+                }
+            }
+
+            foreach (var scriptObjectChild in scriptObject.Children)
+            {
+                DoScriptObject(scriptObjectChild, backgroundColor, doc);
+            }
+        }
+
+        private void DoScriptObjectOld(ScriptObject scriptObject, IDocument doc)
         {
             AssumedSchema.children.Clear();
 
@@ -80,7 +205,7 @@ namespace CK3ScriptEditor
             bool italic = false;
             if (scriptObject == scriptObject.Topmost && scriptObject.Overridden)
             {
-                ColorEntireObject(OverriddenColor, doc, scriptObject.LineStart - 1, scriptObject.LineEnd);
+           //     ColorEntireObject(OverriddenColor, backgroundColor, doc,  scriptObject.LineStart - 1, scriptObject.LineEnd);
                 return;
             }
 
@@ -287,12 +412,12 @@ namespace CK3ScriptEditor
 
             if (name.StartsWith("scripted_trigger "))
             {
-                ColourName("scripted_trigger ", doc, lineSeg, BaseCommandColor, bold, italic);
-                ColourName(name.Substring(name.IndexOf(' ') + 1), doc, lineSeg, ReferencedObjectColor, bold, italic);
+              //  ColourName("scripted_trigger ", doc, lineSeg, BaseCommandColor, bold, italic);
+             //   ColourName(name.Substring(name.IndexOf(' ') + 1), doc, lineSeg, ReferencedObjectColor, bold, italic);
             }
             else
             {
-                ColourName(name, doc, lineSeg, col, bold, italic);
+             //   ColourName(name, doc, lineSeg, col, bold, italic);
             }
 
 
@@ -493,14 +618,14 @@ namespace CK3ScriptEditor
 
                         if (avoidRed)
                             col = FunctionColor;
-                        ColourName(strVal, doc, lineSeg, col, bold, italic);
+                  //      ColourName(strVal, doc, lineSeg, col, bold, italic);
                     }
                 }
                 else
                 {
                     if (avoidRed)
                         col = FunctionColor;
-                    ColourName(strVal, doc, lineSeg, BaseCommandColor, bold, italic);
+            //        ColourName(strVal, doc, lineSeg, BaseCommandColor, bold, italic);
 
                 }
 
@@ -508,7 +633,7 @@ namespace CK3ScriptEditor
 
             foreach (var scriptObjectChild in scriptObject.Children)
             {
-                DoScriptObject(scriptObjectChild, doc);
+         //       DoScriptObject(scriptObjectChild, doc);
             }
         }
 
@@ -667,25 +792,26 @@ namespace CK3ScriptEditor
         }
 
 
-        private void ColorEntireObject(Color col, IDocument doc, int f, int t)
+        private void ColorEntireObject(Color col, Color backgroundColor, IDocument doc, int f, int t)
         {
             for (int x = f; x < t; x++)
             {
-                ColorEntireLine(col, doc, doc.LineSegmentCollection[x]);
+                int xx = Math.Min(doc.LineSegmentCollection.Count - 1, x);
+                ColorEntireLine(col, doc, backgroundColor, doc.LineSegmentCollection[xx]);
             }
         }
 
-        private void ColorEntireLine(Color col, IDocument doc, LineSegment line)
+        private void ColorEntireLine(Color col, IDocument doc, Color backgroundColor, LineSegment line)
         {
             foreach (var lineWord in line.Words)
             {
                 if (lineWord.SyntaxColor != null)
-                    lineWord.SyntaxColor.Color = col;
+                    lineWord.SyntaxColor = new HighlightColor(col, backgroundColor, false, false);
             }
         }
-        private void ColourName(string name, IDocument doc, LineSegment line, Color color, bool bold, bool italic)
+        private void ColourName(string name, IDocument doc, LineSegment line, Color color, Color backgroundColor, bool bold, bool italic)
         {
-            if (!line.ColorWord(name, color, bold, italic))
+            if (!line.ColorWord(name, color, bold, italic, backgroundColor))
             {
 
             }

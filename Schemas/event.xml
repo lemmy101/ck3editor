@@ -1,8 +1,5 @@
 <ScriptObject name="ScriptEvent" blockType="schema_block" scopeType="character">
-	<Child name="type" type="enum">
-	  <Enum>character_event</Enum>
-	  <Enum>letter_event</Enum>
-	</Child>	
+	<Child name="type" type="event_type"/>	
 	<Child name="title" type="localized"/>
 	<Child name="opening" type="localized"/>
 	<Child name="sender" type="character"/>	
