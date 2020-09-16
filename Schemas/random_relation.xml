@@ -1,5 +1,0 @@
-<Schema blockType="inheritparent">
-	<Child name="type" type="relation"/>
-	<Child name="limit" type="limit"/>
-	<Child name="scopeeffects" type="scopeeffects"/>
-</Schema>

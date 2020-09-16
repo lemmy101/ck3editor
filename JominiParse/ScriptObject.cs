@@ -14,8 +14,7 @@ namespace JominiParse
         public static List<ScriptObject> DeferedInitializationList = new List<ScriptObject>();
 
         public string Namespace { get; set; }
-        public ScriptObjectSchema Schema;
-        public SchemaChild SchemaChild;
+        public SchemaNode Schema;
         public ScriptFile ScriptFile { get; set; }
         public bool Overridden { get; set; }
 
@@ -166,10 +165,11 @@ namespace JominiParse
                 scriptObject.PostInitialize();
             }
         }
-        public ScriptObject(ScriptObject parent, ScriptParsedSegment seg, ScriptObjectSchema schema = null)
+
+        public ScriptObject(ScriptObject parent, ScriptParsedSegment seg, SchemaNode schema = null)
         {
 
-        
+
             Op = seg.op;
             IsBlock = seg.isBlock;
             if (parent == null)
@@ -181,7 +181,7 @@ namespace JominiParse
             {
                 return;
             }
-         
+
             this.Name = seg.name;
             this.Filename = seg.filename;
             this.LineStart = seg.lineNumbers.First();
@@ -200,113 +200,46 @@ namespace JominiParse
             }
 
             Schema = schema;
-        
+
 
             if (parent != null)
             {
-             
+
                 parent.Children.Add(this);
-                if (parent.Schema != null && seg.name != null)
-                {
-                    SchemaChild = parent.Schema.GetChild(seg.name);
 
-                    if (SchemaChild != null)
+
+                if (Parent != null)
+                {
+                    if (GetScopeType() == ScopeType.none)
+                        SetScopeType(ScopeType.inheritparent);
+                }
+
+                foreach (var scriptParsedSegment in seg.children)
+                {
+                    ScriptObject so = null;
+                    if (scriptParsedSegment.value.Count > 0)
                     {
-                        Schema = SchemaManager.Instance.GetSchema(SchemaChild.Type);
-                        if (SchemaChild.scopeType != ScopeType.none)
-                        {
-                            SetScopeType(SchemaChild.scopeType);
-                        }
-                        if (SchemaChild.blockType != BlockType.none)
-                        {
-                            BlockType = SchemaChild.blockType;
-                        }
+
+                        so = ScriptValueParser.Instance.ParseScriptValue(this, scriptParsedSegment);
+
                     }
-                }
-                if (seg.name != null)
-                {
-                    var alt= SchemaManager.Instance.GetSchema(seg.name);
-                    if (alt != null)
-                        Schema = alt;
-
-                }
-
-                int result;
-                if (Int32.TryParse(Name, out result))
-                {
-                    if (parent.Schema != null)
+                    else
                     {
-                        var b = parent.Schema.children.Where(a => a.Value.NamesFrom == "num").ToList();
-                        if (b.Count > 0)
-                        {
-                            Schema = SchemaManager.Instance.GetSchema(b[0].Value.Type);
-                        }
-                    }
-                }
-
-
-            }
-
-            if (Schema != null)
-            {
-                BlockType = Schema.blockType;
-                if (Schema.GetScope() != ScopeType.none && Schema.blockType != BlockType.function_block)
-                {
-                //    SetScopeType(Schema.scope);
-                }
-            }
-
-          
-            if (Parent != null)
-            {
-                if(GetScopeType()==ScopeType.none)
-                    SetScopeType(ScopeType.inheritparent);
-            }
-
-            foreach (var scriptParsedSegment in seg.children)
-            {
-                ScriptObject so = null;
-                if (scriptParsedSegment.value.Count > 0)
-                {
- 
-                    so = ScriptValueParser.Instance.ParseScriptValue(this, scriptParsedSegment);
-             
-                }
-                else
-                {
-                    so = ScriptObjectFactory.Instance.CreateScriptObject(Context,scriptParsedSegment, this, Namespace);
-                 }
-              
-                if (BlockType == BlockType.effect_block)
-                {
-               //     ScopeManager.Instance.AddScopeFunction(so.GetScopeType(), so.Name);
-
-                }
-
-                OnPostInitializeChild(so);
-            }
-           
-
-            if (Schema != null)
-            {
-                var s = Schema.GetScope();
-                if (s != ScopeType.none && s != ScopeType.any)
-                {
-             //       SetScopeType(s);
-                }
-
-                string name = Schema.GetScopeChildIdentifier();
-                if (name != null)
-                {
-                    var t = Children.Where(a => a.Name == name);
-                    if (t.Any())
-                    {
-                        SetScopeType(t.First().GetScopeType());
+                        so = ScriptObjectFactory.Instance.CreateScriptObject(Context, scriptParsedSegment, this,
+                            Namespace);
                     }
 
-                }
-            }
+                    if (BlockType == BlockType.effect_block)
+                    {
+                        //     ScopeManager.Instance.AddScopeFunction(so.GetScopeType(), so.Name);
 
+                    }
+
+                    OnPostInitializeChild(so);
+                }
+
+
+            }
         }
 
         private void HandleScopeDeclarationFunctions(ScriptObject scriptObject, ScriptObject parent)
@@ -572,51 +505,7 @@ namespace JominiParse
 
         public virtual void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
         {
-            Name = reader.ReadString();
-            LineStart = reader.ReadInt32();
-            LineEnd = reader.ReadInt32();
-            ScopeType = (ScopeType)reader.ReadInt32();
-            Context = (ScriptContext)reader.ReadInt32();
-
-            int numChildren = reader.ReadInt32();
-
-            this.Filename = file.Filename;
-            this.Library = Core.Instance.LoadingCK3Library;
-            this.ScriptFile = file;
-            Parent = parent;
-         
-            if (parent != null)
-            {
-              //  parent.Children.Add(this);
-                if (parent.Schema != null && Name != null)
-                {
-                    SchemaChild = parent.Schema.GetChild(Name);
-
-                    if (SchemaChild != null)
-                        Schema = SchemaManager.Instance.GetSchema(SchemaChild.Type);
-                }
-                if (Schema == null && Name != null)
-                {
-
-                    Schema = SchemaManager.Instance.GetSchema(Name);
-
-                }
-
-
-            }
-
-
-            for (int x = 0; x < numChildren; x++)
-            {
-                ScriptObject o = LoadFromData(reader, this);
-                o.Parent = this;
-                o.Read(reader, file, this);
-                Children.Add(o);
-            }
-            for (int x = 0; x < numChildren; x++)
-            {
-                Children[x].PostRead();
-            }
+           
 
         }
         protected string TabFormat(string str, int depth = 0)

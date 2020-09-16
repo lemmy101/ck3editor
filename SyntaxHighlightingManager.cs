@@ -80,8 +80,6 @@ namespace CK3ScriptEditor
         private Color ReferencedObjectColor = Color.FromArgb(208, 176, 113);
         private Color LocalizedStringColor = Color.FromArgb(133, 113, 208);
 
-        ScriptObjectSchema AssumedSchema = new ScriptObjectSchema();
-
         private void DoScriptObject(ScriptObject scriptObject, Color backgroundColor, IDocument doc)
         {
             string name = scriptObject.Name;

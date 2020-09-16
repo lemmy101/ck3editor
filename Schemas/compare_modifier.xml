@@ -1,9 +1,0 @@
-<Schema blockType="inheritparent">
-	<Child name="target" type="scope"/>
-	<Child name="value" type="num"/>
-	<Child name="multiplier" type="num"/>
-	<Child name="min" type="num"/>
-	<Child name="max" type="num"/>
-	<Child name="offset" type="num"/>
-	
-</Schema>

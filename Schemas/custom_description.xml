@@ -1,5 +1,0 @@
-<Schema blockType="inheritparent">
-	<Child name="scopeconditions" type="scopeconditions"/>
-	<Child name="text" type="trigger_localization"/>
-	
-</Schema>

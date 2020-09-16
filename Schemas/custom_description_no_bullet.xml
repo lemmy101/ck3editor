@@ -1,4 +1,0 @@
-<Schema blockType="inheritparent">
-	<Child name="text" type="string"/>
-	
-</Schema>

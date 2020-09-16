@@ -6,200 +6,118 @@ using System.Xml;
 
 namespace JominiParse
 {
-    public class SchemaChild
-    {
-        public BlockType blockType { get; set; }
-        public ScopeType scopeType { get; set; }
-        public string Name { get; set; }
-        public string NamesFrom { get; set; }
-        public string Type { get; set; }
-        public bool IsBlock { get; set; }
-    }
 
-    public class SchemaEnum : SchemaChild
+    public class SchemaNode
     {
-        public List<string> choices = new List<string>();
-    }
+        public Dictionary<string, SchemaNode> childrenMap = new Dictionary<string, SchemaNode>();
+        public List<SchemaNode> children = new List<SchemaNode>();
+        public List<ScopeType> scopes = new List<ScopeType>();
 
-    public class ScriptObjectSchema
-    {
-        public Dictionary<string, SchemaChild> children = new Dictionary<string, SchemaChild>();
-        public bool Soft { get; set; }
-        public ScopeType scope = ScopeType.none;
-        public string scopeChildId { get; set; }
-        public BlockType blockType { get; set; }
-        public string simpleType { get; set; }
-       
-        public bool AvoidRed { get; set; }
+        public string namesFrom { get; set; }
+        public string id { get; set; }
+        public string name { get; set; }
+        public string category { get; set; }
+        public ScopeType targetScope { get; set; }
+        public string doc { get; set; }
+        public string function { get; set; }
+        public string type { get; set; }
 
-        public void Load(string filename)
+        public bool requiresData { get; set; }
+        public bool globalLink { get; set; }
+        public bool wildcard { get; set; }
+
+        public SchemaNode GetChild(string name)
         {
-            XmlDocument doc = new XmlDocument();
+            return null;
+        }
 
-            doc.Load(filename);
+        bool loadBool(XmlNode node, string attribute)
+        {
+            if (node.Attributes[attribute] != null)
+                return node.Attributes[attribute].InnerText=="yes";
 
-            var docEl = doc.DocumentElement;
+            return false;
 
-            XmlNode el = docEl.FirstChild;
+        }
+        string loadString(XmlNode node, string attribute)
+        {
+            if (node.Attributes[attribute] != null)
+                return node.Attributes[attribute].InnerText;
 
-            if (docEl.Attributes["simpleType"] != null)
-            {
-                simpleType = docEl.Attributes["simpleType"].InnerText;
-            }
-            if (docEl.Attributes["AvoidRed"] != null)
-            {
-                simpleType = docEl.Attributes["AvoidRed"].InnerText;
-            }
+            return null;
+        }
+        public void Load(string file)
+        {
+            XmlDocument d = new XmlDocument();
+
+            d.Load(file);
+
+            var node = d.DocumentElement as XmlNode;
+
+            LoadNode(node);
+
             
-            while (el != null)
+        }
+
+        public void LoadNode(XmlNode node)
+        {
+            id = loadString(node as XmlNode, "id");
+            name = loadString(node as XmlNode, "name");
+            namesFrom = loadString(node as XmlNode, "namesFrom");
+            category = loadString(node as XmlNode, "category");
+
+            string scopes = loadString(node as XmlNode, "scope");
+
+            if(scopes != null)
             {
-                string name = el.Attributes["name"].InnerText;
-                string type = el.Attributes["type"].InnerText;
+                var scps = scopes.Split(',');
 
-                bool isBlock = (el.Attributes["isBlock"]==null) ? false : el.Attributes["isBlock"].InnerText=="yes";
-                SchemaChild c = new SchemaChild();
-
-
-                if (type == "enum")
+                foreach (var scp in scps)
                 {
-                    var e = new SchemaEnum();
-                    var fc = el.FirstChild;
-                    List<string> options = new List<string>();
-                    while (fc != null)
+                    ScopeType scopeEnum;
+                    if (Enum.TryParse(scp, out scopeEnum))
                     {
-                        e.choices.Add(fc.InnerText);
-                        fc = fc.NextSibling;
+                        this.scopes.Add(scopeEnum);
                     }
-
-                    c = e;
                 }
+            }
+            else
+            {
+                this.scopes.Add(ScopeType.none);
+            }
+          
 
-                string namesFrom = null;
+            string targetScope = loadString(node as XmlNode, "scope");
+            ScopeType tsv;
+            Enum.TryParse(targetScope, out tsv);
 
-                if (el.Attributes["namesFrom"] != null)
+            this.targetScope = tsv;
+
+            function = loadString(node as XmlNode, "function");
+            requiresData = loadBool(node as XmlNode, "requiresData");
+            globalLink = loadBool(node as XmlNode, "globalLink");
+            wildcard = loadBool(node as XmlNode, "wildcard");
+
+            var c = node.FirstChild;
+
+            while(c != null)
+            {
+                if (c is XmlComment)
                 {
-                    namesFrom = el.Attributes["namesFrom"].InnerText;
+                    c = c.NextSibling;
+                    continue;
                 }
-                c.Name = name;
-                c.NamesFrom = namesFrom;
-                c.Type = type;
-                c.IsBlock = isBlock;
-
-                if (el.Attributes["blockType"] != null)
-                {
-                    BlockType sc = BlockType.none;
-                    Enum.TryParse(el.Attributes["blockType"].InnerText, out sc);
-                    c.blockType = sc;
-                }
-                if (el.Attributes["scopeType"] != null)
-                {
-                    ScopeType sc = ScopeType.none;
-                    Enum.TryParse(el.Attributes["scopeType"].InnerText, out sc);
-                    c.scopeType = sc;
-                }
-                if (el.Attributes["scopeChildId"] != null)
-                {
-                    scopeChildId = el.Attributes["scopeChildId"].InnerText;
-                }
-
-                children[name] = c;
-                el = el.NextSibling;
+                SchemaNode cn = new SchemaNode();
+                cn.LoadNode(c);
+                children.Add(cn);
+                childrenMap[cn.name] = cn;
+                c = c.NextSibling;
             }
 
-            if (doc.DocumentElement.Attributes["blockType"] != null)
+            if (id != null)
             {
-                BlockType sc = BlockType.none;
-                Enum.TryParse(doc.DocumentElement.Attributes["blockType"].InnerText, out sc);
-                blockType = sc;
+                SchemaManager.Instance.AddSchema(id, this);
             }
-
-            if (doc.DocumentElement.Attributes["scopeType"]!=null)
-            {
-                Enum.TryParse(doc.DocumentElement.Attributes["scopeType"].InnerText, out scope);
-            }
-
-        }
-
-        public string GetScopeChildIdentifier()
-        {
-            return scopeChildId;
-        }
-
-        public void AddChildrenToList(List<string> results)
-        {
-            var l = children.Values.OrderBy(a => a.Name).ToList();
-
-            foreach (var schemaChild in l)
-            {
-             
-                results.Add(schemaChild.Name);
-            }
-        }
-
-        public List<string> GetChoices(string child)
-        {
-            if(!children.ContainsKey(child))
-                return new List<string>();
-
-            var c = children[child];
-
-            if (c.Type == "enum")
-            {
-                return (c as SchemaEnum).choices;
-            }
-            if (c.Type == "bool")
-            {
-                return new List<string>() {"yes", "no"};
-            }
-
-            return new List<string>();
-        }
-
-        public string GetChildType(string child)
-        {
-            if (!children.ContainsKey(child))
-                return null;
-
-            return children[child].Type;
-
-        }
-
-        public bool GetChildIsBlock(string child, out bool succeeded)
-        {
-            succeeded = false;
-            if (!children.ContainsKey(child))
-                return false;
-
-            succeeded = true;
-            return children[child].IsBlock;
-        }
-
-        public SchemaChild GetChild(string child)
-        {
-            if (!children.ContainsKey(child))
-                return null;
-
-            return children[child];
-
-        }
-
-        public ScopeType GetScope()
-        {
-            return scope;
-        }
-
-        public bool SupportsTriggers()
-        {
-            return children.Any(a => a.Key == "scopetriggers");
-        }
-        public bool SupportsEffects()
-        {
-            return children.Any(a => a.Key == "scopeeffects");
-        }
-
-        public bool HasChild(string name)
-        {
-            return children.ContainsKey(name);
         }
     }
 
@@ -207,11 +125,9 @@ namespace JominiParse
     {
         public static SchemaManager Instance = new SchemaManager();
         List<string> schemaFilenames = new List<string>();
-        Dictionary<String, ScriptObjectSchema> SchemaMap = new Dictionary<String, ScriptObjectSchema>();
-        private ScriptObjectSchema DefaultCScope = null;
-        private ScriptObjectSchema DefaultEScope = null;
-
-        public SchemaManager()
+        Dictionary<String, SchemaNode> SchemaMap = new Dictionary<String, SchemaNode>();
+   
+        public void Init()
         {
             var files = Directory.GetFiles(".\\Schemas");
 
@@ -220,89 +136,18 @@ namespace JominiParse
                 string l = file.Substring(file.LastIndexOf("\\") + 1).Replace(".xml", "");
 
 
-                ScriptObjectSchema s = new ScriptObjectSchema();
+                SchemaNode s = new SchemaNode();
 
                 s.Load("Schemas/" + l + ".xml");
-                s.Soft = true;
-
-                SchemaMap[l] = s;
             }
         }
-
-        public ScriptObjectSchema GetDefaultTriggerScopeSchema()
+        public SchemaManager()
         {
-            if (DefaultCScope == null)
-            {
-                DefaultCScope = new ScriptObjectSchema();
-     //           DefaultCScope.children["scopeTriggers"] = (new SchemaChild() { blockType = BlockType.Trigger_block, Name = "scopeTriggers", IsBlock = true });
-            }
-
-            return DefaultCScope;
-        }
-        public ScriptObjectSchema GetDefaultEffectScopeSchema()
-        {
-            if (DefaultEScope == null)
-            {
-                DefaultEScope = new ScriptObjectSchema();
-            //    DefaultEScope.children["scopeeffects"] = (new SchemaChild() { blockType = BlockType.Trigger_block, Name = "scopeeffects", IsBlock = true });
-            }
-
-            return DefaultEScope;
-        }
-
-
-        public void CreateScopeFunction(ScopeType key, FunctionDef def, BlockType bt)
-        {
-            if (GetSchema(def.name) != null)
-                return;
-            ScriptObjectSchema schema = new ScriptObjectSchema();
-
-
-            schema.Soft = true;
-            schema.blockType = bt;
-            schema.scope = key;
-
-            foreach (var TriggerProperty in def.Properties)
-            {
-                var a = new SchemaChild();
-                string name = TriggerProperty.name;
-                string type = TriggerProperty.type;
-
-                a.Name = name;
-                a.Type = type;
-                schema.children[name] = a;
-            }
-
-            SchemaMap[def.name] = schema;
-        }
     
-        public void CreateScopeSchema(ScopeType fromScope, ScopeChangeDefinition scopeDef, BlockType blockType)
-        {
-       
-            if (GetSchema(scopeDef.text) != null)
-                return;
-
-            ScriptObjectSchema schema = new ScriptObjectSchema();
-
-            schema.Soft = true;
-            schema.blockType = BlockType.inheritparent;
-            schema.scope = scopeDef.toType;
-
-            if (blockType == BlockType.Trigger_scope_change)
-            {
-            
-            }
-
-            if (blockType == BlockType.effect_scope_change)
-            {
-             
-            }
-
-
-            SchemaMap[scopeDef.text] = schema;
         }
 
-        public ScriptObjectSchema GetSchema(string type)
+      
+        public SchemaNode GetSchema(string type)
         {
             
             if (SchemaMap.ContainsKey(type))
@@ -311,11 +156,10 @@ namespace JominiParse
 
             return null;
         }
-        ScriptObjectSchema defaultSchema = new ScriptObjectSchema();
-        public ScriptObjectSchema GetDefaultSchema()
+
+        public void AddSchema(string id, SchemaNode schemaNode)
         {
-            defaultSchema.AvoidRed = true;
-            return defaultSchema;
+            SchemaMap[id] = schemaNode;
         }
     }
 }

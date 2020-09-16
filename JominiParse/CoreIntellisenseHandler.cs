@@ -75,45 +75,45 @@ namespace JominiParse
                 results.Add("if");
 
             }
-            */
+          
             if (inside.BehaviourData.Type == ScriptObjectBehaviourType.FunctionMultiline && inside.Schema != null)
             {
                 foreach (var keyValuePair in inside.Schema.children)
                 {
-                    if (keyValuePair.Value.NamesFrom == null)
+                    if (keyValuePair.Value.namesFrom == null)
                         results.Add(keyValuePair.Key);
-                    else if (keyValuePair.Value.NamesFrom != "num")
-                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.NamesFrom));
+                    else if (keyValuePair.Value.namesFrom != "num")
+                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.namesFrom));
                 }
             }
             else if (inside.BehaviourData.Type == ScriptObjectBehaviourType.RootObject && inside.Schema != null)
             {
                 foreach (var keyValuePair in inside.Schema.children)
                 {
-                    if (keyValuePair.Value.NamesFrom == null)
+                    if (keyValuePair.Value.namesFrom == null)
                         results.Add(keyValuePair.Key);
-                    else if (keyValuePair.Value.NamesFrom != "num")
-                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.NamesFrom));
+                    else if (keyValuePair.Value.namesFrom != "num")
+                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.namesFrom));
                 }
             }
             else if (inside.BehaviourData.Type == ScriptObjectBehaviourType.RootObjectPropertyBlock && inside.Schema != null)
             {
                 foreach (var keyValuePair in inside.Schema.children)
                 {
-                    if (keyValuePair.Value.NamesFrom == null)
+                    if (keyValuePair.Value.namesFrom == null)
                         results.Add(keyValuePair.Key);
-                    else if (keyValuePair.Value.NamesFrom != "num")
-                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.NamesFrom));
+                    else if (keyValuePair.Value.namesFrom != "num")
+                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.namesFrom));
                 }
             }
             else if (inside.BehaviourData.Type == ScriptObjectBehaviourType.FunctionNamedFromParameterBlock && inside.Schema != null)
             {
                 foreach (var keyValuePair in inside.Schema.children)
                 {
-                    if (keyValuePair.Value.NamesFrom == null)
+                    if (keyValuePair.Value.namesFrom == null)
                         results.Add(keyValuePair.Key);
-                    else if (keyValuePair.Value.NamesFrom != "num")
-                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.NamesFrom));
+                    else if (keyValuePair.Value.namesFrom != "num")
+                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.namesFrom));
                 }
             }
 
@@ -151,7 +151,7 @@ namespace JominiParse
             results = results.OrderBy(a => a).Distinct().ToList();
             if(match != null)
                 results = results.OrderBy(a => !a.ToLower().StartsWith(match.ToLower())).ToList();
-
+              */
             return results;
         }
         public List<string> GetValidTokensEqual(ScriptObject inside, string child, string sofar)
@@ -260,69 +260,6 @@ namespace JominiParse
             return results;
         }
 
-        public bool GetNeedBraces(ScriptObject inside, string child)
-        {
-            List<string> results = new List<string>();
-
-            if (child == "AND" || child == "OR" || child == "NOT" || child == "NOR")
-                return true;
-
-            if (inside.Schema != null)
-            {
-                // add enum options
-                bool success;
-                var res = inside.Schema.GetChildIsBlock(child, out success);
-
-                if (success)
-                    return res;
-
-                // need to figure out if we need braces from other means...
-                List<string> results2 = new List<string>();
-                inside.Schema.AddChildrenToList(results2);
-                var scope = inside.GetScopeType();
-                /*   if (results2.Contains("scopetriggers"))
-                   {
-                       results2.Remove("scopetriggers");
-                       {
-                           var Trigger = ScopeManager.Instance.GetTrigger(scope, child);
-
-                           if (Trigger != null)
-                               return Trigger.Properties.Count > 0;
-                       }
-
-                       var schema = SchemaManager.Instance.GetSchema(child);
-
-                       if (schema != null)
-                       {
-                           return true;
-                       }
-                   }
-                   if (results2.Contains("scopeeffects"))
-                   {
-                       results2.Remove("scopeeffects");
-                       {
-                           var eff = ScopeManager.Instance.GetEffect(scope, child);
-
-                           if (eff != null)
-                               return eff.Properties.Count > 0;
-                       }
-
-                       var schema = SchemaManager.Instance.GetSchema(child);
-
-                       if (schema != null)
-                       {
-                           return true;
-                       }
-                   }
-
-                   if (inside.Parent != null && ScopeManager.Instance.isTriggerScope(inside.Parent.GetScopeType(), child))
-                   {
-                       return true;
-                   }
-                */
-            }
-
-            return false;
-        }
+     
     }
 }

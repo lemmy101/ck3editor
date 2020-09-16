@@ -1,7 +1,0 @@
-<Schema blockType="inheritparent">
-	<Child name="who" type="character"/>
-	<Child name="opinion_target" type="character"/>
-	<Child name="min" type="num"/>
-	<Child name="max" type="num"/>
-	<Child name="multiplier" type="num"/>
-</Schema>

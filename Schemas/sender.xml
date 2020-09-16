@@ -1,4 +1,0 @@
-<Schema simpleType="character">
-	<Child name="character" type="character"/>
-	<Child name="animation" type="any"/>
-</Schema>

@@ -1,3 +1,0 @@
-<TriggerBlock name="TriggerBlock">
-  <Child name="scopeconditions" type="scopeconditions"/>
-  </TriggerBlock>

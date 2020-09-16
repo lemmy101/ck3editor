@@ -1,5 +1,0 @@
-<Schema>
-	<Child name="trait" type="num" namesFrom="trait"/>
-	<Child name="base" type="num"/>
-	
-</Schema>

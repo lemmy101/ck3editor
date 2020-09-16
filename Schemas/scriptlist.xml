@@ -1,4 +1,4 @@
-<Schema>
+<Schema name="scriptlist" id="scriptlist">
   <Child name="dynasty_member" scope="dynasty" type="character" function="script_list" doc="Iterate through all dynasty members" />
   <Child name="house_member" scope="dynasty_house" type="character" function="script_list" doc="Iterate through all house members" />
   <Child name="faith" scope="religion" type="faith" function="script_list" doc="Iterate through all faiths within a religion" />

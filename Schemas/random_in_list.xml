@@ -1,7 +1,0 @@
-<ScriptObject blockType="schema_block">
-
-	<Child name="list" type="list"/>
-	<Child name="weight" type="value_modifier"/>
-	<Child name="scopeeffects" type="scopeeffects"/>
-	
-</ScriptObject>

@@ -147,8 +147,6 @@ namespace JominiParse
             "XOR"
         };
 
-        ScriptObjectSchema ParentEffectiveSchema = new ScriptObjectSchema();
-        ScriptObjectSchema EffectiveSchema = new ScriptObjectSchema();
         public static int BreakpointLine = 12;
         public static string BreakpointFile = "events/test_event.txt";
 
@@ -734,7 +732,7 @@ namespace JominiParse
                             {
                                 var schema = obj.Parent.Schema;
 
-                                var namedAs = schema.children.Where(a => a.Value.NamesFrom != null).ToList();
+                                var namedAs = schema.children.Where(a => a.Value.namesFrom != null).ToList();
 
                                 foreach (var keyValuePair in namedAs)
                                 {
@@ -825,7 +823,7 @@ namespace JominiParse
                         {
                             var schema = obj.Parent.Schema;
 
-                            var namedAs = schema.children.Where(a => a.Value.NamesFrom != null).ToList();
+                            var namedAs = schema.children.Where(a => a.Value.namesFrom != null).ToList();
 
                             foreach (var keyValuePair in namedAs)
                             {
@@ -844,7 +842,7 @@ namespace JominiParse
 
                 private void HandleNamesFrom(ScriptObject obj, ScriptObjectBehaviourData data, bool isBlock, SchemaChild schemaChild)
                 {
-                    string namesFrom = schemaChild.NamesFrom;
+                    string namesFrom = schemaChild.namesFrom;
                     if (namesFrom == "num")
                     {
                         int result;

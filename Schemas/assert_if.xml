@@ -1,4 +1,0 @@
-<Schema>
-	<Child name="limit" type="limit" isBlock="yes"/>
-	<Child name="text" type="string"/>
-</Schema>

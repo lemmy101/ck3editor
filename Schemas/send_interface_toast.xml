@@ -1,7 +1,0 @@
-<ScriptObject blockType="schema_block">
-	<Child name="type" type="any"/>
-    <Child name="title" type="localized"/>
-    <Child name="left_icon" type="character"/>
-    <Child name="right_icon" type="character"/>
-	<Child name="scopeeffects" type="scopeeffects"/>	
-</ScriptObject>

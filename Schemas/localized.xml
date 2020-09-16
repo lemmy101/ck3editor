@@ -1,9 +1,0 @@
-<ScriptObject simpleType="localized">
-	<Child name="text" type="localized"/>
-	<Child name="trigger" type="trigger"/>
-	<Child name="desc" type="localized"/>
-	<Child name="triggered_desc" type="triggered_desc"/>
-	<Child name="random_valid" type="random_valid"/>
-	
-	<Child name="first_valid" type="first_valid" isBlock="yes"/>  
-</ScriptObject>

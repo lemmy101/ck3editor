@@ -1,4 +1,4 @@
-<Schema>
+<Schema name="eventtarget" id="eventtarget">
   <Child name="house_head" scope="dynasty_house" targetScope="character" doc="" function="event_target"/>
   <Child name="capital_vassal" scope="landed_title" targetScope="landed_title" doc="" function="event_target"/>
   <Child name="controlled_faith" scope="landed_title" targetScope="faith" doc="" function="event_target"/>

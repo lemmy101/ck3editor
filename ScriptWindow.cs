@@ -395,12 +395,12 @@ namespace CK3ScriptEditor
             textEditorControl1.Document.LocalizationMap.Clear();
 
             var file = ScriptFile;
-
+            /*
             foreach (var scriptObject in file.Map)
             {
                 if(scriptObject.Value.Schema != null)
                 {
-                    var l = scriptObject.Value.Schema.children.Where(a => a.Value.Type == "localized").ToList();
+                    var l = scriptObject.Value.Schema.children.Where(a => a.Value.type == "localized").ToList();
 
                     foreach (var keyValuePair in l)
                     {
@@ -425,7 +425,7 @@ namespace CK3ScriptEditor
                         }
                     }
                 }
-            }
+            }*/
             textEditorControl1.Invalidate();
             textEditorControl1.ActiveTextAreaControl.Invalidate();
             textEditorControl1.ActiveTextAreaControl.TextArea.Invalidate();

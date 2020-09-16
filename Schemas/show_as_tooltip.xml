@@ -1,3 +1,0 @@
-<TriggerBlock name="effect_block">
-  <Child name="scopeeffects" type="scopeeffects"/>
-  </TriggerBlock>

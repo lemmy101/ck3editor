@@ -1,5 +1,0 @@
-<ScriptObject parent="">
-	<Child name="triggered_desc" type="triggered_desc" isBlock="yes"/>
-	<Child name="desc" type="localized"/>
-
-</ScriptObject>

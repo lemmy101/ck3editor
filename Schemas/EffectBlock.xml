@@ -1,7 +1,0 @@
-<Schema>
-	<Child name="if" type="if"/>
-	<Child name="else_if" type="if"/>
-	<Child name="else" type="inheritparent" blockType="inheritparent"/>
-	<Child name="scopeeffects" type="scopeeffects"/>
-	
-</Schema>

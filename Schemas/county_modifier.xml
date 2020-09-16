@@ -1,6 +1,0 @@
-<Schema blockType="inheritparent">
-	<Child name="tax_mult" type="num"/>
-	<Child name="levy_size" type="num"/>
-	<Child name="development_growth_factor" type="num"/>
-	<Child name="development_growth" type="num"/>
-</Schema>

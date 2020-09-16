@@ -17,6 +17,7 @@ namespace JominiParse
 
         public void Init()
         {
+            SchemaManager.Instance.Init();
             BaseCK3Library = new ScriptLibrary();
             ModCK3Library = new ScriptLibrary();
             LoadingCK3Library = BaseCK3Library;

@@ -1,5 +1,5 @@
-<Schema>
-  <Child name="add_dynasty_modifier" scope="dynasty" doc="Add a modifier to a dynasty" function="effect" type="function">
+<Schema name="effect" id="effect">
+  <Child name="add_dynasty_modifier" scope="dynasty" doc="Add a modifier to a dynasty" function="effect" type="block">
     <Child name="modifier" type="modifier" />
     <Child name="days" type="value" />
     <Child name="months" type="value" />
@@ -10,7 +10,7 @@
   <Child name="add_dynasty_prestige_level" scope="dynasty" doc="adds dynasty prestige levels" type="value" function="effect"/>
   <Child name="remove_all_dynasty_modifier_instances" scope="dynasty" doc="Remove all instances of a modifier from a dynasty" type="bool" function="effect"/>
   <Child name="remove_dynasty_modifier" scope="dynasty" doc="Remove a modifier from a dynasty" function="effect" type="modifier" />
-  <Child name="add_house_modifier" scope="dynasty_house" doc="Add a modifier to a house" function="effect" type="function">
+  <Child name="add_house_modifier" scope="dynasty_house" doc="Add a modifier to a house" function="effect" type="block">
     <Child name="modifier" type="modifier" />
     <Child name="days" type="value" />
     <Child name="months" type="value" />
@@ -18,7 +18,7 @@
   </Child>
   <Child name="remove_all_house_modifier_instances" scope="dynasty_house" doc="Remove all instances of a modifier from a house" function="effect" type="bool" />
   <Child name="remove_house_modifier" scope="dynasty_house" doc="Remove a modifier from a house" function="effect" type="modifier" />
-  <Child name="add_scheme_modifier" scope="scheme" doc="adds the specified scheme modifier, add_scheme_modifier = { type = X days = Y } (days are optional, the modifier will expire in Y days if specified)" function="effect" type="function" >
+  <Child name="add_scheme_modifier" scope="scheme" doc="adds the specified scheme modifier, add_scheme_modifier = { type = X days = Y } (days are optional, the modifier will expire in Y days if specified)" function="effect" type="block" >
     <Child name="modifier" type="modifier" />
     <Child name="days" type="value" />
     <Child name="months" type="value" />
@@ -30,14 +30,14 @@
   <Child name="expose_scheme_agent" scope="scheme" type="character" doc="Exposes the target character as an agent of the current scheme" function="effect" />
   <Child name="remove_scheme_modifier" scope="scheme" doc="removes the specified scheme modifier" function="effect" type="modifier" />
   <Child name="scheme_freeze_days" scope="scheme" doc="scheme_freeze_days = X freezes the scheme for X days (0 unfreezes the scheme)" function="effect" type="value" />
-  <Child name="add_county_modifier" scope="landed_title" doc="Add a modifier to a county" function="effect" type="function" >
+  <Child name="add_county_modifier" scope="landed_title" doc="Add a modifier to a county" function="effect" type="block" >
     <Child name="modifier" type="modifier" />
     <Child name="days" type="value" />
     <Child name="months" type="value" />
     <Child name="years" type="value" />
   </Child>
   <Child name="change_county_control" scope="landed_title" doc="Changes the county control of a title. If the title has higher tier than county, the effect will propagate down to all counties below it." function="effect" type="value" />
-  <Child name="change_de_jure_drift_progress" scope="landed_title" doc="Change the progress of de jure drift of a title&lt;drifting_title&gt; = { change_de_jure_drift_progress = {   target = &lt;drift_target_title&gt;    values = &lt;progress_change_value&gt; } }" function="effect" type="function">
+  <Child name="change_de_jure_drift_progress" scope="landed_title" doc="Change the progress of de jure drift of a title&lt;drifting_title&gt; = { change_de_jure_drift_progress = {   target = &lt;drift_target_title&gt;    values = &lt;progress_change_value&gt; } }" function="effect" type="block">
     <Child name="target" type="landed_title" />
     <Child name="value" type="value" />
   </Child>
@@ -67,7 +67,7 @@
   <Child name="set_no_automatic_claims" scope="landed_title" doc="Sets if the title should disallow automatic claims (meaning claims will only be added by script, and by pressed claims being inherited)." function="effect" type="bool" />
   <Child name="set_title_name" scope="landed_title" doc="sets the name (localization key) of the scoped title. The adjective will be constructed by adding '_adj' to the localisation key. Won't cause the prefix to change" function="effect" type="localized" />
   <Child name="set_title_prefix" scope="landed_title" doc="sets the prefix of the scoped title. Won't cause its name or adjective to change" function="effect" type="localized" />
-  <Child name="title_create_faction" scope="landed_title" doc="the scoped landed title creates a faction of the specified type against the specified target, title_create_faction = { type = X target = Y }" function="effect" type="function" >
+  <Child name="title_create_faction" scope="landed_title" doc="the scoped landed title creates a faction of the specified type against the specified target, title_create_faction = { type = X target = Y }" function="effect" type="block" >
     <Child name="target" type="character" />
     <Child name="type" type="faction_type" />
   </Child>
@@ -79,13 +79,13 @@
   <Child name="add_random_innovation" scope="culture" doc="Add random available innovation&lt;culture&gt; = { add_random_innovation = culture_group_military/culture_group_civic/culture_group_regional/yes }" function="effect" type="culture_group" />
   <Child name="get_all_innovations_from" scope="culture" type="culture" doc="Discover all innovations from the target culture" function="effect" />
   <Child name="get_random_innovation_from" scope="culture" doc="Get random available innovation from another culture" function="effect" type="culture" />
-  <Child name="add_character_flag" scope="character" doc="adds a character flag" function="effect" type="function">
+  <Child name="add_character_flag" scope="character" doc="adds a character flag" function="effect" type="block">
     <Child name="flag" type="character_flag" />
     <Child name="days" type="value" />
     <Child name="months" type="value" />
     <Child name="years" type="value" />
   </Child>
-  <Child name="add_character_modifier" scope="character" doc="Add a modifier to a character" function="effect" type="function" >
+  <Child name="add_character_modifier" scope="character" doc="Add a modifier to a character" function="effect" type="block" >
     <Child name="modifier" type="modifier" />
     <Child name="days" type="value" />
     <Child name="months" type="value" />
@@ -106,7 +106,7 @@
   <Child name="add_learning_lifestyle_xp" scope="character" doc="Adds lifestyle XP to the given character" function="effect" type="value" />
   <Child name="add_martial_lifestyle_perk_points" scope="character" doc="Adds lifestyle per points to the given character" function="effect" type="value" />
   <Child name="add_martial_lifestyle_xp" scope="character" doc="Adds lifestyle XP to the given character" function="effect" type="value" />
-  <Child name="add_opinion" scope="character" doc="Adds a temporary opinion modifier, add_opinion = { modifier = X days/months/years = Y target = Z }" function="effect" type="function">
+  <Child name="add_opinion" scope="character" doc="Adds a temporary opinion modifier, add_opinion = { modifier = X days/months/years = Y target = Z }" function="effect" type="block">
     <Child name="target" type="character"/>
     <Child name="modifier" type="opinion"/>
     <Child name="opinion" type="num"/>
@@ -124,19 +124,19 @@
   <Child name="add_prestige_level" scope="character" doc="increases (or decreases) the prestige level of a character" function="effect" type="value" />
   <Child name="add_realm_law" scope="character" doc="Adds the given law to the scoped character" function="effect" type="law" />
   <Child name="add_realm_law_skip_effects" scope="character" doc="Adds the given law to the scoped character. Skips the cost and the pass effect, and the revoke effects of the current law" function="effect" type="law" />
-  <Child name="add_relation_flag" scope="character" doc="Adds a flag to an existing relation" function="effect" type="function">
+  <Child name="add_relation_flag" scope="character" doc="Adds a flag to an existing relation" function="effect" type="block">
     <Child name="relation" type="relation_type"/>
     <Child name="target" type="character"/>
     <Child name="flag" type="flag"/>
   </Child>
-  <Child name="add_scheme_cooldown" scope="character" doc="Sets a scheme cooldown for the scope character towards = { target=target_character function=scheme_type days/weeks/months/years = duration }" function="effect" type="function" >
+  <Child name="add_scheme_cooldown" scope="character" doc="Sets a scheme cooldown for the scope character towards = { target=target_character function=scheme_type days/weeks/months/years = duration }" function="effect" type="block" >
     <Child name="target" type="character"/>
     <Child name="function" type="scheme_type"/>
     <Child name="days" type="value"/>
     <Child name="months" type="value"/>
     <Child name="years" type="value"/>
   </Child>
-  <Child name="add_secret" scope="character" doc="Adds a secret" function="effect" type="function">
+  <Child name="add_secret" scope="character" doc="Adds a secret" function="effect" type="block">
     <Child name="target" type="character"/>
     <Child name="type" type="secret_type"/>
 
@@ -148,13 +148,13 @@
   <Child name="add_to_scheme" scope="character" doc="Adds a character as an agent to the scheme" function="effect" type="value" />
   <Child name="add_trait" scope="character" doc="Adds a trait to a character (the trait will not be added and no tooltip will be shown if the character isn't eligible for the trait, i.e. when already having the trait, having an opposing trait, not fulfilling the trait's is_potential trigger or being outside of the trait's range)" function="effect" type="trait" />
   <Child name="add_trait_force_tooltip" scope="character" doc="Adds a trait to a character (if the add_trait effect would not add the trait - i.e. when already having the trait, having an opposing trait, not fulfilling the trait's is_potential trigger or being outside of the trait's range - a tooltip will be shown but the trait will not be added)" function="effect" type="trait" />
-  <Child name="add_truce_both_ways" scope="character" doc="Sets the both-way truce against the specified character" function="effect" type="function">
+  <Child name="add_truce_both_ways" scope="character" doc="Sets the both-way truce against the specified character" function="effect" type="block">
     <Child name="character" type="character"/>
     <Child name="days" type="value"/>
     <Child name="war" type="war"/>
     <Child name="result" type="war_outcome"/>
   </Child>
-  <Child name="add_truce_one_way" scope="character" doc="Sets the truce against the specified character" function="effect" type="function">
+  <Child name="add_truce_one_way" scope="character" doc="Sets the truce against the specified character" function="effect" type="block">
     <Child name="character" type="character"/>
     <Child name="days" type="value"/>
     <Child name="war" type="war"/>
@@ -167,16 +167,16 @@
   <Child name="allow_in_scheme" scope="character" doc="Allow the character to join the scheme as an agent" function="effect" type="scheme" />
   <Child name="apply_ai_vassal_obligation_liege_most_desired" scope="character" doc="Apply the new level for the most desired AI obligation level the liege in the contract wants" function="effect" type="bool" />
   <Child name="apply_ai_vassal_obligation_vassal_most_desired" scope="character" doc="Apply the new level for the most desired AI obligation level the vassal in the contract wants" function="effect" type="bool" />
-  <Child name="assign_council_task" scope="character" doc="Assigns the target character to the council task" function="effect" type="function" >
+  <Child name="assign_council_task" scope="character" doc="Assigns the target character to the council task" function="effect" type="block" >
     <Child name="target" type="character"/>
     <Child name="council_task" type="council_task"/>
   </Child>
-  <Child name="assign_councillor_type" scope="character" doc="Assigns the target character to the first available council position of the type available. { type = council_position_type_key target = character_taking_the_position fire_on_actions = [yes] }" function="effect" type="function" >
+  <Child name="assign_councillor_type" scope="character" doc="Assigns the target character to the first available council position of the type available. { type = council_position_type_key target = character_taking_the_position fire_on_actions = [yes] }" function="effect" type="block" >
     <Child name="target" type="character"/>
     <Child name="type" type="councillor_type"/>
   </Child>
   <Child name="banish" scope="character" doc="The character gets banished." function="effect" type="bool" />
-  <Child name="becomes_independent" scope="character" doc="becomes and independent ruler. becomes_independent = { change = 'previously created title_and_vassal_change'" function="effect" type="function">
+  <Child name="becomes_independent" scope="character" doc="becomes and independent ruler. becomes_independent = { change = 'previously created title_and_vassal_change'" function="effect" type="block">
     <Child name="change" type="title_and_vassal_change"/>
   </Child>
   <Child name="break_alliance" scope="character" type="character" doc="Breaks the alliance with the target character" function="effect" />
@@ -185,7 +185,7 @@
   <Child name="change_current_weight" scope="character" doc="Change the current weight of the scoped character" function="effect" type="value" />
   <Child name="change_first_name" scope="character" doc="Change the first name of a character" function="effect" type="string" />
   <Child name="change_government" scope="character" doc="changes the government of a character" function="effect" type="government" />
-  <Child name="change_liege" scope="character" doc="= { liege = 'Character that should become the new liege' change = 'previously created title_and_vassal_change', adds a liege change" function="effect" type="function">
+  <Child name="change_liege" scope="character" doc="= { liege = 'Character that should become the new liege' change = 'previously created title_and_vassal_change', adds a liege change" function="effect" type="block">
     <Child name="liege" type="character"/>
     <Child name="change" type="title_and_vassal_change"/>
   </Child>
@@ -198,18 +198,18 @@
   <Child name="consume_imprisonment_reasons" scope="character" type="character" doc="'Consume' all imprisonment reasons that the scoped character has on the target character. Until they get a new reason, they cannot imprison the target again." function="effect" />
   <Child name="consume_revoke_title_reason" scope="character" type="character" doc="'Consume' 1 revoke title reason that the scoped character has on the target character." function="effect" />
   <Child name="copy_inheritable_appearance_from" scope="character" type="character" doc="copies the inheritable appearance attributes (inheritable genes in the character's DNA string) from the target character to the scoped character" function="effect" />
-  <Child name="create_alliance" scope="character" doc="Create an alliance between the scoped character and the target. The allied through characters determine who gets checked against for if the alliance should persist or not." function="effect" type="function" >
+  <Child name="create_alliance" scope="character" doc="Create an alliance between the scoped character and the target. The allied through characters determine who gets checked against for if the alliance should persist or not." function="effect" type="block" >
     <Child name="target" type="character"/>
     <Child name="allied_through_owner" type="character"/>
     <Child name="allied_through_target" type="character"/>
   </Child>
   <Child name="create_cadet_branch" scope="character" doc="The scope character creates a cadet branch of the house he is in [yes|no]" function="effect" type="bool" />
-  <Child name="create_faction" scope="character" doc="the scoped character creates a faction of the specified type against the specified target, create_faction = { type = X target = Y }" function="effect" type="function" >
+  <Child name="create_faction" scope="character" doc="the scoped character creates a faction of the specified type against the specified target, create_faction = { type = X target = Y }" function="effect" type="block" >
     <Child name="target" type="character"/>
     <Child name="type" type="faction_type"/>
   </Child>
   <Child name="create_story" scope="character" doc="creates and initializes a story cycle with the current character as owner" function="effect" type="story_cycle" />
-  <Child name="death" scope="character" doc="kills a character, death = { killer = X death_reason = Y }, where X is a character and Y is one of the death reason keys. Or death = natural which will pick a natural death reason to kill the character from." function="effect" type="function" >
+  <Child name="death" scope="character" doc="kills a character, death = { killer = X death_reason = Y }, where X is a character and Y is one of the death reason keys. Or death = natural which will pick a natural death reason to kill the character from." function="effect" type="block" >
     <Child name="killer" type="character"/>
     <Child name="death_reason" type="death_reason"/>
   </Child>
@@ -221,13 +221,13 @@
   <Child name="finish_council_task" scope="character" doc="The councillor finish the current assigned task successfully." function="effect" type="bool" />
   <Child name="fire_councillor" scope="character" type="character" doc="The scope character fires the target character form teh council." function="effect" />
   <Child name="forbid_from_scheme" scope="character" doc="Forbid the scope character from joining the target scheme as an agent (and kick the character out if already in the scheme)" function="effect" type="scheme" />
-  <Child name="force_add_to_scheme" scope="character" doc="Adds a character as an agent to the scheme and forces them to stay" function="effect" type="function" >
+  <Child name="force_add_to_scheme" scope="character" doc="Adds a character as an agent to the scheme and forces them to stay" function="effect" type="block" >
     <Child name="scheme" type="scheme"/>
     <Child name="days" type="value"/>
     <Child name="months" type="value"/>
     <Child name="years" type="value"/>
   </Child>
-  <Child name="force_vote_as" scope="character" doc="Forces the character to vote the same as the target" function="effect" type="function"  >
+  <Child name="force_vote_as" scope="character" doc="Forces the character to vote the same as the target" function="effect" type="block"  >
     <Child name="target" type="character"/>
     <Child name="days" type="value"/>
     <Child name="months" type="value"/>
@@ -235,13 +235,13 @@
   </Child>
   <Child name="get_title" scope="character" type="landed_title" doc="gives a title to a character" function="effect" />
   <Child name="give_nickname" scope="character" doc="Give a nickname to this character" function="effect" type="nickname" />
-  <Child name="imprison" scope="character" doc="Imprisons the target character as this character's prisoner, imprison = { target = X reason = Y type = Z }, where X is a character, Y is a flag, Z is a static modifier" function="effect" type="function"  >
+  <Child name="imprison" scope="character" doc="Imprisons the target character as this character's prisoner, imprison = { target = X reason = Y type = Z }, where X is a character, Y is a flag, Z is a static modifier" function="effect" type="block"  >
     <Child name="target" type="character"/>
     <Child name="reason" type="flag"/>
     <Child name="type" type="prison_type"/>
   </Child>
   <Child name="join_faction" scope="character" doc="the character in the scope joins the assigned faction" function="effect" type="faction" />
-  <Child name="join_faction_forced" scope="character" doc="the character in the scope is forced to join a faction by a character for a defined time," function="effect" type="function"  >
+  <Child name="join_faction_forced" scope="character" doc="the character in the scope is forced to join a faction by a character for a defined time," function="effect" type="block"  >
     <Child name="faction" type="faction"/>
     <Child name="forced_by" type="character"/>
     <Child name="years" type="value"/>
@@ -251,7 +251,7 @@
   <Child name="make_claim_strong" scope="character" type="landed_title" doc="makes a claim strong (character adds the claim if not having it already)" function="effect"  />
   <Child name="make_claim_weak" scope="character" type="landed_title" doc="makes a claim weak (character adds the claim if not having it already)" function="effect" />
   <Child name="make_concubine" scope="character" type="character" doc="Makes the target character a concubine of the scope character, the target should not be imprisoned" function="effect" />
-  <Child name="make_pregnant" scope="character" doc="makes a character pregnant" function="effect" type="function" >
+  <Child name="make_pregnant" scope="character" doc="makes a character pregnant" function="effect" type="block" >
     <Child name="father" type="character"/>
   </Child>
   <Child name="make_trait_active" scope="character" doc="Activates an inactive trait. Tooltip will not be shown if the character cannot have the trait." function="effect" type="trait" />
@@ -263,22 +263,22 @@
   <Child name="marry_matrilineal" scope="character" type="character" doc="Marries the scoped character to the target character matrilineally" function="effect" />
   <Child name="move_to_pool" scope="character" doc="The scoped character (courtier or guest) leaves their current court and moves into the pool" function="effect" type="bool" />
   <Child name="move_to_pool_at" scope="character" type="province" doc="The scoped character (courtier/guest/pool character) leaves their current court (if any) and moves into the pool of the specified province" function="effect" />
-  <Child name="pay_long_term_gold" scope="character" doc="the scope character pays gold to the target character, pay_gold = { target = X gold = Y } (AI budget category long term)" function="effect" type="function" >
+  <Child name="pay_long_term_gold" scope="character" doc="the scope character pays gold to the target character, pay_gold = { target = X gold = Y } (AI budget category long term)" function="effect" type="block" >
     <Child name="target" type="character"/>
     <Child name="gold" type="value"/>
   </Child>
-  <Child name="pay_long_term_income" scope="character" doc="the scope character immediately pays gold corresponding to their income to the target character, pay_income = { target = X days/months/years = Y } (AI budget long term)" function="effect" type="function">
+  <Child name="pay_long_term_income" scope="character" doc="the scope character immediately pays gold corresponding to their income to the target character, pay_income = { target = X days/months/years = Y } (AI budget long term)" function="effect" type="block">
     <Child name="target" type="character"/>
     <Child name="days" type="value"/>
     <Child name="months" type="value"/>
     <Child name="years" type="value"/>
   </Child>
 
-  <Child name="pay_short_term_gold" scope="character" doc="the scope character pays gold to the target character, pay_gold = { target = X gold = Y } (AI budget category short term)" function="effect" type="function">
+  <Child name="pay_short_term_gold" scope="character" doc="the scope character pays gold to the target character, pay_gold = { target = X gold = Y } (AI budget category short term)" function="effect" type="block">
     <Child name="target" type="character"/>
     <Child name="gold" type="value"/>
   </Child>
-  <Child name="pay_short_term_income" scope="character" doc="the scope character immediately pays gold corresponding to their income to the target character, pay_income = { target = X days/months/years = Y } (AI budget short term)" function="effect" type="function">
+  <Child name="pay_short_term_income" scope="character" doc="the scope character immediately pays gold corresponding to their income to the target character, pay_income = { target = X days/months/years = Y } (AI budget short term)" function="effect" type="block">
     <Child name="target" type="character"/>
     <Child name="days" type="value"/>
     <Child name="months" type="value"/>
@@ -298,7 +298,7 @@
   <Child name="remove_concubine" scope="character" type="character" doc="Removes the target character as a concubine of the scope character" function="effect" />
   <Child name="remove_courtier_or_guest" scope="character" type="character" doc="Removes the target character (guest or courtier) from the scope character's court" function="effect" />
   <Child name="remove_decision_cooldown" scope="character" doc="Remove the cooldown on taking a decision for the scoped character" function="effect" type="decision" />
-  <Child name="remove_hook" scope="character" doc="Removes a hook on a character, remove_hook = { target = X, type = Y }, if type is specified, the hook will only be removed if it is of that type" function="effect" type="function">
+  <Child name="remove_hook" scope="character" doc="Removes a hook on a character, remove_hook = { target = X, type = Y }, if type is specified, the hook will only be removed if it is of that type" function="effect" type="block">
     <Child name="target" type="character"/>
     <Child name="type" type="hook"/>
   </Child>
@@ -306,7 +306,7 @@
   <!--<Child name="remove_interaction_cooldown_against" scope="character" doc="Remove the cooldown on using an interaction against the target character for the scoped character" function="effect" type="" />-->
   <Child name="remove_long_term_gold" scope="character" doc="removes gold from a character (AI's long term budget)" function="effect" type="value" />
   <Child name="remove_nickname" scope="character" doc="Removes any nickname from the current character [yes|no]" function="effect" type="nickname" />
-  <Child name="remove_opinion" scope="character" doc="Removes a temporary opinion modifier, remove_opinion = { target = X modifier = Y single = Z (no by default) } where X is a character, Y is the opinion modifier, Z tells whether to remove all instances of the modifier or just one" function="effect" type="function"  >
+  <Child name="remove_opinion" scope="character" doc="Removes a temporary opinion modifier, remove_opinion = { target = X modifier = Y single = Z (no by default) } where X is a character, Y is the opinion modifier, Z tells whether to remove all instances of the modifier or just one" function="effect" type="block"  >
     <Child name="target" type="character"/>
     <Child name="modifier" type="modifier"/>
   </Child>
@@ -316,7 +316,7 @@
   <Child name="remove_relation_bully" scope="character" type="character" doc="Removes scripted relationship" function="effect" />
   <Child name="remove_relation_court_physician" scope="character" type="character" doc="Removes scripted relationship" function="effect" />
   <Child name="remove_relation_crush" scope="character" type="character" doc="Removes scripted relationship" function="effect" />
-  <Child name="remove_relation_flag" scope="character" doc="Removed a flag from an existing relation flag = flag_name (declared in scripted_relation) target = other_character relation = scripted_relation" function="effect" type="function">
+  <Child name="remove_relation_flag" scope="character" doc="Removed a flag from an existing relation flag = flag_name (declared in scripted_relation) target = other_character relation = scripted_relation" function="effect" type="block">
     <Child name="target" type="character"/>
     <Child name="relation" type="relation_type"/>
     <Child name="flag" type="flag"/>
@@ -344,7 +344,7 @@
   <Child name="remove_trait_force_tooltip" scope="character" doc="Removes a trait from a character. Tooltip will be shown even if the character doesn't have the trait." function="effect" type="trait" />
   <Child name="reset_beneficiary" scope="character" doc="The target character stops having a beneficiary. reset_beneficiary = yes" function="effect" type="bool" />
   <Child name="return_to_court" scope="character" doc="Returns the scope character to the employers court." function="effect" type="bool" />
-  <Child name="reverse_add_opinion" scope="character" doc="Adds a temporary reverse opinion modifier, reverse_add_opinion = { modifier = X days/months/years = Y target = Z }" function="effect" type="function" >
+  <Child name="reverse_add_opinion" scope="character" doc="Adds a temporary reverse opinion modifier, reverse_add_opinion = { modifier = X days/months/years = Y target = Z }" function="effect" type="block" >
     <Child name="target" type="character"/>
     <Child name="modifier" type="opinion"/>
     <Child name="opinion" type="num"/>
@@ -354,13 +354,13 @@
   </Child>
 <!--  <Child name="scriptedtests_recalculate_character_modifier" scope="character" doc="Recalculates the modifier of the scoped character" function="effect" type="" />
   <Child name="scriptedtests_recalculate_succession" scope="character" doc="Recalculates the line of succession of the scoped character" function="effect" type="" />-->
-  <Child name="send_interface_message" scope="character" doc="Sends a message to the player playing the character in the scope and then executes any effects inside." function="effect" type="effect" >
+  <Child name="send_interface_message" scope="character" doc="Sends a message to the player playing the character in the scope and then executes any effects inside." function="effect" type="block" inherits="effect" >
     <Child name="type" type="event_type"/>
     <Child name="title" type="localized"/>
     <Child name="right_icon" type="character"/>
     <Child name="left_icon" type="character"/>
   </Child>
-  <Child name="send_interface_toast" scope="character" doc="Sends a message to the player playing the character in the scope and then executes any effects inside." function="effect" type="effect" >
+  <Child name="send_interface_toast" scope="character" doc="Sends a message to the player playing the character in the scope and then executes any effects inside." function="effect" type="block" inherits="effect" >
     <Child name="type" type="event_type"/>
     <Child name="title" type="localized"/>
     <Child name="right_icon" type="character"/>
@@ -372,13 +372,13 @@
   <Child name="set_character_faith_history" scope="character" type="faith" doc="Changes what faith a character has NOT executing the effects for it. USE ONLY IN HISOTRY SETUP!" function="effect"/>
   <Child name="set_character_faith_with_conversion" scope="character" type="faith" doc="Changes what faith a character has, as if they used the faith-view interaction (minus the piety cost). So vassals who'd accept will get converted, as will capitals" function="effect" />
   <Child name="set_child_of_concubine_on_pregnancy" scope="character" doc="Sets the child to be (or not be) a child of a concubine during pregnancy" function="effect" type="bool" />
-  <Child name="set_council_task" scope="character" doc="Sets the task of the scope councillor { task_type = council_position_type_key target = for_targeted_tasks  }" function="effect" type="function">
+  <Child name="set_council_task" scope="character" doc="Sets the task of the scope councillor { task_type = council_position_type_key target = for_targeted_tasks  }" function="effect" type="block">
     <Child name="task_type" type="council_task"/>
     <Child name="target" type="character"/>
   </Child>
   <Child name="set_culture" scope="character" type="culture" doc="Set the culture for this character" function="effect" />
   <Child name="set_culture_same_as" scope="character" type="character" doc="sets the culture of the character to be the same as the culture of the target" function="effect" />
-  <Child name="set_death_reason" scope="character" doc="sets the death reason and the killer of a dead character, set_death_reason = { killer = X death_reason = Y }, both parameters are optional" function="effect" type="function">
+  <Child name="set_death_reason" scope="character" doc="sets the death reason and the killer of a dead character, set_death_reason = { killer = X death_reason = Y }, both parameters are optional" function="effect" type="block">
     <Child name="killer" type="character"/>
     <Child name="death_reason" type="death_reason"/>
   </Child>  
@@ -423,10 +423,10 @@
   <Child name="set_sexuality" scope="character" doc="Sets the sexuality of the character" function="effect" type="sexuality" />
   <Child name="set_to_lowborn" scope="character" doc="Set the character to lowborn" function="effect" type="bool" />
   <Child name="set_vassal_contract_modification_blocked" scope="character" doc="Blocks the vassal contract from being modified with regards to being checked by 'vassal_contract_is_blocked_from_modification'" function="effect" type="bool" />
-  <Child name="spawn_army" scope="character" doc="Spawns an army for this character. If the character is not at war, the regiments will be created, but the army will not be spawned." function="effect" type="function">
+  <Child name="spawn_army" scope="character" doc="Spawns an army for this character. If the character is not at war, the regiments will be created, but the army will not be spawned." function="effect" type="block">
     <Child name="name" type="localized"/>
     <Child name="levies" type="value"/>
-    <Child name="men_at_arms" type="function">
+    <Child name="men_at_arms" type="block">
       <Child name="type" type="regiment_type"/>
       <Child name="stacks" type="value"/>
     </Child>
@@ -436,23 +436,23 @@
     <Child name="inheritable" type="bool"/>
   </Child>
   <Child name="start_default_task" scope="character" doc="Force the Councillor to revert to the default task. Any relevant percentage progress will be lost (even if the councillor was performing the default task already)." function="effect" type="bool" />
-  <Child name="start_scheme" scope="character" doc="starts a scheme  = { type = X target = Y }" function="effect" type="function">
+  <Child name="start_scheme" scope="character" doc="starts a scheme  = { type = X target = Y }" function="effect" type="block">
     <Child name="type" type="scheme_type"/>
     <Child name="target" type="character"/>
   </Child>
-  <Child name="start_war" scope="character" doc="starts a war  = { casus_belli/cb = X target = Y claimant = Z target_title = W1 target_title = W2 ... } where X is a casus belli type, Y is the target character, Z i the (optional) claimant, W1, W2.... are targeted titles." function="effect" type="function">
+  <Child name="start_war" scope="character" doc="starts a war  = { casus_belli/cb = X target = Y claimant = Z target_title = W1 target_title = W2 ... } where X is a casus belli type, Y is the target character, Z i the (optional) claimant, W1, W2.... are targeted titles." function="effect" type="block">
     <Child name="casus_belli" type="casus_belli"/>
     <Child name="cb" type="casus_belli"/>
     <Child name="claimant" type="character"/>
     <Child name="target_title" type="landed_title"/>
   </Child>
-  <Child name="stress_impact" scope="character" doc="Stress impact according to specified traits (trait = value), use base = value for a base value that's always added" function="effect" type="function">
+  <Child name="stress_impact" scope="character" doc="Stress impact according to specified traits (trait = value), use base = value for a base value that's always added" function="effect" type="block">
     <Child name="trait" type="value" namesFrom="trait"/>
   </Child>
   <Child name="use_hook" scope="character" type="character" doc="Uses a hook a character has (removes if weak, puts on cooldown if strong), use_hook = some_character" function="effect"  />
   <Child name="vassal_contract_decrease_obligation_level" scope="character" doc="decrease the obligation level of the scoped character's vassal contract" function="effect" type="vassal_contract" />
   <Child name="vassal_contract_increase_obligation_level" scope="character" doc="increase the obligation level of the scoped character's vassal contract" function="effect" type="vassal_contract" />
-  <Child name="vassal_contract_set_obligation_level" scope="character" doc="change the obligation level of the scoped character's vassal contract" function="effect" type="function">
+  <Child name="vassal_contract_set_obligation_level" scope="character" doc="change the obligation level of the scoped character's vassal contract" function="effect" type="block">
     <Child name="type" type="vassal_contract"/>
     <Child name="level" type="value"/>
   </Child>
@@ -460,7 +460,7 @@
   <Child name="add_faction_discontent" scope="faction" doc="add_faction_discontent = X adds (or subtracts) discontent to the scope faction" function="effect" type="value" />
   <Child name="destroy_faction" scope="faction" doc="the scope faction is destoryed [yes|no]" function="effect" type="bool" />
   <Child name="faction_remove_war" scope="faction" doc="Removes the war currently associated with the faction" function="effect" type="bool" />
-  <Child name="faction_start_war" scope="faction" doc="The scope faction starts the war agains their target." function="effect" type="effect" />
+  <Child name="faction_start_war" scope="faction" doc="The scope faction starts the war agains their target." function="effect" type="block" inherits="effect" />
 <!--  <Child name="remove_special_character" scope="faction" doc="Removes the special character for the scope faction" function="effect" type="" />
   <Child name="remove_special_title" scope="faction" doc="Removes the special character for the scope faction" function="effect" type="" />-->
   <Child name="set_special_character" scope="faction" type="character" doc="Sets the special character for the scope faction" function="effect" />
@@ -477,7 +477,7 @@
   <Child name="remove_doctrine" scope="faith" doc="Remove doctrine from faith&lt;faith_scope&gt; = { remove_doctrine = &lt;doctrine_name&gt; }" function="effect" type="doctrine" />
   <Child name="remove_religious_head_title" scope="faith" doc="Removes the religious head title of the faith" function="effect" type="bool" />
   <Child name="set_religious_head_title" scope="faith" type="landed_title" doc="Sets the religious head title of the faith to the given title. set_religious_head_title = scope" function="effect" />
-  <Child name="start_great_holy_war" scope="faith" doc="Starts a great holy war." function="effect" type="function">
+  <Child name="start_great_holy_war" scope="faith" doc="Starts a great holy war." function="effect" type="block">
     <Child name="target_character" type="character"/>
     <Child name="target_title" type="landed_title"/>
     <Child name="war" type="war"/>
@@ -496,7 +496,7 @@
   <Child name="set_coa" scope="landed_title,dynasty,dynasty_house" doc="Sets the coat of arms of a landed title, dynasty, or house to the right hand side coat of arms or that of an object of the same type" function="effect" type="coa" />
   <Child name="add_building" scope="province" doc="Add building to the province&lt;province&gt; = { add_building = &lt;building_name&gt; }" function="effect" type="building" />
   <Child name="add_building_slot" scope="province" doc="Add building slot to the province" function="effect" type="value" />
-  <Child name="add_province_modifier" scope="province" doc="Add a modifier to a province" function="effect" type="function" >
+  <Child name="add_province_modifier" scope="province" doc="Add a modifier to a province" function="effect" type="block" >
     <Child name="modifier" type="modifier" />
     <Child name="days" type="value" />
     <Child name="months" type="value" />
@@ -509,7 +509,7 @@
   <Child name="remove_all_province_modifier_instances" scope="province" doc="Remove all instances of a modifier from a province" function="effect" type="bool" />
   <Child name="remove_province_modifier" scope="province" doc="Remove a modifier from a province" function="effect" type="modifier" />
   <Child name="set_holding_type" scope="province" doc="Changes the scoped province's holding to another type, removing all buildings that are invalid for the new holding." function="effect" type="holding_type" />
-  <Child name="spawn_activity" scope="province" doc="spawns an activity, spawn_activity = { owner = X type = Y days/months/years = Z }, Z is expiration time can be a value or an inclusive &quot;{A B}&quot; interval from which the value will be picked" function="effect" type="function">
+  <Child name="spawn_activity" scope="province" doc="spawns an activity, spawn_activity = { owner = X type = Y days/months/years = Z }, Z is expiration time can be a value or an inclusive &quot;{A B}&quot; interval from which the value will be picked" function="effect" type="block">
     <Child name="owner" type="character" />
     <Child name="type" type="activity" />
     <Child name="days" type="value" />
@@ -519,20 +519,20 @@
   <Child name="accept_invitation_for_character" scope="activity" type="character" doc="accept a characters invitation to the activity" function="effect"  />
   <Child name="decline_invitation_for_character" scope="activity" type="character" doc="decline a characters invitation to the activity" function="effect" />
   <Child name="invite_character_to_activity" scope="activity" type="character" doc="invite a character to the activity" function="effect"/>
-  <Child name="add_from_contribution_attackers" scope="casus_belli" doc="Adds prestige, gold and piety based on contribution to allied attackers. parameters: prestige, gold, piety." function="effect" type="function">
+  <Child name="add_from_contribution_attackers" scope="casus_belli" doc="Adds prestige, gold and piety based on contribution to allied attackers. parameters: prestige, gold, piety." function="effect" type="block">
     <Child name="prestige" type="value" />
     <Child name="gold" type="value" />
     <Child name="piety" type="value" />
-    <Child name="opinion" type="function">
+    <Child name="opinion" type="block">
       <Child name="modifier" type="opinion" />
     </Child>
   </Child>
 
-  <Child name="add_from_contribution_defenders" scope="casus_belli" doc="Adds prestige, gold and piety based on contribution to allied defenders. parameters: prestige, gold, piety." function="effect" type="function">
+  <Child name="add_from_contribution_defenders" scope="casus_belli" doc="Adds prestige, gold and piety based on contribution to allied defenders. parameters: prestige, gold, piety." function="effect" type="block">
     <Child name="prestige" type="value" />
     <Child name="gold" type="value" />
     <Child name="piety" type="value" />
-    <Child name="opinion" type="function">
+    <Child name="opinion" type="block">
       <Child name="modifier" type="opinion" />
     </Child>
   </Child>
@@ -548,20 +548,20 @@
   <Child name="add_stewardship_skill" scope="none" doc="Adds stewardship skill" function="effect" type="value" />
   <Child name="add_title_law" scope="landed_title" doc="add law to scoped title, overriding any current law from the same group. DOES NOT apply law change costs and effects." function="effect" type="law" />
   <Child name="add_title_law_effects" scope="landed_title" doc="add law to scoped title, overriding any current law from the same group. DOES apply law change costs and effects." function="effect" type="law" />
-  <Child name="add_to_global_variable_list" scope="none" doc="Adds the event target to a variable list" function="effect" type="function" >
+  <Child name="add_to_global_variable_list" scope="none" doc="Adds the event target to a variable list" function="effect" type="block" >
     <Child name="name" type="name" />
     <Child name="target" type="any" />
   </Child>
   <Child name="add_to_list" scope="none" doc="Adds the current scope to an arbitrarily-named list (or creates the list if not already present) to be referenced later in the (unbroken) event chain" function="effect" type="list"/>
-  <Child name="add_to_local_variable_list" scope="none" doc="Adds the event target to a variable list" function="effect"  type="function" >
+  <Child name="add_to_local_variable_list" scope="none" doc="Adds the event target to a variable list" function="effect"  type="block" >
     <Child name="name" type="name" />
     <Child name="target" type="any" />
   </Child>
-  <Child name="add_to_temporary_list" scope="none" doc="Adds the current scope to an arbitrarily-named list (or creates the list if not already present) to be referenced later in the same effect" function="effect"  type="function" >
+  <Child name="add_to_temporary_list" scope="none" doc="Adds the current scope to an arbitrarily-named list (or creates the list if not already present) to be referenced later in the same effect" function="effect"  type="block" >
     <Child name="name" type="name" />
     <Child name="target" type="any" />
   </Child>
-  <Child name="add_to_variable_list" scope="none" doc="Adds the event target to a variable list" function="effect"  type="function" >
+  <Child name="add_to_variable_list" scope="none" doc="Adds the event target to a variable list" function="effect"  type="block" >
     <Child name="name" type="name" />
     <Child name="target" type="any" />
   </Child>
@@ -570,30 +570,30 @@
   <Child name="assert_read" scope="none" doc="Conditionally cause an assert during read time" function="effect" type="" />-->
   <Child name="break_betrothal" scope="none" type="character" doc="Breaks the betrothal between the scope character to the target character, break_betrothal = target" function="effect" />
   <!--<Child name="break_if" scope="none" doc="conditionally break execution of effects, break_if = { X }, where X is a trigger" function="effect" type="" />-->
-  <Child name="change_global_variable" scope="none" doc="Changes the value or a numeric variable" function="effect" type="function">
+  <Child name="change_global_variable" scope="none" doc="Changes the value or a numeric variable" function="effect" type="block">
     <Child name="name" type="name" />
     <Child name="add" type="value" />
     <Child name="subtract" type="value" />
   </Child>
-  <Child name="change_local_variable" scope="none" doc="Changes the value or a numeric variable" function="effect" type="function">
+  <Child name="change_local_variable" scope="none" doc="Changes the value or a numeric variable" function="effect" type="block">
     <Child name="name" type="name" />
     <Child name="add" type="value" />
     <Child name="subtract" type="value" />
   </Child>
-  <Child name="change_title_holder" scope="landed_title" doc="= {" function="effect" type="function">
+  <Child name="change_title_holder" scope="landed_title" doc="= {" function="effect" type="block">
     <Child name="holder" type="character" />
     <Child name="change" type="title_and_vassal_change" />
   </Child>
-  <Child name="change_title_holder_include_vassals" scope="landed_title" doc="= {" function="effect" type="function">
+  <Child name="change_title_holder_include_vassals" scope="landed_title" doc="= {" function="effect" type="block">
     <Child name="holder" type="character" />
     <Child name="change" type="title_and_vassal_change" />
   </Child>
-  <Child name="change_trait_rank" scope="character" doc="Changes the trait rank = { trait = trait_group rank = change max = maximum new rank }" function="effect" type="function">
+  <Child name="change_trait_rank" scope="character" doc="Changes the trait rank = { trait = trait_group rank = change max = maximum new rank }" function="effect" type="block">
     <Child name="trait" type="trait" />
     <Child name="rank" type="value" />
     <Child name="max" type="value" />
   </Child>
-  <Child name="change_variable" scope="none" doc="Changes the value or a numeric variable" function="effect" type="function">
+  <Child name="change_variable" scope="none" doc="Changes the value or a numeric variable" function="effect" type="block">
     <Child name="name" type="name" />
     <Child name="add" type="value" />
     <Child name="subtract" type="value" />
@@ -610,7 +610,7 @@
   <Child name="complete_activity" scope="activity" doc="completes the activity, complete_activity = yes ends the activity and runs the on_complete effect, complete_activity = no ends the activity without running the effect" function="effect" type="bool" />
   <Child name="create_betrothal" scope="character" type="character" doc="Betroth the scope character to the target character, create_betrothal = target (at least one of the characters need to not be adult)" function="effect" />
   <Child name="create_betrothal_matrilineal" scope="character" type="character" doc="Betroth the scope character to the target character matrilineally, create_betrothal_matrilineal = target (at least one of the characters need to not be adult)" function="effect" />
-  <Child name="create_character" scope="none" doc="Creates a character" function="effect" type="function">
+  <Child name="create_character" scope="none" doc="Creates a character" function="effect" type="block">
     <Child name="template" type="character_template" />
     <Child name="name" type="localized" />
     <Child name="culture" type="culture" />
@@ -622,21 +622,21 @@
     <Child name="dynasty_house" type="dynasty_house" />
     <Child name="save_scope_as" type="scope" />
   </Child>
-  <Child name="create_dynamic_title" scope="none" doc="Creates a dynamic title" function="effect" type="function">
+  <Child name="create_dynamic_title" scope="none" doc="Creates a dynamic title" function="effect" type="block">
     <Child name="tier" type="tier" />
     <Child name="name" type="localized" />
 
   </Child>
-  <Child name="create_holy_order" scope="none" doc="Create a new holy order" function="effect" type="function">
+  <Child name="create_holy_order" scope="none" doc="Create a new holy order" function="effect" type="block">
     <Child name="leader" type="character" />
     <Child name="capital" type="province" />
     <Child name="save_scope_as" type="scope" />
   </Child>
   <Child name="create_title_and_vassal_change" scope="none" doc="starts a title and vassal change and saves it as a temporary event target" function="effect" type="title_and_vassal_change" />
-  <Child name="custom_description" scope="none" doc="Wraps effects that get a custom description instead of the auto-generated one" function="effect" type="effect">
+  <Child name="custom_description" scope="none" doc="Wraps effects that get a custom description instead of the auto-generated one" function="effect" type="block" inherits="effect">
     <Child name="text" type="localized" />
   </Child>
-  <Child name="custom_description_no_bullet" scope="none" doc="Wraps effects that get a custom description instead of the auto-generated one. Also ensures no bullet point appears" function="effect" type="effect">
+  <Child name="custom_description_no_bullet" scope="none" doc="Wraps effects that get a custom description instead of the auto-generated one. Also ensures no bullet point appears" function="effect" type="block" inherits="effect">
     <Child name="text" type="localized" />
   </Child>
   <Child name="custom_label" scope="none" doc="just a tooltip, the scope as object (for grouping, localization)" function="effect" type="localized" />
@@ -645,16 +645,16 @@
   <Child name="debug_log_date" scope="none" doc="Logs the current date to the debug.log" function="effect" type="" />
   <Child name="debug_log_scopes" scope="none" doc="Log the current scope to the debug log when this effect executes yes = full scope info, no=only current scope" function="effect" type="" />-->
   <Child name="divorce" scope="character" type="character" doc="Divorces the scope character from the target character. divorce = target" function="effect" />
-  <Child name="duel" scope="character" doc="duel effect that selects an effect based on comparing specified skill of a character to a value or another character's skill. Alternatively, the compare value can be scripted completely" function="effect" type="effect">
+  <Child name="duel" scope="character" doc="duel effect that selects an effect based on comparing specified skill of a character to a value or another character's skill. Alternatively, the compare value can be scripted completely" function="effect" type="block" inherits="effect">
     <Child name="skill" type="skill" />
   </Child>
-  <Child name="else" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met" function="effect" type="effect">
+  <Child name="else" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met" function="effect" type="block" inherits="effect">
   </Child>
-  <Child name="else_if" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met, and its own limit is met" function="effect" type="effect">
+  <Child name="else_if" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met, and its own limit is met" function="effect" type="block" inherits="effect">
     <Child name="limit" type="trigger" />
   </Child>
-  <Child name="hidden_effect" scope="none" doc="Effect not shown in tooltips" function="effect" type="effect" />
-  <Child name="if" scope="none" doc="Executes enclosed effects if limit criteria are met" function="effect" type="effect">
+  <Child name="hidden_effect" scope="none" doc="Effect not shown in tooltips" function="effect" type="block" inherits="effect" />
+  <Child name="if" scope="none" doc="Executes enclosed effects if limit criteria are met" function="effect" type="block" inherits="effect">
     <Child name="limit" type="trigger" />
   </Child>
   <Child name="multiply_focus_progress" scope="none" doc="Multiplies focus progress" function="effect" type="value" />
@@ -663,7 +663,7 @@
   <Child name="open_view_data" scope="none" doc="Tries to open the defined view with scope data." function="effect" type="" />-->
   <Child name="pan_camera_to_province" scope="none" type="province" doc="Pans the camera to the specified province" function="effect"  />
   <Child name="pan_camera_to_title" scope="none" type="landed_title" doc="Pans the camera to the specified title" function="effect"  />
-  <Child name="random" scope="none" doc="a random effect, random = { chance = X modifier = Y effects... }" function="effect" type="effect">
+  <Child name="random" scope="none" doc="a random effect, random = { chance = X modifier = Y effects... }" function="effect" type="block" inherits="effect">
     <Child name="chance" type="value" />
     <Child name="modifier" type="modifier" />
   </Child>
@@ -681,12 +681,12 @@
   <Child name="round_local_variable" scope="none" doc="Rounds a variable to the nearest specified value" function="effect" type="" />
   <Child name="round_variable" scope="none" doc="Rounds a variable to the nearest specified value" function="effect" type="" />-->
   <Child name="save_scope_as" scope="none" doc="Saves the current scope as an arbitrarily-named target to be referenced later in the (unbroken) event chain" function="effect" type="scope" />
-  <Child name="save_scope_value_as" scope="none" doc="Saves a numerical or bool value as an arbitrarily-named target to be referenced later in the (unbroken) event chain" function="effect" type="function">
+  <Child name="save_scope_value_as" scope="none" doc="Saves a numerical or bool value as an arbitrarily-named target to be referenced later in the (unbroken) event chain" function="effect" type="block">
     <Child name="name" type="scope" />
     <Child name="value" type="any" />
   </Child>
   <Child name="save_temporary_scope_as" scope="none" doc="Saves the current scope as an arbitrarily-named temporary target to be referenced later in the same effect" function="effect" type="scope" />
-  <Child name="save_temporary_scope_value_as" scope="none" doc="Saves a numerical or bool value as an arbitrarily-named temporary target to be referenced later in the same effect" function="effect" type="function">
+  <Child name="save_temporary_scope_value_as" scope="none" doc="Saves a numerical or bool value as an arbitrarily-named temporary target to be referenced later in the same effect" function="effect" type="block">
     <Child name="name" type="scope" />
     <Child name="value" type="any" />
   </Child>
@@ -694,29 +694,29 @@
   <Child name="set_generated_asexuality_chance" scope="none" doc="Sets the chance for a generated character to be asexual" function="effect" type="value" />
   <Child name="set_generated_bisexuality_chance" scope="none" doc="Sets the chance for a generated character to be bisexual" function="effect" type="value" />
   <Child name="set_generated_homosexuality_chance" scope="none" doc="Sets the chance for a generated character to be homosexual" function="effect" type="value" />
-  <Child name="set_global_variable" scope="none" doc="Sets a variable" function="effect" type="function">
+  <Child name="set_global_variable" scope="none" doc="Sets a variable" function="effect" type="block">
     <Child name="name" type="scope" />
     <Child name="value" type="any" />
   </Child>
-  <Child name="set_local_variable" scope="none" doc="Sets a variable" function="effect" type="function">
+  <Child name="set_local_variable" scope="none" doc="Sets a variable" function="effect" type="block">
     <Child name="name" type="scope" />
     <Child name="value" type="any" />
   </Child>
-  <Child name="set_trait_rank" scope="none" doc="Sets the trait rank = { trait = trait_group rank = new rank }" function="effect" type="function">
+  <Child name="set_trait_rank" scope="none" doc="Sets the trait rank = { trait = trait_group rank = new rank }" function="effect" type="block">
     <Child name="trait" type="trait" />
     <Child name="rank" type="value" />
   </Child>
-  <Child name="set_variable" scope="none" doc="Sets a variable" function="effect" type="function">
+  <Child name="set_variable" scope="none" doc="Sets a variable" function="effect" type="block">
     <Child name="name" type="scope" />
     <Child name="value" type="any" />
   </Child>
   <!--  <Child name="setup_claim_cb" scope="none" doc="= { attacker = scope:attacker" function="effect" type="" />
   <Child name="setup_de_jure_cb" scope="none" doc="= { attacker = scope:attacker" function="effect" type="" />
   <Child name="setup_invasion_cb" scope="none" doc="= { attacker = scope:attacker" function="effect" type="" />-->
-  <Child name="show_as_tooltip" scope="none" doc="Effect only shown in tooltips (but not executed)" function="effect" type="effect" />
+  <Child name="show_as_tooltip" scope="none" doc="Effect only shown in tooltips (but not executed)" function="effect" type="block" inherits="effect" />
  <!-- <Child name="start_tutorial_lesson" scope="none" doc="Starts the tutorial lesson with the given key. Does nothing if the tutorial is not running, the lesson is completed (or already running), or the lesson cannot be triggered (e.g. trigger fails)" function="effect" type="" />
   <Child name="switch" scope="none" doc="Switch on a trigger for the evaluation of another trigger with an optional fallback trigger." function="effect" type="" />-->
-  <Child name="trigger_event" scope="none" doc="triggers an event or on_action" function="effect" type="function">
+  <Child name="trigger_event" scope="none" doc="triggers an event or on_action" function="effect" type="event">
     <Child name="id" type="event" />
     <Child name="on_action" type="on_action" />
     <Child name="days" type="value" />
