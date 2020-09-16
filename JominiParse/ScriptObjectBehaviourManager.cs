@@ -174,167 +174,167 @@ namespace JominiParse
 
             obj.BehaviourData = data;
 
-            DetermineBehaviourType(obj, data);
+         //   DetermineBehaviourType(obj, data);
 
-            DetermineEffectiveSchema(obj, data);
+         //   DetermineEffectiveSchema(obj, data);
 
-            if (obj.Parent != null)
-                DetermineBehaviourScope(obj, data);
+          //  if (obj.Parent != null)
+           //     DetermineBehaviourScope(obj, data);
 
             if (!data.IsBlock)
             {
-                DetermineOperationType(obj, data);
+        //        DetermineOperationType(obj, data);
             }
         }
+        /*
+       private void DetermineEffectiveSchema(ScriptObject obj, ScriptObjectBehaviourData data)
+       {
+           EffectiveSchema.children.Clear();
+           if (obj.Schema != null)
+           {
 
-        private void DetermineEffectiveSchema(ScriptObject obj, ScriptObjectBehaviourData data)
-        {
-            EffectiveSchema.children.Clear();
-            if (obj.Schema != null)
-            {
+               foreach (var sc in obj.Schema.children)
+               {
+                   EffectiveSchema.children[sc.Key] = sc.Value;
+               }
+               var par = obj;
+               if (par != null && data.IsInheritContents)
+               {
+                   par = par.Parent;
+                   // hunt for first non scope/operand parent
+                   while (par != null && par.Parent != null)
+                   {
+                       if (par.Schema != null && !par.BehaviourData.IsInheritContents)
+                       {
+                           foreach (var sc in par.Schema.children)
+                           {
+                               EffectiveSchema.children[sc.Key] = sc.Value;
+                           }
 
-                foreach (var sc in obj.Schema.children)
-                {
-                    EffectiveSchema.children[sc.Key] = sc.Value;
-                }
-                var par = obj;
-                if (par != null && data.IsInheritContents)
-                {
-                    par = par.Parent;
-                    // hunt for first non scope/operand parent
-                    while (par != null && par.Parent != null)
-                    {
-                        if (par.Schema != null && !par.BehaviourData.IsInheritContents)
-                        {
-                            foreach (var sc in par.Schema.children)
-                            {
-                                EffectiveSchema.children[sc.Key] = sc.Value;
-                            }
+                           break;
 
-                            break;
+                       }
+                       par = par.Parent;
+                   }
+               }
 
-                        }
-                        par = par.Parent;
-                    }
-                }
-
-            }
+           }
 
 
-            {
-                var par = obj.Parent;
-                ParentEffectiveSchema.children.Clear();
-                if (obj.Parent == null || obj.Parent.Schema == null)
-                {
-                    return;
-                }
-                foreach (var sc in obj.Parent.Schema.children)
-                {
-                    ParentEffectiveSchema.children[sc.Key] = sc.Value;
-                }
+           {
+               var par = obj.Parent;
+               ParentEffectiveSchema.children.Clear();
+               if (obj.Parent == null || obj.Parent.Schema == null)
+               {
+                   return;
+               }
+               foreach (var sc in obj.Parent.Schema.children)
+               {
+                   ParentEffectiveSchema.children[sc.Key] = sc.Value;
+               }
 
-                // if we're inside a scope or operand we want the ability to add children based on parents...
-                if (par != null && data.IsInheritContents)
-                {
-                    par = par.Parent;
-                    // hunt for first non scope/operand parent
-                    while (par != null && par.Parent != null)
-                    {
-                        if (par.Schema != null && !par.BehaviourData.IsInheritContents)
-                        {
-                            foreach (var sc in par.Schema.children)
-                            {
-                                ParentEffectiveSchema.children[sc.Key] = sc.Value;
-                            }
+               // if we're inside a scope or operand we want the ability to add children based on parents...
+               if (par != null && data.IsInheritContents)
+               {
+                   par = par.Parent;
+                   // hunt for first non scope/operand parent
+                   while (par != null && par.Parent != null)
+                   {
+                       if (par.Schema != null && !par.BehaviourData.IsInheritContents)
+                       {
+                           foreach (var sc in par.Schema.children)
+                           {
+                               ParentEffectiveSchema.children[sc.Key] = sc.Value;
+                           }
 
-                            break;
+                           break;
 
-                        }
-                        par = par.Parent;
-                    }
-                }
-            }
-        }
+                       }
+                       par = par.Parent;
+                   }
+               }
+           }
+       }
 
-        private void DetermineBehaviourScope(ScriptObject obj, ScriptObjectBehaviourData data)
-        {
-            if (ParentEffectiveSchema.SupportsTriggers())
-                data.ParentExpectTriggers = true;
-            if (ParentEffectiveSchema.SupportsEffects())
-                data.ParentExpectEffects = true;
+               private void DetermineBehaviourScope(ScriptObject obj, ScriptObjectBehaviourData data)
+               {
+                   if (ParentEffectiveSchema.SupportsTriggers())
+                       data.ParentExpectTriggers = true;
+                   if (ParentEffectiveSchema.SupportsEffects())
+                       data.ParentExpectEffects = true;
 
-            if (EffectiveSchema.SupportsTriggers())
-                data.ExpectTriggers = true;
-            if (EffectiveSchema.SupportsEffects())
-                data.ExpectEffects = true;
+                   if (EffectiveSchema.SupportsTriggers())
+                       data.ExpectTriggers = true;
+                   if (EffectiveSchema.SupportsEffects())
+                       data.ExpectEffects = true;
 
-            if ((data.Type == ScriptObjectBehaviourType.FunctionMultiline) && (data.ExpectTriggers || data.ExpectEffects))
-            {
-                data.Type = ScriptObjectBehaviourType.GeneralBlock;
-            }
+                   if ((data.Type == ScriptObjectBehaviourType.FunctionMultiline) && (data.ExpectTriggers || data.ExpectEffects))
+                   {
+                       data.Type = ScriptObjectBehaviourType.GeneralBlock;
+                   }
 
-            if (data.Type == ScriptObjectBehaviourType.FunctionParameter)
-            {
-                data.ExpectFunctionParameters = true;
-            }
+                   if (data.Type == ScriptObjectBehaviourType.FunctionParameter)
+                   {
+                       data.ExpectFunctionParameters = true;
+                   }
 
-            var scope = obj.Parent.GetScopeType();
+                   var scope = obj.Parent.GetScopeType();
 
-            if (data.IsScope)
-            {
-                if (data.ExpectTriggers || data.ParentExpectTriggers)
-                {
-                    if (data.IsScopedBlock)
-                    {
-                        if (ScopeManager.Instance.isTriggerScope(scope, obj.Name))
-                        {
-                            bool success;
-                            var newScope = ScopeManager.Instance.ChangeTriggerScope(scope, obj.Name, out success);
-                            if (success)
-                                data.ScopeType = newScope;
-                        }
-                        else if (ScopeManager.Instance.isTriggerScopeInside(scope, obj.Name, obj.Parent))
-                        {
-                            bool success;
-                            var newScope = ScopeManager.Instance.ChangeTriggerScope(scope, obj.Name, out success, obj.Parent);
-                            if (success)
-                                data.ScopeType = newScope;
+                   if (data.IsScope)
+                   {
+                       if (data.ExpectTriggers || data.ParentExpectTriggers)
+                       {
+                           if (data.IsScopedBlock)
+                           {
+                               if (ScopeManager.Instance.isTriggerScope(scope, obj.Name))
+                               {
+                                   bool success;
+                                   var newScope = ScopeManager.Instance.ChangeTriggerScope(scope, obj.Name, out success);
+                                   if (success)
+                                       data.ScopeType = newScope;
+                               }
+                               else if (ScopeManager.Instance.isTriggerScopeInside(scope, obj.Name, obj.Parent))
+                               {
+                                   bool success;
+                                   var newScope = ScopeManager.Instance.ChangeTriggerScope(scope, obj.Name, out success, obj.Parent);
+                                   if (success)
+                                       data.ScopeType = newScope;
 
-                        }
-                    }
-                }
-                if (data.ExpectEffects || data.ParentExpectEffects)
-                {
-                    //if (data.IsScopelock)
-                    {
-                        if (ScopeManager.Instance.isEffectScope(scope, obj.Name))
-                        {
-                            bool success;
-                            var newScope = ScopeManager.Instance.ChangeScope(scope, obj.Name, out success);
-                            if (success)
-                                data.ScopeType = newScope;
-                        }
-                        else if (ScopeManager.Instance.isEffectScopeInside(scope, obj.Name, obj.Parent))
-                        {
-                            bool success;
-                            var newScope = ScopeManager.Instance.ChangeScope(scope, obj.Name, out success, obj.Parent);
-                            if (success)
-                                data.ScopeType = newScope;
+                               }
+                           }
+                       }
+                       if (data.ExpectEffects || data.ParentExpectEffects)
+                       {
+                           //if (data.IsScopelock)
+                           {
+                               if (ScopeManager.Instance.isEffectScope(scope, obj.Name))
+                               {
+                                   bool success;
+                                   var newScope = ScopeManager.Instance.ChangeScope(scope, obj.Name, out success);
+                                   if (success)
+                                       data.ScopeType = newScope;
+                               }
+                               else if (ScopeManager.Instance.isEffectScopeInside(scope, obj.Name, obj.Parent))
+                               {
+                                   bool success;
+                                   var newScope = ScopeManager.Instance.ChangeScope(scope, obj.Name, out success, obj.Parent);
+                                   if (success)
+                                       data.ScopeType = newScope;
 
-                        }
-                    }
-                }
+                               }
+                           }
+                       }
 
-                if (data.IsScopedBlock)
-                {
-                    data.ExpectEffects = data.ParentData.ExpectEffects;
-                    data.ExpectTriggers = data.ParentData.ExpectTriggers;
-                }
+                       if (data.IsScopedBlock)
+                       {
+                           data.ExpectEffects = data.ParentData.ExpectEffects;
+                           data.ExpectTriggers = data.ParentData.ExpectTriggers;
+                       }
 
-            }
-        }
+                   }
+    }
 
-        private void DetermineOperationType(ScriptObject obj, ScriptObjectBehaviourData data)
+    private void DetermineOperationType(ScriptObject obj, ScriptObjectBehaviourData data)
         {
             if (obj.Parent == null)
                 return;
@@ -633,252 +633,252 @@ namespace JominiParse
 
         private void DetermineBehaviourType(ScriptObject obj, ScriptObjectBehaviourData data)
         {
-            string name = obj.Name;
+                    string name = obj.Name;
 
-            bool isBlock = false;
-            if (obj.Parent == null)
-            {
-                data.Type = ScriptObjectBehaviourType.RootObject;
-                return;
-            }
-
-            if (obj.IsBlock)
-            {
-                isBlock = true;
-            }
-
-            data.IsBlock = isBlock;
-
-            var scope = obj.Parent.GetScopeType();
-
-
-            if (name.StartsWith("root") || name.StartsWith("this") || name.StartsWith("prev"))
-            {
-                name = "scope:" + name;
-            }
-
-            if (isBlock)
-            {
-                if (ScopeManager.Instance.isTriggerScope(scope, name) || ScopeManager.Instance.isEffectScope(scope, name))
-                {
-                    data.Type = ScriptObjectBehaviourType.InherentScopeBlock;
-
-                    //        InherentScopeBlocks.Add(name);
-                }
-                else if (ScopeManager.Instance.isTriggerScopeInside(scope, name, obj.Parent, ScriptObject.ScopeFindType.Object) || ScopeManager.Instance.isEffectScopeInside(scope, name, obj.Parent, ScriptObject.ScopeFindType.Object))
-                {
-                    data.Type = ScriptObjectBehaviourType.SavedScopeBlock;
-
-                    //     SavedScopeBlocks.Add(name);
-
-                }
-                else if (ScopeManager.Instance.isTrigger(scope, name))
-                {
-                    data.Type = ScriptObjectBehaviourType.FunctionMultiline;
-                    //     FunctionMultiline.Add(name);
-                }
-                else if (ScopeManager.Instance.isEffect(scope, name))
-                {
-                    data.Type = ScriptObjectBehaviourType.FunctionMultiline;
-                    //      FunctionMultiline.Add(name);
-                }
-                else if (Operands.Contains(name))
-                {
-                    data.Type = ScriptObjectBehaviourType.LogicalOperand;
-                }
-                else if (name == "if" || name == "else_if")
-                {
-                    data.Type = ScriptObjectBehaviourType.If;
-                }
-                else if (name == "trigger_if" || name == "trigger_else_if")
-                {
-                    data.Type = ScriptObjectBehaviourType.TriggerIf;
-                }
-                else if (name == "else")
-                {
-                    data.Type = ScriptObjectBehaviourType.Else;
-                }
-                else if (name == "trigger_else")
-                {
-                    data.Type = ScriptObjectBehaviourType.TriggerElse;
-                }
-                else if (name == "limit")
-                {
-                    data.Type = ScriptObjectBehaviourType.Limit;
-                }
-                else if (name == "trigger")
-                {
-                    data.Type = ScriptObjectBehaviourType.Trigger;
-                }
-                else if (obj.Parent.Parent == null)
-                {
-                    data.Type = ScriptObjectBehaviourType.RootObjectPropertyBlock;
-
-                    if (obj.Parent.Schema != null && !obj.Parent.Schema.HasChild(obj.Name))
+                    bool isBlock = false;
+                    if (obj.Parent == null)
                     {
-                        if (!HandleNameFor(obj, data, name, isBlock))
-                        {
-                            data.Type = ScriptObjectBehaviourType.Unknown;
-                        }
+                        data.Type = ScriptObjectBehaviourType.RootObject;
+                        return;
                     }
 
-                    //       FunctionSingleLine.Add(name);
-                }
-                else if (obj.Parent != null && obj.Parent.Schema != null)
-                {
-                    if (obj.Parent.Schema.children.ContainsKey(name))
+                    if (obj.IsBlock)
                     {
-                        data.Type = ScriptObjectBehaviourType.FunctionMultiline;
+                        isBlock = true;
+                    }
+
+                    data.IsBlock = isBlock;
+
+                    var scope = obj.Parent.GetScopeType();
+
+
+                    if (name.StartsWith("root") || name.StartsWith("this") || name.StartsWith("prev"))
+                    {
+                        name = "scope:" + name;
+                    }
+
+                    if (isBlock)
+                    {
+                        if (ScopeManager.Instance.isTriggerScope(scope, name) || ScopeManager.Instance.isEffectScope(scope, name))
+                        {
+                            data.Type = ScriptObjectBehaviourType.InherentScopeBlock;
+
+                            //        InherentScopeBlocks.Add(name);
+                        }
+                        else if (ScopeManager.Instance.isTriggerScopeInside(scope, name, obj.Parent, ScriptObject.ScopeFindType.Object) || ScopeManager.Instance.isEffectScopeInside(scope, name, obj.Parent, ScriptObject.ScopeFindType.Object))
+                        {
+                            data.Type = ScriptObjectBehaviourType.SavedScopeBlock;
+
+                            //     SavedScopeBlocks.Add(name);
+
+                        }
+                        else if (ScopeManager.Instance.isTrigger(scope, name))
+                        {
+                            data.Type = ScriptObjectBehaviourType.FunctionMultiline;
+                            //     FunctionMultiline.Add(name);
+                        }
+                        else if (ScopeManager.Instance.isEffect(scope, name))
+                        {
+                            data.Type = ScriptObjectBehaviourType.FunctionMultiline;
+                            //      FunctionMultiline.Add(name);
+                        }
+                        else if (Operands.Contains(name))
+                        {
+                            data.Type = ScriptObjectBehaviourType.LogicalOperand;
+                        }
+                        else if (name == "if" || name == "else_if")
+                        {
+                            data.Type = ScriptObjectBehaviourType.If;
+                        }
+                        else if (name == "trigger_if" || name == "trigger_else_if")
+                        {
+                            data.Type = ScriptObjectBehaviourType.TriggerIf;
+                        }
+                        else if (name == "else")
+                        {
+                            data.Type = ScriptObjectBehaviourType.Else;
+                        }
+                        else if (name == "trigger_else")
+                        {
+                            data.Type = ScriptObjectBehaviourType.TriggerElse;
+                        }
+                        else if (name == "limit")
+                        {
+                            data.Type = ScriptObjectBehaviourType.Limit;
+                        }
+                        else if (name == "trigger")
+                        {
+                            data.Type = ScriptObjectBehaviourType.Trigger;
+                        }
+                        else if (obj.Parent.Parent == null)
+                        {
+                            data.Type = ScriptObjectBehaviourType.RootObjectPropertyBlock;
+
+                            if (obj.Parent.Schema != null && !obj.Parent.Schema.HasChild(obj.Name))
+                            {
+                                if (!HandleNameFor(obj, data, name, isBlock))
+                                {
+                                    data.Type = ScriptObjectBehaviourType.Unknown;
+                                }
+                            }
+
+                            //       FunctionSingleLine.Add(name);
+                        }
+                        else if (obj.Parent != null && obj.Parent.Schema != null)
+                        {
+                            if (obj.Parent.Schema.children.ContainsKey(name))
+                            {
+                                data.Type = ScriptObjectBehaviourType.FunctionMultiline;
+                            }
+                            else
+                            {
+                                var schema = obj.Parent.Schema;
+
+                                var namedAs = schema.children.Where(a => a.Value.NamesFrom != null).ToList();
+
+                                foreach (var keyValuePair in namedAs)
+                                {
+                                    SchemaChild namesFrom = keyValuePair.Value;
+
+                                    HandleNamesFrom(obj, data, isBlock, namesFrom);
+                                }
+                            }
+                        }
                     }
                     else
                     {
-                        var schema = obj.Parent.Schema;
-
-                        var namedAs = schema.children.Where(a => a.Value.NamesFrom != null).ToList();
-
-                        foreach (var keyValuePair in namedAs)
+                        if (ScopeManager.Instance.isTriggerScopeToParam(scope, name) || ScopeManager.Instance.isEffectScopeToParam(scope, name))
                         {
-                            SchemaChild namesFrom = keyValuePair.Value;
+                            data.Type = ScriptObjectBehaviourType.InherentScopeToProperty;
 
-                            HandleNamesFrom(obj, data, isBlock, namesFrom);
+                            //      InherentScopeToProperty.Add(name);
                         }
-                    }
-                }
-            }
-            else
-            {
-                if (ScopeManager.Instance.isTriggerScopeToParam(scope, name) || ScopeManager.Instance.isEffectScopeToParam(scope, name))
-                {
-                    data.Type = ScriptObjectBehaviourType.InherentScopeToProperty;
-
-                    //      InherentScopeToProperty.Add(name);
-                }
-                else if (ScopeManager.Instance.isTriggerScopeEndParamInside(scope, name,
-                    obj.Parent) || ScopeManager.Instance.isEffectScopeInside(scope, name,
-                             obj.Parent))
-                {
-                    data.Type = ScriptObjectBehaviourType.SavedScopeToProperty;
-                    //         SavedScopeToProperty.Add(name);
-
-                }
-                else if ((ScopeManager.Instance.isTrigger(scope, name) || ScopeManager.Instance.isEffect(scope, name)) && !data.ParentData.IsFunction)
-                {
-                    data.Type = ScriptObjectBehaviourType.FunctionSingleLine;
-                    //     FunctionSingleLine.Add(name);
-                    data.ExpectedTriggerFunction = ScopeManager.Instance.GetTrigger(scope, name);
-                    data.ExpectedEffectFunction = ScopeManager.Instance.GetEffect(scope, name);
-                }
-                else
-                {
-                    if (obj.Parent.Parent == null)
-                    {
-                        data.Type = ScriptObjectBehaviourType.RootObjectProperty;
-                        //        FunctionSingleLine.Add(name);
-                    }
-                    else if (obj.Parent.Schema != null && obj.Parent.Schema.children.ContainsKey(name))
-                    {
-                        data.Type = ScriptObjectBehaviourType.FunctionParameter;
-                    }
-                    else if (obj.Parent.BehaviourData.IsFunction && (ScopeManager.Instance.isTrigger(obj.Parent.GetScopeType(), obj.Parent.Name) || ScopeManager.Instance.isEffect(obj.Parent.GetScopeType(), obj.Parent.Name)))
-                    {
-                        data.Type = ScriptObjectBehaviourType.FunctionParameter;
-
-                        if (!HandleNameFor(obj, data, name, isBlock))
+                        else if (ScopeManager.Instance.isTriggerScopeEndParamInside(scope, name,
+                            obj.Parent) || ScopeManager.Instance.isEffectScopeInside(scope, name,
+                                     obj.Parent))
                         {
+                            data.Type = ScriptObjectBehaviourType.SavedScopeToProperty;
+                            //         SavedScopeToProperty.Add(name);
 
+                        }
+                        else if ((ScopeManager.Instance.isTrigger(scope, name) || ScopeManager.Instance.isEffect(scope, name)) && !data.ParentData.IsFunction)
+                        {
+                            data.Type = ScriptObjectBehaviourType.FunctionSingleLine;
+                            //     FunctionSingleLine.Add(name);
+                            data.ExpectedTriggerFunction = ScopeManager.Instance.GetTrigger(scope, name);
+                            data.ExpectedEffectFunction = ScopeManager.Instance.GetEffect(scope, name);
+                        }
+                        else
+                        {
+                            if (obj.Parent.Parent == null)
+                            {
+                                data.Type = ScriptObjectBehaviourType.RootObjectProperty;
+                                //        FunctionSingleLine.Add(name);
+                            }
+                            else if (obj.Parent.Schema != null && obj.Parent.Schema.children.ContainsKey(name))
+                            {
+                                data.Type = ScriptObjectBehaviourType.FunctionParameter;
+                            }
+                            else if (obj.Parent.BehaviourData.IsFunction && (ScopeManager.Instance.isTrigger(obj.Parent.GetScopeType(), obj.Parent.Name) || ScopeManager.Instance.isEffect(obj.Parent.GetScopeType(), obj.Parent.Name)))
+                            {
+                                data.Type = ScriptObjectBehaviourType.FunctionParameter;
+
+                                if (!HandleNameFor(obj, data, name, isBlock))
+                                {
+
+                                }
+
+                            }
+                            else if (obj.Parent != null)
+                            {
+                                data.Type = ScriptObjectBehaviourType.FunctionParameter;
+                                if (!HandleNameFor(obj, data, name, isBlock))
+                                {
+                                    data.Type = ScriptObjectBehaviourType.Unknown;
+                                }
+                            }
                         }
 
                     }
-                    else if (obj.Parent != null)
+
+                    if (data.Type == ScriptObjectBehaviourType.Unknown)
                     {
-                        data.Type = ScriptObjectBehaviourType.FunctionParameter;
-                        if (!HandleNameFor(obj, data, name, isBlock))
+                        string str = name;
+
+                        while (obj != null)
                         {
-                            data.Type = ScriptObjectBehaviourType.Unknown;
+                            obj = obj.Parent;
+                            if (obj != null)
+                                str = name + "->" + str;
+                        }
+
+                        UnknownProperties.Add(str);
+                    }
+
+                }
+
+                private bool HandleNameFor(ScriptObject obj, ScriptObjectBehaviourData data, string name, bool isBlock)
+                {
+                    if (!name.StartsWith("scope:"))
+                    {
+                        if (obj.Parent.Schema != null)
+                        {
+                            var schema = obj.Parent.Schema;
+
+                            var namedAs = schema.children.Where(a => a.Value.NamesFrom != null).ToList();
+
+                            foreach (var keyValuePair in namedAs)
+                            {
+                                HandleNamesFrom(obj, data, isBlock, keyValuePair.Value);
+                                if (data.Type != ScriptObjectBehaviourType.Unknown)
+                                    return true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                    }
+
+                    return false;
+                }
+
+                private void HandleNamesFrom(ScriptObject obj, ScriptObjectBehaviourData data, bool isBlock, SchemaChild schemaChild)
+                {
+                    string namesFrom = schemaChild.NamesFrom;
+                    if (namesFrom == "num")
+                    {
+                        int result;
+                        if (Int32.TryParse(obj.Name, out result))
+                        {
+                            data.TypeExpected = schemaChild.Type;
+                            data.NameTypeExpected = namesFrom;
+                            data.Type = ScriptObjectBehaviourType.FunctionNamedFromParameterBlock;
+                            if (!isBlock)
+                                data.Type = ScriptObjectBehaviourType.FunctionNamedFromParameterSingleLine;
+                        }
+                    }
+                    else
+                    {
+                        var types = EnumManager.Instance.GetEnums(namesFrom);
+
+                        if (types.Contains(obj.Name))
+                        {
+                            data.TypeExpected = schemaChild.Type;
+                            data.NameTypeExpected = namesFrom;
+                            data.Type = ScriptObjectBehaviourType.FunctionNamedFromParameterBlock;
+                            if (!isBlock)
+                                data.Type = ScriptObjectBehaviourType.FunctionNamedFromParameterSingleLine;
+
                         }
                     }
                 }
 
-            }
-
-            if (data.Type == ScriptObjectBehaviourType.Unknown)
-            {
-                string str = name;
-
-                while (obj != null)
+                public void PrintDebug()
                 {
-                    obj = obj.Parent;
-                    if (obj != null)
-                        str = name + "->" + str;
-                }
-
-                UnknownProperties.Add(str);
-            }
-
-        }
-
-        private bool HandleNameFor(ScriptObject obj, ScriptObjectBehaviourData data, string name, bool isBlock)
-        {
-            if (!name.StartsWith("scope:"))
-            {
-                if (obj.Parent.Schema != null)
-                {
-                    var schema = obj.Parent.Schema;
-
-                    var namedAs = schema.children.Where(a => a.Value.NamesFrom != null).ToList();
-
-                    foreach (var keyValuePair in namedAs)
+                    foreach (var s in UnknownProperties)
                     {
-                        HandleNamesFrom(obj, data, isBlock, keyValuePair.Value);
-                        if (data.Type != ScriptObjectBehaviourType.Unknown)
-                            return true;
+                        //        Console.WriteLine(s);
                     }
-                }
-            }
-            else
-            {
-            }
-
-            return false;
-        }
-
-        private void HandleNamesFrom(ScriptObject obj, ScriptObjectBehaviourData data, bool isBlock, SchemaChild schemaChild)
-        {
-            string namesFrom = schemaChild.NamesFrom;
-            if (namesFrom == "num")
-            {
-                int result;
-                if (Int32.TryParse(obj.Name, out result))
-                {
-                    data.TypeExpected = schemaChild.Type;
-                    data.NameTypeExpected = namesFrom;
-                    data.Type = ScriptObjectBehaviourType.FunctionNamedFromParameterBlock;
-                    if (!isBlock)
-                        data.Type = ScriptObjectBehaviourType.FunctionNamedFromParameterSingleLine;
-                }
-            }
-            else
-            {
-                var types = EnumManager.Instance.GetEnums(namesFrom);
-
-                if (types.Contains(obj.Name))
-                {
-                    data.TypeExpected = schemaChild.Type;
-                    data.NameTypeExpected = namesFrom;
-                    data.Type = ScriptObjectBehaviourType.FunctionNamedFromParameterBlock;
-                    if (!isBlock)
-                        data.Type = ScriptObjectBehaviourType.FunctionNamedFromParameterSingleLine;
-
-                }
-            }
-        }
-
-        public void PrintDebug()
-        {
-            foreach (var s in UnknownProperties)
-            {
-                //        Console.WriteLine(s);
-            }
+                }*/
         }
     }
-}

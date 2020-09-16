@@ -279,7 +279,7 @@ namespace JominiParse
               
                 if (BlockType == BlockType.effect_block)
                 {
-                    ScopeManager.Instance.AddScopeFunction(so.GetScopeType(), so.Name);
+               //     ScopeManager.Instance.AddScopeFunction(so.GetScopeType(), so.Name);
 
                 }
 

@@ -52,7 +52,7 @@ namespace JominiParse
                 return results;
 
             var scope = inside.GetScopeType();
-
+            /*
             if (inside.BehaviourData.ExpectTriggers)
             {
                 results.AddRange(ScopeManager.Instance.Defs[scope].ValidTriggerMap.Keys);
@@ -75,7 +75,7 @@ namespace JominiParse
                 results.Add("if");
 
             }
-            
+            */
             if (inside.BehaviourData.Type == ScriptObjectBehaviourType.FunctionMultiline && inside.Schema != null)
             {
                 foreach (var keyValuePair in inside.Schema.children)
@@ -280,46 +280,46 @@ namespace JominiParse
                 List<string> results2 = new List<string>();
                 inside.Schema.AddChildrenToList(results2);
                 var scope = inside.GetScopeType();
-                if (results2.Contains("scopetriggers"))
-                {
-                    results2.Remove("scopetriggers");
-                    {
-                        var Trigger = ScopeManager.Instance.GetTrigger(scope, child);
+                /*   if (results2.Contains("scopetriggers"))
+                   {
+                       results2.Remove("scopetriggers");
+                       {
+                           var Trigger = ScopeManager.Instance.GetTrigger(scope, child);
 
-                        if (Trigger != null)
-                            return Trigger.Properties.Count > 0;
-                    }
+                           if (Trigger != null)
+                               return Trigger.Properties.Count > 0;
+                       }
 
-                    var schema = SchemaManager.Instance.GetSchema(child);
+                       var schema = SchemaManager.Instance.GetSchema(child);
 
-                    if (schema != null)
-                    {
-                        return true;
-                    }
-                }
-                if (results2.Contains("scopeeffects"))
-                {
-                    results2.Remove("scopeeffects");
-                    {
-                        var eff = ScopeManager.Instance.GetEffect(scope, child);
+                       if (schema != null)
+                       {
+                           return true;
+                       }
+                   }
+                   if (results2.Contains("scopeeffects"))
+                   {
+                       results2.Remove("scopeeffects");
+                       {
+                           var eff = ScopeManager.Instance.GetEffect(scope, child);
 
-                        if (eff != null)
-                            return eff.Properties.Count > 0;
-                    }
+                           if (eff != null)
+                               return eff.Properties.Count > 0;
+                       }
 
-                    var schema = SchemaManager.Instance.GetSchema(child);
+                       var schema = SchemaManager.Instance.GetSchema(child);
 
-                    if (schema != null)
-                    {
-                        return true;
-                    }
-                }
+                       if (schema != null)
+                       {
+                           return true;
+                       }
+                   }
 
-                if (inside.Parent != null && ScopeManager.Instance.isTriggerScope(inside.Parent.GetScopeType(), child))
-                {
-                    return true;
-                }
-
+                   if (inside.Parent != null && ScopeManager.Instance.isTriggerScope(inside.Parent.GetScopeType(), child))
+                   {
+                       return true;
+                   }
+                */
             }
 
             return false;

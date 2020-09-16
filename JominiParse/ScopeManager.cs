@@ -11,7 +11,7 @@ namespace JominiParse
     {
         none,
         value,
-        Bool,
+        @bool,
         flag,
         color,
         character,
@@ -83,7 +83,7 @@ namespace JominiParse
 
     public class ScopeManager
     {
-        public static ScopeManager Instance = new ScopeManager();
+  /*      public static ScopeManager Instance = new ScopeManager();
 
         public Dictionary<ScopeType, ScopeTypeDef> Defs = new Dictionary<ScopeType, ScopeTypeDef>();
         public void LoadTriggerDefinitions(string filename)
@@ -1024,16 +1024,7 @@ namespace JominiParse
 
                 return false;
             }
-            /*
-            List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
-            scriptObjectParent.GetValidScriptScopes(results, true);
 
-            if (results.Any(a => a.Name == scopeName))
-                return true;
-
-            if (scope != ScopeType.any)
-                return isTriggerScopeInside(ScopeType.any, name, scriptObjectParent);
-            */
             return false;
         }
         public ScopeType getEffectScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
@@ -1163,7 +1154,7 @@ namespace JominiParse
 
             return null;
         }
-
+  */
 
     }
 }

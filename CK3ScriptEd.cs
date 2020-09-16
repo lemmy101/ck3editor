@@ -60,11 +60,14 @@ namespace CK3ScriptEditor
         public CK3ScriptEd()
         {
             Instance = this;
+            
+            JomaniScriptDocLogsToSchemaConverter.Instance.Export("Schema2");
+
             InitializeComponent();
             AutoSave.Interval = BackupManager.Instance.TickTimeMS;
-            ScopeManager.Instance.LoadScopeDefinitions("ScopeDefs/scopes.xml");
-            ScopeManager.Instance.LoadTriggerDefinitions("ScopeDefs/triggers.xml");
-            ScopeManager.Instance.LoadEffectDefinitions("ScopeDefs/effects.xml");
+          //  ScopeManager.Instance.LoadScopeDefinitions("ScopeDefs/scopes.xml");
+          //  ScopeManager.Instance.LoadTriggerDefinitions("ScopeDefs/triggers.xml");
+          //  ScopeManager.Instance.LoadEffectDefinitions("ScopeDefs/effects.xml");
             Core.Instance.Init();
 
             Core.Instance.CreateOrLoadMod("TestMod");
@@ -116,10 +119,7 @@ namespace CK3ScriptEditor
 
             EnumExtractorUtility.Instance.Export("p.txt");
 
-
-
-
-                       var fsmProvider = new FileSyntaxModeProvider("./");
+            var fsmProvider = new FileSyntaxModeProvider("./");
 
             HighlightingManager.Manager.AddSyntaxModeFileProvider(fsmProvider); // Attach to the text editor.
 
@@ -128,8 +128,9 @@ namespace CK3ScriptEditor
             GetTextEditor("events/test_event.txt", false);
             //  GetTextEditor("events/health_events.txt", false);
 
-            ScriptObjectBehaviourManager.Instance.PrintDebug();
+        //    ScriptObjectBehaviourManager.Instance.PrintDebug();
 
+  
         }
 
         private void DockPanel_ContentRemoved(object sender, DockContentEventArgs e)
