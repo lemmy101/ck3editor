@@ -53,12 +53,12 @@ namespace JominiParse
 
             var scope = inside.GetScopeType();
 
-            if (inside.BehaviourData.ExpectConditions)
+            if (inside.BehaviourData.ExpectTriggers)
             {
-                results.AddRange(ScopeManager.Instance.Defs[scope].ValidConditionMap.Keys);
-                results.AddRange(ScopeManager.Instance.Defs[scope].ValidConditionScopes.Keys);
-                results.AddRange(ScopeManager.Instance.Defs[ScopeType.any].ValidConditionMap.Keys);
-                results.AddRange(ScopeManager.Instance.Defs[ScopeType.any].ValidConditionScopes.Keys);
+                results.AddRange(ScopeManager.Instance.Defs[scope].ValidTriggerMap.Keys);
+                results.AddRange(ScopeManager.Instance.Defs[scope].ValidTriggerScopes.Keys);
+                results.AddRange(ScopeManager.Instance.Defs[ScopeType.any].ValidTriggerMap.Keys);
+                results.AddRange(ScopeManager.Instance.Defs[ScopeType.any].ValidTriggerScopes.Keys);
                 if (inside.BehaviourData.IsScopedBlock)
                 {
                     results.Add("limit");
@@ -117,7 +117,7 @@ namespace JominiParse
                 }
             }
 
-            if (inside.BehaviourData.ExpectConditions || inside.BehaviourData.ExpectEffects)
+            if (inside.BehaviourData.ExpectTriggers || inside.BehaviourData.ExpectEffects)
             {
                 var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(inside.Topmost.Name);
                 HashSet<ScriptObject.ScriptScope> Scopes = new HashSet<ScriptObject.ScriptScope>();
@@ -242,7 +242,7 @@ namespace JominiParse
                 (string.IsNullOrEmpty(sofar) && expected == null &&
                  inside.BehaviourData.ExpectedEffectFunction != null) ||
                 (string.IsNullOrEmpty(sofar) && expected == null &&
-                inside.BehaviourData.ExpectedConditionFunction != null) ||
+                inside.BehaviourData.ExpectedTriggerFunction != null) ||
                 (inside.BehaviourData.CanBeScope && string.IsNullOrEmpty(sofar))
                 )
             {
@@ -280,14 +280,14 @@ namespace JominiParse
                 List<string> results2 = new List<string>();
                 inside.Schema.AddChildrenToList(results2);
                 var scope = inside.GetScopeType();
-                if (results2.Contains("scopeconditions"))
+                if (results2.Contains("scopetriggers"))
                 {
-                    results2.Remove("scopeconditions");
+                    results2.Remove("scopetriggers");
                     {
-                        var condition = ScopeManager.Instance.GetCondition(scope, child);
+                        var Trigger = ScopeManager.Instance.GetTrigger(scope, child);
 
-                        if (condition != null)
-                            return condition.Properties.Count > 0;
+                        if (Trigger != null)
+                            return Trigger.Properties.Count > 0;
                     }
 
                     var schema = SchemaManager.Instance.GetSchema(child);
@@ -315,7 +315,7 @@ namespace JominiParse
                     }
                 }
 
-                if (inside.Parent != null && ScopeManager.Instance.isConditionScope(inside.Parent.GetScopeType(), child))
+                if (inside.Parent != null && ScopeManager.Instance.isTriggerScope(inside.Parent.GetScopeType(), child))
                 {
                     return true;
                 }

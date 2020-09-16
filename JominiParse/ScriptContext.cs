@@ -6,7 +6,7 @@
         All,
         ScriptValues,
         Decisions,
-        ConditionBlock,
+        TriggerBlock,
         Modifier,
         ScriptedModifiers,
         EffectBlock,

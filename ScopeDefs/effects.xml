@@ -61,7 +61,7 @@
   <Effect name="add_stress" validscope="character" type="num"  />
   <Effect name="add_trait" validscope="character" type="trait" />
   <Effect name="add_tyranny" validscope="character" type="num" />
-  <Effect name="add_unpressed_claim" validscope="character" type="title" />
+  <Effect name="add_unpressed_claim" validscope="character" type="landed_title" />
   <Effect name="add_visiting_courtier" validscope="character" type="character"/>
   <Effect name="break_alliance" validscope="character" type="character" />
   <Effect name="cancel_truce_one_way" validscope="character" type="character" />
@@ -179,10 +179,10 @@
   </Effect>
 
   <Effect name="assert_if" validscope="any" type="any" />
-  <Effect name="set_house" validscope="character" type="house" />
+  <Effect name="set_house" validscope="character" type="dynasty_house" />
   <Effect name="add_scheme_progress" validscope="scheme" type="num" />
   <Effect name="set_player_character" validscope="character" type="character" />
-  <Effect name="set_realm_capital" validscope="character" type="title" />
+  <Effect name="set_realm_capital" validscope="character" type="landed_title" />
   <Effect name="set_relation_best_friend" validscope="character" type="character" />
   <Effect name="set_relation_crush" validscope="character" type="character" />
   <Effect name="set_relation_bully" validscope="character" type="character" />

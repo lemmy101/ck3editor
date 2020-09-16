@@ -43,7 +43,7 @@
             this.scopeSchemes = new DarkUI.Controls.DarkCheckBox();
             this.scopeCharacters = new DarkUI.Controls.DarkCheckBox();
             this.doesFindEffectFuncs = new DarkUI.Controls.DarkCheckBox();
-            this.doesConditionFuncs = new DarkUI.Controls.DarkCheckBox();
+            this.doesTriggerFuncs = new DarkUI.Controls.DarkCheckBox();
             this.doesFindValues = new DarkUI.Controls.DarkCheckBox();
             this.doesFindFuncParams = new DarkUI.Controls.DarkCheckBox();
             this.doesFindScopes = new DarkUI.Controls.DarkCheckBox();
@@ -112,7 +112,7 @@
             this.darkGroupBox2.Controls.Add(this.uncheckAllTypes);
             this.darkGroupBox2.Controls.Add(this.darkGroupBox4);
             this.darkGroupBox2.Controls.Add(this.doesFindEffectFuncs);
-            this.darkGroupBox2.Controls.Add(this.doesConditionFuncs);
+            this.darkGroupBox2.Controls.Add(this.doesTriggerFuncs);
             this.darkGroupBox2.Controls.Add(this.doesFindValues);
             this.darkGroupBox2.Controls.Add(this.doesFindFuncParams);
             this.darkGroupBox2.Controls.Add(this.doesFindScopes);
@@ -252,16 +252,16 @@
             this.doesFindEffectFuncs.TabIndex = 12;
             this.doesFindEffectFuncs.Text = "Effect Functions";
             // 
-            // doesConditionFuncs
+            // doesTriggerFuncs
             // 
-            this.doesConditionFuncs.AutoSize = true;
-            this.doesConditionFuncs.Checked = true;
-            this.doesConditionFuncs.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.doesConditionFuncs.Location = new System.Drawing.Point(25, 127);
-            this.doesConditionFuncs.Name = "doesConditionFuncs";
-            this.doesConditionFuncs.Size = new System.Drawing.Size(119, 17);
-            this.doesConditionFuncs.TabIndex = 11;
-            this.doesConditionFuncs.Text = "Condition Functions";
+            this.doesTriggerFuncs.AutoSize = true;
+            this.doesTriggerFuncs.Checked = true;
+            this.doesTriggerFuncs.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.doesTriggerFuncs.Location = new System.Drawing.Point(25, 127);
+            this.doesTriggerFuncs.Name = "doesTriggerFuncs";
+            this.doesTriggerFuncs.Size = new System.Drawing.Size(108, 17);
+            this.doesTriggerFuncs.TabIndex = 11;
+            this.doesTriggerFuncs.Text = "Trigger Functions";
             // 
             // doesFindValues
             // 
@@ -461,7 +461,7 @@
         private DarkUI.Controls.DarkCheckBox scopeSchemes;
         private DarkUI.Controls.DarkCheckBox scopeCharacters;
         private DarkUI.Controls.DarkCheckBox doesFindEffectFuncs;
-        private DarkUI.Controls.DarkCheckBox doesConditionFuncs;
+        private DarkUI.Controls.DarkCheckBox doesTriggerFuncs;
         private DarkUI.Controls.DarkCheckBox doesFindValues;
         private DarkUI.Controls.DarkCheckBox doesFindFuncParams;
         private DarkUI.Controls.DarkButton checkAllTypes;

@@ -16,7 +16,7 @@ namespace JominiParse
         public bool SearchFunctionParameters { get; set; }
         public bool SearchValues { get; set; }
 
-        public bool SearchConditionFunctions { get; set; }
+        public bool SearchTriggerFunctions { get; set; }
         public bool SearchEffectFunctions { get; set; }
         public bool ShowChildren { get; set; }
 

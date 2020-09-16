@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System;   
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -10,29 +10,38 @@ namespace JominiParse
     public enum ScopeType
     {
         none,
-        inheritparent,
+        value,
+        Bool,
+        flag,
+        color,
         character,
-        realm,
-        dynasty,
-        culture,
-        province,
-        house,
-        war,
-        title,
-        claim,
-        secret,
-        scheme,
-        holy_order,
-        story,
-        faction,
-        faith,
+        landed_title,
         activity,
+        secret,
+        province,
+        scheme,
+        combat,
         combat_side,
+        title_and_vassal_change,
+        faith,
+        great_holy_war,
+        religion,
+        war,
+        story_cycle,
+        casus_belli,
+        dynasty,
+        dynasty_house,
+        faction,
+        culture,
         army,
-        ghw,
+        holy_order,
+        council_task,
+        mercenary_company,
+        culture_group,
+        inheritparent,
         any,
         max,
-      
+
     }
 
     public class ScopeChangeDefinition
@@ -64,11 +73,11 @@ namespace JominiParse
     {
         public ScopeType ScopeType { get; set; }
 
-        public Dictionary<string, ScopeChangeDefinition> ValidConditionScopes = new Dictionary<string, ScopeChangeDefinition>();
+        public Dictionary<string, ScopeChangeDefinition> ValidTriggerScopes = new Dictionary<string, ScopeChangeDefinition>();
         public Dictionary<string, ScopeChangeDefinition> ValidEffectScopes = new Dictionary<string, ScopeChangeDefinition>();
          public HashSet<FunctionDef> ValidEffects = new HashSet<FunctionDef>();
-        public HashSet<FunctionDef> ValidConditions = new HashSet<FunctionDef>();
-        public Dictionary<string, FunctionDef> ValidConditionMap = new Dictionary<string, FunctionDef>();
+        public HashSet<FunctionDef> ValidTriggers = new HashSet<FunctionDef>();
+        public Dictionary<string, FunctionDef> ValidTriggerMap = new Dictionary<string, FunctionDef>();
         public Dictionary<string, FunctionDef> ValidEffectMap = new Dictionary<string, FunctionDef>();
     }
 
@@ -77,7 +86,7 @@ namespace JominiParse
         public static ScopeManager Instance = new ScopeManager();
 
         public Dictionary<ScopeType, ScopeTypeDef> Defs = new Dictionary<ScopeType, ScopeTypeDef>();
-        public void LoadConditionDefinitions(string filename)
+        public void LoadTriggerDefinitions(string filename)
         {
             XmlDocument doc = new XmlDocument();
 
@@ -93,7 +102,7 @@ namespace JominiParse
 
             while (el != null)
             {
-                LoadCondition(el);
+                LoadTrigger(el);
                 el = el.NextSibling;
 
             }
@@ -101,10 +110,10 @@ namespace JominiParse
             foreach (var scopeTypeDef in Defs)
             {
  
-                foreach (var valueValidConditionScope in scopeTypeDef.Value.ValidConditions)
+                foreach (var valueValidTriggerScope in scopeTypeDef.Value.ValidTriggers)
                 {
-                    if (valueValidConditionScope.Properties.Count > 0)
-                        SchemaManager.Instance.CreateScopeFunction(scopeTypeDef.Key, valueValidConditionScope, BlockType.function_block);
+                    if (valueValidTriggerScope.Properties.Count > 0)
+                        SchemaManager.Instance.CreateScopeFunction(scopeTypeDef.Key, valueValidTriggerScope, BlockType.function_block);
                 }
 
        
@@ -166,9 +175,9 @@ namespace JominiParse
 
             foreach (var scopeTypeDef in Defs)
             {
-                foreach (var valueValidConditionScope in scopeTypeDef.Value.ValidConditionScopes)
+                foreach (var valueValidTriggerScope in scopeTypeDef.Value.ValidTriggerScopes)
                 {
-                    CreateScopeSchema(scopeTypeDef.Key, valueValidConditionScope.Value, BlockType.condition_scope_change);
+                    CreateScopeSchema(scopeTypeDef.Key, valueValidTriggerScope.Value, BlockType.Trigger_scope_change);
                 }
 
                 foreach (var valueValidEffectScope in scopeTypeDef.Value.ValidEffectScopes)
@@ -196,13 +205,13 @@ namespace JominiParse
             return null;
 
         }
-        public FunctionDef GetCondition(ScopeType scope, string child)
+        public FunctionDef GetTrigger(ScopeType scope, string child)
         {
-            if(Defs[scope].ValidConditionMap.ContainsKey(child))
-                return Defs[scope].ValidConditionMap[child];
+            if(Defs[scope].ValidTriggerMap.ContainsKey(child))
+                return Defs[scope].ValidTriggerMap[child];
 
             if (scope != ScopeType.any)
-                return GetCondition(ScopeType.any, child);
+                return GetTrigger(ScopeType.any, child);
 
             return null;
         }
@@ -231,7 +240,7 @@ namespace JominiParse
 
             CreateScopeChange(f, name, t, type, singular);
         }
-        private void LoadCondition(XmlNode el)
+        private void LoadTrigger(XmlNode el)
         {
             string name = el.Attributes["name"].InnerText;
             string validscope = el.Attributes["validscope"].InnerText;
@@ -271,8 +280,8 @@ namespace JominiParse
                     c = c.NextSibling;
                 }
 
-                Defs[f].ValidConditions.Add(cd);
-                Defs[f].ValidConditionMap[cd.name] = cd;
+                Defs[f].ValidTriggers.Add(cd);
+                Defs[f].ValidTriggerMap[cd.name] = cd;
             }
             else
             {
@@ -295,8 +304,8 @@ namespace JominiParse
                     cd.treatAsScope = el.Attributes["treatAsScope"].InnerText == "yes";
                 }
                 cd.validscope = f;
-                Defs[f].ValidConditions.Add(cd);
-                Defs[f].ValidConditionMap[cd.name] = cd;
+                Defs[f].ValidTriggers.Add(cd);
+                Defs[f].ValidTriggerMap[cd.name] = cd;
 
             }
         }
@@ -378,15 +387,15 @@ namespace JominiParse
             {
                 def.ValidEffectScopes[name] = new ScopeChangeDefinition() { text = name, toType = to, singular=singular };
             }
-            else if(type=="condition")
+            else if(type=="Trigger")
             {
-                def.ValidConditionScopes[name] = new ScopeChangeDefinition() { text = name, toType = to, singular = singular };
+                def.ValidTriggerScopes[name] = new ScopeChangeDefinition() { text = name, toType = to, singular = singular };
 
             }
             else
             {
                 def.ValidEffectScopes[name] = new ScopeChangeDefinition() { text = name, toType = to, singular = singular };
-                def.ValidConditionScopes[name] = new ScopeChangeDefinition() { text = name, toType = to, singular = singular };
+                def.ValidTriggerScopes[name] = new ScopeChangeDefinition() { text = name, toType = to, singular = singular };
             }
         }
 
@@ -417,7 +426,7 @@ namespace JominiParse
             }
 
         }
-        private void AddScopeCondition(ScopeType from, string name)
+        private void AddScopeTrigger(ScopeType from, string name)
         {
             ScopeTypeDef def = null;
             if (!Defs.ContainsKey(from))
@@ -493,7 +502,7 @@ namespace JominiParse
             return from;
         }
 
-        public ScopeType ChangeConditionScope(ScopeType from, string name, out bool success, ScriptObject parent = null, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
+        public ScopeType ChangeTriggerScope(ScopeType from, string name, out bool success, ScriptObject parent = null, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
         {
             success = false;
 
@@ -522,15 +531,15 @@ namespace JominiParse
 
             if (Defs.ContainsKey(from))
             {
-                if (Defs[ScopeType.any].ValidConditionScopes.ContainsKey(name))
+                if (Defs[ScopeType.any].ValidTriggerScopes.ContainsKey(name))
                 {
                     success = true;
-                    return Defs[ScopeType.any].ValidConditionScopes[name].toType;
+                    return Defs[ScopeType.any].ValidTriggerScopes[name].toType;
                 }
-                else if (Defs[from].ValidConditionScopes.ContainsKey(name))
+                else if (Defs[from].ValidTriggerScopes.ContainsKey(name))
                 {
                     success = true;
-                    return Defs[from].ValidConditionScopes[name].toType;
+                    return Defs[from].ValidTriggerScopes[name].toType;
                 }
 
             }
@@ -548,7 +557,7 @@ namespace JominiParse
 
                     {
 
-                        var newScope = ChangeConditionScope(stu, s, out success, parent, findType);
+                        var newScope = ChangeTriggerScope(stu, s, out success, parent, findType);
                         if (!success)
                             break;
                         stu = newScope;
@@ -561,10 +570,10 @@ namespace JominiParse
 
             {
 
-                if (parent != null && isConditionScopeInside(from, name, parent, findType))
+                if (parent != null && isTriggerScopeInside(from, name, parent, findType))
                 {
                     success = true;
-                    return getConditionScopeInside(from, name, parent, findType);
+                    return getTriggerScopeInside(from, name, parent, findType);
                 }
 
               
@@ -660,12 +669,12 @@ namespace JominiParse
 
             return false;
         }
-        public bool isCondition(ScopeType scope, string name)
+        public bool isTrigger(ScopeType scope, string name)
         {
-            if (Defs.ContainsKey(scope) && Defs[scope].ValidConditionMap.ContainsKey(name.Trim()))
+            if (Defs.ContainsKey(scope) && Defs[scope].ValidTriggerMap.ContainsKey(name.Trim()))
                 return true;
             if (scope != ScopeType.any)
-                return isCondition(ScopeType.any, name);
+                return isTrigger(ScopeType.any, name);
 
             return false;
         }
@@ -681,13 +690,13 @@ namespace JominiParse
 
         }
 
-        public bool isSingularConditionScope(ScopeType current, string name, out ScopeType resScope, ScriptObject parent = null)
+        public bool isSingularTriggerScope(ScopeType current, string name, out ScopeType resScope, ScriptObject parent = null)
         {
             resScope = current;
-            bool inside = isConditionScopeInside(current, name, parent);
-            bool condition = isConditionScope(current, name);
+            bool inside = isTriggerScopeInside(current, name, parent);
+            bool Trigger = isTriggerScope(current, name);
 
-            if (!condition && !inside)
+            if (!Trigger && !inside)
                 return false;
 
             if (inside)
@@ -695,12 +704,12 @@ namespace JominiParse
                 if(name.Contains("."))
                 {
                     string test = name.Substring(0, name.LastIndexOf("."));
-                    var secondLast = getConditionScopeInside(current, test, parent);
+                    var secondLast = getTriggerScopeInside(current, test, parent);
                     string final = name.Substring(name.LastIndexOf(".")+1);
                     
-                    if (Defs[secondLast].ValidConditionScopes.ContainsKey(final) && Defs[secondLast].ValidConditionScopes[final].singular)
+                    if (Defs[secondLast].ValidTriggerScopes.ContainsKey(final) && Defs[secondLast].ValidTriggerScopes[final].singular)
                     {
-                        resScope = Defs[secondLast].ValidConditionScopes[final].toType;
+                        resScope = Defs[secondLast].ValidTriggerScopes[final].toType;
                         return true;
                     }
                 }
@@ -710,9 +719,9 @@ namespace JominiParse
                 }
             }
 
-            if (Defs[current].ValidConditionScopes.ContainsKey(name) && Defs[current].ValidConditionScopes[name].singular)
+            if (Defs[current].ValidTriggerScopes.ContainsKey(name) && Defs[current].ValidTriggerScopes[name].singular)
             {
-                resScope = Defs[current].ValidConditionScopes[name].toType;
+                resScope = Defs[current].ValidTriggerScopes[name].toType;
                 return true;
             }
 
@@ -722,20 +731,20 @@ namespace JominiParse
 
                 foreach (var s in split)
                 {
-                    if (!((Defs.ContainsKey(current) && Defs[current].ValidConditionScopes.ContainsKey(s.Trim()) &&
-                         Defs[current].ValidConditionScopes[s.Trim()].singular) ||
-                        (Defs.ContainsKey(ScopeType.any) && Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()) &&
-                        Defs[ScopeType.any].ValidConditionScopes[s.Trim()].singular)))
+                    if (!((Defs.ContainsKey(current) && Defs[current].ValidTriggerScopes.ContainsKey(s.Trim()) &&
+                         Defs[current].ValidTriggerScopes[s.Trim()].singular) ||
+                        (Defs.ContainsKey(ScopeType.any) && Defs[ScopeType.any].ValidTriggerScopes.ContainsKey(s.Trim()) &&
+                        Defs[ScopeType.any].ValidTriggerScopes[s.Trim()].singular)))
                     {
                         return false;
                     }
                     else
                     {
-                        if (Defs[current].ValidConditionScopes.ContainsKey(s.Trim()))
-                            current = Defs[current].ValidConditionScopes[s.Trim()].toType;
+                        if (Defs[current].ValidTriggerScopes.ContainsKey(s.Trim()))
+                            current = Defs[current].ValidTriggerScopes[s.Trim()].toType;
                         else
-                        if (Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()))
-                            current = Defs[ScopeType.any].ValidConditionScopes[s.Trim()].toType;
+                        if (Defs[ScopeType.any].ValidTriggerScopes.ContainsKey(s.Trim()))
+                            current = Defs[ScopeType.any].ValidTriggerScopes[s.Trim()].toType;
                     }
 
 
@@ -748,7 +757,7 @@ namespace JominiParse
 
             return false;
         }
-        public bool isConditionScope(ScopeType current, string name)
+        public bool isTriggerScope(ScopeType current, string name)
         {
             if (name == null)
                 return false;
@@ -756,9 +765,9 @@ namespace JominiParse
             if (name.StartsWith("scope:"))
                 return false;
 
-            if (Defs.ContainsKey(current) && Defs[current].ValidConditionScopes.ContainsKey(name))
+            if (Defs.ContainsKey(current) && Defs[current].ValidTriggerScopes.ContainsKey(name))
                 return true;
-            if (Defs.ContainsKey(current) && Defs[ScopeType.any].ValidConditionScopes.ContainsKey(name))
+            if (Defs.ContainsKey(current) && Defs[ScopeType.any].ValidTriggerScopes.ContainsKey(name))
                 return true;
 
 
@@ -768,20 +777,20 @@ namespace JominiParse
 
                 foreach (var s in split)
                 {
-                    if (!((Defs.ContainsKey(current) && Defs[current].ValidConditionScopes.ContainsKey(s.Trim()) &&
-                           Defs[current].ValidConditionScopes[s.Trim()].singular) ||
-                          (Defs.ContainsKey(ScopeType.any) && Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()) &&
-                           Defs[ScopeType.any].ValidConditionScopes[s.Trim()].singular)))
+                    if (!((Defs.ContainsKey(current) && Defs[current].ValidTriggerScopes.ContainsKey(s.Trim()) &&
+                           Defs[current].ValidTriggerScopes[s.Trim()].singular) ||
+                          (Defs.ContainsKey(ScopeType.any) && Defs[ScopeType.any].ValidTriggerScopes.ContainsKey(s.Trim()) &&
+                           Defs[ScopeType.any].ValidTriggerScopes[s.Trim()].singular)))
                     {
                         return false;
                     }
                     else
                     {
-                        if (Defs[current].ValidConditionScopes.ContainsKey(s.Trim()))
-                            current = Defs[current].ValidConditionScopes[s.Trim()].toType;
+                        if (Defs[current].ValidTriggerScopes.ContainsKey(s.Trim()))
+                            current = Defs[current].ValidTriggerScopes[s.Trim()].toType;
                         else
-                        if (Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()))
-                            current = Defs[ScopeType.any].ValidConditionScopes[s.Trim()].toType;
+                        if (Defs[ScopeType.any].ValidTriggerScopes.ContainsKey(s.Trim()))
+                            current = Defs[ScopeType.any].ValidTriggerScopes[s.Trim()].toType;
                     }
 
 
@@ -794,7 +803,7 @@ namespace JominiParse
 
             return false;
         }
-        public bool isConditionScopeToParam(ScopeType current, string name)
+        public bool isTriggerScopeToParam(ScopeType current, string name)
         {
             if (name == null)
                 return false;
@@ -802,9 +811,9 @@ namespace JominiParse
             if (name.StartsWith("scope:"))
                 return false;
 
-            if (Defs.ContainsKey(current) && Defs[current].ValidConditionScopes.ContainsKey(name))
+            if (Defs.ContainsKey(current) && Defs[current].ValidTriggerScopes.ContainsKey(name))
                 return true;
-            if (Defs.ContainsKey(current) && Defs[ScopeType.any].ValidConditionScopes.ContainsKey(name))
+            if (Defs.ContainsKey(current) && Defs[ScopeType.any].ValidTriggerScopes.ContainsKey(name))
                 return true;
 
 
@@ -815,24 +824,24 @@ namespace JominiParse
                 for (var index = 0; index < split.Length - 1; index++)
                 {
                     var s = split[index];
-                    if (!((Defs.ContainsKey(current) && Defs[current].ValidConditionScopes.ContainsKey(s.Trim()) &&
-                           Defs[current].ValidConditionScopes[s.Trim()].singular) ||
+                    if (!((Defs.ContainsKey(current) && Defs[current].ValidTriggerScopes.ContainsKey(s.Trim()) &&
+                           Defs[current].ValidTriggerScopes[s.Trim()].singular) ||
                           (Defs.ContainsKey(ScopeType.any) &&
-                           Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()) &&
-                           Defs[ScopeType.any].ValidConditionScopes[s.Trim()].singular)))
+                           Defs[ScopeType.any].ValidTriggerScopes.ContainsKey(s.Trim()) &&
+                           Defs[ScopeType.any].ValidTriggerScopes[s.Trim()].singular)))
                     {
                         return false;
                     }
                     else
                     {
-                        if (Defs[current].ValidConditionScopes.ContainsKey(s.Trim()))
-                            current = Defs[current].ValidConditionScopes[s.Trim()].toType;
-                        else if (Defs[ScopeType.any].ValidConditionScopes.ContainsKey(s.Trim()))
-                            current = Defs[ScopeType.any].ValidConditionScopes[s.Trim()].toType;
+                        if (Defs[current].ValidTriggerScopes.ContainsKey(s.Trim()))
+                            current = Defs[current].ValidTriggerScopes[s.Trim()].toType;
+                        else if (Defs[ScopeType.any].ValidTriggerScopes.ContainsKey(s.Trim()))
+                            current = Defs[ScopeType.any].ValidTriggerScopes[s.Trim()].toType;
                     }
                 }
 
-                if (isCondition(current, split[split.Length - 1]))
+                if (isTrigger(current, split[split.Length - 1]))
                     return true;
 
 
@@ -841,16 +850,16 @@ namespace JominiParse
             return false;
         }
 
-        public void AddCompleteScopeConditionResults(ScopeType scope, List<string> results)
+        public void AddCompleteScopeTriggerResults(ScopeType scope, List<string> results)
         {
-            foreach (var scopeChangeDefinition in Defs[scope].ValidConditionScopes.Values)
+            foreach (var scopeChangeDefinition in Defs[scope].ValidTriggerScopes.Values)
                 results.Add(scopeChangeDefinition.text);
-            foreach (var scopeChangeDefinition in Defs[scope].ValidConditionMap.Values)
+            foreach (var scopeChangeDefinition in Defs[scope].ValidTriggerMap.Values)
                 results.Add(scopeChangeDefinition.name);
 
-            foreach (var scopeChangeDefinition in Defs[ScopeType.any].ValidConditionScopes.Values)
+            foreach (var scopeChangeDefinition in Defs[ScopeType.any].ValidTriggerScopes.Values)
                 results.Add(scopeChangeDefinition.text);
-            foreach (var scopeChangeDefinition in Defs[ScopeType.any].ValidConditionMap.Values)
+            foreach (var scopeChangeDefinition in Defs[ScopeType.any].ValidTriggerMap.Values)
                 results.Add(scopeChangeDefinition.name);
 
             results.Add("NOT");
@@ -922,7 +931,7 @@ namespace JominiParse
             return false;
         }
 
-        public bool isConditionScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
+        public bool isTriggerScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
         {
             if (!name.StartsWith("scope:"))
                 name = "scope:" + name;
@@ -943,7 +952,7 @@ namespace JominiParse
                     if (index == 0)
                     {
                         bool success;
-                        var newScope = ChangeConditionScope(stu, "scope:" + s, out success, scriptObjectParent, findType);
+                        var newScope = ChangeTriggerScope(stu, "scope:" + s, out success, scriptObjectParent, findType);
                         if (!success)
                             return false;
                         stu = newScope;
@@ -951,7 +960,7 @@ namespace JominiParse
                     else
                     {
                         bool success;
-                        var newScope = ChangeConditionScope(stu, s, out success, null, findType);
+                        var newScope = ChangeTriggerScope(stu, s, out success, null, findType);
                         if (!success)
                             return false;
                         stu = newScope;
@@ -969,11 +978,11 @@ namespace JominiParse
                 return true;
 
             if (scope != ScopeType.any)
-                return isConditionScopeInside(ScopeType.any, name, scriptObjectParent, findType);
+                return isTriggerScopeInside(ScopeType.any, name, scriptObjectParent, findType);
 
             return false;
         }
-        public bool isConditionScopeEndParamInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
+        public bool isTriggerScopeEndParamInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
         {
             if (!name.StartsWith("scope:"))
                 return false;
@@ -994,7 +1003,7 @@ namespace JominiParse
                     if (index == 0)
                     {
                         bool success;
-                        var newScope = ChangeConditionScope(stu, "scope:" + s, out success, scriptObjectParent);
+                        var newScope = ChangeTriggerScope(stu, "scope:" + s, out success, scriptObjectParent);
                         if (!success)
                             return false;
                         stu = newScope;
@@ -1002,7 +1011,7 @@ namespace JominiParse
                     else
                     {
                         bool success;
-                        var newScope = ChangeConditionScope(stu, s, out success);
+                        var newScope = ChangeTriggerScope(stu, s, out success);
                         if (!success)
                             return false;
                         stu = newScope;
@@ -1010,7 +1019,7 @@ namespace JominiParse
 
                 }
 
-                if (isCondition(stu, split[split.Length - 1]))
+                if (isTrigger(stu, split[split.Length - 1]))
                     return true;
 
                 return false;
@@ -1023,7 +1032,7 @@ namespace JominiParse
                 return true;
 
             if (scope != ScopeType.any)
-                return isConditionScopeInside(ScopeType.any, name, scriptObjectParent);
+                return isTriggerScopeInside(ScopeType.any, name, scriptObjectParent);
             */
             return false;
         }
@@ -1080,7 +1089,7 @@ namespace JominiParse
             return scope;
         }
 
-        public ScopeType getConditionScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
+        public ScopeType getTriggerScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
         {
             if (!name.StartsWith("scope:"))
                 return scope;
@@ -1098,7 +1107,7 @@ namespace JominiParse
                     if (index == 0)
                     {
                         bool success;
-                        var newScope = ChangeConditionScope(stu, "scope:" + s, out success, scriptObjectParent, findType);
+                        var newScope = ChangeTriggerScope(stu, "scope:" + s, out success, scriptObjectParent, findType);
                         if (!success)
                             return scope;
                         stu = newScope;
@@ -1106,7 +1115,7 @@ namespace JominiParse
                     else
                     {
                         bool success;
-                        var newScope = ChangeConditionScope(stu, s, out success, null, findType);
+                        var newScope = ChangeTriggerScope(stu, s, out success, null, findType);
                         if (!success)
                             return scope;
                         stu = newScope;
@@ -1127,7 +1136,7 @@ namespace JominiParse
             }
 
             if (scope != ScopeType.any)
-                return getConditionScopeInside(ScopeType.any, name, scriptObjectParent, findType);
+                return getTriggerScopeInside(ScopeType.any, name, scriptObjectParent, findType);
 
             return scope;
         }

@@ -63,8 +63,8 @@ namespace JominiParse
         public ScriptObjectBehaviourData ParentData { get; set; }
         public ScriptObjectBehaviourType Type { get; set; }
         public bool IsBlock { get; set; }
-        public bool ExpectConditions { get; set; }
-        public bool ParentExpectConditions { get; set; }
+        public bool ExpectTriggers { get; set; }
+        public bool ParentExpectTriggers { get; set; }
         public bool ExpectFunctionParameters { get; set; }
         public bool ParentExpectEffects { get; set; }
         public bool ExpectEffects { get; set; }
@@ -111,7 +111,7 @@ namespace JominiParse
         public bool ValueFound { get; set; }
         public bool ValueIsScope { get; set; }
         public FunctionDef ExpectedEffectFunction { get; set; }
-        public FunctionDef ExpectedConditionFunction { get; set; }
+        public FunctionDef ExpectedTriggerFunction { get; set; }
         public bool CanBeScope { get; set; }
         public bool IsFunction { 
             get
@@ -258,17 +258,17 @@ namespace JominiParse
 
         private void DetermineBehaviourScope(ScriptObject obj, ScriptObjectBehaviourData data)
         {
-            if (ParentEffectiveSchema.SupportsConditions())
-                data.ParentExpectConditions = true;
+            if (ParentEffectiveSchema.SupportsTriggers())
+                data.ParentExpectTriggers = true;
             if (ParentEffectiveSchema.SupportsEffects())
                 data.ParentExpectEffects = true;
 
-            if (EffectiveSchema.SupportsConditions())
-                data.ExpectConditions = true;
+            if (EffectiveSchema.SupportsTriggers())
+                data.ExpectTriggers = true;
             if (EffectiveSchema.SupportsEffects())
                 data.ExpectEffects = true;
 
-            if ((data.Type == ScriptObjectBehaviourType.FunctionMultiline) && (data.ExpectConditions || data.ExpectEffects))
+            if ((data.Type == ScriptObjectBehaviourType.FunctionMultiline) && (data.ExpectTriggers || data.ExpectEffects))
             {
                 data.Type = ScriptObjectBehaviourType.GeneralBlock;
             }
@@ -282,21 +282,21 @@ namespace JominiParse
 
             if (data.IsScope)
             {
-                if (data.ExpectConditions || data.ParentExpectConditions)
+                if (data.ExpectTriggers || data.ParentExpectTriggers)
                 {
                     if (data.IsScopedBlock)
                     {
-                        if (ScopeManager.Instance.isConditionScope(scope, obj.Name))
+                        if (ScopeManager.Instance.isTriggerScope(scope, obj.Name))
                         {
                             bool success;
-                            var newScope = ScopeManager.Instance.ChangeConditionScope(scope, obj.Name, out success);
+                            var newScope = ScopeManager.Instance.ChangeTriggerScope(scope, obj.Name, out success);
                             if (success)
                                 data.ScopeType = newScope;
                         }
-                        else if (ScopeManager.Instance.isConditionScopeInside(scope, obj.Name, obj.Parent))
+                        else if (ScopeManager.Instance.isTriggerScopeInside(scope, obj.Name, obj.Parent))
                         {
                             bool success;
-                            var newScope = ScopeManager.Instance.ChangeConditionScope(scope, obj.Name, out success, obj.Parent);
+                            var newScope = ScopeManager.Instance.ChangeTriggerScope(scope, obj.Name, out success, obj.Parent);
                             if (success)
                                 data.ScopeType = newScope;
 
@@ -328,7 +328,7 @@ namespace JominiParse
                 if (data.IsScopedBlock)
                 {
                     data.ExpectEffects = data.ParentData.ExpectEffects;
-                    data.ExpectConditions = data.ParentData.ExpectConditions;
+                    data.ExpectTriggers = data.ParentData.ExpectTriggers;
                 }
 
             }
@@ -354,54 +354,54 @@ namespace JominiParse
                     typeExpected = effect.type;
                 }
             }
-            else if (data.ParentData.ExpectConditions && (data.Type == ScriptObjectBehaviourType.FunctionSingleLine))
+            else if (data.ParentData.ExpectTriggers && (data.Type == ScriptObjectBehaviourType.FunctionSingleLine))
             {
-                var condition = ScopeManager.Instance.GetCondition(scope, obj.Name);
+                var Trigger = ScopeManager.Instance.GetTrigger(scope, obj.Name);
 
                 // successfully gotten an effect
-                if (condition != null)
+                if (Trigger != null)
                 {
-                    if (condition.Properties.Count > 0)
+                    if (Trigger.Properties.Count > 0)
                         data.CanBeScope = true;
-                    typeExpected = condition.type;
+                    typeExpected = Trigger.type;
                 }
             }
 
-            else if (data.ParentData.ExpectConditions && (data.Type == ScriptObjectBehaviourType.InherentScopeToProperty || data.Type == ScriptObjectBehaviourType.SavedScopeToProperty))
+            else if (data.ParentData.ExpectTriggers && (data.Type == ScriptObjectBehaviourType.InherentScopeToProperty || data.Type == ScriptObjectBehaviourType.SavedScopeToProperty))
             {
-                var condition = ScopeManager.Instance.GetCondition(scope, obj.Name);
+                var Trigger = ScopeManager.Instance.GetTrigger(scope, obj.Name);
 
                 // successfully gotten an effect
-                if (condition != null)
+                if (Trigger != null)
                 {
-                    typeExpected = condition.type;
-                    if (condition.Properties.Count > 0)
+                    typeExpected = Trigger.type;
+                    if (Trigger.Properties.Count > 0)
                         data.CanBeScope = true;
                 }
                 else
                 {
-                    if (ScopeManager.Instance.isConditionScope(scope, obj.Name))
+                    if (ScopeManager.Instance.isTriggerScope(scope, obj.Name))
                     {
                         bool success;
-                        var to = ScopeManager.Instance.ChangeConditionScope(scope, obj.Name, out success, obj.Parent);
+                        var to = ScopeManager.Instance.ChangeTriggerScope(scope, obj.Name, out success, obj.Parent);
                         if (success)
                         {
                             typeExpected = to.ToString();
                         }
                     }
-                    else if (ScopeManager.Instance.isConditionScopeToParam(scope, obj.Name))
+                    else if (ScopeManager.Instance.isTriggerScopeToParam(scope, obj.Name))
                     {
                         bool success;
-                        var to = ScopeManager.Instance.ChangeConditionScope(scope, obj.Name, out success, obj.Parent);
+                        var to = ScopeManager.Instance.ChangeTriggerScope(scope, obj.Name, out success, obj.Parent);
                         if (success)
                         {
                             typeExpected = to.ToString();
                         }
                     }
-                    else if (ScopeManager.Instance.isConditionScopeInside(scope, obj.Name, obj.Parent))
+                    else if (ScopeManager.Instance.isTriggerScopeInside(scope, obj.Name, obj.Parent))
                     {
                         bool success;
-                        var to = ScopeManager.Instance.ChangeConditionScope(scope, obj.Name, out success, obj.Parent);
+                        var to = ScopeManager.Instance.ChangeTriggerScope(scope, obj.Name, out success, obj.Parent);
                         if (success)
                         {
                             typeExpected = to.ToString();
@@ -418,20 +418,20 @@ namespace JominiParse
 
                 if (parent.Parent != null)
                 {
-                    if (parent.Parent.BehaviourData.ParentExpectConditions)
+                    if (parent.Parent.BehaviourData.ParentExpectTriggers)
                     {
-                        var condition = ScopeManager.Instance.GetCondition(parent.Parent.GetScopeType(), parent.Name);
+                        var Trigger = ScopeManager.Instance.GetTrigger(parent.Parent.GetScopeType(), parent.Name);
 
-                        if (condition != null)
+                        if (Trigger != null)
                         {
-                            if (condition.Properties.Count > 0)
+                            if (Trigger.Properties.Count > 0)
                                 data.CanBeScope = true;
 
-                            if (condition.Properties.Any(a => a.name == obj.Name))
+                            if (Trigger.Properties.Any(a => a.name == obj.Name))
                             {
-                                var c = condition.Properties.First(a => a.name == obj.Name);
+                                var c = Trigger.Properties.First(a => a.name == obj.Name);
                                 typeExpected = c.type;
-                                data.Function = condition;
+                                data.Function = Trigger;
                                 data.Parameter = c;
                             }
                             else
@@ -508,12 +508,12 @@ namespace JominiParse
                     if (value != null)
                     {
 
-                        if (ScopeManager.Instance.isConditionScope(scope, value) ||
+                        if (ScopeManager.Instance.isTriggerScope(scope, value) ||
                             ScopeManager.Instance.isEffectScope(scope, value))
                         {
                             bool success;
                             ScopeType to =
-                                ScopeManager.Instance.ChangeConditionScope(scope, value, out success, obj.Parent);
+                                ScopeManager.Instance.ChangeTriggerScope(scope, value, out success, obj.Parent);
 
                             if (success)
                             {
@@ -535,7 +535,7 @@ namespace JominiParse
                                 }
                             }
                         }
-                        if (!data.ValueFound && (ScopeManager.Instance.isConditionScopeInside(scope, value, obj.Parent, ScriptObject.ScopeFindType.Value) ||
+                        if (!data.ValueFound && (ScopeManager.Instance.isTriggerScopeInside(scope, value, obj.Parent, ScriptObject.ScopeFindType.Value) ||
                                                  ScopeManager.Instance.isEffectScopeInside(scope, value, obj.Parent, ScriptObject.ScopeFindType.Value)))
                         {
                          
@@ -551,12 +551,12 @@ namespace JominiParse
                                 }
                             }
                         }
-                        if (!data.ValueFound && (ScopeManager.Instance.isConditionScopeInside(scope, value, obj.Parent, ScriptObject.ScopeFindType.Object) ||
+                        if (!data.ValueFound && (ScopeManager.Instance.isTriggerScopeInside(scope, value, obj.Parent, ScriptObject.ScopeFindType.Object) ||
                                                  ScopeManager.Instance.isEffectScopeInside(scope, value, obj.Parent, ScriptObject.ScopeFindType.Object)))
                         {
                             bool success;
                             ScopeType to =
-                                ScopeManager.Instance.ChangeConditionScope(scope, value, out success, obj.Parent);
+                                ScopeManager.Instance.ChangeTriggerScope(scope, value, out success, obj.Parent);
 
                             if (success)
                             {
@@ -580,16 +580,16 @@ namespace JominiParse
                                 }
                             }
                         }
-                        if (!data.ValueFound && ScopeManager.Instance.isConditionScopeEndParamInside(scope, value, obj.Parent))
+                        if (!data.ValueFound && ScopeManager.Instance.isTriggerScopeEndParamInside(scope, value, obj.Parent))
 
                         {
                             bool success;
                             ScopeType to =
-                                ScopeManager.Instance.ChangeConditionScope(scope, value.Substring(0, value.LastIndexOf(".")), out success, obj.Parent);
+                                ScopeManager.Instance.ChangeTriggerScope(scope, value.Substring(0, value.LastIndexOf(".")), out success, obj.Parent);
 
                             if (success)
                             {
-                                var con = ScopeManager.Instance.GetCondition(to,
+                                var con = ScopeManager.Instance.GetTrigger(to,
                                     value.Substring(value.LastIndexOf(".") + 1));
 
                                 if (con.type == data.TypeExpected)
@@ -659,20 +659,20 @@ namespace JominiParse
 
             if (isBlock)
             {
-                if (ScopeManager.Instance.isConditionScope(scope, name) || ScopeManager.Instance.isEffectScope(scope, name))
+                if (ScopeManager.Instance.isTriggerScope(scope, name) || ScopeManager.Instance.isEffectScope(scope, name))
                 {
                     data.Type = ScriptObjectBehaviourType.InherentScopeBlock;
 
                     //        InherentScopeBlocks.Add(name);
                 }
-                else if (ScopeManager.Instance.isConditionScopeInside(scope, name, obj.Parent, ScriptObject.ScopeFindType.Object) || ScopeManager.Instance.isEffectScopeInside(scope, name, obj.Parent, ScriptObject.ScopeFindType.Object))
+                else if (ScopeManager.Instance.isTriggerScopeInside(scope, name, obj.Parent, ScriptObject.ScopeFindType.Object) || ScopeManager.Instance.isEffectScopeInside(scope, name, obj.Parent, ScriptObject.ScopeFindType.Object))
                 {
                     data.Type = ScriptObjectBehaviourType.SavedScopeBlock;
 
                     //     SavedScopeBlocks.Add(name);
 
                 }
-                else if (ScopeManager.Instance.isCondition(scope, name))
+                else if (ScopeManager.Instance.isTrigger(scope, name))
                 {
                     data.Type = ScriptObjectBehaviourType.FunctionMultiline;
                     //     FunctionMultiline.Add(name);
@@ -747,13 +747,13 @@ namespace JominiParse
             }
             else
             {
-                if (ScopeManager.Instance.isConditionScopeToParam(scope, name) || ScopeManager.Instance.isEffectScopeToParam(scope, name))
+                if (ScopeManager.Instance.isTriggerScopeToParam(scope, name) || ScopeManager.Instance.isEffectScopeToParam(scope, name))
                 {
                     data.Type = ScriptObjectBehaviourType.InherentScopeToProperty;
 
                     //      InherentScopeToProperty.Add(name);
                 }
-                else if (ScopeManager.Instance.isConditionScopeEndParamInside(scope, name,
+                else if (ScopeManager.Instance.isTriggerScopeEndParamInside(scope, name,
                     obj.Parent) || ScopeManager.Instance.isEffectScopeInside(scope, name,
                              obj.Parent))
                 {
@@ -761,11 +761,11 @@ namespace JominiParse
                     //         SavedScopeToProperty.Add(name);
 
                 }
-                else if ((ScopeManager.Instance.isCondition(scope, name) || ScopeManager.Instance.isEffect(scope, name)) && !data.ParentData.IsFunction)
+                else if ((ScopeManager.Instance.isTrigger(scope, name) || ScopeManager.Instance.isEffect(scope, name)) && !data.ParentData.IsFunction)
                 {
                     data.Type = ScriptObjectBehaviourType.FunctionSingleLine;
                     //     FunctionSingleLine.Add(name);
-                    data.ExpectedConditionFunction = ScopeManager.Instance.GetCondition(scope, name);
+                    data.ExpectedTriggerFunction = ScopeManager.Instance.GetTrigger(scope, name);
                     data.ExpectedEffectFunction = ScopeManager.Instance.GetEffect(scope, name);
                 }
                 else
@@ -779,7 +779,7 @@ namespace JominiParse
                     {
                         data.Type = ScriptObjectBehaviourType.FunctionParameter;
                     }
-                    else if (obj.Parent.BehaviourData.IsFunction && (ScopeManager.Instance.isCondition(obj.Parent.GetScopeType(), obj.Parent.Name) || ScopeManager.Instance.isEffect(obj.Parent.GetScopeType(), obj.Parent.Name)))
+                    else if (obj.Parent.BehaviourData.IsFunction && (ScopeManager.Instance.isTrigger(obj.Parent.GetScopeType(), obj.Parent.Name) || ScopeManager.Instance.isEffect(obj.Parent.GetScopeType(), obj.Parent.Name)))
                     {
                         data.Type = ScriptObjectBehaviourType.FunctionParameter;
 

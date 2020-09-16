@@ -188,9 +188,9 @@ namespace JominiParse
             return scope;
         }
 
-        public bool SupportsConditions()
+        public bool SupportsTriggers()
         {
-            return children.Any(a => a.Key == "scopeconditions");
+            return children.Any(a => a.Key == "scopetriggers");
         }
         public bool SupportsEffects()
         {
@@ -229,12 +229,12 @@ namespace JominiParse
             }
         }
 
-        public ScriptObjectSchema GetDefaultConditionScopeSchema()
+        public ScriptObjectSchema GetDefaultTriggerScopeSchema()
         {
             if (DefaultCScope == null)
             {
                 DefaultCScope = new ScriptObjectSchema();
-     //           DefaultCScope.children["scopeconditions"] = (new SchemaChild() { blockType = BlockType.condition_block, Name = "scopeconditions", IsBlock = true });
+     //           DefaultCScope.children["scopeTriggers"] = (new SchemaChild() { blockType = BlockType.Trigger_block, Name = "scopeTriggers", IsBlock = true });
             }
 
             return DefaultCScope;
@@ -244,7 +244,7 @@ namespace JominiParse
             if (DefaultEScope == null)
             {
                 DefaultEScope = new ScriptObjectSchema();
-            //    DefaultEScope.children["scopeeffects"] = (new SchemaChild() { blockType = BlockType.condition_block, Name = "scopeeffects", IsBlock = true });
+            //    DefaultEScope.children["scopeeffects"] = (new SchemaChild() { blockType = BlockType.Trigger_block, Name = "scopeeffects", IsBlock = true });
             }
 
             return DefaultEScope;
@@ -262,11 +262,11 @@ namespace JominiParse
             schema.blockType = bt;
             schema.scope = key;
 
-            foreach (var conditionProperty in def.Properties)
+            foreach (var TriggerProperty in def.Properties)
             {
                 var a = new SchemaChild();
-                string name = conditionProperty.name;
-                string type = conditionProperty.type;
+                string name = TriggerProperty.name;
+                string type = TriggerProperty.type;
 
                 a.Name = name;
                 a.Type = type;
@@ -288,7 +288,7 @@ namespace JominiParse
             schema.blockType = BlockType.inheritparent;
             schema.scope = scopeDef.toType;
 
-            if (blockType == BlockType.condition_scope_change)
+            if (blockType == BlockType.Trigger_scope_change)
             {
             
             }

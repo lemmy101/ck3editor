@@ -50,7 +50,7 @@ namespace CK3ScriptEditor
             options.SearchValues = doesFindValues.Checked;
 
             options.SearchOverridden = doesFindOverridden.Checked;
-            options.SearchConditionFunctions = doesConditionFuncs.Checked;
+            options.SearchTriggerFunctions = doesTriggerFuncs.Checked;
             options.SearchValues = doesFindValues.Checked;
             options.SearchEffectFunctions = doesFindEffectFuncs.Checked;
             options.SearchFunctionParameters = doesFindFuncParams.Checked;
@@ -63,7 +63,7 @@ namespace CK3ScriptEditor
             if (scopeSchemes.Checked)
                 options.ScopesToSearch.Add(ScopeType.scheme);
             if (scopeTitles.Checked)
-                options.ScopesToSearch.Add(ScopeType.title);
+                options.ScopesToSearch.Add(ScopeType.landed_title);
 
             var results = Core.Instance.DoSmartFind(options);
 
@@ -72,7 +72,7 @@ namespace CK3ScriptEditor
 
         private void uncheckAllTypes_Click(object sender, EventArgs e)
         {
-            doesConditionFuncs.Checked = false;
+            doesTriggerFuncs.Checked = false;
             doesFindOverridden.Checked = false;
             doesFindValues.Checked = false;
             doesFindEffectFuncs.Checked = false;
@@ -83,7 +83,7 @@ namespace CK3ScriptEditor
 
         private void checkAllTypes_Click(object sender, EventArgs e)
         {
-            doesConditionFuncs.Checked = true;
+            doesTriggerFuncs.Checked = true;
             doesFindOverridden.Checked = true;
             doesFindValues.Checked = true;
             doesFindEffectFuncs.Checked = true;

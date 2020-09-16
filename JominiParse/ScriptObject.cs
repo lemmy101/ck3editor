@@ -670,7 +670,7 @@ namespace JominiParse
 
         public List<ScriptObject> Children = new List<ScriptObject>();
         private bool isScope;
-        private bool isConditionEnd;
+        private bool isTriggerEnd;
 
       
 
@@ -725,9 +725,9 @@ namespace JominiParse
         {
             return isScope;
         }
-        public bool IsConditionEnd()
+        public bool IsTriggerEnd()
         {
-            return isConditionEnd;
+            return isTriggerEnd;
         }
 
         public ScopeVarType GetVarType()
@@ -831,9 +831,9 @@ namespace JominiParse
                 return true;
             }
 
-            if (options.SearchConditionFunctions &&
+            if (options.SearchTriggerFunctions &&
                 (this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionMultiline ||
-                  this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionSingleLine || this.BehaviourData.Type == ScriptObjectBehaviourType.InherentScopeToProperty) && BehaviourData.ParentExpectConditions)
+                  this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionSingleLine || this.BehaviourData.Type == ScriptObjectBehaviourType.InherentScopeToProperty) && BehaviourData.ParentExpectTriggers)
             {
                 return true;
             }

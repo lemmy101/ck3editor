@@ -62,9 +62,9 @@ namespace CK3ScriptEditor
             Instance = this;
             InitializeComponent();
             AutoSave.Interval = BackupManager.Instance.TickTimeMS;
-            ScopeManager.Instance.LoadScopeDefinitions("Scopes.xml");
-            ScopeManager.Instance.LoadConditionDefinitions("Conditions.xml");
-            ScopeManager.Instance.LoadEffectDefinitions("Effects.xml");
+            ScopeManager.Instance.LoadScopeDefinitions("ScopeDefs/scopes.xml");
+            ScopeManager.Instance.LoadTriggerDefinitions("ScopeDefs/triggers.xml");
+            ScopeManager.Instance.LoadEffectDefinitions("ScopeDefs/effects.xml");
             Core.Instance.Init();
 
             Core.Instance.CreateOrLoadMod("TestMod");

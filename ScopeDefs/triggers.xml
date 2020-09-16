@@ -46,14 +46,14 @@
 	<Property name="value" type="num" />
 </Condition>  
 <Condition name="pilgrimage_is_to" validscope="character" >
-	<Property name="DESTINATION" type="title"/>	
+	<Property name="DESTINATION" type="landed_title"/>	
 </Condition>  
 <Condition name="reverse_opinion" validscope="character" >
 	<Property name="target" type="character"/>	
 	<Property name="value" type="num" />
 </Condition>  
-<Condition name="squared_distance" validscope="title">
-	<Property name="target" type="title"/>	
+<Condition name="squared_distance" validscope="landed_title">
+	<Property name="target" type="landed_title"/>	
 	<Property name="value" type="num"/>	
 </Condition>
 
@@ -86,7 +86,7 @@
 	
 	
 <Condition name="has_scheme_modifier" validscope="scheme" type="modifier" />
-<Condition name="completely_controls" validscope="character" type="title" />
+<Condition name="completely_controls" validscope="character" type="landed_title" />
 
 <Condition name="scheme_number_of_agents" validscope="scheme" type="num" />
 <Condition name="is_at_same_location" validscope="character" type="character" />
@@ -94,7 +94,7 @@
 <Condition name="count" validscope="any" type="num" />
 <Condition name="even_if_dead" validscope="character" type="bool" />
 
-<Condition name="county_control" validscope="title" type="num"/>
+<Condition name="county_control" validscope="landed_title" type="num"/>
 <Condition name="scheme_progress" validscope="scheme" type="num"/>
 
 <Condition name="always" validscope="any" type="bool"/>
@@ -131,7 +131,7 @@
 <Condition name="has_innovation" validscope="character" type="innovation" />
 <Condition name="has_lifestyle" validscope="character" type="lifestyle" />
 <Condition name="has_perk" validscope="character" type="perk"/>
-<Condition name="has_pledged_attacker" validscope="ghw" type="character" />
+<Condition name="has_pledged_attacker" validscope="great_holy_war" type="character" />
 <Condition name="has_realm_law" validscope="character" type="law"/>
 <Condition name="has_realm_law_flag" validscope="character" type="law_flag" />
 <Condition name="has_relation_crush" validscope="character" type="character" />
@@ -144,7 +144,7 @@
 <Condition name="has_relation_soulmate" validscope="character" type="character" />
 <Condition name="has_religion" validscope="character" type="religion" />
 <Condition name="has_sexuality" validscope="character" type="sexuality" />
-<Condition name="has_title" validscope="character" type="title" />
+<Condition name="has_title" validscope="character" type="landed_title" />
 <Condition name="has_trait" validscope="character" type="trait"/>
 <Condition name="has_truce" validscope="character" type="character" />
 <Condition name="has_usable_hook" validscope="character" type="character" />
@@ -177,7 +177,7 @@
 <Condition name="is_grandchild_of" validscope="character" type="character"  />
 <Condition name="is_great_grandchild_of" validscope="character" type="character"  />
 <Condition name="is_healthy" validscope="character" type="bool" />
-<Condition name="is_holy_order" validscope="title" type="bool" />
+<Condition name="is_holy_order" validscope="landed_title" type="bool" />
 <Condition name="is_imprisoned" validscope="character" type="bool" />
 <Condition name="is_in_civil_war" validscope="character" type="bool" />
 <Condition name="is_in_prison_type" validscope="character" type="prisontype" />
@@ -186,7 +186,7 @@
 <Condition name="is_landed" validscope="character" type="bool" />
 <Condition name="is_male" validscope="character" type="bool" />
 <Condition name="is_married" validscope="character" type="bool" />
-<Condition name="is_mercenary_company" validscope="title" type="bool" />
+<Condition name="is_mercenary_company" validscope="landed_title" type="bool" />
 <Condition name="is_pool_character" validscope="character" type="bool"  />
 <Condition name="is_pregnant" validscope="character" type="bool" />
 <Condition name="is_ruler" validscope="character" type="bool" />
@@ -207,7 +207,7 @@
 <Condition name="number_of_personality_traits" validscope="character" type="num" />
 <Condition name="piety" validscope="character" type="num" />
 <Condition name="piety_level" validscope="character" type="num" />
-<Condition name="tier" validscope="title" type="num" />
+<Condition name="tier" validscope="landed_title" type="num" />
 <Condition name="religion" validscope="character" type="religion" />
 <Condition name="religion_tag" validscope="character" type="religion_tag" />
 <Condition name="save_scope_as" validscope="any" type="scope" />
@@ -219,7 +219,7 @@
 <Condition name="target_is_vassal_or_below" validscope="character" type="character" />
 <Condition name="trait_is_sin" validscope="faith" type="trait" />
 <Condition name="trait_is_virtue" validscope="faith" type="trait"  />
-<Condition name="has_county_modifier" validscope="title" type="modifier"/>
+<Condition name="has_county_modifier" validscope="landed_title" type="modifier"/>
 <Condition name="current_date" validscope="any" type="date" />
 <Condition name="days_until_ghw_launch" validscope="faith" type="num"/>
 <Condition name="religion" validscope="faith" type="religion"/>
