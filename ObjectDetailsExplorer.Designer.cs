@@ -43,12 +43,13 @@
             // 
             // referencedByList
             // 
-            this.referencedByList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.referencedByList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.referencedByList.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.referencedByList.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.referencedByList.Location = new System.Drawing.Point(12, 21);
             this.referencedByList.Name = "referencedByList";
-            this.referencedByList.Size = new System.Drawing.Size(405, 246);
+            this.referencedByList.Size = new System.Drawing.Size(405, 129);
             this.referencedByList.TabIndex = 0;
             this.referencedByList.Text = "referencedByList";
             this.referencedByList.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.referencedByList_MouseDoubleClick);
@@ -61,7 +62,7 @@
             this.darkGroupBox1.Controls.Add(this.referencedByList);
             this.darkGroupBox1.Location = new System.Drawing.Point(3, 28);
             this.darkGroupBox1.Name = "darkGroupBox1";
-            this.darkGroupBox1.Size = new System.Drawing.Size(423, 273);
+            this.darkGroupBox1.Size = new System.Drawing.Size(423, 150);
             this.darkGroupBox1.TabIndex = 1;
             this.darkGroupBox1.TabStop = false;
             this.darkGroupBox1.Text = "Referenced by";
@@ -78,12 +79,13 @@
             // 
             // referencesList
             // 
-            this.referencesList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.referencesList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.referencesList.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.referencesList.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.referencesList.Location = new System.Drawing.Point(23, 21);
             this.referencesList.Name = "referencesList";
-            this.referencesList.Size = new System.Drawing.Size(394, 243);
+            this.referencesList.Size = new System.Drawing.Size(394, 123);
             this.referencesList.TabIndex = 0;
             this.referencesList.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.referencesList_MouseDoubleClick);
             // 
@@ -94,35 +96,37 @@
             this.darkGroupBox2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.darkGroupBox2.Controls.Add(this.referencesList);
             this.darkGroupBox2.Controls.Add(this.darkListView2);
-            this.darkGroupBox2.Location = new System.Drawing.Point(6, 307);
+            this.darkGroupBox2.Location = new System.Drawing.Point(3, 184);
             this.darkGroupBox2.Name = "darkGroupBox2";
-            this.darkGroupBox2.Size = new System.Drawing.Size(423, 270);
+            this.darkGroupBox2.Size = new System.Drawing.Size(423, 150);
             this.darkGroupBox2.TabIndex = 2;
             this.darkGroupBox2.TabStop = false;
             this.darkGroupBox2.Text = "References";
             // 
             // darkGroupBox3
             // 
-            this.darkGroupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.darkGroupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.darkGroupBox3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.darkGroupBox3.Controls.Add(this.scopesList);
             this.darkGroupBox3.Controls.Add(this.darkListView3);
-            this.darkGroupBox3.Location = new System.Drawing.Point(6, 583);
+            this.darkGroupBox3.Location = new System.Drawing.Point(3, 340);
             this.darkGroupBox3.Name = "darkGroupBox3";
-            this.darkGroupBox3.Size = new System.Drawing.Size(423, 270);
+            this.darkGroupBox3.Size = new System.Drawing.Size(423, 461);
             this.darkGroupBox3.TabIndex = 3;
             this.darkGroupBox3.TabStop = false;
             this.darkGroupBox3.Text = "Scopes";
             // 
             // scopesList
             // 
-            this.scopesList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.scopesList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.scopesList.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.scopesList.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.scopesList.Location = new System.Drawing.Point(23, 21);
             this.scopesList.Name = "scopesList";
-            this.scopesList.Size = new System.Drawing.Size(394, 243);
+            this.scopesList.Size = new System.Drawing.Size(394, 434);
             this.scopesList.TabIndex = 0;
             this.scopesList.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.scopesList_MouseDoubleClick);
             // 
@@ -145,7 +149,7 @@
             this.Controls.Add(this.darkGroupBox1);
             this.DockText = "Object Details";
             this.Name = "ObjectDetailsExplorer";
-            this.Size = new System.Drawing.Size(429, 1068);
+            this.Size = new System.Drawing.Size(429, 815);
             this.darkGroupBox1.ResumeLayout(false);
             this.darkGroupBox2.ResumeLayout(false);
             this.darkGroupBox3.ResumeLayout(false);

@@ -52,11 +52,11 @@ namespace JominiParse
             return results;
         }
 
-        public HashSet<string> GetEnums(string type)
+        public HashSet<string> GetEnums(string type, bool allowPrepend=false)
         {
             if (!Enums.ContainsKey(type))
             {
-                return Core.Instance.GetNameSetFromEnumType(type);
+                return Core.Instance.GetNameSetFromEnumType(type, allowPrepend);
             }
 
             return Enums[type];

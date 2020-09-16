@@ -32,6 +32,8 @@ namespace JominiParse
             connection.From = From;
             connection.FromCommand = FromCommand;
             connection.ToTag = ToTag;
+            if (ToTag == null)
+                return;
 
             if (FromMap.ContainsKey(connection.From.Name))
                 FromMap[connection.From.Name].Add(connection);

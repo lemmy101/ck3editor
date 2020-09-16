@@ -100,8 +100,29 @@ namespace DarkUI.Controls
 
         #region Event Handler Region
 
+        private bool suspend = false;
+        List<DarkListItem> newItems = new List<DarkListItem>();
+        public void SuspendEvents(bool b)
+        {
+
+            suspend = b;
+            if (b == false)
+            {
+                for (var index = 0; index < Items.Count; index++)
+                {
+                    var darkListItem = Items[index];
+                    UpdateItemPosition(darkListItem, index);
+                    UpdateItemSize(darkListItem);
+                }
+
+                UpdateContentSize();
+            }
+        }
+
         private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            if (suspend)
+                return;
             if (e.NewItems != null)
             {
                 using (var g = CreateGraphics())
@@ -249,7 +270,8 @@ namespace DarkUI.Controls
         {
             return Items.IndexOf(item);
         }
-
+        private bool supressNodeEvents = false;
+      
         public void SelectItem(int index)
         {
             if (index < 0 || index > Items.Count - 1)

@@ -77,3 +77,5 @@
 /obj/Debug/CK3ScriptEditor.EventPreviewForm.resources
 /obj/Debug/CK3ScriptEditor.EventRepresentation.resources
 /scopesforeffects.txt
+/obj/Debug/CK3ScriptEditor.SearchResultsWindow.resources
+/obj/Debug/CK3ScriptEditor.SmartFindOptionWindow.resources

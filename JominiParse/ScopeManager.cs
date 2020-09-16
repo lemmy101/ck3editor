@@ -913,7 +913,7 @@ namespace JominiParse
             List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
             scriptObjectParent.GetValidScriptScopes(results, true, findType);
 
-            if (results.Any(a => a.Name == scopeName))
+            if (results.Any(a => a.Name == scopeName && (a.IsValue == (findType != ScriptObject.ScopeFindType.Object))))
                 return true;
            
             if (scope != ScopeType.any)
@@ -965,7 +965,7 @@ namespace JominiParse
             List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
             scriptObjectParent.GetValidScriptScopes(results, true, findType);
 
-            if (results.Any(a => a.Name == scopeName))
+            if (results.Any(a => a.Name == scopeName && (a.IsValue==(findType != ScriptObject.ScopeFindType.Object))))
                 return true;
 
             if (scope != ScopeType.any)
@@ -1015,7 +1015,7 @@ namespace JominiParse
 
                 return false;
             }
-
+            /*
             List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
             scriptObjectParent.GetValidScriptScopes(results, true);
 
@@ -1024,7 +1024,7 @@ namespace JominiParse
 
             if (scope != ScopeType.any)
                 return isConditionScopeInside(ScopeType.any, name, scriptObjectParent);
-
+            */
             return false;
         }
         public ScopeType getEffectScopeInside(ScopeType scope, string name, ScriptObject scriptObjectParent)
@@ -1123,13 +1123,36 @@ namespace JominiParse
             if (results.Any(a => a.Name == scopeName))
             {
 
-                return results.First(a => a.Name == scopeName).To;
+                return results.First(a => a.Name == scopeName && (a.IsValue == (findType != ScriptObject.ScopeFindType.Object))).To;
             }
 
             if (scope != ScopeType.any)
                 return getConditionScopeInside(ScopeType.any, name, scriptObjectParent, findType);
 
             return scope;
+        }
+
+        public ScriptObject.ScriptScope GetSavedScope(ScopeType scope, string name, ScriptObject scriptObjectParent, ScriptObject.ScopeFindType findType = ScriptObject.ScopeFindType.Object)
+        {
+            if (!name.StartsWith("scope:"))
+                return null;
+
+            string scopeName = name.Substring(name.IndexOf(":") + 1);
+
+         
+            List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
+            scriptObjectParent.GetValidScriptScopes(results, true, findType);
+
+            if (results.Any(a => a.Name == scopeName))
+            {
+
+                return results.First(a => a.Name == scopeName && (a.IsValue == (findType != ScriptObject.ScopeFindType.Object)));
+            }
+
+            if (scope != ScopeType.any)
+                return GetSavedScope(ScopeType.any, name, scriptObjectParent, findType);
+
+            return null;
         }
 
 

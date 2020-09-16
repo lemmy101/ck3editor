@@ -266,7 +266,7 @@ namespace DarkUI.Docking
 
         private void BuildProperties()
         {
-            MinimumSize = new Size(550, 50);
+            MinimumSize = new Size(400, 200);
 
             switch (DockArea)
             {

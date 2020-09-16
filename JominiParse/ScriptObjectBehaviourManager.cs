@@ -32,6 +32,7 @@ namespace JominiParse
         TriggerIf,
         TriggerElse,
         Limit,
+        GeneralBlock
     }
 
     public enum ScriptObjectOperationType
@@ -53,7 +54,7 @@ namespace JominiParse
             get { return _scopeType; }
             set
             {
-                _scopeType = value; 
+                _scopeType = value;
                 ScriptObject.SetScopeType(value);
             }
         }
@@ -81,7 +82,7 @@ namespace JominiParse
             get
             {
                 return Type == ScriptObjectBehaviourType.SavedScopeBlock ||
-                       Type == ScriptObjectBehaviourType.InherentScopeBlock || 
+                       Type == ScriptObjectBehaviourType.InherentScopeBlock ||
                        Type == ScriptObjectBehaviourType.SavedScopeToProperty ||
                        Type == ScriptObjectBehaviourType.InherentScopeToProperty;
             }
@@ -109,6 +110,17 @@ namespace JominiParse
         public ScriptObject ReferencedObject { get; set; }
         public bool ValueFound { get; set; }
         public bool ValueIsScope { get; set; }
+        public FunctionDef ExpectedEffectFunction { get; set; }
+        public FunctionDef ExpectedConditionFunction { get; set; }
+        public bool CanBeScope { get; set; }
+        public bool IsFunction { 
+            get
+            {
+                return Type == ScriptObjectBehaviourType.FunctionSingleLine ||
+                       Type == ScriptObjectBehaviourType.FunctionMultiline;
+            }
+
+        }
     }
 
     public class ScriptObjectBehaviourManager
@@ -124,7 +136,7 @@ namespace JominiParse
         static HashSet<string> UnknownProperties = new HashSet<string>();
 
         static HashSet<string> UnlinkedScope = new HashSet<string>();
-     
+
         private List<string> Operands = new List<string>()
         {
             "OR",
@@ -137,13 +149,16 @@ namespace JominiParse
 
         ScriptObjectSchema ParentEffectiveSchema = new ScriptObjectSchema();
         ScriptObjectSchema EffectiveSchema = new ScriptObjectSchema();
+        public static int BreakpointLine = 12;
+        public static string BreakpointFile = "events/test_event.txt";
 
 
         public void ProcessObject(ScriptObject obj)
         {
-            int BreakpointLine = 43;
-            string BreakpointFile = "events/test.txt";
-         
+            BreakpointLine = 45;
+            //BreakpointFile = "events/health_events.txt";
+            BreakpointFile = "events/test_event.txt";
+
             if (obj.LineStart == BreakpointLine &&
                 obj.Filename.Contains(BreakpointFile))
             {
@@ -156,14 +171,14 @@ namespace JominiParse
 
             if (obj.Parent != null)
                 data.ParentData = obj.Parent.BehaviourData;
-            
+
             obj.BehaviourData = data;
-            
+
             DetermineBehaviourType(obj, data);
 
             DetermineEffectiveSchema(obj, data);
 
-            if(obj.Parent != null)
+            if (obj.Parent != null)
                 DetermineBehaviourScope(obj, data);
 
             if (!data.IsBlock)
@@ -172,7 +187,7 @@ namespace JominiParse
             }
         }
 
-       private void DetermineEffectiveSchema(ScriptObject obj, ScriptObjectBehaviourData data)
+        private void DetermineEffectiveSchema(ScriptObject obj, ScriptObjectBehaviourData data)
         {
             EffectiveSchema.children.Clear();
             if (obj.Schema != null)
@@ -253,6 +268,11 @@ namespace JominiParse
             if (EffectiveSchema.SupportsEffects())
                 data.ExpectEffects = true;
 
+            if ((data.Type == ScriptObjectBehaviourType.FunctionMultiline) && (data.ExpectConditions || data.ExpectEffects))
+            {
+                data.Type = ScriptObjectBehaviourType.GeneralBlock;
+            }
+
             if (data.Type == ScriptObjectBehaviourType.FunctionParameter)
             {
                 data.ExpectFunctionParameters = true;
@@ -319,6 +339,7 @@ namespace JominiParse
             if (obj.Parent == null)
                 return;
 
+            bool acceptSchemaPropertyType = false;
             var scope = obj.Parent.GetScopeType();
             string typeExpected = null;
             if (data.ParentData.ExpectEffects && data.Type == ScriptObjectBehaviourType.FunctionSingleLine)
@@ -328,6 +349,8 @@ namespace JominiParse
                 // successfully gotten an effect
                 if (effect != null)
                 {
+                    if (effect.Properties.Count > 0)
+                        data.CanBeScope = true;
                     typeExpected = effect.type;
                 }
             }
@@ -338,6 +361,8 @@ namespace JominiParse
                 // successfully gotten an effect
                 if (condition != null)
                 {
+                    if (condition.Properties.Count > 0)
+                        data.CanBeScope = true;
                     typeExpected = condition.type;
                 }
             }
@@ -350,14 +375,16 @@ namespace JominiParse
                 if (condition != null)
                 {
                     typeExpected = condition.type;
+                    if (condition.Properties.Count > 0)
+                        data.CanBeScope = true;
                 }
                 else
                 {
-                    if(ScopeManager.Instance.isConditionScope(scope, obj.Name))
+                    if (ScopeManager.Instance.isConditionScope(scope, obj.Name))
                     {
                         bool success;
                         var to = ScopeManager.Instance.ChangeConditionScope(scope, obj.Name, out success, obj.Parent);
-                        if(success)
+                        if (success)
                         {
                             typeExpected = to.ToString();
                         }
@@ -387,7 +414,9 @@ namespace JominiParse
             else if (data.ExpectFunctionParameters || data.Type == ScriptObjectBehaviourType.RootObjectProperty)
             {
                 var parent = obj.Parent;
-                if(parent.Parent != null)
+
+
+                if (parent.Parent != null)
                 {
                     if (parent.Parent.BehaviourData.ParentExpectConditions)
                     {
@@ -395,13 +424,21 @@ namespace JominiParse
 
                         if (condition != null)
                         {
-                            if(condition.Properties.Any(a=>a.name == obj.Name))
+                            if (condition.Properties.Count > 0)
+                                data.CanBeScope = true;
+
+                            if (condition.Properties.Any(a => a.name == obj.Name))
                             {
                                 var c = condition.Properties.First(a => a.name == obj.Name);
                                 typeExpected = c.type;
                                 data.Function = condition;
                                 data.Parameter = c;
                             }
+                            else
+                            {
+                                acceptSchemaPropertyType = true;
+                            }
+
                         }
                     }
                     else if (parent.Parent.BehaviourData.ParentExpectEffects)
@@ -410,6 +447,8 @@ namespace JominiParse
 
                         if (effect != null)
                         {
+                            if (effect.Properties.Count > 0)
+                                data.CanBeScope = true;
                             if (effect.Properties.Any(a => a.name == obj.Name))
                             {
                                 var c = effect.Properties.First(a => a.name == obj.Name);
@@ -418,27 +457,40 @@ namespace JominiParse
                                 data.Parameter = c;
                             }
                         }
-                    }
-                    else if (data.ParentData.ScriptObject.Schema != null)
-                    {
-                        if (data.ParentData.ScriptObject.Schema.children.ContainsKey(obj.Name))
+                        else 
                         {
-                            var param = data.ParentData.ScriptObject.Schema.children[obj.Name];
+                            acceptSchemaPropertyType = true;
 
-                            typeExpected = param.Type;
                         }
                     }
+                    else 
+                    {
+                        acceptSchemaPropertyType = true;
+                    }
 
                 }
-                else if (data.ParentData.ScriptObject.Schema != null)
+                else 
                 {
-                    if (data.ParentData.ScriptObject.Schema.children.ContainsKey(obj.Name))
-                    {
-                        var param = data.ParentData.ScriptObject.Schema.children[obj.Name];
+                    acceptSchemaPropertyType = true;
 
-                        typeExpected = param.Type;
+                }
+
+                if (obj.Schema != null)
+                {
+                    if (obj.Schema.children.Count > 0)
+                    {
+                        data.CanBeScope = true;
                     }
                 }
+
+            }
+
+            if (acceptSchemaPropertyType && data.ParentData.ScriptObject.Schema != null && data.ParentData.ScriptObject.Schema.children.ContainsKey(obj.Name))
+            {
+
+                var param = data.ParentData.ScriptObject.Schema.children[obj.Name];
+
+                typeExpected = param.Type;
 
             }
 
@@ -447,9 +499,9 @@ namespace JominiParse
                 data.TypeExpected = typeExpected;
             }
 
-            if(data.TypeExpected != null)
+            if (data.TypeExpected != null)
             {
-           
+
                 if (!data.IsBlock)
                 {
                     string value = obj.GetStringValue();
@@ -483,8 +535,24 @@ namespace JominiParse
                                 }
                             }
                         }
-                        else if (ScopeManager.Instance.isConditionScopeInside(scope, value, obj.Parent) ||
-                                 ScopeManager.Instance.isEffectScopeInside(scope, value, obj.Parent))
+                        if (!data.ValueFound && (ScopeManager.Instance.isConditionScopeInside(scope, value, obj.Parent, ScriptObject.ScopeFindType.Value) ||
+                                                 ScopeManager.Instance.isEffectScopeInside(scope, value, obj.Parent, ScriptObject.ScopeFindType.Value)))
+                        {
+                         
+                            var savedScope = ScopeManager.Instance.GetSavedScope(scope, value, obj.Parent, ScriptObject.ScopeFindType.Value);
+
+                       
+                            if(savedScope != null)
+                            {
+                                if (savedScope.VarType.ToString().ToLower() == data.TypeExpected)
+                                {
+                                    data.ValueFound = true;
+                                    data.ValueIsScope = true;
+                                }
+                            }
+                        }
+                        if (!data.ValueFound && (ScopeManager.Instance.isConditionScopeInside(scope, value, obj.Parent, ScriptObject.ScopeFindType.Object) ||
+                                                 ScopeManager.Instance.isEffectScopeInside(scope, value, obj.Parent, ScriptObject.ScopeFindType.Object)))
                         {
                             bool success;
                             ScopeType to =
@@ -512,7 +580,7 @@ namespace JominiParse
                                 }
                             }
                         }
-                        else if (ScopeManager.Instance.isConditionScopeEndParamInside(scope, value, obj.Parent))
+                        if (!data.ValueFound && ScopeManager.Instance.isConditionScopeEndParamInside(scope, value, obj.Parent))
 
                         {
                             bool success;
@@ -530,22 +598,25 @@ namespace JominiParse
                                 }
                             }
                         }
-                        else if (Core.Instance.AnyNameLists(data.TypeExpected))
+                     
+                        if (!data.ValueFound && Core.Instance.AnyNameLists(data.TypeExpected))
                         {
 
                             data.ReferencedObject = Core.Instance.Get(value, data.TypeExpected);
-                            if(data.ReferencedObject != null)
+                            if (data.ReferencedObject != null)
                             {
                                 data.ValueFound = true;
                             }
                         }
-                        else if (data.TypeExpected == "localized")
+
+                        if (!data.ValueFound && data.TypeExpected == "localized")
                         {
                             var str = Core.Instance.GetLocalizedText(value);
                             if (str != value)
                                 data.ValueFound = true;
                         }
-                        else
+
+                        if (!data.ValueFound)
                         {
                             var enums = EnumManager.Instance.GetEnums(data.TypeExpected);
                             if (enums != null && enums.Contains(value))
@@ -592,24 +663,24 @@ namespace JominiParse
                 {
                     data.Type = ScriptObjectBehaviourType.InherentScopeBlock;
 
-            //        InherentScopeBlocks.Add(name);
+                    //        InherentScopeBlocks.Add(name);
                 }
                 else if (ScopeManager.Instance.isConditionScopeInside(scope, name, obj.Parent, ScriptObject.ScopeFindType.Object) || ScopeManager.Instance.isEffectScopeInside(scope, name, obj.Parent, ScriptObject.ScopeFindType.Object))
                 {
                     data.Type = ScriptObjectBehaviourType.SavedScopeBlock;
 
-               //     SavedScopeBlocks.Add(name);
+                    //     SavedScopeBlocks.Add(name);
 
                 }
                 else if (ScopeManager.Instance.isCondition(scope, name))
                 {
                     data.Type = ScriptObjectBehaviourType.FunctionMultiline;
-               //     FunctionMultiline.Add(name);
+                    //     FunctionMultiline.Add(name);
                 }
                 else if (ScopeManager.Instance.isEffect(scope, name))
                 {
                     data.Type = ScriptObjectBehaviourType.FunctionMultiline;
-              //      FunctionMultiline.Add(name);
+                    //      FunctionMultiline.Add(name);
                 }
                 else if (Operands.Contains(name))
                 {
@@ -642,11 +713,20 @@ namespace JominiParse
                 else if (obj.Parent.Parent == null)
                 {
                     data.Type = ScriptObjectBehaviourType.RootObjectPropertyBlock;
-             //       FunctionSingleLine.Add(name);
+
+                    if (obj.Parent.Schema != null && !obj.Parent.Schema.HasChild(obj.Name))
+                    {
+                        if (!HandleNameFor(obj, data, name, isBlock))
+                        {
+                            data.Type = ScriptObjectBehaviourType.Unknown;
+                        }
+                    }
+
+                    //       FunctionSingleLine.Add(name);
                 }
-                else if(obj.Parent != null && obj.Parent.Schema != null)
+                else if (obj.Parent != null && obj.Parent.Schema != null)
                 {
-                    if(obj.Parent.Schema.children.ContainsKey(name))
+                    if (obj.Parent.Schema.children.ContainsKey(name))
                     {
                         data.Type = ScriptObjectBehaviourType.FunctionMultiline;
                     }
@@ -671,41 +751,43 @@ namespace JominiParse
                 {
                     data.Type = ScriptObjectBehaviourType.InherentScopeToProperty;
 
-              //      InherentScopeToProperty.Add(name);
+                    //      InherentScopeToProperty.Add(name);
                 }
                 else if (ScopeManager.Instance.isConditionScopeEndParamInside(scope, name,
                     obj.Parent) || ScopeManager.Instance.isEffectScopeInside(scope, name,
                              obj.Parent))
                 {
                     data.Type = ScriptObjectBehaviourType.SavedScopeToProperty;
-           //         SavedScopeToProperty.Add(name);
+                    //         SavedScopeToProperty.Add(name);
 
-                } 
-                else if (ScopeManager.Instance.isCondition(scope, name) || ScopeManager.Instance.isEffect(scope, name))
+                }
+                else if ((ScopeManager.Instance.isCondition(scope, name) || ScopeManager.Instance.isEffect(scope, name)) && !data.ParentData.IsFunction)
                 {
                     data.Type = ScriptObjectBehaviourType.FunctionSingleLine;
-               //     FunctionSingleLine.Add(name);
+                    //     FunctionSingleLine.Add(name);
+                    data.ExpectedConditionFunction = ScopeManager.Instance.GetCondition(scope, name);
+                    data.ExpectedEffectFunction = ScopeManager.Instance.GetEffect(scope, name);
                 }
                 else
                 {
-                    if (obj.Parent.Parent==null)
+                    if (obj.Parent.Parent == null)
                     {
                         data.Type = ScriptObjectBehaviourType.RootObjectProperty;
-                //        FunctionSingleLine.Add(name);
+                        //        FunctionSingleLine.Add(name);
                     }
-                    else if (ScopeManager.Instance.isCondition(scope, obj.Parent.Name) || ScopeManager.Instance.isEffect(scope, obj.Parent.Name))
+                    else if (obj.Parent.Schema != null && obj.Parent.Schema.children.ContainsKey(name))
+                    {
+                        data.Type = ScriptObjectBehaviourType.FunctionParameter;
+                    }
+                    else if (obj.Parent.BehaviourData.IsFunction && (ScopeManager.Instance.isCondition(obj.Parent.GetScopeType(), obj.Parent.Name) || ScopeManager.Instance.isEffect(obj.Parent.GetScopeType(), obj.Parent.Name)))
                     {
                         data.Type = ScriptObjectBehaviourType.FunctionParameter;
 
                         if (!HandleNameFor(obj, data, name, isBlock))
                         {
-                    
+
                         }
 
-                    }
-                    else if (obj.Parent.Schema != null && obj.Parent.Schema.children.ContainsKey(name))
-                    {
-                        data.Type = ScriptObjectBehaviourType.FunctionParameter;
                     }
                     else if (obj.Parent != null)
                     {
@@ -723,12 +805,12 @@ namespace JominiParse
             {
                 string str = name;
 
-                while (obj != null) 
+                while (obj != null)
                 {
                     obj = obj.Parent;
-                    if(obj != null)
+                    if (obj != null)
                         str = name + "->" + str;
-                } 
+                }
 
                 UnknownProperties.Add(str);
             }
@@ -795,7 +877,7 @@ namespace JominiParse
         {
             foreach (var s in UnknownProperties)
             {
-        //        Console.WriteLine(s);
+                //        Console.WriteLine(s);
             }
         }
     }

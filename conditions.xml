@@ -86,6 +86,7 @@
 	
 	
 <Condition name="has_scheme_modifier" validscope="scheme" type="modifier" />
+<Condition name="completely_controls" validscope="character" type="title" />
 
 <Condition name="scheme_number_of_agents" validscope="scheme" type="num" />
 <Condition name="is_at_same_location" validscope="character" type="character" />

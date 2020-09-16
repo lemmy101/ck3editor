@@ -34,6 +34,8 @@ namespace CK3ScriptEditor
         internal ProjectExplorer projectExplorer;
         internal ScriptObjectExplorer soExplorer;
         internal ObjectDetailsExplorer detailsExplorer;
+        internal SmartFindOptionWindow smartFind;
+        internal SearchResultsWindow searchResults;
        // internal EventRepresentationPanel eventPreview;
         private void ToggleToolWindow(DarkToolWindow toolWindow)
         {
@@ -54,7 +56,7 @@ namespace CK3ScriptEditor
             fileOverview.Invalidate();
             
         }
-
+      
         public CK3ScriptEd()
         {
             Instance = this;
@@ -74,27 +76,36 @@ namespace CK3ScriptEditor
             // Add the dock panel message filter to filter through for dock panel splitter
             // input before letting events pass through to the rest of the application.
             Application.AddMessageFilter(DockPanel.DockResizeFilter);
-
-
+           
+            
+            searchResults = new SearchResultsWindow();
             fileOverview = new FileOverviewToolWindow();
             soExplorer = new ScriptObjectExplorer();
             detailsExplorer = new ObjectDetailsExplorer();
             projectExplorer = new ProjectExplorer();
+            smartFind = new SmartFindOptionWindow();
             //    eventPreview = new EventRepresentationPanel();
             //              DockPanel.AddContent(_dockHistory, _dockLayers.DockGroup);
 
-            
+
             _toolWindows.Add(detailsExplorer);
             _toolWindows.Add(projectExplorer);
             _toolWindows.Add(soExplorer);
             _toolWindows.Add(fileOverview);
-          //  _toolWindows.Add(eventPreview);
+            _toolWindows.Add(smartFind);
+            _toolWindows.Add(searchResults);
             
+          //  _toolWindows.Add(eventPreview);
+
             soExplorer.UpdateScriptExplorer();
 
             // Add the tool window list contents to the dock panel
             foreach (var toolWindow in _toolWindows)
                 DockPanel.AddContent(toolWindow);
+
+//            DockPanel.AddContent(detailsExplorer, smartFind.DockGroup);
+            DockPanel.AddContent(smartFind, detailsExplorer.DockGroup);
+
             DockPanel.AddContent(soExplorer, projectExplorer.DockGroup);
 
             DockPanel.ActiveContentChanged += DockPanel_ActiveContentChanged;
@@ -113,8 +124,9 @@ namespace CK3ScriptEditor
             HighlightingManager.Manager.AddSyntaxModeFileProvider(fsmProvider); // Attach to the text editor.
 
             BackupManager.Instance.UpdateTick();
-            
-            //GetTextEditor("common/activities/a.txt", false);
+
+            GetTextEditor("events/test_event.txt", false);
+            //  GetTextEditor("events/health_events.txt", false);
 
             ScriptObjectBehaviourManager.Instance.PrintDebug();
 

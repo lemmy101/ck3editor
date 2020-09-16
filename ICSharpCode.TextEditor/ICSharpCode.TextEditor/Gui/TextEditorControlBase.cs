@@ -588,8 +588,9 @@ namespace ICSharpCode.TextEditor
 			editactions[Keys.D | Keys.Shift | Keys.Control]      = new DeleteToLineEnd();
 			
 			editactions[Keys.B | Keys.Control]      = new GotoMatchingBrace();
+            editactions[Keys.S | Keys.Control] = new SaveFile();
 		}
-		
+
 		/// <remarks>
 		/// Call this method before a long update operation this
 		/// 'locks' the text area so that no screen update occurs.

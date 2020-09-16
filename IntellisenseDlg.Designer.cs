@@ -35,7 +35,7 @@
             // 
             this.suggestionListbox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
             this.suggestionListbox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.suggestionListbox.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.suggestionListbox.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.suggestionListbox.Location = new System.Drawing.Point(0, 0);
             this.suggestionListbox.Name = "suggestionListbox";
             this.suggestionListbox.Size = new System.Drawing.Size(800, 450);

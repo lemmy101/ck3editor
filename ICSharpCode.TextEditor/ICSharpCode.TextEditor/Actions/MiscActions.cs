@@ -873,30 +873,47 @@ namespace ICSharpCode.TextEditor.Actions
 			}
 		}
 	}
-	
-	public class GotoMatchingBrace : AbstractEditAction
-	{
-		public override void Execute(TextArea textArea)
-		{
-			Highlight highlight = textArea.FindMatchingBracketHighlight();
-			if (highlight != null) {
-				TextLocation p1 = new TextLocation(highlight.CloseBrace.X + 1, highlight.CloseBrace.Y);
-				TextLocation p2 = new TextLocation(highlight.OpenBrace.X + 1, highlight.OpenBrace.Y);
-				if (p1 == textArea.Caret.Position) {
-					if (textArea.Document.TextEditorProperties.BracketMatchingStyle == BracketMatchingStyle.After) {
-						textArea.Caret.Position = p2;
-					} else {
-						textArea.Caret.Position = new TextLocation(p2.X - 1, p2.Y);
-					}
-				} else {
-					if (textArea.Document.TextEditorProperties.BracketMatchingStyle == BracketMatchingStyle.After) {
-						textArea.Caret.Position = p1;
-					} else {
-						textArea.Caret.Position = new TextLocation(p1.X - 1, p1.Y);
-					}
-				}
-				textArea.SetDesiredColumn();
-			}
-		}
+
+    public class GotoMatchingBrace : AbstractEditAction
+    {
+        public override void Execute(TextArea textArea)
+        {
+            Highlight highlight = textArea.FindMatchingBracketHighlight();
+            if (highlight != null)
+            {
+                TextLocation p1 = new TextLocation(highlight.CloseBrace.X + 1, highlight.CloseBrace.Y);
+                TextLocation p2 = new TextLocation(highlight.OpenBrace.X + 1, highlight.OpenBrace.Y);
+                if (p1 == textArea.Caret.Position)
+                {
+                    if (textArea.Document.TextEditorProperties.BracketMatchingStyle == BracketMatchingStyle.After)
+                    {
+                        textArea.Caret.Position = p2;
+                    }
+                    else
+                    {
+                        textArea.Caret.Position = new TextLocation(p2.X - 1, p2.Y);
+                    }
+                }
+                else
+                {
+                    if (textArea.Document.TextEditorProperties.BracketMatchingStyle == BracketMatchingStyle.After)
+                    {
+                        textArea.Caret.Position = p1;
+                    }
+                    else
+                    {
+                        textArea.Caret.Position = new TextLocation(p1.X - 1, p1.Y);
+                    }
+                }
+                textArea.SetDesiredColumn();
+            }
+        }
 	}
+    public class SaveFile : AbstractEditAction
+    {
+        public override void Execute(TextArea textArea)
+        {
+            textArea.MotherTextEditorControl.SaveFile(textArea.MotherTextEditorControl.FileName);
+        }
+    }
 }

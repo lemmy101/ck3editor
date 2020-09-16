@@ -196,6 +196,11 @@ namespace JominiParse
         {
             return children.Any(a => a.Key == "scopeeffects");
         }
+
+        public bool HasChild(string name)
+        {
+            return children.ContainsKey(name);
+        }
     }
 
     public class SchemaManager

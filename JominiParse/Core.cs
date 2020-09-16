@@ -7,7 +7,6 @@ using System.Threading;
 
 namespace JominiParse
 {
-
     public class Core
     {
         public static Core Instance = new Core();
@@ -212,17 +211,33 @@ namespace JominiParse
             catch (Exception e)
             {
             }
-            foreach (var scriptObject in ScriptObject.DeferedInitializationList)
-            {
-                scriptObject.Initialize();
-            }
-          
-            LoadingCK3Library.RecalculateGroups();
 
-            foreach (var scriptObject in ScriptObject.DeferedInitializationList)
+            try
             {
-                scriptObject.PostInitialize();
+                foreach (var scriptObject in ScriptObject.DeferedInitializationList)
+                {
+                    scriptObject.Initialize();
+                }
             }
+            catch (Exception e)
+            {
+            }
+
+            try
+            {
+                LoadingCK3Library.RecalculateGroups();
+
+                foreach (var scriptObject in ScriptObject.DeferedInitializationList)
+                {
+                    scriptObject.PostInitialize();
+                }
+            }
+            catch (Exception e)
+            {
+            }
+       
+          
+         
             ScriptObject.DeferedInitializationList.Clear();
 
 
@@ -255,14 +270,26 @@ namespace JominiParse
             return eventNames;
         }
 
-        public List<string> GetNameSet(string type, ScriptLibrary lib)
+        public List<string> GetNameSet(string type, ScriptLibrary lib, bool allowPrepend=false)
         {
             List<string> l = new List<string>();
             var where = lib.ContextData.Where(a => a.Value.Type == type);
 
+            
             foreach (var keyValuePair in where)
             {
-                l.AddRange(keyValuePair.Value.Keys());
+                if (keyValuePair.Value.Prepend != null && !allowPrepend)
+                {
+
+                }
+                else
+                {
+                    if (keyValuePair.Value.Prepend != null)
+                        l.AddRange(keyValuePair.Value.Keys().Select(a => string.Concat(keyValuePair.Value.Prepend, ":", a)));
+                    else
+                        l.AddRange(keyValuePair.Value.Keys());
+                }
+                    
             }
             var where2 = lib.GroupContextData.Where(a => a.Value.Type == type);
 
@@ -274,15 +301,15 @@ namespace JominiParse
             return l;
         }
 
-        public HashSet<string> GetNameSet(string type, bool modOnly)
+        public HashSet<string> GetNameSet(string type, bool modOnly, bool allowPrepend=false)
         {
             HashSet<string> eventNames = new HashSet<string>();
 
-            eventNames.UnionWith(GetNameSet(type, ModCK3Library));
+            eventNames.UnionWith(GetNameSet(type, ModCK3Library, allowPrepend));
             if (modOnly)
                 return eventNames;
 
-            eventNames.UnionWith(GetNameSet(type, BaseCK3Library));
+            eventNames.UnionWith(GetNameSet(type, BaseCK3Library, allowPrepend));
 
             return eventNames;
         }
@@ -340,14 +367,14 @@ namespace JominiParse
             return BaseCK3Library.ContextData[context].Directory;
         }
 
-        public HashSet<string> GetNameSetFromEnumType(string type)
+        public HashSet<string> GetNameSetFromEnumType(string type, bool allowPrepend=false)
         {
 
             
 
             //  if (type == "building_type")
             //    return GetNameSet(ScriptContext.Buildings, false);
-            return GetNameSet(type, false);
+            return GetNameSet(type, false, allowPrepend);
 
         }
 
@@ -395,6 +422,7 @@ namespace JominiParse
                         return keyValuePair.Value.Get(id);
                 }
             }
+            
             if (BaseCK3Library.ContextData.Any(a => a.Value.Type == expectedType))
             {
                 var l = BaseCK3Library.ContextData.Where(a => a.Value.Type == expectedType).ToList();
@@ -403,11 +431,28 @@ namespace JominiParse
                 {
                     if (keyValuePair.Value.Has(id))
                         return keyValuePair.Value.Get(id);
+
                 }
             }
 
             return null;
 
+        }
+
+        public List<SmartFindResults> DoSmartFind(SmartFindOptions options)
+        {
+            List<SmartFindResults> results = new List<SmartFindResults>();
+
+            if (options.SearchBase)
+            {
+                BaseCK3Library.DoSmartFind(options, results);
+            }
+            if (options.SearchMod)
+            {
+                ModCK3Library.DoSmartFind(options, results);
+            }
+
+            return results;
         }
     }
 }

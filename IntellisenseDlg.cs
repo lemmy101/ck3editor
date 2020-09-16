@@ -34,7 +34,7 @@ namespace CK3ScriptEditor
             if (after.Trim().Length > 0 && (after[0] != ' ' || after[0] != '\t'))
                 return false;
 
-            Size = new Size(400, 200);
+            Size = new Size(600, 400);
             int startOfLastword = before.IndexOf(before.Trim());
             this.TabSpacing = before.Substring(0, startOfLastword);
             if (before.Trim().Length == 0)
@@ -103,11 +103,15 @@ namespace CK3ScriptEditor
             if (choices.Count == 0)
                 return false;
 
+            suggestionListbox.SuspendEvents(true);
+
             foreach (var choice in choices)
             {
                 var l = new DarkListItem(choice);
                 suggestionListbox.Items.Add(l);
             }
+
+            suggestionListbox.SuspendEvents(false);
 
             suggestionListbox.SelectItem(0);
             Size = new Size(Size.Width, Math.Min((choices.Count*suggestionListbox.ItemHeight)+5, 10 * suggestionListbox.ItemHeight));

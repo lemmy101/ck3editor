@@ -142,7 +142,7 @@
   <Effect name="save_scope_as" validscope="any" type="scope" />
   <Effect name="save_scope_value_as" validscope="any" >
     <Property name="name" type="any"/>
-    <Property name="value" type="scopevalue"/>
+    <Property name="value" type="value"/>
   </Effect>
 
   <Effect name="invite_character_to_activity" validscope="activity" type="character"/>
@@ -158,6 +158,8 @@
   <Effect name="send_interface_toast" validscope="character">
     <Property name="dummy" type="dummy"/>
   </Effect>
+  
+  <Effect name="add_focus_progress" validscope="character" type="num"/>
   <Effect name="custom_tooltip" validscope="any" type="localized"/>
   <Effect name="random" validscope="any"/>
   <Effect name="random_list" validscope="any"/>

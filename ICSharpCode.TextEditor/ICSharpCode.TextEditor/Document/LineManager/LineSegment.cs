@@ -269,6 +269,8 @@ namespace ICSharpCode.TextEditor.Document
         }
         public bool ColorWord(string word, Color color, bool bold, bool italic, Color backgroundColor)
         {
+            if (word == null)
+                return false;
 
             int start = 0;
             int end = Words.Count;

@@ -140,7 +140,7 @@ namespace CK3ScriptEditor
                 DoCloseIntellisense();
                 return true;
             }
-            if (CurrentIntellisense != null && (keyData == Keys.Return || (keyData == Keys.Tab) || (keyData == Keys.Space)))
+            if (CurrentIntellisense != null && (keyData == Keys.Return || (keyData == Keys.Tab)))
             {
                 CurrentIntellisense.DoComplete();
                 DoCloseIntellisense();
@@ -181,9 +181,19 @@ namespace CK3ScriptEditor
 
         private bool TextArea_KeyEventHandler(char ch)
         {
+           
             if ((Control.ModifierKeys & Keys.Control) != 0)
             {
-                if(ch == ' ')
+                if (ch == 's')
+                {
+                    textEditorControl1.SaveFile(Filename);
+                    // intellisense...
+                    return true;
+                }
+            }
+            if ((Control.ModifierKeys & Keys.Control) != 0)
+            {
+                if (ch == ' ')
                 {
                     ForceDoIntellisense();
                     // intellisense...
@@ -191,7 +201,7 @@ namespace CK3ScriptEditor
                 }
             }
 
-            
+
 
             return false;
         }

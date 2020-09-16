@@ -110,7 +110,7 @@ namespace ICSharpCode.TextEditor.Document
             environmentColors["Selection"] = new HighlightColor(Color.White, s, true, false);
             environmentColors["VRuler"] = new HighlightColor(Color.White, bkg, true, false);
             environmentColors["InvalidLines"] = new HighlightColor(Color.Red, true, false);
-            environmentColors["CaretMarker"] = new HighlightColor(Color.Yellow, true, false);
+            environmentColors["CaretMarker"] = new HighlightColor(Color.Yellow, bkg, true, false);
             environmentColors["CaretLine"] = new HighlightBackground(Color.White, cl, false, false);
             environmentColors["LineNumbers"] = new HighlightBackground(ln, bkg, false, false);
 

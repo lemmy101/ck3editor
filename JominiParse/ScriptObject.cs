@@ -22,7 +22,7 @@ namespace JominiParse
         public enum ScopeVarType
         {
             Bool,
-            Number,
+            num,
             None,
             String
         }
@@ -168,6 +168,9 @@ namespace JominiParse
         }
         public ScriptObject(ScriptObject parent, ScriptParsedSegment seg, ScriptObjectSchema schema = null)
         {
+
+        
+            Op = seg.op;
             IsBlock = seg.isBlock;
             if (parent == null)
             {
@@ -185,6 +188,13 @@ namespace JominiParse
             this.LineEnd = seg.lineNumbers.Last();
             this.Parent = parent;
             this.Library = Core.Instance.LoadingCK3Library;
+
+            if (LineStart == ScriptObjectBehaviourManager.BreakpointLine &&
+                Topmost.Filename.Contains(ScriptObjectBehaviourManager.BreakpointFile))
+            {
+
+            }
+
             if (Name == "liege")
             {
             }
@@ -282,7 +292,7 @@ namespace JominiParse
                 var s = Schema.GetScope();
                 if (s != ScopeType.none && s != ScopeType.any)
                 {
-                    SetScopeType(s);
+             //       SetScopeType(s);
                 }
 
                 string name = Schema.GetScopeChildIdentifier();
@@ -402,6 +412,7 @@ namespace JominiParse
 
                 }
 
+                s.RequiresScopeTag = true;
                 s.ToObj = scope_command.Parent;
                 s.Declared = scope_command;
                 if (scope_command == null)
@@ -438,6 +449,7 @@ namespace JominiParse
 
         private void AddScopeVar(ScriptObject scope_command, bool temporary, ScopeVarType varType)
         {
+            
             if (!(this == Topmost))
             {
                 AddScopeVar(scope_command, temporary);
@@ -452,6 +464,8 @@ namespace JominiParse
 
                 s.Temporary = temporary;
                 s.Name = scope_command.GetChildStringValue("name");//.GetStringValue();
+                if (s.Name == null)
+                    return;
                 if (scriptScopes.ContainsKey(s.Name))
                     return;
 
@@ -487,7 +501,7 @@ namespace JominiParse
 
                 if (!(s == "yes" || s == "no"))
                 {
-                    type = ScopeVarType.Number;
+                    type = ScopeVarType.num;
                 }
 
             }
@@ -730,7 +744,109 @@ namespace JominiParse
                 return ScriptObject.ScopeVarType.String;
 
 
-            return ScriptObject.ScopeVarType.Number;
+            return ScriptObject.ScopeVarType.num;
         }
+
+        public bool HasChild(string child)
+        {
+            return Children.Any(a => a.Name == child);
+        }
+
+        public void DoSmartFind(SmartFindOptions options, List<SmartFindResults> results)
+        {
+            if (this.Name == "culture")
+            {
+
+            }
+
+            if (this.BehaviourData == null)
+                return;
+
+            if (CheckMatchesSmartFind(options))
+            {
+                if(CheckNameMatchSmartFind(options))
+                {
+                    SmartFindResults r = new SmartFindResults();
+                    r.ScriptObject = this;
+                    r.IsModResult = !Topmost.ScriptFile.IsBase;
+                    results.Add(r);
+                }
+            }
+
+            foreach (var scriptObject in Children)
+            {
+                scriptObject.DoSmartFind(options, results);
+            }
+        }
+
+        private bool CheckNameMatchSmartFind(SmartFindOptions options)
+        {
+            if (options.SearchValues && MatchTextSmartFind(options, GetStringValue()))
+                return true;
+
+            return MatchTextSmartFind(options, Name);
+        }
+
+        private bool MatchTextSmartFind(SmartFindOptions options, string str)
+        {
+            if (str == null)
+                return false;
+
+            string toFind = options.TextToFind;
+            if (!options.CaseSensitive)
+            {
+                str = str.ToLower();
+                toFind = toFind.ToLower();
+            }
+
+            if (options.FindWholeWorld)
+                return str == toFind;
+            else
+            {
+                return str.Contains(toFind);
+            }
+
+        }
+
+        private bool CheckMatchesSmartFind(SmartFindOptions options)
+        {
+            if (!options.ScopesToSearch.Contains(GetScopeType()))
+                return false;
+
+            if (!options.SearchOverridden &&
+                this.Overridden)
+            {
+                return false;
+            }
+
+            if (options.SearchSavedScopes &&
+                (this.BehaviourData.Type == ScriptObjectBehaviourType.SavedScopeBlock || this.BehaviourData.Type == ScriptObjectBehaviourType.SavedScopeToProperty))
+            {
+                return true;
+            }
+
+            if (options.SearchFunctionParameters &&
+                (this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionParameter))
+            {
+                return true;
+            }
+
+            if (options.SearchConditionFunctions &&
+                (this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionMultiline ||
+                  this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionSingleLine || this.BehaviourData.Type == ScriptObjectBehaviourType.InherentScopeToProperty) && BehaviourData.ParentExpectConditions)
+            {
+                return true;
+            }
+            if (options.SearchEffectFunctions &&
+                (this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionMultiline ||
+                  this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionSingleLine) && BehaviourData.ParentExpectEffects)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public string Op { get; set; } = "=";
     }
 }

@@ -109,10 +109,10 @@ namespace CK3ScriptEditor
         {
             string name = objScriptScope.Name;
 
-            int col2 = scopesList.Width / 3;
-            int col3 = col2 * 2;
-            col2 /= 7;
-            col3 /= 7;
+            int col2 = (int) (scopesList.Width / 2.7f);
+            int col3 = (int) (col2 * 1.6f);
+            col2 /= 6;
+            col3 /= 6;
 
             while (name.Length < col2)
                 name += " ";

@@ -118,6 +118,18 @@
     <Compile Include="ScriptWindow.Designer.cs">
       <DependentUpon>ScriptWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="SearchResultsWindow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SearchResultsWindow.Designer.cs">
+      <DependentUpon>SearchResultsWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SmartFindOptionWindow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SmartFindOptionWindow.Designer.cs">
+      <DependentUpon>SmartFindOptionWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="SyntaxHighlightingManager.cs" />
     <EmbeddedResource Include="CK3ScriptEd.resx">
       <DependentUpon>CK3ScriptEd.cs</DependentUpon>
@@ -157,6 +169,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ScriptWindow.resx">
       <DependentUpon>ScriptWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SearchResultsWindow.resx">
+      <DependentUpon>SearchResultsWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SmartFindOptionWindow.resx">
+      <DependentUpon>SmartFindOptionWindow.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="format.xshd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

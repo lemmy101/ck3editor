@@ -60,6 +60,7 @@
         CultureGroups,
         CulturalInnovations,
         Max,
+        Cultures
     }
 
     public enum ScriptGroupContext

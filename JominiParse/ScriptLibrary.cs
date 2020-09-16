@@ -7,52 +7,6 @@ using System.Text;
 
 namespace JominiParse
 {
-    public class ScriptFile
-    {
-        public string Filename { get; set; }
-        public bool IsBase { get; set; }
-        public bool Overridden { get; set; }
-        public ScriptContext Context { get; set; }
-        public string Namespace { get; set; }
-
-        public Dictionary<string, ScriptObject> Map = new Dictionary<string, ScriptObject>();
-
-        Dictionary<string, ScriptObject> LocalVars = new Dictionary<string, ScriptObject>();
-
-        public void AddLocalVars(List<ScriptObject> vars)
-        {
-            foreach (var scriptObject in vars)
-                LocalVars[scriptObject.Name] = scriptObject;
-
-
-        }
-
-        public ScriptObject.ScopeVarType GetVarType(string name)
-        {
-            if (!LocalVars.ContainsKey(name))
-                return ScriptObject.ScopeVarType.None;
-
-            return GetVarType(LocalVars[name]);
-        }
-        public ScriptObject.ScopeVarType GetVarType(ScriptObject v)
-        {
-            return v.GetVarType();
-
-        }
-
-        public List<string> LocalVarNamelist()
-        {
-            return LocalVars.Keys.ToList();
-        }
-        public List<string> LocalVarNamelist(ScriptObject.ScopeVarType type)
-        {
-            var l = LocalVars.Keys.ToList();
-
-            return l.Where(a => GetVarType(a) == type).ToList();
-
-        }
-    }
-
     public class ScriptLibrary
     {
         public Dictionary<string, ScriptObject> AllTypeMap = new Dictionary<string, ScriptObject>();
@@ -113,22 +67,34 @@ namespace JominiParse
             public string Directory { get; set; }
             public string Type { get; set; }
             public ScriptContext ChildOf { get; set; }
+            public string Prepend { get; set; }
+            public string IgnoreChildren { get; set; }
+            public bool Recurse { get; set; }
 
             public List<ScriptGroupContext> Groups = new List<ScriptGroupContext>();
             Dictionary<string, ScriptObject> Map = new Dictionary<string, ScriptObject>();
 
             public void Add(string s, ScriptObject o)
             {
+                if (Prepend != null)
+                    s = s.Replace(Prepend + ":", "");
+
                 Map[s] = o;
             }
 
             public void Remove(string s)
             {
+                if (Prepend != null)
+                    s = s.Replace(Prepend + ":", "");
+
                 Map.Remove(s);
             }
             //            public delegate HashSet<string> GetNameSet(bool modOnly);
             public ScriptObject Get(string s)
             {
+                if (Prepend != null)
+                    s = s.Replace(Prepend + ":", "");
+
                 if (!Map.ContainsKey(s))
                     return null;
 
@@ -136,6 +102,9 @@ namespace JominiParse
             }
             public ScriptValue GetValue(string s)
             {
+                if (Prepend != null)
+                    s = s.Replace(Prepend + ":", "");
+
                 if (!Map.ContainsKey(s))
                     return null;
 
@@ -144,6 +113,8 @@ namespace JominiParse
 
             public bool Has(string s)
             {
+                if (Prepend != null)
+                    s = s.Replace(Prepend + ":", "");
                 return Map.ContainsKey(s);
             }
 
@@ -223,6 +194,7 @@ namespace JominiParse
         {
             { ScriptContext.Events, new ContextInfo() {Directory = "events", Type="event"}},
             { ScriptContext.CultureGroups, new ContextInfo() {Directory = "common/culture/cultures", Type="culture_group"}},
+            { ScriptContext.Cultures, new ContextInfo() {ChildOf = ScriptContext.CultureGroups, Type="culture", Prepend="culture", IgnoreChildren="graphical_cultures,mercenary_names"}},
             { ScriptContext.CulturalInnovations, new ContextInfo() {Directory = "common/culture/innovations", Type="innovation"}},
             { ScriptContext.Decisions, new ContextInfo() {Directory = "common/decisions", Type="decision"}},
             { ScriptContext.ScriptValues, new ContextInfo() {Directory = "common/script_values", Type="num"}},
@@ -231,7 +203,7 @@ namespace JominiParse
             { ScriptContext.Buildings, new ContextInfo() {Directory = "common/buildings", Type="building"}},
             { ScriptContext.CasusBelliType, new ContextInfo() {Directory = "common/casus_belli_types", Type="casus_belli_types"}},
             { ScriptContext.CharacterInteractions, new ContextInfo() {Directory = "common/character_interactions", Type="character_interactions"}},
-            { ScriptContext.Characters, new ContextInfo() {Directory = "history/characters", Type = "chr"}},
+            { ScriptContext.Characters, new ContextInfo() {Directory = "history/characters", Type = "character", Prepend = "character"}},
             { ScriptContext.CouncilPositions, new ContextInfo() {Directory = "common/council_positions", Type="council_position"}},
             { ScriptContext.CouncilTasks, new ContextInfo() {Directory = "common/council_tasks", Type="council_task"}},
             { ScriptContext.Defines, new ContextInfo() {Directory = "common/Defines", Type="define"}},
@@ -247,7 +219,7 @@ namespace JominiParse
             { ScriptContext.Holdings, new ContextInfo() {Directory = "common/holdings", Type="holding"}},
             { ScriptContext.HookTypes, new ContextInfo() {Directory = "common/hook_types", Type="hook"}},
             { ScriptContext.ImportantActions, new ContextInfo() {Directory = "common/important_actions", Type="important_action"}},
-            { ScriptContext.LandedTitles, new ContextInfo() {Directory = "common/landed_titles", Type="title"}},
+            { ScriptContext.LandedTitles, new ContextInfo() {Directory = "common/landed_titles", Type="title", Prepend = "title", Recurse=true, IgnoreChildren = "color,color2,ai_primary_priority,male_names,cultural_names"}},
 
             { ScriptContext.Laws, new ContextInfo() {Directory = "common/laws", Type="law"}},
             { ScriptContext.LifestylePerks, new ContextInfo() {Directory = "common/lifestyle_perks", Type="perk"}},
@@ -787,11 +759,12 @@ namespace JominiParse
                     var from = ContextData[contextDataValue.ChildOf];
 
                     var vals = from.Values();
-
+                    string[] ignore = contextDataValue.IgnoreChildren == null ? new string[0] : contextDataValue.IgnoreChildren.Split(',');
                     foreach (var scriptObject in vals)
                     {
+                        
                         // only blocks...
-                        var list = scriptObject.Children.Where(a => a.GetStringValue() == null).ToList();
+                        var list = scriptObject.Children.Where(a => a.IsBlock && !ignore.Contains(a.Name)).ToList();
 
                         foreach (var o in list)
                         {
@@ -799,6 +772,28 @@ namespace JominiParse
                             o.ScriptFile = scriptObject.ScriptFile;
                         }
                     }
+                }
+                else
+                {
+                    string[] ignore = contextDataValue.IgnoreChildren == null ? new string[0] : contextDataValue.IgnoreChildren.Split(',');
+                    if (contextDataValue.Recurse)
+                    {
+                        List<ScriptObject> newObjects = new List<ScriptObject>();
+                        var v = contextDataValue.Values();
+                        foreach (var a in v)
+                        {
+                            DoRecurse(contextDataValue, a, newObjects, ignore);
+
+                         
+                        }
+                        foreach (var scriptObject in newObjects)
+                        {
+                            scriptObject.ScriptFile = scriptObject.Topmost.ScriptFile;
+                            contextDataValue.Add(scriptObject.Name, scriptObject);
+                        }
+                    }
+
+
                 }
             }
             foreach (var groupContextInfo in GroupContextData.Values)
@@ -820,6 +815,28 @@ namespace JominiParse
                         value.Add(group, scriptObject);
                     }
                 }
+            }
+        }
+
+        private void DoRecurse(ContextInfo contextDataValue, ScriptObject scriptObject, List<ScriptObject> newObjects,
+            string[] ignore)
+        {
+            var children = scriptObject.Children.Where(a => !ignore.Contains(a.Name) && a.IsBlock).ToList();
+
+            foreach (var child in children)
+            {
+                newObjects.Add(child);
+                DoRecurse(contextDataValue, child, newObjects, ignore);
+            }
+
+
+        }
+
+        public void DoSmartFind(SmartFindOptions options, List<SmartFindResults> results)
+        {
+            foreach (var fileMapValue in FileMap.Values)
+            {
+                fileMapValue.DoSmartFind(options, results);
             }
         }
     }
