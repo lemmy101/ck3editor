@@ -197,7 +197,6 @@ namespace JominiParse
             { ScriptContext.Cultures, new ContextInfo() {ChildOf = ScriptContext.CultureGroups, Type="culture", Prepend="culture", IgnoreChildren="graphical_cultures,mercenary_names"}},
             { ScriptContext.CulturalInnovations, new ContextInfo() {Directory = "common/culture/innovations", Type="innovation"}},
             { ScriptContext.Decisions, new ContextInfo() {Directory = "common/decisions", Type="decision"}},
-            { ScriptContext.ScriptValues, new ContextInfo() {Directory = "common/script_values", Type="num"}},
             { ScriptContext.Activities, new ContextInfo() {Directory = "common/activities", Type = "activity"}},
             { ScriptContext.Bookmark, new ContextInfo() {Directory = "common/bookmarks", Type="bookmark"}},
             { ScriptContext.Buildings, new ContextInfo() {Directory = "common/buildings", Type="building"}},
@@ -240,9 +239,10 @@ namespace JominiParse
             { ScriptContext.ScriptedEffects, new ContextInfo() {Directory = "common/scripted_effects", Type="scripted_effect"}},
             { ScriptContext.ScriptedLists, new ContextInfo() {Directory = "common/scripted_lists", Type="scripted_list"}},
             { ScriptContext.ScriptedModifiers, new ContextInfo() {Directory = "common/scripted_modifiers", Type="scripted_modifier"}},
-            { ScriptContext.ScriptedRelations, new ContextInfo() {Directory = "common/scripted_relations", Type="relation"}},
+            { ScriptContext.ScriptedRelations, new ContextInfo() {Directory = "common/scripted_relations", Type="scripted_relation"}},
             { ScriptContext.ScriptedRules, new ContextInfo() {Directory = "common/scripted_rules", Type="scripted_rule"}},
             { ScriptContext.ScriptedTriggers, new ContextInfo() {Directory = "common/scripted_triggers", Type="scripted_trigger"}},
+            { ScriptContext.ScriptedValues, new ContextInfo() {Directory = "common/script_values", Type="num"}},
             { ScriptContext.SecretTypes, new ContextInfo() {Directory = "common/secret_types", Type="secret_type"}},
             { ScriptContext.StoryCycles, new ContextInfo() {Directory = "common/story_cycles", Type="story_cycle"}},
             { ScriptContext.SuccessionElections, new ContextInfo() {Directory = "common/succession_election", Type="succession_election"}},
@@ -411,6 +411,21 @@ namespace JominiParse
             }
 
             return Localization[tag].english;
+        }
+        public bool HasLocalizedText(string tag)
+        {
+            if (Localization == null)
+                return false;
+
+            if (!Localization.ContainsKey(tag))
+            {
+                if (Parent != null)
+                    return Parent.HasLocalizedText(tag);
+
+                return false;
+            }
+
+            return true;
         }
 
         public void RegisterRandomOnActionTrigger(ScriptObject node)

@@ -1,0 +1,3 @@
+<Schema name="eventtargetbase" id="eventtargetbase">
+  <Child name="limit" function="block" inherits="trigger"/>
+</Schema>

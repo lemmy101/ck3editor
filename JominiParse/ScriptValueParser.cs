@@ -56,7 +56,7 @@ namespace JominiParse
                     
                     {
                         value.Operations.Add(FileTokenizer.Instance.ParseUnknown(value, parsedSegment,
-                            ScriptContext.ScriptValues));
+                            ScriptContext.ScriptObjectValue));
 
                     }
                 }

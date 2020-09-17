@@ -17,12 +17,12 @@ namespace CK3ScriptEditor
         {
             foreach (var scriptObject in file.Map.Values)
             {
-              //  ColorEntireObject(Color.White, backgroundColor, doc, scriptObject.LineStart - 1, scriptObject.LineEnd);
+                //  ColorEntireObject(Color.White, backgroundColor, doc, scriptObject.LineStart - 1, scriptObject.LineEnd);
                 DoDelimitersForObject(Color.White, backgroundColor, doc, scriptObject.LineStart - 1, scriptObject.LineEnd);
 
                 DoScriptObject(scriptObject, backgroundColor, doc);
             }
-    
+
         }
 
         private List<string> baseCommands = new List<string>()
@@ -59,7 +59,6 @@ namespace CK3ScriptEditor
             "=",
             "|",
             "\\",
-            "#",
             "/",
             "{",
             "}",
@@ -109,110 +108,82 @@ namespace CK3ScriptEditor
             var data = scriptObject.BehaviourData;
             if (data == null)
                 return;
-            switch (data.Type)
-            {
-                case ScriptObjectBehaviourType.FunctionNamedFromParameterBlock:
-                case ScriptObjectBehaviourType.FunctionNamedFromParameterSingleLine:
-                    col = FunctionColor;
-                    if (scriptObject.BehaviourData.NameTypeExpected == "num")
-                        col = NumberColor;
-                    bold = true;
 
-                    break;
-                case ScriptObjectBehaviourType.FunctionParameter:
-                     col = FunctionColor;
-                    break;
-                case ScriptObjectBehaviourType.FunctionMultiline:
-                case ScriptObjectBehaviourType.FunctionSingleLine:
-                    col = FunctionColor;
-                    bold = true;
-                     break;
-                case ScriptObjectBehaviourType.InherentScopeBlock:
-                case ScriptObjectBehaviourType.InherentScopeToProperty:
-                case ScriptObjectBehaviourType.SavedScopeBlock:
-                case ScriptObjectBehaviourType.SavedScopeToProperty:
-                    col = ScopeColor;
-                    bold = true;
-                    break;
-                case ScriptObjectBehaviourType.RootObject:
-                    col = ReferencedObjectColor;
-                    bold = true;
-                    break;
-                case ScriptObjectBehaviourType.LogicalOperand:
-                case ScriptObjectBehaviourType.GeneralBlock:
-                case ScriptObjectBehaviourType.RootObjectProperty:
-                case ScriptObjectBehaviourType.RootObjectPropertyBlock:
-                case ScriptObjectBehaviourType.Limit:
-                case ScriptObjectBehaviourType.If:
-                case ScriptObjectBehaviourType.TriggerIf:
-                case ScriptObjectBehaviourType.Else:
-                case ScriptObjectBehaviourType.TriggerElse:
-                case ScriptObjectBehaviourType.Trigger:
+            if (data.lhsError == null)
+            {
+                col = FunctionColor;
+                if (baseCommands.Contains(data.lhs) || (scriptObject.Parent != null && scriptObject.Parent.Parent == null))
                     col = BaseCommandColor;
-                    bold = true;
-                    break;
-                  
             }
 
-            if (baseCommands.Contains(name))
-                col = BaseCommandColor;
-      
+            if (data.lhsScopeTextColorLength > 0)
+            {
+                ColourName(name.Substring(0, data.lhsScopeTextColorLength), doc, lineSeg, ScopeColor, backgroundColor, true, italic);
+                if(data.lhsScopeTextColorLength < name.Length)
+                    ColourName(name.Substring(data.lhsScopeTextColorLength), doc, lineSeg, col, backgroundColor, bold, italic);
+            }
+            else ColourName(name, doc, lineSeg, col, backgroundColor, bold, italic);
 
 
-            ColourName(name, doc, lineSeg, col, backgroundColor, bold, italic);
 
 
-            if (scriptObject is ScriptValue && !(scriptObject is StaticScriptValue))
+            if (scriptObject is ScriptValue)
             {
                 col = Color.Red;
 
                 var strVal = (scriptObject as ScriptValue).GetStringValue();
 
-                if (data.ReferencedObject != null)
+                if (data.rhsError == null)
                 {
-                    col = ReferencedObjectColor;
-                    italic = true;
-                    bold = true;
-                    ColourName(strVal, doc, lineSeg, col, backgroundColor, bold, italic);
-                }
-                else
-                {
-                    if (data.ValueFound)
+                    col = FunctionColor;
+                    if (data.ReferencedObject != null)
+                        col = ReferencedObjectColor;
+                    // scope from save_scope_as etc
+                    if (scriptObject.lhsSchema != null)
                     {
-                        if (data.ValueIsScope)
-                        {
+                        if (scriptObject.lhsSchema.type == "scope")
                             col = ScopeColor;
-                            bold = true;
+                        if (scriptObject.lhsSchema.type == "bool")
+                        {
+                            if (strVal == "yes" || strVal == "no")
+                                col = BaseCommandColor;
                         }
-                        else if (data.TypeExpected == "localized")
+                        if (scriptObject.lhsSchema.type == "localized")
                         {
                             col = LocalizedStringColor;
+                         }
+                        if (scriptObject.lhsSchema.type == "string")
+                        {
                             italic = true;
-                            bold = true;
+                            col = StringColor;
                         }
-                        else
-                            col = FunctionColor;
+
+                        if (scriptObject.lhsSchema.type == "value")
+                        {
+                            float val;
+
+                            if (Single.TryParse(data.rhs, out val))
+                            {
+                                col = NumberColor;
+                            }
+                        }
+
                     }
-                    else if (data.TypeExpected == "string" && strVal != null)
+
+                    if (data.ReferenceValid)
                     {
-                        col = StringColor;
                         italic = true;
                         bold = true;
                     }
-                    else if (data.TypeExpected == "any" && strVal != null)
-                    {
-                        col = FunctionColor;
-                        italic = true;
-                    }
-                    else if (data.TypeExpected == "value" && strVal.StartsWith("flag:"))
-                    {
-                        col = ReferencedObjectColor;
-                        italic = true;
-                    }
-
-                    ColourName(strVal, doc,  lineSeg, col, backgroundColor, bold, italic);
-
                 }
+
+                if (data.rhsScopeTextColorLength > 0)
+                {
+                    ColourName(strVal.Substring(0, data.rhsScopeTextColorLength), doc, lineSeg, ScopeColor, backgroundColor, true, italic);
+                    if (data.rhsScopeTextColorLength < strVal.Length)
+                        ColourName(strVal.Substring(data.rhsScopeTextColorLength), doc, lineSeg, col, backgroundColor, bold, italic);
+                }
+                else ColourName(strVal, doc, lineSeg, col, backgroundColor, bold, italic);
             }
 
             foreach (var scriptObjectChild in scriptObject.Children)

@@ -4,6 +4,6 @@
     <StartWorkingDirectory>D:\Code\ck3editor\</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <StartWorkingDirectory>D:\Code\CK3ScriptEditor\</StartWorkingDirectory>
+    <StartWorkingDirectory>D:\Code\ck3editor\</StartWorkingDirectory>
   </PropertyGroup>
 </Project>

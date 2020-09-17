@@ -1,0 +1,4 @@
+<Schema id="portrait" type="block">
+	<Child name="character" type="character"/>		
+	<Child name="animation" type="any"/>		
+</Schema>

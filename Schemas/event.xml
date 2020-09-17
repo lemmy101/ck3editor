@@ -1,0 +1,25 @@
+<Schema id="event">
+	<Child name="type" type="event_type"/>	
+	<Child name="title" type="localized"/>
+	<Child name="opening" type="localized"/>
+	<Child name="sender" type="character"/>	
+	<Child name="desc" type="localized" inherits="desc"/>
+	<Child name="theme" type="event_theme"/>
+	<Child name="left_portrait" type="character"/>
+	<Child name="left_portrait" type="block" inherits="portrait"/>
+	<Child name="right_portrait" type="character"/>
+	<Child name="right_portrait" type="block" inherits="portrait"/>
+	<Child name="override_background" type="override_background"/>	
+	<Child name="override_icon">	
+		<Child name="trigger" type="trigger" inherits="trigger"/>	
+		<Child name="reference" type="string"/>	
+	</Child>
+	<Child name="widget" type="widget"/>
+	<Child name="hidden" type="bool"/>
+	<Child name="override_icon" type="override_icon"/>
+	<Child name="immediate" type="block" function="effect" inherits="effect"/>
+	<Child name="trigger" type="block" function="trigger" inherits="trigger"/>
+<!--	<Child name="weight_multiplier" type="value_modifier" isBlock="yes"/>-->
+	<Child name="option" type="block" function="effect" schema="option"/>
+	<Child name="after" type="block" function="effect" inherits="effect"/>
+</Schema>

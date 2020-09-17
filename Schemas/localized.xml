@@ -1,0 +1,19 @@
+<Schema id="desc">
+	<Child name="text" type="localized"/>
+	<Child name="trigger" type="trigger" inherits="trigger" />
+	<Child name="desc" type="localized" inherits="desc"/>
+	<Child name="random_valid" type="block">
+		<Child name="triggered_desc" type="block">
+			<Child name="desc" type="localized" inherits="desc"/>	 
+			<Child name="trigger" type="trigger" inherits="trigger"/>	 
+		</Child>
+		<Child name="desc" type="localized" inherits="desc"/>	 
+	</Child>
+  <Child name="first_valid" type="block">
+		<Child name="triggered_desc" type="block">
+			<Child name="desc" type="localized" inherits="desc"/>	 
+			<Child name="trigger" type="trigger" inherits="trigger"/>	 
+		</Child>
+		<Child name="desc" type="localized" inherits="desc"/>	 
+	</Child>
+</Schema>

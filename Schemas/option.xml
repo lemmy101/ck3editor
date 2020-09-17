@@ -1,0 +1,14 @@
+<Schema name="option" id="option" inherits="effect">
+	<Child name="name" type="localized"/>
+	<Child name="flavor" type="localized"/>	
+	<Child name="exclusive" type="bool"/>
+	<Child name="trigger" type="block" inherits="trigger"/>
+    <Child name="show_as_unavailable" type="block" inherits="trigger" />
+<!--	<Child name="duel" type="duel" />
+	<Child name="skill" type="skill" />
+	<Child name="trait" type="trait" />
+	<Child name="ai_chance" type="value_modifier" />
+	<Child name="custom_tooltip" type="localized"/>
+	<Child name="scopeeffects" type="scopeeffects"/>-->
+	
+</Schema>

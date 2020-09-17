@@ -156,10 +156,11 @@ namespace JominiParse
         }
         public List<string> GetValidTokensEqual(ScriptObject inside, string child, string sofar)
         {
+            List<string> results = new List<string>();
+            /*
             if (inside.BehaviourData == null)
                 return new List<string>();
 
-            List<string> results = new List<string>();
             if (inside == null)
             {
 
@@ -256,10 +257,10 @@ namespace JominiParse
                 {
                     results.Clear();
                 }
-            }
+            }*/
             return results;
         }
-
+            
      
     }
 }

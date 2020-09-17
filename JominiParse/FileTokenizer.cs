@@ -36,7 +36,7 @@ namespace JominiParse
             return test;
         }
 
-        public List<ScriptObject> LoadDirectory(string directory, string basePath, ScriptContext context)
+        public List<ScriptObject> LoadDirectory(string directory, string basePath, ScriptContext context, bool save, bool load)
         {
             List<ScriptObject> results = new List<ScriptObject>();
             if (!Directory.Exists(directory))
@@ -46,7 +46,7 @@ namespace JominiParse
 
             foreach (var s in directories)
             {
-                results.AddRange(LoadDirectory(s, basePath, context));
+                results.AddRange(LoadDirectory(s, basePath, context, save, load));
             }
 
             var files = Directory.GetFiles(directory);
@@ -55,18 +55,30 @@ namespace JominiParse
             {
                 if (file.EndsWith(".txt"))
                 {
-                    results.AddRange(LoadFile(file.Replace("\\", "/"), basePath, context));
+
+                    string binFilename = file.Replace(".txt", ".bin");
+                    binFilename = binFilename.Replace(Globals.CK3Path, "");
+                    binFilename = Directory.GetCurrentDirectory().Replace("\\", "/") + "/data/" + binFilename;
+
+                    if (File.Exists(binFilename) && load)
+                    {
+                        ScriptNamespace = "";
+                        results.AddRange(LoadParsableFile(binFilename));
+
+                    }
+                    else
+                        results.AddRange(LoadFile(file.Replace("\\", "/"), basePath, context, save));
                 }
             }
 
             return results;
         }
-        public List<ScriptObject> LoadFile(string filename, string basePath, ScriptContext context)
+        public List<ScriptObject> LoadFile(string filename, string basePath, ScriptContext context, bool save)
         {
             string text = System.IO.File.ReadAllText(filename);
-            return LoadText(text, filename, basePath, context);
+            return LoadText(text, filename, basePath, context, save);
         }
-        public List<ScriptObject> LoadText(string text, string filename, string basePath, ScriptContext context)
+        public List<ScriptObject> LoadText(string text, string filename, string basePath, ScriptContext context, bool save=false)
         {
             ScriptNamespace = "";
             List<ScriptObject> results = new List<ScriptObject>();
@@ -74,7 +86,7 @@ namespace JominiParse
        
             filename = filename.Replace(basePath, "");
 
-            this.File = Core.Instance.LoadingCK3Library.EnsureFile(filename, context);
+            this.file = Core.Instance.LoadingCK3Library.EnsureFile(filename, context);
 
             string[] lines = text.Split(new char[] {'\n'});
             List<int> lineNumbers = new List<int>();
@@ -85,10 +97,7 @@ namespace JominiParse
                 var line = lines[i];
                 line = line.Trim();
                 index++;
-                if (line.Contains("soundparameter"))
-                {
-
-                }
+               
                 if (line.Contains("debug_log"))
                     continue;
                 if (line.Trim().StartsWith("#"))
@@ -153,14 +162,123 @@ namespace JominiParse
 
             var parsableResults = ParseTokens(tokens, lineNumbers, filename);
 
-
+            if(save)
+                SaveBinary(parsableResults, context, filename);
 
             ParseResults(null, parsableResults, context, results);
 
             return results;
         }
 
-        public ScriptFile File { get; set; }
+        public List<ScriptObject> LoadParsableFile(string s)
+        {
+            using (BinaryReader reader = new BinaryReader(File.Open(s, FileMode.Open)))
+            {
+                ScriptContext context = (ScriptContext) reader.ReadInt32();
+                var filename = s.Substring(s.IndexOf("/data/") + 6);
+
+                int count = reader.ReadInt32();
+
+                List<ScriptParsedSegment> parsables = new List<ScriptParsedSegment>();
+
+                for (int x = 0; x < count; x++)
+                {
+                    ScriptParsedSegment parsable = LoadParsable(reader, filename);
+                    parsables.Add(parsable);
+                }
+
+                List<ScriptObject> results = new List<ScriptObject>();
+                ParseResults(null, parsables, context, results);
+                return results;
+            }
+        }
+
+        private ScriptParsedSegment LoadParsable(BinaryReader reader, string filename)
+        {
+            string name = reader.ReadString();
+
+            int lineStart = reader.ReadInt32();
+            int lineEnd = reader.ReadInt32();
+
+            string op = null;
+            if (reader.ReadBoolean())
+                op = reader.ReadString();
+            byte valCount = reader.ReadByte();
+            List<string> values = new List<string>();
+            for (int x = 0; x < valCount; x++)
+            {
+                values.Add(reader.ReadString());
+            }
+
+            int numChildren = reader.ReadInt32();
+
+            ScriptParsedSegment p = new ScriptParsedSegment();
+
+            p.filename = filename.Replace(".bin", ".txt");
+            p.name = name;
+            p.op = op;
+            p.value = values;
+            p.lineNumbers.Add(lineStart);
+            p.lineNumbers.Add(lineEnd);
+
+            for (int x = 0; x < numChildren; x++)
+            {
+                p.children.Add(LoadParsable(reader, filename));
+            }
+
+            return p;
+        }
+
+        private void SaveBinary(List<ScriptParsedSegment> parsableResults, ScriptContext context, string filename)
+        {
+            string binFilename = filename.Replace(".txt", ".bin");
+
+            binFilename = Directory.GetCurrentDirectory().Replace("\\", "/") + "/data/" + binFilename;
+            string binDir = binFilename.Substring(0, binFilename.LastIndexOf("/"));
+            if (!Directory.Exists(binDir))
+                Directory.CreateDirectory(binDir);
+
+            using (BinaryWriter writer = new BinaryWriter(File.Open(binFilename, FileMode.Create)))
+            {
+                writer.Write((int)context);
+                writer.Write(parsableResults.Count);
+                
+                foreach (var scriptParsedSegment in parsableResults)
+                {
+                    SaveParsable(writer, scriptParsedSegment);
+
+                }
+
+            }
+        }
+
+        private void SaveParsable(BinaryWriter writer, ScriptParsedSegment parsableResults)
+        {
+            writer.Write(parsableResults.name);
+
+            writer.Write(parsableResults.lineNumbers[0]);
+            writer.Write(parsableResults.lineNumbers[parsableResults.lineNumbers.Count - 1]);
+
+
+            writer.Write(parsableResults.op != null);
+            if(parsableResults.op !=null)
+                writer.Write(parsableResults.op);
+            writer.Write((byte)parsableResults.value.Count);
+
+            foreach (var s in parsableResults.value)
+            {
+                writer.Write(s);
+            }
+
+            writer.Write(parsableResults.children.Count);
+            foreach (var parsableResultsChild in parsableResults.children)
+            {
+                SaveParsable(writer, parsableResultsChild);
+            }
+
+        }
+
+        public ScriptFile file { get; set; }
 
         private void TokenizeLine(string line2, List<string> tokens)
         {
@@ -458,7 +576,7 @@ namespace JominiParse
         public void SetNamespace(string segmentValue)
         {
             ScriptNamespace = segmentValue;
-            File.Namespace = segmentValue;
+            file.Namespace = segmentValue;
         }
 
         public string ScriptNamespace { get; set; }

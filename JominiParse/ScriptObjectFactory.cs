@@ -49,6 +49,9 @@ namespace JominiParse
 
             switch (context)
             {
+                case ScriptContext.ScriptedValues:
+                    obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("building"));
+                    break;
                 case ScriptContext.Buildings:
                     obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("building"));
                     break;
@@ -58,7 +61,7 @@ namespace JominiParse
                 case ScriptContext.Decisions:
                     obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("decision"));
                     break;
-                case ScriptContext.ScriptValues:
+                case ScriptContext.ScriptObjectValue:
                     obj = ScriptValueParser.Instance.ParseScriptValue(parent, segment);
                     break;
                 case ScriptContext.Events:
@@ -81,7 +84,6 @@ namespace JominiParse
 
             AddScriptScope("root", obj, obj.GetScopeType(), true, false);
             AddScriptScope("this", obj, obj.GetScopeType(), true, false);
-
 
             obj.Namespace = scriptNamespace;
 

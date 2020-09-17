@@ -14,7 +14,7 @@ namespace JominiParse
         public static List<ScriptObject> DeferedInitializationList = new List<ScriptObject>();
 
         public string Namespace { get; set; }
-        public SchemaNode Schema;
+        public SchemaNode lhsSchema;
         public ScriptFile ScriptFile { get; set; }
         public bool Overridden { get; set; }
 
@@ -195,13 +195,33 @@ namespace JominiParse
 
             }
 
-            if (Name == "liege")
+           
+            lhsSchema = schema;
+
+
+            foreach (var scriptParsedSegment in seg.children)
             {
+                ScriptObject so = null;
+                if (scriptParsedSegment.value.Count > 0)
+                {
+
+                    so = ScriptValueParser.Instance.ParseScriptValue(this, scriptParsedSegment);
+
+                }
+                else
+                {
+                    so = ScriptObjectFactory.Instance.CreateScriptObject(Context, scriptParsedSegment, this,
+                        Namespace);
+                }
+
+                Children.Add(so);
+             
+
+
+                OnPostInitializeChild(so);
             }
 
-            Schema = schema;
-
-
+            /*
             if (parent != null)
             {
 
@@ -214,32 +234,9 @@ namespace JominiParse
                         SetScopeType(ScopeType.inheritparent);
                 }
 
-                foreach (var scriptParsedSegment in seg.children)
-                {
-                    ScriptObject so = null;
-                    if (scriptParsedSegment.value.Count > 0)
-                    {
-
-                        so = ScriptValueParser.Instance.ParseScriptValue(this, scriptParsedSegment);
-
-                    }
-                    else
-                    {
-                        so = ScriptObjectFactory.Instance.CreateScriptObject(Context, scriptParsedSegment, this,
-                            Namespace);
-                    }
-
-                    if (BlockType == BlockType.effect_block)
-                    {
-                        //     ScopeManager.Instance.AddScopeFunction(so.GetScopeType(), so.Name);
-
-                    }
-
-                    OnPostInitializeChild(so);
-                }
 
 
-            }
+            }*/
         }
 
         private void HandleScopeDeclarationFunctions(ScriptObject scriptObject, ScriptObject parent)
@@ -339,11 +336,6 @@ namespace JominiParse
                 s.Name = sc.GetStringValue();
                 if (scriptScopes.ContainsKey(s.Name))
                     return;
-
-                if (s.Name == "departure" && scope_command.LineStart == 44)
-                {
-
-                }
 
                 s.RequiresScopeTag = true;
                 s.ToObj = scope_command.Parent;
@@ -707,7 +699,7 @@ namespace JominiParse
             {
                 return false;
             }
-
+            /*
             if (options.SearchSavedScopes &&
                 (this.BehaviourData.Type == ScriptObjectBehaviourType.SavedScopeBlock || this.BehaviourData.Type == ScriptObjectBehaviourType.SavedScopeToProperty))
             {
@@ -732,10 +724,11 @@ namespace JominiParse
             {
                 return true;
             }
-
+            */
             return false;
         }
 
         public string Op { get; set; } = "=";
+        public SchemaNode rhsSchema { get; set; }
     }
 }

@@ -1,139 +1,139 @@
 <Schema name="eventtarget" id="eventtarget">
-  <Child name="house_head" scope="dynasty_house" targetScope="character" doc="" function="event_target"/>
-  <Child name="capital_vassal" scope="landed_title" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="controlled_faith" scope="landed_title" targetScope="faith" doc="" function="event_target"/>
-  <Child name="current_heir" scope="landed_title" targetScope="character" doc="" function="event_target"/>
-  <Child name="de_facto_liege" scope="landed_title" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="de_jure_liege" scope="landed_title" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="holder" scope="landed_title" targetScope="character" doc="" function="event_target"/>
-  <Child name="lessee" scope="landed_title" targetScope="character" doc="" function="event_target"/>
-  <Child name="lessee_title" scope="landed_title" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="previous_holder" scope="landed_title" targetScope="character" doc="" function="event_target"/>
-  <Child name="title_capital_county" scope="landed_title" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="title_province" scope="landed_title" targetScope="province" doc="" function="event_target"/>
-  <Child name="culture_head" scope="culture" targetScope="character" doc="" function="event_target"/>
-  <Child name="betrothed" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="capital_barony" scope="character" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="capital_county" scope="character" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="capital_province" scope="character" targetScope="province" doc="" function="event_target"/>
-  <Child name="commanding_army" scope="character" targetScope="army" doc="" function="event_target"/>
-  <Child name="concubinist" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="council_task" scope="character" targetScope="council_task" doc="" function="event_target"/>
-  <Child name="council_task" scope="character" targetScope="council_task" requiresData="yes" doc="" function="event_target"/>
-  <Child name="councillor_task_target" scope="character" doc="" function="event_target"/>
-  <Child name="court_owner" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="cp" scope="character" targetScope="character" requiresData="yes" doc="" function="event_target"/>
-  <Child name="designated_heir" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="dynasty" scope="character" targetScope="dynasty" doc="" function="event_target"/>
-  <Child name="employer" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="father" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="ghw_beneficiary" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="host" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="house" scope="character" targetScope="dynasty_house" doc="" function="event_target"/>
-  <Child name="imprisoner" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="joined_faction" scope="character" targetScope="faction" doc="" function="event_target"/>
-  <Child name="killer" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="knight_army" scope="character" targetScope="army" doc="" function="event_target"/>
-  <Child name="liege" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="liege_or_court_owner" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="matchmaker" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="mother" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="player_heir" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="pregnancy_assumed_father" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="pregnancy_real_father" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="primary_heir" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="primary_partner" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="primary_spouse" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="primary_title" scope="character" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="real_father" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="realm_priest" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="top_liege" scope="character" targetScope="character" doc="" function="event_target"/>
-  <Child name="vassal_contract_obligation_level" scope="character" targetScope="value" requiresData="yes" doc="The level of the provided contract type in the scoped objects current vassal contract" function="event_target"/>
-  <Child name="culture_group" scope="character,landed_title,province,culture" targetScope="culture_group" doc="" function="event_target"/>
-  <Child name="great_holy_war" scope="faith" targetScope="great_holy_war" doc="" function="event_target"/>
-  <Child name="religious_head" scope="faith" targetScope="character" doc="" function="event_target"/>
-  <Child name="religious_head_title" scope="faith" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="secret_owner" scope="secret" targetScope="character" doc="" function="event_target"/>
-  <Child name="secret_target" scope="secret" targetScope="character" doc="" function="event_target"/>
-  <Child name="province_owner" scope="province" targetScope="character" doc="" function="event_target"/>
-  <Child name="culture" scope="character,landed_title,province" targetScope="culture" doc="" function="event_target"/>
-  <Child name="holy_order_patron" scope="holy_order" targetScope="character" doc="" function="event_target"/>
-  <Child name="leader" scope="holy_order" targetScope="character" doc="" function="event_target"/>
-  <Child name="title" scope="holy_order" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="army_commander" scope="army" targetScope="character" doc="" function="event_target"/>
-  <Child name="army_owner" scope="army" targetScope="character" doc="" function="event_target"/>
-  <Child name="blue" scope="color" targetScope="value" doc="The blue value of a color" function="event_target"/>
-  <Child name="brightness" scope="color" targetScope="value" doc="The brightness value of a color" function="event_target"/>
-  <Child name="green" scope="color" targetScope="value" doc="The green value of a color" function="event_target"/>
-  <Child name="hue" scope="color" targetScope="value" doc="The hue value of a color" function="event_target"/>
-  <Child name="red" scope="color" targetScope="value" doc="The red value of a color" function="event_target"/>
-  <Child name="saturation" scope="color" targetScope="value" doc="The saturation value of a color" function="event_target"/>
-  <Child name="combat" scope="combat_side" targetScope="combat" doc="" function="event_target"/>
-  <Child name="enemy_side" scope="combat_side" targetScope="combat_side" doc="" function="event_target"/>
-  <Child name="side_commander" scope="combat_side" targetScope="character" doc="" function="event_target"/>
-  <Child name="side_primary_participant" scope="combat_side" targetScope="character" doc="" function="event_target"/>
-  <Child name="ghw_designated_winner" scope="great_holy_war" targetScope="character" doc="" function="event_target"/>
-  <Child name="ghw_target_character" scope="great_holy_war" targetScope="character" doc="" function="event_target"/>
-  <Child name="ghw_target_title" scope="great_holy_war" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="ghw_title_recipient" scope="great_holy_war" targetScope="character" doc="" function="event_target"/>
-  <Child name="ghw_war" scope="great_holy_war" targetScope="war" doc="" function="event_target"/>
-  <Child name="ghw_war_declarer" scope="great_holy_war" targetScope="character" doc="" function="event_target"/>
-  <Child name="dynast" scope="dynasty" targetScope="character" doc="" function="event_target"/>
-  <Child name="scheme_defender" scope="scheme" targetScope="character" doc="" function="event_target"/>
-  <Child name="scheme_owner" scope="scheme" targetScope="character" doc="" function="event_target"/>
-  <Child name="scheme_target" scope="scheme" targetScope="character" doc="" function="event_target"/>
-  <Child name="councillor" scope="council_task" targetScope="character" doc="Scope to the councillor in a council task" function="event_target"/>
-  <Child name="claimant" scope="war,casus_belli" targetScope="character" doc="" function="event_target"/>
-  <Child name="primary_attacker" scope="war,casus_belli" targetScope="character" doc="" function="event_target"/>
-  <Child name="primary_defender" scope="war,casus_belli" targetScope="character" doc="" function="event_target"/>
-  <Child name="combat_attacker" scope="combat" targetScope="combat_side" doc="" function="event_target"/>
-  <Child name="combat_defender" scope="combat" targetScope="combat_side" doc="" function="event_target"/>
-  <Child name="combat_war" scope="combat" targetScope="war" doc="" function="event_target"/>
-  <Child name="location" scope="character,combat,army" targetScope="province" doc="" function="event_target"/>
-  <Child name="faith" scope="character,landed_title,province,great_holy_war" targetScope="faith" doc="" function="event_target"/>
-  <Child name="story_owner" scope="story_cycle" targetScope="character" doc="" function="event_target"/>
-  <Child name="faction_leader" scope="faction" targetScope="character" doc="" function="event_target"/>
-  <Child name="faction_target" scope="faction" targetScope="character" doc="" function="event_target"/>
-  <Child name="faction_war" scope="faction" targetScope="war" doc="" function="event_target"/>
-  <Child name="special_character" scope="faction" targetScope="character" doc="" function="event_target"/>
-  <Child name="special_title" scope="faction" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="religion" scope="character,landed_title,province,faith,great_holy_war" targetScope="religion" doc="" function="event_target"/>
-  <Child name="casus_belli" scope="war" targetScope="casus_belli" doc="" function="event_target"/>
-  <Child name="activity_owner" scope="activity" targetScope="character" doc="" function="event_target"/>
-  <Child name="activity_province" scope="activity" targetScope="province" doc="" function="event_target"/>
-  <Child name="war" scope="casus_belli" targetScope="war" doc="" function="event_target"/>
-  <Child name="barony" scope="landed_title,province" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="barony_controller" scope="landed_title,province" targetScope="character" doc="" function="event_target"/>
-  <Child name="county" scope="landed_title,province" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="county_controller" scope="landed_title,province" targetScope="character" doc="" function="event_target"/>
-  <Child name="duchy" scope="landed_title,province" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="empire" scope="landed_title,province" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="kingdom" scope="landed_title,province" targetScope="landed_title" doc="" function="event_target"/>
-  <Child name="array_define" targetScope="value" requiresData="yes" globalLink="yes" doc="Reference the value of a numeric value in an array define: array_define:Namespace|Name|Index. Index is 0-based." function="event_target"/>
-  <Child name="character" targetScope="character" requiresData="yes" globalLink="yes" doc="" function="event_target"/>
-  <Child name="compare_value" targetScope="value" wildcard="yes" doc="A comparison trigger that will return its value in the context it is used eg: root.gold" function="event_target"/>
-  <Child name="culture" targetScope="culture" requiresData="yes" globalLink="yes" doc="" function="event_target"/>
-  <Child name="culture_group" targetScope="culture_group" requiresData="yes" globalLink="yes" doc="" function="event_target"/>
-  <Child name="custom" requiresData="yes" doc="Adds custom text between scope changes" function="event_target"/>
-  <Child name="define" targetScope="value" requiresData="yes" globalLink="yes" doc="Reference the value of a numeric define: define:Namespace|Name" function="event_target"/>
-  <Child name="dummy_female" targetScope="character" globalLink="yes" doc="" function="event_target"/>
-  <Child name="dummy_male" targetScope="character" globalLink="yes" doc="" function="event_target"/>
-  <Child name="dynasty" targetScope="dynasty" requiresData="yes" doc="" function="event_target"/>
-  <Child name="faith" targetScope="faith" requiresData="yes" globalLink="yes" doc="" function="event_target"/>
-  <Child name="flag" targetScope="flag" requiresData="yes" globalLink="yes" doc="Flag literals eg: flag:the_boss" function="event_target"/>
-  <Child name="global_var" requiresData="yes" globalLink="yes" doc="Reference a previous set global variable via its name eg: global_var:important_thing" function="event_target"/>
-  <Child name="house" targetScope="dynasty_house" requiresData="yes" doc="" function="event_target"/>
-  <Child name="local_var" requiresData="yes" globalLink="yes" doc="Reference a previous set local variable via its name eg: local_var:person_of_interest" function="event_target"/>
-  <Child name="named_script_value" targetScope="value" wildcard="yes" doc="A script value that will calculate and returns its value in the context it is used" function="event_target"/>
-  <Child name="no" targetScope="bool" globalLink="yes" doc="Boolean literal for false values" function="event_target"/>
-  <Child name="prev" doc="The previous scope" function="event_target"/>
-  <Child name="province" targetScope="province" requiresData="yes" globalLink="yes" doc="Directly scope to a specific province by its ID" function="event_target"/>
-  <Child name="religion" targetScope="religion" requiresData="yes" globalLink="yes" doc="" function="event_target"/>
-  <Child name="root" globalLink="yes" doc="The head of the current top scope eg: reciever of an event, taker of a decision" function="event_target"/>
-  <Child name="scope" requiresData="yes" globalLink="yes" doc="Reference a previously saved scope via its name eg: scope:target" function="event_target"/>
-  <Child name="this" doc="The current scope" function="event_target"/>
-  <Child name="title" targetScope="landed_title" requiresData="yes" globalLink="yes" doc="" function="event_target"/>
-  <Child name="value" targetScope="value" wildcard="yes" globalLink="yes" doc="A numeric literal value eg: 1, 5.2, -6" function="event_target"/>
-  <Child name="var" requiresData="yes" doc="Reference a previous set variable via its name eg: var:mortal_enemy" function="event_target"/>
-  <Child name="yes" targetScope="bool" globalLink="yes" doc="Boolean literal for true values" function="event_target"/>
+  <Child name="house_head" scope="dynasty_house" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="capital_vassal" scope="landed_title" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="controlled_faith" scope="landed_title" targetScope="faith" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="current_heir" scope="landed_title" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="de_facto_liege" scope="landed_title" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="de_jure_liege" scope="landed_title" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="holder" scope="landed_title" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="lessee" scope="landed_title" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="lessee_title" scope="landed_title" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="previous_holder" scope="landed_title" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="title_capital_county" scope="landed_title" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="title_province" scope="landed_title" targetScope="province" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="culture_head" scope="culture" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="betrothed" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="capital_barony" scope="character" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="capital_county" scope="character" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="capital_province" scope="character" targetScope="province" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="commanding_army" scope="character" targetScope="army" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="concubinist" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="council_task" scope="character" targetScope="council_task" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="council_task" scope="character" targetScope="council_task" requiresData="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="councillor_task_target" scope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="court_owner" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="cp" scope="character" targetScope="character" requiresData="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="designated_heir" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="dynasty" scope="character" targetScope="dynasty" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="employer" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="father" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="ghw_beneficiary" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="host" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="house" scope="character" targetScope="dynasty_house" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="imprisoner" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="joined_faction" scope="character" targetScope="faction" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="killer" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="knight_army" scope="character" targetScope="army" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="liege" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="liege_or_court_owner" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="matchmaker" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="mother" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="player_heir" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="pregnancy_assumed_father" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="pregnancy_real_father" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="primary_heir" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="primary_partner" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="primary_spouse" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="primary_title" scope="character" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="real_father" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="realm_priest" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="top_liege" scope="character" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="vassal_contract_obligation_level" scope="character" targetScope="value" requiresData="yes" doc="The level of the provided contract type in the scoped objects current vassal contract" inherits="eventtargetbase" function="event_target"/>
+  <Child name="culture_group" scope="character,landed_title,province,culture" targetScope="culture_group" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="great_holy_war" scope="faith" targetScope="great_holy_war" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="religious_head" scope="faith" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="religious_head_title" scope="faith" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="secret_owner" scope="secret" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="secret_target" scope="secret" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="province_owner" scope="province" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="culture" scope="character,landed_title,province" targetScope="culture" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="holy_order_patron" scope="holy_order" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="leader" scope="holy_order" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="title" scope="holy_order" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="army_commander" scope="army" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="army_owner" scope="army" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="blue" scope="color" targetScope="value" doc="The blue value of a color" inherits="eventtargetbase" function="event_target"/>
+  <Child name="brightness" scope="color" targetScope="value" doc="The brightness value of a color" inherits="eventtargetbase" function="event_target"/>
+  <Child name="green" scope="color" targetScope="value" doc="The green value of a color" inherits="eventtargetbase" function="event_target"/>
+  <Child name="hue" scope="color" targetScope="value" doc="The hue value of a color" inherits="eventtargetbase" function="event_target"/>
+  <Child name="red" scope="color" targetScope="value" doc="The red value of a color" inherits="eventtargetbase" function="event_target"/>
+  <Child name="saturation" scope="color" targetScope="value" doc="The saturation value of a color" inherits="eventtargetbase" function="event_target"/>
+  <Child name="combat" scope="combat_side" targetScope="combat" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="enemy_side" scope="combat_side" targetScope="combat_side" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="side_commander" scope="combat_side" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="side_primary_participant" scope="combat_side" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="ghw_designated_winner" scope="great_holy_war" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="ghw_target_character" scope="great_holy_war" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="ghw_target_title" scope="great_holy_war" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="ghw_title_recipient" scope="great_holy_war" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="ghw_war" scope="great_holy_war" targetScope="war" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="ghw_war_declarer" scope="great_holy_war" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="dynast" scope="dynasty" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="scheme_defender" scope="scheme" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="scheme_owner" scope="scheme" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="scheme_target" scope="scheme" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="councillor" scope="council_task" targetScope="character" doc="Scope to the councillor in a council task" inherits="eventtargetbase" function="event_target"/>
+  <Child name="claimant" scope="war,casus_belli" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="primary_attacker" scope="war,casus_belli" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="primary_defender" scope="war,casus_belli" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="combat_attacker" scope="combat" targetScope="combat_side" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="combat_defender" scope="combat" targetScope="combat_side" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="combat_war" scope="combat" targetScope="war" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="location" scope="character,combat,army" targetScope="province" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="faith" scope="character,landed_title,province,great_holy_war" targetScope="faith" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="story_owner" scope="story_cycle" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="faction_leader" scope="faction" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="faction_target" scope="faction" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="faction_war" scope="faction" targetScope="war" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="special_character" scope="faction" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="special_title" scope="faction" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="religion" scope="character,landed_title,province,faith,great_holy_war" targetScope="religion" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="casus_belli" scope="war" targetScope="casus_belli" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="activity_owner" scope="activity" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="activity_province" scope="activity" targetScope="province" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="war" scope="casus_belli" targetScope="war" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="barony" scope="landed_title,province" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="barony_controller" scope="landed_title,province" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="county" scope="landed_title,province" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="county_controller" scope="landed_title,province" targetScope="character" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="duchy" scope="landed_title,province" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="empire" scope="landed_title,province" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="kingdom" scope="landed_title,province" targetScope="landed_title" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="array_define" targetScope="value" requiresData="yes" globalLink="yes" doc="Reference the value of a numeric value in an array define: array_define:Namespace|Name|Index. Index is 0-based." inherits="eventtargetbase" function="event_target"/>
+  <Child name="character" targetScope="character" requiresData="yes" globalLink="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="compare_value" targetScope="value" wildcard="yes" doc="A comparison trigger that will return its value in the context it is used eg: root.gold" inherits="eventtargetbase" function="event_target"/>
+  <Child name="culture" targetScope="culture" requiresData="yes" globalLink="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="culture_group" targetScope="culture_group" requiresData="yes" globalLink="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="custom" requiresData="yes" doc="Adds custom text between scope changes" inherits="eventtargetbase" function="event_target"/>
+  <Child name="define" targetScope="value" requiresData="yes" globalLink="yes" doc="Reference the value of a numeric define: define:Namespace|Name" inherits="eventtargetbase" function="event_target"/>
+  <Child name="dummy_female" targetScope="character" globalLink="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="dummy_male" targetScope="character" globalLink="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="dynasty" targetScope="dynasty" requiresData="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="faith" targetScope="faith" requiresData="yes" globalLink="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="flag" targetScope="flag" requiresData="yes" globalLink="yes" doc="Flag literals eg: flag:the_boss" inherits="eventtargetbase" function="event_target"/>
+  <Child name="global_var" requiresData="yes" globalLink="yes" doc="Reference a previous set global variable via its name eg: global_var:important_thing" inherits="eventtargetbase" function="event_target"/>
+  <Child name="house" targetScope="dynasty_house" requiresData="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="local_var" requiresData="yes" globalLink="yes" doc="Reference a previous set local variable via its name eg: local_var:person_of_interest" inherits="eventtargetbase" function="event_target"/>
+  <Child name="named_script_value" targetScope="value" wildcard="yes" doc="A script value that will calculate and returns its value in the context it is used" inherits="eventtargetbase" function="event_target"/>
+  <Child name="no" targetScope="bool" globalLink="yes" doc="Boolean literal for false values" inherits="eventtargetbase" function="event_target"/>
+  <Child name="prev" doc="The previous scope" inherits="eventtargetbase" function="event_target"/>
+  <Child name="province" targetScope="province" requiresData="yes" globalLink="yes" doc="Directly scope to a specific province by its ID" inherits="eventtargetbase" function="event_target"/>
+  <Child name="religion" targetScope="religion" requiresData="yes" globalLink="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="root" globalLink="yes" doc="The head of the current top scope eg: reciever of an event, taker of a decision" inherits="eventtargetbase" function="event_target"/>
+  <Child name="scope" requiresData="yes" globalLink="yes" doc="Reference a previously saved scope via its name eg: scope:target" inherits="eventtargetbase" function="event_target"/>
+  <Child name="this" doc="The current scope" inherits="eventtargetbase" function="event_target"/>
+  <Child name="title" targetScope="landed_title" requiresData="yes" globalLink="yes" doc="" inherits="eventtargetbase" function="event_target"/>
+  <Child name="value" targetScope="value" wildcard="yes" globalLink="yes" doc="A numeric literal value eg: 1, 5.2, -6" inherits="eventtargetbase" function="event_target"/>
+  <Child name="var" requiresData="yes" doc="Reference a previous set variable via its name eg: var:mortal_enemy" inherits="eventtargetbase" function="event_target"/>
+  <Child name="yes" targetScope="bool" globalLink="yes" doc="Boolean literal for true values" inherits="eventtargetbase" function="event_target"/>
 </Schema>

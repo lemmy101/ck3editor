@@ -4,7 +4,7 @@
     {
         None,
         All,
-        ScriptValues,
+        ScriptObjectValue,
         Decisions,
         TriggerBlock,
         Modifier,
@@ -51,6 +51,7 @@
         ScriptedRelations,
         ScriptedRules,
         ScriptedTriggers,
+        ScriptedValues,
         SecretTypes,
         StoryCycles,
         SuccessionElections,
@@ -60,7 +61,7 @@
         CultureGroups,
         CulturalInnovations,
         Max,
-        Cultures
+        Cultures,
     }
 
     public enum ScriptGroupContext

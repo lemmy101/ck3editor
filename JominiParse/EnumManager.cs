@@ -54,6 +54,8 @@ namespace JominiParse
 
         public HashSet<string> GetEnums(string type, bool allowPrepend=false)
         {
+            if(type == null)
+                return new HashSet<string>();
             if (!Enums.ContainsKey(type))
             {
                 return Core.Instance.GetNameSetFromEnumType(type, allowPrepend);

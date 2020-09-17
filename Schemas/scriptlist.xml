@@ -1,163 +1,165 @@
 <Schema name="scriptlist" id="scriptlist">
-  <Child name="dynasty_member" scope="dynasty" type="character" function="script_list" doc="Iterate through all dynasty members" />
-  <Child name="house_member" scope="dynasty_house" type="character" function="script_list" doc="Iterate through all house members" />
-  <Child name="faith" scope="religion" type="faith" function="script_list" doc="Iterate through all faiths within a religion" />
-  <Child name="scheme_agent" scope="scheme" type="character" function="script_list" doc="Iterate through all agents in the scheme" />
-  <Child name="claimant" scope="landed_title" type="character" function="script_list" doc="Iterate through all claimants to title. parameters: explicit = yes/no/all - default yes" />
-  <Child name="connected_county" scope="landed_title" type="landed_title" function="script_list" doc="Iterate through all counties connected to this one. Is based on top liege" />
-  <Child name="county_province" scope="landed_title" type="province" function="script_list" doc="Iterate through all provinces in a county" />
-  <Child name="de_jure_county_holder" scope="landed_title" type="character" function="script_list" doc="Iterate through all characters directly holding counties within this dejure title" />
-  <Child name="de_jure_top_liege" scope="landed_title" type="character" function="script_list" doc="Iterate through all top lieges of the counts within this dejure title" />
-  <Child name="dejure_vassal_title_holder" scope="landed_title" type="character" function="script_list" doc="Iterate through all the vassal holders of the title" />
-  <Child name="election_candidate" scope="landed_title" type="character" function="script_list" doc="Iterate through all characters who are valid candidates in an election for a title" />
-  <Child name="elector" scope="landed_title" type="character" function="script_list" doc="Iterate through all characters who are valid electors in an election for a title" />
-  <Child name="in_de_facto_hierarchy" scope="landed_title" type="landed_title" function="script_list" doc="Iterate through the title itself, all de facto vassals, and below. The continue trigger specifies whether to recursively iterate through the vassal's vassal" />
-  <Child name="in_de_jure_hierarchy" scope="landed_title" type="landed_title" function="script_list" doc="Iterate through the title itself, all de jure vassals, and below. The continue trigger specifies whether to recursively iterate through the vassal's vassal" />
-  <Child name="neighboring_county" scope="landed_title" type="landed_title" function="script_list" doc="Iterate through all neighboring counties. Can only be used in county scope" />
-  <Child name="this_title_or_de_jure_above" scope="landed_title" type="landed_title" function="script_list" doc="Iterate through this title and all its dejure liege titles" />
-  <Child name="title_heir" scope="landed_title" type="character" function="script_list" doc="Line of succession for the scoped title" />
-  <Child name="title_joined_faction" scope="landed_title" type="faction" function="script_list" doc="Iterate through all factions joined the scope landed title" />
-  <Child name="title_to_title_neighboring_and_across_water_barony" scope="landed_title" type="landed_title" function="script_list" doc="Scopes from a title to a neighboring barony (incl. across water, looking trough the de Jure lieges)" />
-  <Child name="title_to_title_neighboring_and_across_water_county" scope="landed_title" type="landed_title" function="script_list" doc="Scopes from a title to a neighboring county (incl. across water, looking trough the de Jure lieges)" />
-  <Child name="title_to_title_neighboring_and_across_water_duchy" scope="landed_title" type="landed_title" function="script_list" doc="Scopes from a title to a neighboring duchy (incl. across water, looking trough the de Jure lieges)" />
-  <Child name="title_to_title_neighboring_and_across_water_empire" scope="landed_title" type="landed_title" function="script_list" doc="Scopes from a title to a neighboring empire (incl. across water, looking trough the de Jure lieges)" />
-  <Child name="title_to_title_neighboring_and_across_water_kingdom" scope="landed_title" type="landed_title" function="script_list" doc="Scopes from a title to a neighboring kingdom (incl. across water, looking trough the de Jure lieges)" />
-  <Child name="title_to_title_neighboring_barony" scope="landed_title" type="landed_title" function="script_list" doc="Scopes from a title to a neighboring barony (looking trough the de Jure lieges)" />
-  <Child name="title_to_title_neighboring_county" scope="landed_title" type="landed_title" function="script_list" doc="Scopes from a title to a neighboring county (looking trough the de Jure lieges)" />
-  <Child name="title_to_title_neighboring_duchy" scope="landed_title" type="landed_title" function="script_list" doc="Scopes from a title to a neighboring duchy (looking trough the de Jure lieges)" />
-  <Child name="title_to_title_neighboring_empire" scope="landed_title" type="landed_title" function="script_list" doc="Scopes from a title to a neighboring empire (looking trough the de Jure lieges)" />
-  <Child name="title_to_title_neighboring_kingdom" scope="landed_title" type="landed_title" function="script_list" doc="Scopes from a title to a neighboring kingdom (looking trough the de Jure lieges)" />
-  <Child name="alert_creatable_title" scope="character" type="landed_title" function="script_list" doc="Iterate through all titles that can be created by the character. (only for alerts)" />
-  <Child name="alert_usurpable_title" scope="character" type="landed_title" function="script_list" doc="Iterate through all titles that can be usurped by the character. (only for alerts)" />
-  <Child name="ally" scope="character" type="character" function="script_list" doc="Iterate through all allies" />
-  <Child name="ancestor" scope="character" type="character" function="script_list" doc="Iterate through all the ancestors of the scope character up to 5 generations" />
-  <Child name="army" scope="character" type="army" function="script_list" doc="Iterate through all armies" />
-  <Child name="character_to_title_neighboring_and_across_water_barony" scope="character" type="landed_title" function="script_list" doc="Scopes from a character to a neighboring barony (incl. across water, looking trough the de Jure lieges)" />
-  <Child name="character_to_title_neighboring_and_across_water_county" scope="character" type="landed_title" function="script_list" doc="Scopes from a character to a neighboring county (incl. across water, looking trough the de Jure lieges)" />
-  <Child name="character_to_title_neighboring_and_across_water_duchy" scope="character" type="landed_title" function="script_list" doc="Scopes from a character to a neighboring duchy (incl. across water, looking trough the de Jure lieges)" />
-  <Child name="character_to_title_neighboring_and_across_water_empire" scope="character" type="landed_title" function="script_list" doc="Scopes from a character to a neighboring empire (incl. across water, looking trough the de Jure lieges)" />
-  <Child name="character_to_title_neighboring_and_across_water_kingdom" scope="character" type="landed_title" function="script_list" doc="Scopes from a character to a neighboring kingdom (incl. across water, looking trough the de Jure lieges)" />
-  <Child name="character_to_title_neighboring_barony" scope="character" type="landed_title" function="script_list" doc="Scopes from a character to a neighboring barony (looking trough the de Jure lieges)" />
-  <Child name="character_to_title_neighboring_county" scope="character" type="landed_title" function="script_list" doc="Scopes from a character to a neighboring county (looking trough the de Jure lieges)" />
-  <Child name="character_to_title_neighboring_duchy" scope="character" type="landed_title" function="script_list" doc="Scopes from a character to a neighboring duchy (looking trough the de Jure lieges)" />
-  <Child name="character_to_title_neighboring_empire" scope="character" type="landed_title" function="script_list" doc="Scopes from a character to a neighboring empire (looking trough the de Jure lieges)" />
-  <Child name="character_to_title_neighboring_kingdom" scope="character" type="landed_title" function="script_list" doc="Scopes from a character to a neighboring kingdom (looking trough the de Jure lieges)" />
-  <Child name="character_war" scope="character" type="war" function="script_list" doc="Wars of the scoped character" />
-  <Child name="child" scope="character" type="character" function="script_list" doc="Iterate through all children" />
-  <Child name="claim" scope="character" type="landed_title" function="script_list" doc="Iterate through the titles of all claims held by a character; parameters: explicit = yes/no/all pressed = yes/no/all" />
-  <Child name="close_family_member" scope="character" type="character" function="script_list" doc="Iterate through all the close family [father, mother, siblings, children, grandparents]" />
-  <Child name="close_or_extended_family_member" scope="character" type="character" function="script_list" doc="Iterate through all the close and extended relatives [father, mother, siblings, children, grandparents, uncles/aunts, nephew/niece, cousins]" />
-  <Child name="concubine" scope="character" type="character" function="script_list" doc="Iterate through all concubines" />
-  <Child name="consort" scope="character" type="character" function="script_list" doc="Iterate through all consorts (concubines and spouses)" />
-  <Child name="councillor" scope="character" type="character" function="script_list" doc="Iterate through all councillors" />
-  <Child name="courtier" scope="character" type="character" function="script_list" doc="Iterate through all courtiers" />
-  <Child name="courtier_away" scope="character" type="character" function="script_list" doc="Iterate through all courtiers that are away" />
-  <Child name="courtier_or_guest" scope="character" type="character" function="script_list" doc="Iterate through all courtiers and guests (pool and foreign court guests)" />
-  <Child name="de_jure_claim" scope="character" type="landed_title" function="script_list" doc="Iterate through all de jure claims for a character" />
-  <Child name="diplomacy_councillor" scope="character" type="character" function="script_list" doc="Iterate through all diplomacy-based councillors" />
-  <Child name="directly_owned_province" scope="character" type="province" function="script_list" doc="Iterate through all directly owned provinces" />
-  <Child name="election_title" scope="character" type="landed_title" function="script_list" doc="Iterate through all titles the scoped character can vote on" />
-  <Child name="extended_family_member" scope="character" type="character" function="script_list" doc="Iterate through all the extended family [uncles/aunts, nephew/niece, cousins]" />
-  <Child name="foreign_court_guest" scope="character" type="character" function="script_list" doc="Iterate through all guests visiting from another court (in contrast to pool_guest they have a liege)" />
-  <Child name="former_concubine" scope="character" type="character" function="script_list" doc="Iterate through all former concubines. Not persisted past death" />
-  <Child name="former_concubinist" scope="character" type="character" function="script_list" doc="Iterate through all former concubinists. Not persisted past death" />
-  <Child name="former_spouse" scope="character" type="character" function="script_list" doc="Iterate through all former spouses" />
-  <Child name="general_councillor" scope="character" type="character" function="script_list" doc="Iterate through all councillors that are not related to a skill" />
-  <Child name="heir" scope="character" type="character" function="script_list" doc="Heirs of the scoped character" />
-  <Child name="heir_title" scope="character" type="landed_title" function="script_list" doc="Iterate through all landed titles character is heir to" />
-  <Child name="heir_to_title" scope="character" type="landed_title" function="script_list" doc="Iterate through all titles the scoped character is heir to" />
-  <Child name="held_title" scope="character" type="landed_title" function="script_list" doc="Iterate through all held landed titles" />
-  <Child name="hired_mercenary" scope="character" type="mercenary_company" function="script_list" doc="Iterate through all hired mercenary companies" />
-  <Child name="hooked_character" scope="character" type="character" function="script_list" doc="Iterate through all characters this character has a hook on" />
-  <Child name="hostile_raider" scope="character" type="character" function="script_list" doc="Iterate through anyone the character is hostile to due to their top-liege's realm having been raided" />
-  <Child name="intrigue_councillor" scope="character" type="character" function="script_list" doc="Iterate through all intrigue-based councillors" />
-  <Child name="knight" scope="character" type="character" function="script_list" doc="Iterate through all knights" />
-  <Child name="known_secret" scope="character" type="secret" function="script_list" doc="Iterate through all secrets known by the character" />
-  <Child name="learning_councillor" scope="character" type="character" function="script_list" doc="Iterate through all learning-based councillors" />
-  <Child name="liege_or_above" scope="character" type="character" function="script_list" doc="Iterate through all lieges above a character (skipping the character themselves)" />
-  <Child name="martial_councillor" scope="character" type="character" function="script_list" doc="Iterate through all martial-based councillors" />
-  <Child name="neighboring_and_across_water_realm_same_rank_owner" scope="character" type="character" function="script_list" doc="A sub-realm or realm bordering the scope character's realm (including across water) and has the same rank as the scope character (look for lieges of he owner of the land if necessary)" />
-  <Child name="neighboring_and_across_water_top_liege_realm" scope="character" type="landed_title" function="script_list" doc="A realm with a different top liege neighboring the realm of the scope character's top liege (including across water); switches to the realm's top title. Can be based on borders a day or two out of date" />
-  <Child name="neighboring_and_across_water_top_liege_realm_owner" scope="character" type="character" function="script_list" doc="A realm with a different top liege neighboring the realm of the scope character's top liege (including across water); switches to the holder of the realm. Can be based on borders a day or two out of date" />
-  <Child name="neighboring_realm_same_rank_owner" scope="character" type="character" function="script_list" doc="A sub-realm or realm bordering the scope character's realm and has the same rank as the scope character (look for lieges of he owner of the land if necessary)" />
-  <Child name="neighboring_top_liege_realm" scope="character" type="landed_title" function="script_list" doc="A realm with a different top liege neighboring the realm of the scope character's top liege; switches to the realm's top title. Can be based on borders a day or two out of date" />
-  <Child name="neighboring_top_liege_realm_owner" scope="character" type="character" function="script_list" doc="A realm with a different top liege neighboring the realm of the scope character's top liege; switches to the holder of the realm. Can be based on borders a day or two out of date" />
-  <Child name="owned_story" scope="character" type="story_cycle" function="script_list" doc="Iterate through all owned stories for a character" />
-  <Child name="parent" scope="character" type="character" function="script_list" doc="Iterate through all (both) parents" />
-  <Child name="patroned_holy_order" scope="character" type="holy_order" function="script_list" doc="Iterate through all holy orders that the scoped character is a patron of" />
-  <Child name="pinned_character" scope="character" type="character" function="script_list" doc="Iterate through characters this player has pinned" />
-  <Child name="pinning_character" scope="character" type="character" function="script_list" doc="Iterate through characters whose player has this character pinned" />
-  <Child name="player_heir" scope="character" type="character" function="script_list" doc="Iterate through player heirs, capped at the first 10" />
-  <Child name="pool_guest" scope="character" type="character" function="script_list" doc="Iterate through all guests visiting the court from the pool (in contrast to foreign_court_guest they don't have a liege)" />
-  <Child name="potential_marriage_option" scope="character" type="character" function="script_list" doc="Iterate through all potential selectable marriage or betrohed options" />
-  <Child name="pretender_title" scope="character" type="landed_title" function="script_list" doc="Iterate through all landed titles character is pretender to" />
-  <Child name="primary_war_enemy" scope="character" type="character" function="script_list" doc="Iterate through all primary war enemies" />
-  <Child name="prisoner" scope="character" type="character" function="script_list" doc="Iterate through all prisoners" />
-  <Child name="prowess_councillor" scope="character" type="character" function="script_list" doc="Iterate through all prowess-based councillors" />
-  <Child name="raid_target" scope="character" type="character" function="script_list" doc="Iterate through anyone the character is hostile to due to having raided them. Only returns top lieges" />
-  <Child name="realm_county" scope="character" type="landed_title" function="script_list" doc="Iterate through all counties in the realm. Based on top liege" />
-  <Child name="realm_de_jure_duchy" scope="character" type="landed_title" function="script_list" doc="Iterate through all de jure duchies that have at least one county in the realm. Based on top liege" />
-  <Child name="realm_de_jure_empire" scope="character" type="landed_title" function="script_list" doc="Iterate through all de jure empire that have at least one county in the realm. Based on top liege" />
-  <Child name="realm_de_jure_kingdom" scope="character" type="landed_title" function="script_list" doc="Iterate through all de jure kingdom that have at least one county in the realm. Based on top liege" />
-  <Child name="realm_province" scope="character" type="province" function="script_list" doc="Iterate through all realm provinces of a character" />
-  <Child name="relation" scope="character" type="character" function="script_list" doc="Iterate through scripted relations of a given type or multiple types, if someone is multiple relations they will only be in the list once" />
-  <Child name="scheme" scope="character" type="scheme" function="script_list" doc="Iterate through all schemes owned by the character" />
-  <Child name="secret" scope="character" type="secret" function="script_list" doc="Iterate through all secrets of the character" />
-  <Child name="sibling" scope="character" type="character" function="script_list" doc="Iterate through all siblings" />
-  <Child name="spouse" scope="character" type="character" function="script_list" doc="Iterate through all spouses" />
-  <Child name="spouse_candidate" scope="character" type="character" function="script_list" doc="Iterate through all the spouse candidates of a character. WARNING: THIS IS VERY SLOW DO NOT DO IT OFTEN." />
-  <Child name="stewardship_councillor" scope="character" type="character" function="script_list" doc="Iterate through all stewardship-based councillors" />
-  <Child name="sub_realm_barony" scope="character" type="landed_title" function="script_list" doc="Iterate through all baronies in sub-realm" />
-  <Child name="sub_realm_county" scope="character" type="landed_title" function="script_list" doc="Iterate through all counties in sub-realm" />
-  <Child name="sub_realm_duchy" scope="character" type="landed_title" function="script_list" doc="Iterate through all duchies in sub-realm" />
-  <Child name="sub_realm_empire" scope="character" type="landed_title" function="script_list" doc="Iterate through all empires in sub-realm" />
-  <Child name="sub_realm_kingdom" scope="character" type="landed_title" function="script_list" doc="Iterate through all kingdoms in sub-realm" />
-  <Child name="sub_realm_title" scope="character" type="landed_title" function="script_list" doc="Iterate through all titles in sub-realm" />
-  <Child name="targeting_faction" scope="character" type="faction" function="script_list" doc="Iterate through all factions targeting the scope character" />
-  <Child name="targeting_scheme" scope="character" type="scheme" function="script_list" doc="Iterate through all schemes targeting the character" />
-  <Child name="targeting_secret" scope="character" type="secret" function="script_list" doc="Iterate through all secrets that target the specified scope" />
-  <Child name="traveling_family_member" scope="character" type="character" function="script_list" doc="Iterate though all characters that should travel with the scoped one (when moving between courts for instance); includes the scoped character" />
-  <Child name="truce_holder" scope="character" type="character" function="script_list" doc="Iterate through all characters that have a truce on this character" />
-  <Child name="truce_target" scope="character" type="character" function="script_list" doc="Iterate through all characters this character has a truce on" />
-  <Child name="unspent_known_secret" scope="character" type="secret" function="script_list" doc="Iterate through all unspent secrets known by the character" />
-  <Child name="vassal" scope="character" type="character" function="script_list" doc="Iterate through all DIRECT vassals" />
-  <Child name="vassal_or_below" scope="character" type="character" function="script_list" doc="Iterate through ALL vassals, not just direct vassals" />
-  <Child name="war_ally" scope="character" type="character" function="script_list" doc="Iterate through all direct war allies" />
-  <Child name="war_enemy" scope="character" type="character" function="script_list" doc="Iterate through all direct war enemies" />
-  <Child name="faction_county_member" scope="faction" type="landed_title" function="script_list" doc="Iterate through all faction county members" />
-  <Child name="faction_member" scope="faction" type="character" function="script_list" doc="Iterate through all faction character members" />
-  <Child name="war_attacker" scope="war" type="character" function="script_list" doc="Iterate through all attackers in the war" />
-  <Child name="war_defender" scope="war" type="character" function="script_list" doc="Iterate through all defenders in the war" />
-  <Child name="war_participant" scope="war" type="character" function="script_list" doc="Iterate through all participants in the war" />
-  <Child name="defensive_great_holy_wars" scope="faith" type="great_holy_war" function="script_list" doc="Iterate through all great holy wars this faith is defending against" />
-  <Child name="faith_holy_order" scope="faith" type="holy_order" function="script_list" doc="Iterate through all holy orders of the faith" />
-  <Child name="holy_site" scope="faith" type="landed_title" function="script_list" doc="Iterate through all holy site baronies of a faith" />
-  <Child name="secret_knower" scope="secret" type="character" function="script_list" doc="Iterate through all characters who know the secret" />
-  <Child name="secret_participant" scope="secret" type="character" function="script_list" doc="Iterate through participants in a secret" />
-  <Child name="leased_title" scope="holy_order" type="landed_title" function="script_list" doc="Iterate through all titles leased to a holy order" />
-  <Child name="activity_declined" scope="activity" type="character" function="script_list" doc="Iterate through all characters who declined an activity invite to a specific activity" />
-  <Child name="activity_invited" scope="activity" type="character" function="script_list" doc="Iterate through all characters who have unanswered invites to a specific activity" />
-  <Child name="participant" scope="activity" type="character" function="script_list" doc="Iterate through all participants in an activity" />
-  <Child name="target_title" scope="casus_belli" type="landed_title" function="script_list" doc="Iterate through all casus belli's target titles" />
-  <Child name="barony" scope="none" type="landed_title" function="script_list" doc="Iterate through all baronies in the game" />
-  <Child name="county" scope="none" type="landed_title" function="script_list" doc="Iterate through all counties in the game" />
-  <Child name="county_in_region" scope="none" type="landed_title" function="script_list" doc="Iterate through all counties in the region. Put 'region = region_name' inside it" />
-  <Child name="duchy" scope="none" type="landed_title" function="script_list" doc="Iterate through all duchies in the game" />
-  <Child name="empire" scope="none" type="landed_title" function="script_list" doc="Iterate through all empires in the game" />
+  <Child name="dynasty_member" scope="dynasty" targetScope="character" function="script_list" doc="Iterate through all dynasty members" />
+  <Child name="house_member" scope="dynasty_house" targetScope="character" function="script_list" doc="Iterate through all house members" />
+  <Child name="faith" scope="religion" targetScope="faith" function="script_list" doc="Iterate through all faiths within a religion" />
+  <Child name="scheme_agent" scope="scheme" targetScope="character" function="script_list" doc="Iterate through all agents in the scheme" />
+  <Child name="claimant" scope="landed_title" targetScope="character" function="script_list" doc="Iterate through all claimants to title. parameters: explicit = yes/no/all - default yes" />
+  <Child name="connected_county" scope="landed_title" targetScope="landed_title" function="script_list" doc="Iterate through all counties connected to this one. Is based on top liege" />
+  <Child name="county_province" scope="landed_title" targetScope="province" function="script_list" doc="Iterate through all provinces in a county" />
+  <Child name="de_jure_county_holder" scope="landed_title" targetScope="character" function="script_list" doc="Iterate through all characters directly holding counties within this dejure title" />
+  <Child name="de_jure_top_liege" scope="landed_title" targetScope="character" function="script_list" doc="Iterate through all top lieges of the counts within this dejure title" />
+  <Child name="dejure_vassal_title_holder" scope="landed_title" targetScope="character" function="script_list" doc="Iterate through all the vassal holders of the title" />
+  <Child name="election_candidate" scope="landed_title" targetScope="character" function="script_list" doc="Iterate through all characters who are valid candidates in an election for a title" />
+  <Child name="elector" scope="landed_title" targetScope="character" function="script_list" doc="Iterate through all characters who are valid electors in an election for a title" />
+  <Child name="in_de_facto_hierarchy" scope="landed_title" targetScope="landed_title" function="script_list" doc="Iterate through the title itself, all de facto vassals, and below. The continue trigger specifies whether to recursively iterate through the vassal's vassal" />
+  <Child name="in_de_jure_hierarchy" scope="landed_title" targetScope="landed_title" function="script_list" doc="Iterate through the title itself, all de jure vassals, and below. The continue trigger specifies whether to recursively iterate through the vassal's vassal" />
+  <Child name="neighboring_county" scope="landed_title" targetScope="landed_title" function="script_list" doc="Iterate through all neighboring counties. Can only be used in county scope" />
+  <Child name="this_title_or_de_jure_above" scope="landed_title" targetScope="landed_title" function="script_list" doc="Iterate through this title and all its dejure liege titles" />
+  <Child name="title_heir" scope="landed_title" targetScope="character" function="script_list" doc="Line of succession for the scoped title" />
+  <Child name="title_joined_faction" scope="landed_title" targetScope="faction" function="script_list" doc="Iterate through all factions joined the scope landed title" />
+  <Child name="title_to_title_neighboring_and_across_water_barony" scope="landed_title" targetScope="landed_title" function="script_list" doc="Scopes from a title to a neighboring barony (incl. across water, looking trough the de Jure lieges)" />
+  <Child name="title_to_title_neighboring_and_across_water_county" scope="landed_title" targetScope="landed_title" function="script_list" doc="Scopes from a title to a neighboring county (incl. across water, looking trough the de Jure lieges)" />
+  <Child name="title_to_title_neighboring_and_across_water_duchy" scope="landed_title" targetScope="landed_title" function="script_list" doc="Scopes from a title to a neighboring duchy (incl. across water, looking trough the de Jure lieges)" />
+  <Child name="title_to_title_neighboring_and_across_water_empire" scope="landed_title" targetScope="landed_title" function="script_list" doc="Scopes from a title to a neighboring empire (incl. across water, looking trough the de Jure lieges)" />
+  <Child name="title_to_title_neighboring_and_across_water_kingdom" scope="landed_title" targetScope="landed_title" function="script_list" doc="Scopes from a title to a neighboring kingdom (incl. across water, looking trough the de Jure lieges)" />
+  <Child name="title_to_title_neighboring_barony" scope="landed_title" targetScope="landed_title" function="script_list" doc="Scopes from a title to a neighboring barony (looking trough the de Jure lieges)" />
+  <Child name="title_to_title_neighboring_county" scope="landed_title" targetScope="landed_title" function="script_list" doc="Scopes from a title to a neighboring county (looking trough the de Jure lieges)" />
+  <Child name="title_to_title_neighboring_duchy" scope="landed_title" targetScope="landed_title" function="script_list" doc="Scopes from a title to a neighboring duchy (looking trough the de Jure lieges)" />
+  <Child name="title_to_title_neighboring_empire" scope="landed_title" targetScope="landed_title" function="script_list" doc="Scopes from a title to a neighboring empire (looking trough the de Jure lieges)" />
+  <Child name="title_to_title_neighboring_kingdom" scope="landed_title" targetScope="landed_title" function="script_list" doc="Scopes from a title to a neighboring kingdom (looking trough the de Jure lieges)" />
+  <Child name="alert_creatable_title" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all titles that can be created by the character. (only for alerts)" />
+  <Child name="alert_usurpable_title" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all titles that can be usurped by the character. (only for alerts)" />
+  <Child name="ally" scope="character" targetScope="character" function="script_list" doc="Iterate through all allies" />
+  <Child name="ancestor" scope="character" targetScope="character" function="script_list" doc="Iterate through all the ancestors of the scope character up to 5 generations" />
+  <Child name="army" scope="character" targetScope="army" function="script_list" doc="Iterate through all armies" />
+  <Child name="character_to_title_neighboring_and_across_water_barony" scope="character" targetScope="landed_title" function="script_list" doc="Scopes from a character to a neighboring barony (incl. across water, looking trough the de Jure lieges)" />
+  <Child name="character_to_title_neighboring_and_across_water_county" scope="character" targetScope="landed_title" function="script_list" doc="Scopes from a character to a neighboring county (incl. across water, looking trough the de Jure lieges)" />
+  <Child name="character_to_title_neighboring_and_across_water_duchy" scope="character" targetScope="landed_title" function="script_list" doc="Scopes from a character to a neighboring duchy (incl. across water, looking trough the de Jure lieges)" />
+  <Child name="character_to_title_neighboring_and_across_water_empire" scope="character" targetScope="landed_title" function="script_list" doc="Scopes from a character to a neighboring empire (incl. across water, looking trough the de Jure lieges)" />
+  <Child name="character_to_title_neighboring_and_across_water_kingdom" scope="character" targetScope="landed_title" function="script_list" doc="Scopes from a character to a neighboring kingdom (incl. across water, looking trough the de Jure lieges)" />
+  <Child name="character_to_title_neighboring_barony" scope="character" targetScope="landed_title" function="script_list" doc="Scopes from a character to a neighboring barony (looking trough the de Jure lieges)" />
+  <Child name="character_to_title_neighboring_county" scope="character" targetScope="landed_title" function="script_list" doc="Scopes from a character to a neighboring county (looking trough the de Jure lieges)" />
+  <Child name="character_to_title_neighboring_duchy" scope="character" targetScope="landed_title" function="script_list" doc="Scopes from a character to a neighboring duchy (looking trough the de Jure lieges)" />
+  <Child name="character_to_title_neighboring_empire" scope="character" targetScope="landed_title" function="script_list" doc="Scopes from a character to a neighboring empire (looking trough the de Jure lieges)" />
+  <Child name="character_to_title_neighboring_kingdom" scope="character" targetScope="landed_title" function="script_list" doc="Scopes from a character to a neighboring kingdom (looking trough the de Jure lieges)" />
+  <Child name="character_war" scope="character" targetScope="war" function="script_list" doc="Wars of the scoped character" />
+  <Child name="child" scope="character" targetScope="character" function="script_list" doc="Iterate through all children" />
+  <Child name="claim" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through the titles of all claims held by a character; parameters: explicit = yes/no/all pressed = yes/no/all" />
+  <Child name="close_family_member" scope="character" targetScope="character" function="script_list" doc="Iterate through all the close family [father, mother, siblings, children, grandparents]" />
+  <Child name="close_or_extended_family_member" scope="character" targetScope="character" function="script_list" doc="Iterate through all the close and extended relatives [father, mother, siblings, children, grandparents, uncles/aunts, nephew/niece, cousins]" />
+  <Child name="concubine" scope="character" targetScope="character" function="script_list" doc="Iterate through all concubines" />
+  <Child name="consort" scope="character" targetScope="character" function="script_list" doc="Iterate through all consorts (concubines and spouses)" />
+  <Child name="councillor" scope="character" targetScope="character" function="script_list" doc="Iterate through all councillors" />
+  <Child name="courtier" scope="character" targetScope="character" function="script_list" doc="Iterate through all courtiers" />
+  <Child name="courtier_away" scope="character" targetScope="character" function="script_list" doc="Iterate through all courtiers that are away" />
+  <Child name="courtier_or_guest" scope="character" targetScope="character" function="script_list" doc="Iterate through all courtiers and guests (pool and foreign court guests)" />
+  <Child name="de_jure_claim" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all de jure claims for a character" />
+  <Child name="diplomacy_councillor" scope="character" targetScope="character" function="script_list" doc="Iterate through all diplomacy-based councillors" />
+  <Child name="directly_owned_province" scope="character" targetScope="province" function="script_list" doc="Iterate through all directly owned provinces" />
+  <Child name="election_title" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all titles the scoped character can vote on" />
+  <Child name="extended_family_member" scope="character" targetScope="character" function="script_list" doc="Iterate through all the extended family [uncles/aunts, nephew/niece, cousins]" />
+  <Child name="foreign_court_guest" scope="character" targetScope="character" function="script_list" doc="Iterate through all guests visiting from another court (in contrast to pool_guest they have a liege)" />
+  <Child name="former_concubine" scope="character" targetScope="character" function="script_list" doc="Iterate through all former concubines. Not persisted past death" />
+  <Child name="former_concubinist" scope="character" targetScope="character" function="script_list" doc="Iterate through all former concubinists. Not persisted past death" />
+  <Child name="former_spouse" scope="character" targetScope="character" function="script_list" doc="Iterate through all former spouses" />
+  <Child name="general_councillor" scope="character" targetScope="character" function="script_list" doc="Iterate through all councillors that are not related to a skill" />
+  <Child name="heir" scope="character" targetScope="character" function="script_list" doc="Heirs of the scoped character" />
+  <Child name="heir_title" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all landed titles character is heir to" />
+  <Child name="heir_to_title" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all titles the scoped character is heir to" />
+  <Child name="held_title" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all held landed titles" />
+  <Child name="hired_mercenary" scope="character" targetScope="mercenary_company" function="script_list" doc="Iterate through all hired mercenary companies" />
+  <Child name="hooked_character" scope="character" targetScope="character" function="script_list" doc="Iterate through all characters this character has a hook on" />
+  <Child name="hostile_raider" scope="character" targetScope="character" function="script_list" doc="Iterate through anyone the character is hostile to due to their top-liege's realm having been raided" />
+  <Child name="intrigue_councillor" scope="character" targetScope="character" function="script_list" doc="Iterate through all intrigue-based councillors" />
+  <Child name="knight" scope="character" targetScope="character" function="script_list" doc="Iterate through all knights" />
+  <Child name="known_secret" scope="character" targetScope="secret" function="script_list" doc="Iterate through all secrets known by the character" />
+  <Child name="learning_councillor" scope="character" targetScope="character" function="script_list" doc="Iterate through all learning-based councillors" />
+  <Child name="liege_or_above" scope="character" targetScope="character" function="script_list" doc="Iterate through all lieges above a character (skipping the character themselves)" />
+  <Child name="martial_councillor" scope="character" targetScope="character" function="script_list" doc="Iterate through all martial-based councillors" />
+  <Child name="neighboring_and_across_water_realm_same_rank_owner" scope="character" targetScope="character" function="script_list" doc="A sub-realm or realm bordering the scope character's realm (including across water) and has the same rank as the scope character (look for lieges of he owner of the land if necessary)" />
+  <Child name="neighboring_and_across_water_top_liege_realm" scope="character" targetScope="landed_title" function="script_list" doc="A realm with a different top liege neighboring the realm of the scope character's top liege (including across water); switches to the realm's top title. Can be based on borders a day or two out of date" />
+  <Child name="neighboring_and_across_water_top_liege_realm_owner" scope="character" targetScope="character" function="script_list" doc="A realm with a different top liege neighboring the realm of the scope character's top liege (including across water); switches to the holder of the realm. Can be based on borders a day or two out of date" />
+  <Child name="neighboring_realm_same_rank_owner" scope="character" targetScope="character" function="script_list" doc="A sub-realm or realm bordering the scope character's realm and has the same rank as the scope character (look for lieges of he owner of the land if necessary)" />
+  <Child name="neighboring_top_liege_realm" scope="character" targetScope="landed_title" function="script_list" doc="A realm with a different top liege neighboring the realm of the scope character's top liege; switches to the realm's top title. Can be based on borders a day or two out of date" />
+  <Child name="neighboring_top_liege_realm_owner" scope="character" targetScope="character" function="script_list" doc="A realm with a different top liege neighboring the realm of the scope character's top liege; switches to the holder of the realm. Can be based on borders a day or two out of date" />
+  <Child name="owned_story" scope="character" targetScope="story_cycle" function="script_list" doc="Iterate through all owned stories for a character" />
+  <Child name="parent" scope="character" targetScope="character" function="script_list" doc="Iterate through all (both) parents" />
+  <Child name="patroned_holy_order" scope="character" targetScope="holy_order" function="script_list" doc="Iterate through all holy orders that the scoped character is a patron of" />
+  <Child name="pinned_character" scope="character" targetScope="character" function="script_list" doc="Iterate through characters this player has pinned" />
+  <Child name="pinning_character" scope="character" targetScope="character" function="script_list" doc="Iterate through characters whose player has this character pinned" />
+  <Child name="player_heir" scope="character" targetScope="character" function="script_list" doc="Iterate through player heirs, capped at the first 10" />
+  <Child name="pool_guest" scope="character" targetScope="character" function="script_list" doc="Iterate through all guests visiting the court from the pool (in contrast to foreign_court_guest they don't have a liege)" />
+  <Child name="potential_marriage_option" scope="character" targetScope="character" function="script_list" doc="Iterate through all potential selectable marriage or betrohed options" />
+  <Child name="pretender_title" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all landed titles character is pretender to" />
+  <Child name="primary_war_enemy" scope="character" targetScope="character" function="script_list" doc="Iterate through all primary war enemies" />
+  <Child name="prisoner" scope="character" targetScope="character" function="script_list" doc="Iterate through all prisoners" />
+  <Child name="prowess_councillor" scope="character" targetScope="character" function="script_list" doc="Iterate through all prowess-based councillors" />
+  <Child name="raid_target" scope="character" targetScope="character" function="script_list" doc="Iterate through anyone the character is hostile to due to having raided them. Only returns top lieges" />
+  <Child name="realm_county" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all counties in the realm. Based on top liege" />
+  <Child name="realm_de_jure_duchy" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all de jure duchies that have at least one county in the realm. Based on top liege" />
+  <Child name="realm_de_jure_empire" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all de jure empire that have at least one county in the realm. Based on top liege" />
+  <Child name="realm_de_jure_kingdom" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all de jure kingdom that have at least one county in the realm. Based on top liege" />
+  <Child name="realm_province" scope="character" targetScope="province" function="script_list" doc="Iterate through all realm provinces of a character" />
+  <Child name="relation" scope="character" targetScope="character" function="script_list" doc="Iterate through scripted relations of a given type or multiple types, if someone is multiple relations they will only be in the list once">
+	<Child name="type" type="scripted_relation" scope="character" function="trigger"/>
+  </Child>
+  <Child name="scheme" scope="character" targetScope="scheme" function="script_list" doc="Iterate through all schemes owned by the character" />
+  <Child name="secret" scope="character" targetScope="secret" function="script_list" doc="Iterate through all secrets of the character" />
+  <Child name="sibling" scope="character" targetScope="character" function="script_list" doc="Iterate through all siblings" />
+  <Child name="spouse" scope="character" targetScope="character" function="script_list" doc="Iterate through all spouses" />
+  <Child name="spouse_candidate" scope="character" targetScope="character" function="script_list" doc="Iterate through all the spouse candidates of a character. WARNING: THIS IS VERY SLOW DO NOT DO IT OFTEN." />
+  <Child name="stewardship_councillor" scope="character" targetScope="character" function="script_list" doc="Iterate through all stewardship-based councillors" />
+  <Child name="sub_realm_barony" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all baronies in sub-realm" />
+  <Child name="sub_realm_county" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all counties in sub-realm" />
+  <Child name="sub_realm_duchy" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all duchies in sub-realm" />
+  <Child name="sub_realm_empire" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all empires in sub-realm" />
+  <Child name="sub_realm_kingdom" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all kingdoms in sub-realm" />
+  <Child name="sub_realm_title" scope="character" targetScope="landed_title" function="script_list" doc="Iterate through all titles in sub-realm" />
+  <Child name="targeting_faction" scope="character" targetScope="faction" function="script_list" doc="Iterate through all factions targeting the scope character" />
+  <Child name="targeting_scheme" scope="character" targetScope="scheme" function="script_list" doc="Iterate through all schemes targeting the character" />
+  <Child name="targeting_secret" scope="character" targetScope="secret" function="script_list" doc="Iterate through all secrets that target the specified scope" />
+  <Child name="traveling_family_member" scope="character" targetScope="character" function="script_list" doc="Iterate though all characters that should travel with the scoped one (when moving between courts for instance); includes the scoped character" />
+  <Child name="truce_holder" scope="character" targetScope="character" function="script_list" doc="Iterate through all characters that have a truce on this character" />
+  <Child name="truce_target" scope="character" targetScope="character" function="script_list" doc="Iterate through all characters this character has a truce on" />
+  <Child name="unspent_known_secret" scope="character" targetScope="secret" function="script_list" doc="Iterate through all unspent secrets known by the character" />
+  <Child name="vassal" scope="character" targetScope="character" function="script_list" doc="Iterate through all DIRECT vassals" />
+  <Child name="vassal_or_below" scope="character" targetScope="character" function="script_list" doc="Iterate through ALL vassals, not just direct vassals" />
+  <Child name="war_ally" scope="character" targetScope="character" function="script_list" doc="Iterate through all direct war allies" />
+  <Child name="war_enemy" scope="character" targetScope="character" function="script_list" doc="Iterate through all direct war enemies" />
+  <Child name="faction_county_member" scope="faction" targetScope="landed_title" function="script_list" doc="Iterate through all faction county members" />
+  <Child name="faction_member" scope="faction" targetScope="character" function="script_list" doc="Iterate through all faction character members" />
+  <Child name="war_attacker" scope="war" targetScope="character" function="script_list" doc="Iterate through all attackers in the war" />
+  <Child name="war_defender" scope="war" targetScope="character" function="script_list" doc="Iterate through all defenders in the war" />
+  <Child name="war_participant" scope="war" targetScope="character" function="script_list" doc="Iterate through all participants in the war" />
+  <Child name="defensive_great_holy_wars" scope="faith" targetScope="great_holy_war" function="script_list" doc="Iterate through all great holy wars this faith is defending against" />
+  <Child name="faith_holy_order" scope="faith" targetScope="holy_order" function="script_list" doc="Iterate through all holy orders of the faith" />
+  <Child name="holy_site" scope="faith" targetScope="landed_title" function="script_list" doc="Iterate through all holy site baronies of a faith" />
+  <Child name="secret_knower" scope="secret" targetScope="character" function="script_list" doc="Iterate through all characters who know the secret" />
+  <Child name="secret_participant" scope="secret" targetScope="character" function="script_list" doc="Iterate through participants in a secret" />
+  <Child name="leased_title" scope="holy_order" targetScope="landed_title" function="script_list" doc="Iterate through all titles leased to a holy order" />
+  <Child name="activity_declined" scope="activity" targetScope="character" function="script_list" doc="Iterate through all characters who declined an activity invite to a specific activity" />
+  <Child name="activity_invited" scope="activity" targetScope="character" function="script_list" doc="Iterate through all characters who have unanswered invites to a specific activity" />
+  <Child name="participant" scope="activity" targetScope="character" function="script_list" doc="Iterate through all participants in an activity" />
+  <Child name="target_title" scope="casus_belli" targetScope="landed_title" function="script_list" doc="Iterate through all casus belli's target titles" />
+  <Child name="barony" scope="none" targetScope="landed_title" function="script_list" doc="Iterate through all baronies in the game" />
+  <Child name="county" scope="none" targetScope="landed_title" function="script_list" doc="Iterate through all counties in the game" />
+  <Child name="county_in_region" scope="none" targetScope="landed_title" function="script_list" doc="Iterate through all counties in the region. Put 'region = region_name' inside it" />
+  <Child name="duchy" scope="none" targetScope="landed_title" function="script_list" doc="Iterate through all duchies in the game" />
+  <Child name="empire" scope="none" targetScope="landed_title" function="script_list" doc="Iterate through all empires in the game" />
   <Child name="false" scope="none" function="script_list" doc="true if any child is false (equivalent to NAND)" />
   <Child name="in_global_list" scope="none" function="script_list" doc="Iterate through all items in global list. list = name or variable = name" />
   <Child name="in_list" scope="none" function="script_list" doc="Iterate through all items in list. list = name or variable = name" />
   <Child name="in_local_list" scope="none" function="script_list" doc="Iterate through all items in local list. list = name or variable = name" />
-  <Child name="independent_ruler" scope="none" type="character" function="script_list" doc="Independent rulers list with a COUNT tier o above" />
-  <Child name="kingdom" scope="none" type="landed_title" function="script_list" doc="Iterate through all kingdoms in the game" />
-  <Child name="living_character" scope="none" type="character" function="script_list" doc="Iterate through all living characters" />
-  <Child name="player" scope="none" type="character" function="script_list" doc="Iterate through all player characters" />
-  <Child name="pool_character" scope="none" type="character" function="script_list" doc="Iterate through all characters in the pool of the given province" />
-  <Child name="province" scope="none" type="province" function="script_list" doc="Iterate through all provinces (skips non-land and impassable provinces)" />
-  <Child name="religion_global" scope="none" type="religion" function="script_list" doc="Iterate through all religions in the game" />
-  <Child name="ruler" scope="none" type="character" function="script_list" doc="Rulers list with a COUNT tier o above" />
-  <Child name="side_commander" scope="combat_side" type="character" function="script_list" doc="Iterate through all commanders (the commanders of every army on the side, not just the one leading the battle)" />
-  <Child name="side_knight" scope="combat_side" type="character" function="script_list" doc="Iterate through all knights" />
-  <Child name="pledged_attacker" scope="great_holy_war" type="character" function="script_list" doc="Iterate through all pledged attackers within a great holy war" />
-  <Child name="pledged_defender" scope="great_holy_war" type="character" function="script_list" doc="Iterate through all pledged defenders within a great holy war" />
+  <Child name="independent_ruler" scope="none" targetScope="character" function="script_list" doc="Independent rulers list with a COUNT tier o above" />
+  <Child name="kingdom" scope="none" targetScope="landed_title" function="script_list" doc="Iterate through all kingdoms in the game" />
+  <Child name="living_character" scope="none" targetScope="character" function="script_list" doc="Iterate through all living characters" />
+  <Child name="player" scope="none" targetScope="character" function="script_list" doc="Iterate through all player characters" />
+  <Child name="pool_character" scope="none" targetScope="character" function="script_list" doc="Iterate through all characters in the pool of the given province" />
+  <Child name="province" scope="none" targetScope="province" function="script_list" doc="Iterate through all provinces (skips non-land and impassable provinces)" />
+  <Child name="religion_global" scope="none" targetScope="religion" function="script_list" doc="Iterate through all religions in the game" />
+  <Child name="ruler" scope="none" targetScope="character" function="script_list" doc="Rulers list with a COUNT tier o above" />
+  <Child name="side_commander" scope="combat_side" targetScope="character" function="script_list" doc="Iterate through all commanders (the commanders of every army on the side, not just the one leading the battle)" />
+  <Child name="side_knight" scope="combat_side" targetScope="character" function="script_list" doc="Iterate through all knights" />
+  <Child name="pledged_attacker" scope="great_holy_war" targetScope="character" function="script_list" doc="Iterate through all pledged attackers within a great holy war" />
+  <Child name="pledged_defender" scope="great_holy_war" targetScope="character" function="script_list" doc="Iterate through all pledged defenders within a great holy war" />
 </Schema>
