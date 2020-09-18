@@ -29,7 +29,10 @@ namespace JominiParse
             {
                 if (Core.Instance.LoadingCK3Library == Core.Instance.ModCK3Library)
                 {
+                    if (segment.name == "abduct_outcome_roll_effect")
+                    {
 
+                    }
                     ReferenceManager.Instance.ClearConnectionsFrom(segment.name);
                 }
 
@@ -49,6 +52,9 @@ namespace JominiParse
 
             switch (context)
             {
+                case ScriptContext.ScriptedEffects:
+                    obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("scripted_effect"));
+                    break;
                 case ScriptContext.ScriptedValues:
                     obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("building"));
                     break;

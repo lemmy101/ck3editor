@@ -31,6 +31,7 @@ namespace JominiParse
         private ScopeType _scopeType;
         public string lhs;
         public string rhs;
+        public string lhsNamedFrom;
         public bool foundRHSScope { get; set; }
         public ScopeType rhsScope { get; set; }
 
@@ -100,6 +101,8 @@ namespace JominiParse
         public bool ReferenceValid { get; set; }
         public int rhsScopeTextColorLength { get; set; }
         public int lhsScopeTextColorLength { get; set; }
+        public bool ChildrenAreValueRange { get; set; }
+        public bool NameIsReference { get; set; }
 
         /*public bool ValueIsScope { get; set; }
         public FunctionDef ExpectedEffectFunction { get; set; }
@@ -146,9 +149,13 @@ namespace JominiParse
 
         public void ProcessObject(ScriptObject obj)
         {
-            BreakpointLine = 21;
-            //BreakpointFile = "events/health_events.txt";
-            BreakpointFile = "events/test_event.txt";
+            if (obj.Name == "root")
+                obj.SetScopeType(obj.Topmost.GetScopeType());
+
+            BreakpointLine = 4;
+            //   BreakpointFile = "common/on_action/test_on_action.txt";
+            //BreakpointFile = "events/test_event5.txt";
+            BreakpointFile = "common/scripted_effects/test.txt";
 
 
             if (obj.Filename.Contains(BreakpointFile))
@@ -165,13 +172,20 @@ namespace JominiParse
             var data = new ScriptObjectBehaviourData();
             data.ScriptObject = obj;
             data.ScopeType = obj.GetScopeType();
-
+            
             if (obj.Parent != null)
                 data.ParentData = obj.Parent.BehaviourData;
 
             obj.BehaviourData = data;
 
             data.lhs = obj.Name;
+
+            if (data.lhs == "set_variable")
+            {
+                VariableStore.Instance.CompleteScopedVar(obj, data, obj.Parent.GetScopeType());
+                
+            }
+
             data.rhs = obj.GetStringValue();
             data.IsBlock = obj.IsBlock;
             
@@ -179,15 +193,29 @@ namespace JominiParse
 
             DetermineBehaviourType(obj, data);
 
-  
-         //   DetermineEffectiveSchema(obj, data);
+            if (data.lhs.Contains("var:"))
+            {
+                if (!VariableStore.Instance.HasScopedVariableComplete(data.lhs, obj.GetScopeType()) && obj.DeferedCount < 1)
+                {
+                    obj.DeferedCount++;
+                    ScriptObject.DeferedPostInitializationListNext.Add(obj);
+                    return;
+                }
+            }
+            //   DetermineEffectiveSchema(obj, data);
 
-          //  if (obj.Parent != null)
-           //     DetermineBehaviourScope(obj, data);
+            //  if (obj.Parent != null)
+            //     DetermineBehaviourScope(obj, data);
 
             if (!data.IsBlock)
             {
         //        DetermineOperationType(obj, data);
+            }
+
+
+            foreach (var scriptObject in obj.Children)
+            {
+                scriptObject.PostInitialize();
             }
         }
 
@@ -204,6 +232,11 @@ namespace JominiParse
                     ScopeType type = parentScope;
                     SchemaNode node = obj.Parent.lhsSchema;
                     if(node != null)
+                    {
+                        if (obj.Parent.lhsSchema != null && !obj.Parent.lhsSchema.allowScopes)
+                        {
+                            scopeLine = new[] {data.lhs};
+                        }
                         for (int i = 0; i < scopeLine.Length; i++)
                         {
                             string scopeChange = scopeLine[i];
@@ -222,8 +255,10 @@ namespace JominiParse
                                 break;
                         }
 
+                    }
+
                     // no effect or trigger blocks after '.'s
-                    if (node != null && (node.type == "block" || node.type == "function" || node.function == "effect") && scopeLine.Length > 1)
+                    if (node != null && (node.TypeList.Contains("block") || node.TypeList.Contains("function") || node.function == "effect") && scopeLine.Length > 1)
                         node = null;
                     obj.lhsSchema = node;
                     if(obj.lhsSchema!=null)
@@ -232,11 +267,18 @@ namespace JominiParse
                         if (obj.lhsSchema.function == "trigger")
                         {
                             ScopeType scope;
-                            if (Enum.TryParse(node.type, out scope))
+                            bool foundScope = false;
+                            foreach (var s in node.TypeList)
                             {
-                                obj.SetScopeType(scope);
+                                if(Enum.TryParse(s, out scope))
+                                {
+                                    obj.SetScopeType(scope);
+                                    foundScope = true;
+                                }
+
+
                             }
-                            else
+                            if (!foundScope)
                             {
                                 if (obj.lhsSchema.targetScope != ScopeType.any && obj.lhsSchema.targetScope != ScopeType.none)
                                 {
@@ -248,12 +290,18 @@ namespace JominiParse
                         else if (obj.lhsSchema.function == "effect")
                         {
                             ScopeType scope;
-                            if(Enum.TryParse(node.type, out scope))
+                            bool foundScope = false;
+                            foreach (var s in node.TypeList)
                             {
-                                obj.SetScopeType(scope);
+                                if (Enum.TryParse(s, out scope))
+                                {
+                                    obj.SetScopeType(scope);
+                                    foundScope = true;
+                                }
+
 
                             }
-                            else
+                            if (!foundScope)
                             {
                                 if (obj.lhsSchema.targetScope != ScopeType.any && obj.lhsSchema.targetScope != ScopeType.none)
                                 {
@@ -279,7 +327,11 @@ namespace JominiParse
                     }
                     else
                     {
-                        data.lhsError = "Unexpected";
+                        if(data.ParentData.ChildrenAreValueRange)
+                        {
+                            data.ValueFound = true;
+                        }
+                        else data.lhsError = "Unexpected";
                     }
                 }
                 if (data.rhs != null && obj.lhsSchema != null)
@@ -318,11 +370,18 @@ namespace JominiParse
                         if (obj.rhsSchema.function == "trigger")
                         {
                             ScopeType scope;
-                            if (Enum.TryParse(node.type, out scope))
+                            bool foundScope = false;
+                            foreach (var s in node.TypeList)
                             {
-                                data.rhsScope = (scope);
+                                if (Enum.TryParse(s, out scope))
+                                {
+                                    data.rhsScope = (scope);
+                                    foundScope = true;
+                                }
+
+
                             }
-                            else
+                            if (!foundScope)
                             {
                                 if (obj.rhsSchema.targetScope != ScopeType.any && obj.rhsSchema.targetScope != ScopeType.none)
                                 {
@@ -333,12 +392,18 @@ namespace JominiParse
                         else if (obj.lhsSchema.function == "effect")
                         {
                             ScopeType scope;
-                            if (Enum.TryParse(node.type, out scope))
+                            bool foundScope = false;
+                            foreach (var s in node.TypeList)
                             {
-                                data.rhsScope = (scope);
+                                if (Enum.TryParse(s, out scope))
+                                {
+                                    data.rhsScope = (scope);
+                                    foundScope = true;
+                                }
+
 
                             }
-                            else
+                            if (!foundScope)
                             {
                                 if (obj.rhsSchema.targetScope != ScopeType.any && obj.rhsSchema.targetScope != ScopeType.none)
                                 {
@@ -368,7 +433,40 @@ namespace JominiParse
                             data.rhsError = "Unexpected";
                     }
                 }
+                else
+                {
+                    if (data.rhs == null && obj.Children.Count > 0 && obj.lhsSchema != null &&
+                        obj.lhsSchema.TypeList.Contains("value"))
+                    {
+                        // look for alternative value types (scripted values / ranges)
+                        if (obj.Children.Count == 2)
+                        {
+                            string a = obj.Children[0].Name;
+                            string b = obj.Children[1].Name;
+
+                            float range = 0;
+
+                            if(Single.TryParse(a, out range) && Single.TryParse(b, out range))
+                            {
+                                data.ChildrenAreValueRange = true;
+                            }
+                        }
+                    } 
+                    else if (data.rhs==null && data.lhsNamedFrom != null)
+                    {
+                        var nameSet = EnumManager.Instance.GetEnums(data.lhsNamedFrom, true);//Core.Instance.GetNameSetFromEnumType(type, true);
+
+                        if (nameSet.Contains(data.lhs))
+                        {
+                            data.ReferencedObject = Core.Instance.Get(data.lhs, data.lhsNamedFrom);
+                            data.ReferenceValid = true;
+                            data.NameIsReference = true;
+                        }
+                        
+                    }
+                }
             }
+          
         }
 
         private bool ValidateValue(ScriptObject scriptObject, ScriptObjectBehaviourData data)
@@ -376,94 +474,118 @@ namespace JominiParse
             if (!CheckCompatibilityOfSides(scriptObject, data))
                 return false;
 
-            string type = scriptObject.rhsSchema == null ? InferTypeFromRHS(scriptObject, data) : scriptObject.rhsSchema.type;
-
-            if (type != scriptObject.lhsSchema.type)
-                return false;
-
-            // primitive or scope
-            if (type == "value")
+            foreach (var s in scriptObject.lhsSchema.TypeList)
             {
-                float val;
-                if (Single.TryParse(data.rhs, out val))
+
+                string type = scriptObject.rhsSchema == null ? InferTypeFromRHS(scriptObject, data, s) : s;
+
+                string ltype =  s;
+                if (ltype == null)
+                    ltype = scriptObject.lhsSchema.targetScope.ToString();
+                if (type != ltype)
+                    continue;
+
+                // primitive or scope
+                if (type == "value")
                 {
-                    return true;
+                    float val;
+                    if (Single.TryParse(data.rhs, out val))
+                    {
+                        return true;
+                    }
+
+                    var nameSet = EnumManager.Instance.GetEnums("value", true);//Core.Instance.GetNameSetFromEnumType(type, true);
+
+
+                    if (nameSet.Contains(data.rhs))
+                    {
+                        data.ReferencedObject = Core.Instance.Get(data.rhs, type);
+                        data.ReferenceValid = true;
+                        return true;
+                    }
                 }
-
-                var nameSet = EnumManager.Instance.GetEnums(type, true);//Core.Instance.GetNameSetFromEnumType(type, true);
-
-
-                if (nameSet.Contains(data.rhs))
+                if (type == "any" || type == "string")
                 {
-                    data.ReferencedObject = Core.Instance.Get(data.rhs, type);
                     data.ReferenceValid = true;
                     return true;
                 }
-            }
-           
-            if (type == scriptObject.GetScopeType().ToString())
-            {
-                if (!data.foundRHSScope)
-                    return false;
 
-                data.ReferenceValid = true;
-                return true;
-            }
-
-            else if (type == "scope")
-            {
-                List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
-                scriptObject.Topmost.GetValidScriptScopes(results, true, ScriptObject.ScopeFindType.Any);
-                foreach (var topmostScriptScope in results)
+                else if (type == "scope")
                 {
-                    // its a scope!
-                    if (topmostScriptScope.Name == data.rhs)
+                    List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
+                    scriptObject.Topmost.GetValidScriptScopesInit(results, true, ScriptObject.ScopeFindType.Any);
+                    foreach (var topmostScriptScope in results)
+                    {
+                        // its a scope!
+                        if (topmostScriptScope.Name == data.rhs)
+                        {
+                            data.ReferenceValid = true;
+                            return true;
+                        }
+                    }
+                }
+                else if (type == "var")
+                {
+                    data.ReferenceValid = true;
+                    return true;
+                }
+                else if (type == "global_var")
+                {
+                    data.ReferenceValid = true;
+                    return true;
+                }
+                else if (type == "local_var")
+                {
+                    data.ReferenceValid = true;
+                    return true;
+                }
+                else if (type == "bool")
+                {
+                    if (data.rhs == "yes" || data.rhs == "no")
                     {
                         data.ReferenceValid = true;
                         return true;
                     }
                 }
-            }
-            else if (type == "bool")
-            {
-                if (data.rhs == "yes" || data.rhs == "no")
+                else if (type == "localized")
                 {
-                    data.ReferenceValid = true;
-                    return true;
+                    if (Core.Instance.HasLocalizedText(data.rhs))
+                    {
+                        data.ReferenceValid = true;
+                        return true;
+                    }
                 }
-            }
-            else if (type == "localized")
-            {
-                if (Core.Instance.HasLocalizedText(data.rhs))
+                else if (type == scriptObject.GetScopeType().ToString())
                 {
-                    data.ReferenceValid = true;
-                    return true;
-                }
-            }
-            else if (type == "any" || type=="string")
-            {
-                data.ReferenceValid = true;
-                return true;
-            }
-            else
-            {
+                    if (!data.foundRHSScope)
+                        continue;
 
-                var nameSet = EnumManager.Instance.GetEnums(type, true);//Core.Instance.GetNameSetFromEnumType(type, true);
-
-                if (nameSet.Contains(data.rhs))
-                {
-                    data.ReferencedObject = Core.Instance.Get(data.rhs, type);
                     data.ReferenceValid = true;
                     return true;
                 }
+
+                {
+
+                    var nameSet = EnumManager.Instance.GetEnums(type, true);//Core.Instance.GetNameSetFromEnumType(type, true);
+
+                    if (nameSet.Contains(data.rhs))
+                    {
+                        data.ReferencedObject = Core.Instance.Get(data.rhs, type);
+                        data.ReferenceValid = true;
+                        return true;
+                    }
+                }
+
             }
-            
+
             return false;
         }
 
-        private string InferTypeFromRHS(ScriptObject scriptObject, ScriptObjectBehaviourData data)
+        private string InferTypeFromRHS(ScriptObject scriptObject, ScriptObjectBehaviourData data, string type)
         {
-            string expected = scriptObject.lhsSchema.type;
+            string expected = type;
+            if (expected == null)
+                expected = scriptObject.lhsSchema.targetScope.ToString();
 
             if (expected == "value")
             {
@@ -485,10 +607,19 @@ namespace JominiParse
 
         private bool CheckCompatibilityOfSides(ScriptObject obj, ScriptObjectBehaviourData data)
         {
-            if (obj.rhsSchema != null && obj.lhsSchema.type == obj.rhsSchema.type)
+            bool foundTypeMatch = false;
+            
+            if(obj.rhsSchema != null)
+                foreach (var s in obj.lhsSchema.TypeList)
+                {
+                    if (obj.rhsSchema.TypeList.Contains(s))
+                        foundTypeMatch = true;
+                }
+
+            if (obj.rhsSchema != null && foundTypeMatch)
                 return true;
 
-            if (obj.lhsSchema.type == "any")
+            if (obj.lhsSchema.TypeList.Contains("any"))
                 return true;
 
             // can't determine type of rhs, so figure that out in validate value

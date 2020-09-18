@@ -1,0 +1,7 @@
+<Schema id="opinion_modifier" name="opinion_modifier">
+	<Child name="who" type="character"/>
+	<Child name="opinion_target" type="character"/>
+	<Child name="min" type="value"/>
+	<Child name="max" type="value"/>
+	<Child name="multiplier" type="value"/>
+</Schema>

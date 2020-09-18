@@ -23,10 +23,7 @@ namespace JominiParse
 
         public void AddConnection(ScriptObject From, ScriptObject FromCommand, string ToTag)
         {
-            if (ToTag == "court_outcome.0003")
-            {
 
-            }
             EventConnection connection = new EventConnection();
 
             connection.From = From;

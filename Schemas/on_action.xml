@@ -1,0 +1,19 @@
+<Schema id="on_action">
+
+	<Child name="trigger" type="trigger" inherits="trigger"/>
+	<Child name="random_events" type="random_events">
+		<Child name="event" namesFrom="value" type="event"/>
+	</Child>
+	<Child name="random_on_action" type="random_on_action">	
+		<Child name="on_action" namesFrom="value" type="on_action"/>
+	</Child>
+	<Child name="first_valid" type="first_valid" allowScopes="no">
+		<Child name="event" namesFrom="event" type="event"/>
+	</Child>
+	<Child name="first_valid_on_action" type="first_valid">
+		<Child name="on_action" namesFrom="on_action" type="on_action"/>
+	</Child>
+	
+	<Child name="fallback" type="on_action"/>
+
+</Schema>

@@ -1,0 +1,5 @@
+<Schema id="stress_impact">
+	<Child name="trait" type="value" namesFrom="trait"/>
+	<Child name="base" type="value"/>
+	
+</Schema>

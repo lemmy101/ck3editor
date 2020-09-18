@@ -1,0 +1,3 @@
+<Schema name="scriptlistEffectInherits" id="scriptlistEffectInherits">
+  <Child name="limit" type="trigger" inherits="trigger"/>
+</Schema>

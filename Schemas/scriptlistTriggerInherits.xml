@@ -1,0 +1,5 @@
+<Schema name="scriptlistTriggerInherits" id="scriptlistTriggerInherits">
+  <Child name="count" type="value"/>
+  <Child name="even_if_dead" type="bool"/>
+  
+</Schema>

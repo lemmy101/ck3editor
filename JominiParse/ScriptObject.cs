@@ -10,8 +10,10 @@ namespace JominiParse
     public class ScriptObject
     {
         public static Dictionary<int, Type> TypeMap = new Dictionary<int, Type>();
-        
+
         public static List<ScriptObject> DeferedInitializationList = new List<ScriptObject>();
+        public static List<ScriptObject> DeferedPostInitializationList = new List<ScriptObject>();
+        public static List<ScriptObject> DeferedPostInitializationListNext = new List<ScriptObject>();
 
         public string Namespace { get; set; }
         public SchemaNode lhsSchema;
@@ -20,7 +22,7 @@ namespace JominiParse
 
         public enum ScopeVarType
         {
-            Bool,
+            @bool,
             num,
             None,
             String
@@ -78,6 +80,7 @@ namespace JominiParse
         }
 
         public Dictionary<string, ScriptScope> scriptScopes = new Dictionary<string, ScriptScope>();
+        public Dictionary<string, Variable> localVariables = new Dictionary<string, Variable>();
         public Dictionary<string, ScriptList> scriptLists = new Dictionary<string, ScriptList>();
 
         protected ScriptObject FindChild(string name)
@@ -108,15 +111,38 @@ namespace JominiParse
 
         }
 
+        private static HashSet<string> _cachedScriptedEffects = null;
+        static HashSet<string> CachedScriptedEffects
+        {
+            get
+            {
+                if (_cachedScriptedEffects == null)
+                    _cachedScriptedEffects = Core.Instance.GetNameSet(ScriptContext.ScriptedEffects, false);
+
+                return _cachedScriptedEffects;
+            }
+        }
+
+        public static void ClearCachedScriptedEffects()
+        {
+            _cachedScriptedEffects = null;
+        }
+
         public virtual void Initialize()
         {
-            EnumExtractorUtility.Instance.Add(this);
+            //EnumExtractorUtility.Instance.Add(this);
 
             if (Name == "events")
             {
                 Core.Instance.LoadingCK3Library.RegisterFirstValidEventsTrigger(this);
             }
-            
+
+            if (Parent != null && CachedScriptedEffects.Contains(Name))
+            {
+                Core.Instance.LoadingCK3Library.RegisterScriptEffectCall(this);
+                this.IsScriptedEffectCall = true;
+            }
+
             if (Name == "trigger_event")
             {
                 Core.Instance.LoadingCK3Library.RegisterTrigger(this);
@@ -150,20 +176,17 @@ namespace JominiParse
             }
         }
 
+        public bool IsScriptedEffectCall { get; set; }
+
         public ScriptObjectBehaviourData BehaviourData { get; set; }
 
         public virtual void PostInitialize()
         {
 
-            if (Name == "root")
-                SetScopeType(Topmost.GetScopeType());
-
+      //      ScriptObject.DeferedInitializationList.Remove(this);
+         
             ScriptObjectBehaviourManager.Instance.ProcessObject(this);
 
-            foreach (var scriptObject in Children)
-            {
-                scriptObject.PostInitialize();
-            }
         }
 
         public ScriptObject(ScriptObject parent, ScriptParsedSegment seg, SchemaNode schema = null)
@@ -174,7 +197,12 @@ namespace JominiParse
             IsBlock = seg.isBlock;
             if (parent == null)
             {
+                ScriptObject.DeferedPostInitializationListNext.Add(this);
                 ScriptObject.DeferedInitializationList.Add(this);
+            }
+            else
+            {
+                
             }
 
             if (seg == null)
@@ -241,7 +269,19 @@ namespace JominiParse
 
         private void HandleScopeDeclarationFunctions(ScriptObject scriptObject, ScriptObject parent)
         {
-            
+            if (Name == "set_local_variable")
+            {
+                VariableStore.Instance.RegisterSetLocalVariable(this);
+            }
+            if (Name == "set_variable")
+            {
+                VariableStore.Instance.RegisterSetScopedVariable(this);
+            }
+            if (Name == "set_global_variable")
+            {
+                VariableStore.Instance.RegisterSetGlobalVariable(this);
+            }
+
             if (Name == "add_to_temporary_list")
             {
                 scriptObject.Topmost.AddList(this, true);
@@ -272,7 +312,15 @@ namespace JominiParse
             Any,
         }
         static List<ScriptObject> visited = new List<ScriptObject>();
-        public void GetValidScriptScopes(List<ScriptScope> results, bool allowTemp = true, ScopeFindType values =ScopeFindType.Object)
+
+        public void GetValidScriptScopesInit(List<ScriptScope> results, bool allowTemp = true,
+            ScopeFindType values = ScopeFindType.Object)
+        {
+            visited.Clear();
+            GetValidScriptScopes(results, allowTemp, values);
+        }
+
+        void GetValidScriptScopes(List<ScriptScope> results, bool allowTemp = true, ScopeFindType values = ScopeFindType.Object)
         {
             if (Topmost != this || allowTemp)
             {
@@ -294,11 +342,11 @@ namespace JominiParse
             {
                 foreach (var scriptScopesValue in scriptScopes.Values)
                 {
-                    if(!results.Any(a=>a.Name == scriptScopesValue.Name && a.Show(values)))
+                    if (!results.Any(a => a.Name == scriptScopesValue.Name && a.Show(values)))
                         results.Add(scriptScopesValue);
                 }
 
-//                results.AddRange(scriptScopes.Values);
+                //                results.AddRange(scriptScopes.Values);
             }
             else
             {
@@ -313,9 +361,51 @@ namespace JominiParse
             var Connections = ReferenceManager.Instance.GetConnectionsTo(this.Topmost.Name);
             foreach (var eventConnection in Connections)
             {
-//                if (this == eventConnection.To && eventConnection.From != this)
+                //                if (this == eventConnection.To && eventConnection.From != this)
                 {
                     eventConnection.From.GetValidScriptScopes(results, false);
+                }
+            }
+        }
+
+        public void GetValidLocalVariablesInit(List<Variable> results)
+        {
+            visited.Clear();
+            GetValidLocalVariables(results);
+        }
+
+        void GetValidLocalVariables(List<Variable> results)
+        {
+            if (Topmost != this)
+            {
+                visited.Clear();
+            }
+            if (Topmost != this)
+            {
+                Topmost.GetValidLocalVariables(results);
+                return;
+            }
+
+            if (visited.Contains(this))
+                return;
+
+            visited.Add(this);
+
+            {
+                foreach (var scriptScopesValue in localVariables.Values)
+                {
+                    if (!results.Any(a => a.Name == scriptScopesValue.Name))
+                        results.Add(scriptScopesValue);
+                }
+
+            }
+
+            var Connections = ReferenceManager.Instance.GetConnectionsTo(this.Topmost.Name);
+            foreach (var eventConnection in Connections)
+            {
+                //                if (this == eventConnection.To && eventConnection.From != this)
+                {
+                    eventConnection.From.GetValidLocalVariables(results);
                 }
             }
         }
@@ -416,7 +506,7 @@ namespace JominiParse
         private void AddScopeVar(ScriptObject scope_command, bool temporary)
         {
             var w = scope_command.Children.Where(a => a.Name == "value");
-            ScopeVarType type = ScopeVarType.Bool;
+            ScopeVarType type = ScopeVarType.@bool;
 
             if (w.Count() > 0)
             {
@@ -619,7 +709,7 @@ namespace JominiParse
                 return ScopeVarType.None;
 
             if (val == "yes" || val == "no")
-                return ScriptObject.ScopeVarType.Bool;
+                return ScriptObject.ScopeVarType.@bool;
 
             if (val.Contains("\""))
                 return ScriptObject.ScopeVarType.String;
@@ -730,5 +820,6 @@ namespace JominiParse
 
         public string Op { get; set; } = "=";
         public SchemaNode rhsSchema { get; set; }
+        public int DeferedCount { get; set; }
     }
 }

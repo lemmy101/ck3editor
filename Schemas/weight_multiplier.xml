@@ -1,0 +1,11 @@
+<Schema id="weight_multiplier" name="weight_multiplier">
+	<Child name="base" type="value"/>
+	<Child name="modifier" type="modifier" inherits="modifier"/>
+	<Child name="compare_modifier" type="compare_modifier"/>
+	<Child name="scriptedmodifier" type="scripted_modifier" namesFrom="scripted_modifier"/>
+<!--	<Child name="ai_value_modifier" type="ai_value_modifier"/>
+	<Child name="scriptedmodifier" type="scripted_modifier" namesFrom="scripted_modifier"/>
+	<Child name="factor" type="value"/>
+	<Child name="opinion_modifier" type="opinion_modifier"/>-->
+	
+</Schema>

@@ -1,0 +1,18 @@
+<Schema id="ai_value_modifier" name="ai_value_modifier">
+	<Child name="ai_boldness" type="value"/>
+	<Child name="ai_vengefulness" type="value"/>
+	<Child name="ai_compassion" type="value"/>
+	<Child name="ai_honor" type="value"/>
+	<Child name="ai_greed" type="value"/>
+	<Child name="ai_boldness" type="value"/>
+	<Child name="ai_zeal" type="value"/>
+	<Child name="ai_energy" type="value"/>
+	<Child name="ai_rationality" type="value"/>
+	
+	<Child name="min" type="value"/>
+	<Child name="max" type="value"/>
+	
+	<Child name="who" type="character"/>
+	<Child name="trigger" type="trigger" inherits="trigger"/>
+			
+</Schema>

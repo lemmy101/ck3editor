@@ -22,6 +22,10 @@ namespace JominiParse
 
             Enums["bool"] = new HashSet<string>() { "yes", "no" };
             Enums["event_type"] = new HashSet<string>() { "character_event", "letter_event" };
+            Enums["prison_type"] = new HashSet<string>() { "dungeon", "house_arrest" };
+            Enums["sexuality"] = new HashSet<string>() { "asexual", "homosexual", "bisexual", "homosexual", "heterosexual" };
+            
+
         }
 
         private void Load(string file)

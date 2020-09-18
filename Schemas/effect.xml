@@ -1,10 +1,12 @@
 <Schema name="effect" id="effect" inherits="eventtarget">
+
   <Child name="add_dynasty_modifier" scope="dynasty" doc="Add a modifier to a dynasty" function="effect" type="function">
     <Child name="modifier" type="modifier" />
     <Child name="days" type="value" />
     <Child name="months" type="value" />
     <Child name="years" type="value" />
   </Child>
+  <Child name="scriptedeffect" scope="none" type="bool" function="effect" namesFrom="scripted_effect"/>
   <Child name="add_dynasty_perk" scope="dynasty" type="dynasty_perk" doc="Adds dynasty perk. add_dynasty_perk = key" function="effect"/>
   <Child name="add_dynasty_prestige" scope="dynasty" doc="adds dynasty prestige" type="value" function="effect"/>
   <Child name="add_dynasty_prestige_level" scope="dynasty" doc="adds dynasty prestige levels" type="value" function="effect"/>
@@ -85,6 +87,7 @@
     <Child name="months" type="value" />
     <Child name="years" type="value" />
   </Child>
+  <Child name="add_character_flag" scope="character" doc="adds a character flag" function="effect" type="any"/>
   <Child name="add_character_modifier" scope="character" doc="Add a modifier to a character" function="effect" type="function" >
     <Child name="modifier" type="modifier" />
     <Child name="days" type="value" />
@@ -125,7 +128,7 @@
   <Child name="add_realm_law" scope="character" doc="Adds the given law to the scoped character" function="effect" type="law" />
   <Child name="add_realm_law_skip_effects" scope="character" doc="Adds the given law to the scoped character. Skips the cost and the pass effect, and the revoke effects of the current law" function="effect" type="law" />
   <Child name="add_relation_flag" scope="character" doc="Adds a flag to an existing relation" function="effect" type="function">
-    <Child name="relation" type="relation_type"/>
+    <Child name="relation" type="scripted_relation"/>
     <Child name="target" type="character"/>
     <Child name="flag" type="flag"/>
   </Child>
@@ -286,13 +289,13 @@
   </Child>
 
   <Child name="play_music_cue" scope="character" doc="Plays the specified music cue." function="effect" type="string" />
-  <Child name="recalculate_scripted_relation" scope="character" doc="Recalculates the effect of a scripted relation" function="effect" type="relation_type" />
+  <Child name="recalculate_scripted_relation" scope="character" doc="Recalculates the effect of a scripted relation" function="effect" type="scripted_relation" />
   <Child name="recruit_courtier" scope="character" type="character" doc="Recruits the target to become a courtier. Example scope:liege = { recruit_courtier = scope:new_courtier }" function="effect" />
   <Child name="refund_all_perks" scope="character" doc="Refunds all perks of the character. Example: refund_all_perks = yes" function="effect" type="bool" />
   <Child name="refund_perks" scope="character" doc="Refunds all perks of the RHS lifestyle. Example: refund_perks = intrigue_lifestyle" function="effect" type="lifestyle" />
   <Child name="release_from_prison" scope="character" doc="releases the character from the prison, imprison = X, where X is a boolean value" function="effect" type="bool" />
   <Child name="remove_all_character_modifier_instances" scope="character" doc="Remove all instances of a modifier from a character" function="effect" type="bool" />
-  <Child name="remove_character_flag" scope="character" doc="removes a character flag" function="effect" type="character_flag" />
+  <Child name="remove_character_flag" scope="character" doc="removes a character flag" function="effect" type="any" />
   <Child name="remove_character_modifier" scope="character" doc="Remove a modifier from a character" function="effect" type="modifier" />
   <Child name="remove_claim" scope="character" type="landed_title" doc="removes an explicit (not from a living parent/grand parent) claim" function="effect" />
   <Child name="remove_concubine" scope="character" type="character" doc="Removes the target character as a concubine of the scope character" function="effect" />
@@ -318,7 +321,7 @@
   <Child name="remove_relation_crush" scope="character" type="character" doc="Removes scripted relationship" function="effect" />
   <Child name="remove_relation_flag" scope="character" doc="Removed a flag from an existing relation flag = flag_name (declared in scripted_relation) target = other_character relation = scripted_relation" function="effect" type="function">
     <Child name="target" type="character"/>
-    <Child name="relation" type="relation_type"/>
+    <Child name="relation" type="scripted_relation"/>
     <Child name="flag" type="flag"/>
   </Child>
   <Child name="remove_relation_friend" scope="character" type="character" doc="Removes scripted relationship" function="effect" />
@@ -446,9 +449,13 @@
     <Child name="claimant" type="character"/>
     <Child name="target_title" type="landed_title"/>
   </Child>
-  <Child name="stress_impact" scope="character" doc="Stress impact according to specified traits (trait = value), use base = value for a base value that's always added" function="effect" type="function">
-    <Child name="trait" type="value" namesFrom="trait"/>
+  <Child name="stress_impact" scope="character" doc="Stress impact according to specified traits (trait = value), use base = value for a base value that's always added" function="effect" type="function" inherits="stress_impact">
   </Child>
+  <Child name="random_in_list" scope="none" function="effect" type="function" inherits="effect">
+	  <Child name="any" type="any"/>
+  
+  </Child>
+  
   <Child name="use_hook" scope="character" type="character" doc="Uses a hook a character has (removes if weak, puts on cooldown if strong), use_hook = some_character" function="effect"  />
   <Child name="vassal_contract_decrease_obligation_level" scope="character" doc="decrease the obligation level of the scoped character's vassal contract" function="effect" type="vassal_contract" />
   <Child name="vassal_contract_increase_obligation_level" scope="character" doc="increase the obligation level of the scoped character's vassal contract" function="effect" type="vassal_contract" />
@@ -552,11 +559,13 @@
     <Child name="name" type="name" />
     <Child name="target" type="any" />
   </Child>
-  <Child name="add_to_list" scope="none" doc="Adds the current scope to an arbitrarily-named list (or creates the list if not already present) to be referenced later in the (unbroken) event chain" function="effect" type="list"/>
+  <Child name="add_to_list" scope="none" doc="Adds the current scope to an arbitrarily-named list (or creates the list if not already present) to be referenced later in the (unbroken) event chain" function="effect" type="any"/>
   <Child name="add_to_local_variable_list" scope="none" doc="Adds the event target to a variable list" function="effect"  type="function" >
     <Child name="name" type="name" />
     <Child name="target" type="any" />
   </Child>
+  <Child name="add_to_temporary_list" scope="none" doc="Adds the current scope to an arbitrarily-named list (or creates the list if not already present) to be referenced later in the same effect" function="effect"  type="any"/>
+  
   <Child name="add_to_temporary_list" scope="none" doc="Adds the current scope to an arbitrarily-named list (or creates the list if not already present) to be referenced later in the same effect" function="effect"  type="function" >
     <Child name="name" type="name" />
     <Child name="target" type="any" />
@@ -571,12 +580,12 @@
   <Child name="break_betrothal" scope="none" type="character" doc="Breaks the betrothal between the scope character to the target character, break_betrothal = target" function="effect" />
   <!--<Child name="break_if" scope="none" doc="conditionally break execution of effects, break_if = { X }, where X is a trigger" function="effect" type="" />-->
   <Child name="change_global_variable" scope="none" doc="Changes the value or a numeric variable" function="effect" type="function">
-    <Child name="name" type="name" />
+    <Child name="name" type="global_var" />
     <Child name="add" type="value" />
     <Child name="subtract" type="value" />
   </Child>
   <Child name="change_local_variable" scope="none" doc="Changes the value or a numeric variable" function="effect" type="function">
-    <Child name="name" type="name" />
+    <Child name="name" type="local_var" />
     <Child name="add" type="value" />
     <Child name="subtract" type="value" />
   </Child>
@@ -594,17 +603,17 @@
     <Child name="max" type="value" />
   </Child>
   <Child name="change_variable" scope="none" doc="Changes the value or a numeric variable" function="effect" type="function">
-    <Child name="name" type="name" />
+    <Child name="name" type="var" />
     <Child name="add" type="value" />
     <Child name="subtract" type="value" />
   </Child>
  <!-- <Child name="clamp_global_variable" scope="none" doc="Clamps a variable the specified max and min" function="effect" type="" />
   <Child name="clamp_local_variable" scope="none" doc="Clamps a variable the specified max and min" function="effect" type="" />
   <Child name="clamp_variable" scope="none" doc="Clamps a variable the specified max and min" function="effect" type="" />-->
-  <Child name="clear_global_variable_list" scope="none" doc="Empties the list" function="effect" type="list" />
-  <Child name="clear_local_variable_list" scope="none" doc="Empties the list" function="effect" type="list" />
+  <Child name="clear_global_variable_list" scope="none" doc="Empties the list" function="effect" type="any" />
+  <Child name="clear_local_variable_list" scope="none" doc="Empties the list" function="effect" type="any" />
   <Child name="clear_saved_scope" scope="none" doc="Clears a saved scope from the top scope" function="effect" type="scope" />
-  <Child name="clear_variable_list" scope="none" doc="Empties the list" function="effect" type="list" />
+  <Child name="clear_variable_list" scope="none" doc="Empties the list" function="effect" type="any" />
 <!--  <Child name="close_all_views" scope="none" doc="Closes all views. close_all_views = yes" function="effect" type="" />
   <Child name="close_view" scope="none" doc="Tries to close the defined view." function="effect" type="" />-->
   <Child name="complete_activity" scope="activity" doc="completes the activity, complete_activity = yes ends the activity and runs the on_complete effect, complete_activity = no ends the activity without running the effect" function="effect" type="bool" />
@@ -626,6 +635,15 @@
     <Child name="tier" type="tier" />
     <Child name="name" type="localized" />
 
+  </Child>
+  
+
+  <Child name="random_list" scope="none" function="effect" type="block">
+    <Child name="chance" type="block" namesFrom="value" function="effect" inherits="effect">
+      <Child name="trigger" type="trigger" inherits="trigger" />
+      <Child name="opinion_modifier" type="opinion_modifier" inherits="opinion_modifier"/>
+      <Child name="modifier" type="modifier" inherits="modifier"/>
+    </Child>
   </Child>
   <Child name="create_holy_order" scope="none" doc="Create a new holy order" function="effect" type="function">
     <Child name="leader" type="character" />
@@ -651,7 +669,7 @@
   <Child name="else" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met" function="effect" type="block" inherits="effect">
   </Child>
   <Child name="else_if" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met, and its own limit is met" function="effect" type="block" inherits="effect">
-    <Child name="limit" type="trigger" />
+    <Child name="limit" type="trigger" inherits="trigger" function="trigger"/>
   </Child>
   <Child name="hidden_effect" scope="none" doc="Effect not shown in tooltips" function="effect" type="function" inherits="effect" />
   <Child name="if" scope="none" doc="Executes enclosed effects if limit criteria are met" function="effect" type="block" inherits="effect">
@@ -665,11 +683,15 @@
   <Child name="pan_camera_to_title" scope="none" type="landed_title" doc="Pans the camera to the specified title" function="effect"  />
   <Child name="random" scope="none" doc="a random effect, random = { chance = X modifier = Y effects... }" function="effect" type="function" inherits="effect">
     <Child name="chance" type="value" />
-    <Child name="modifier" type="modifier" />
+    <Child name="modifier" type="modifier" inherits="modifier" />
   </Child>
- <!-- <Child name="remove_from_list" scope="none" doc="Removes the current scope from a named list remove_from_list = &lt;string&gt;" function="effect" type="list" />
+  <Child name="remove_from_list" scope="none" doc="Removes the current scope from a named list remove_from_list = &lt;string&gt;" function="effect" type="any" />
   <Child name="remove_global_variable" scope="none" doc="Removes a variable" function="effect" type="variable" />
-  <Child name="remove_list_global_variable" scope="none" doc="Removes the target from a variable list" function="effect" type="" />
+  <Child name="remove_list_global_variable" scope="none" doc="Removes the target from a variable list" function="effect" >
+    <Child name="name" type="scope" />
+    <Child name="target" type="any" />
+  </Child>
+  <!--
   <Child name="remove_list_local_variable" scope="none" doc="Removes the target from a variable list" function="effect" type="" />
   <Child name="remove_list_variable" scope="none" doc="Removes the target from a variable list" function="effect" type="" />
   <Child name="remove_local_variable" scope="none" doc="Removes a variable" function="effect" type="" />
@@ -695,20 +717,23 @@
   <Child name="set_generated_bisexuality_chance" scope="none" doc="Sets the chance for a generated character to be bisexual" function="effect" type="value" />
   <Child name="set_generated_homosexuality_chance" scope="none" doc="Sets the chance for a generated character to be homosexual" function="effect" type="value" />
   <Child name="set_global_variable" scope="none" doc="Sets a variable" function="effect" type="function">
-    <Child name="name" type="scope" />
+    <Child name="name" type="global_var" />
     <Child name="value" type="any" />
+	<Child name="years" type="value" />
   </Child>
   <Child name="set_local_variable" scope="none" doc="Sets a variable" function="effect" type="function">
-    <Child name="name" type="scope" />
+    <Child name="name" type="local_var" />
     <Child name="value" type="any" />
+	<Child name="years" type="value" />
   </Child>
   <Child name="set_trait_rank" scope="none" doc="Sets the trait rank = { trait = trait_group rank = new rank }" function="effect" type="function">
     <Child name="trait" type="trait" />
     <Child name="rank" type="value" />
   </Child>
   <Child name="set_variable" scope="none" doc="Sets a variable" function="effect" type="function">
-    <Child name="name" type="scope" />
+    <Child name="name" type="var" />
     <Child name="value" type="any" />
+	<Child name="years" type="value" />
   </Child>
   <!--  <Child name="setup_claim_cb" scope="none" doc="= { attacker = scope:attacker" function="effect" type="" />
   <Child name="setup_de_jure_cb" scope="none" doc="= { attacker = scope:attacker" function="effect" type="" />
@@ -716,7 +741,8 @@
   <Child name="show_as_tooltip" scope="none" doc="Effect only shown in tooltips (but not executed)" function="effect" type="function" inherits="effect" />
  <!-- <Child name="start_tutorial_lesson" scope="none" doc="Starts the tutorial lesson with the given key. Does nothing if the tutorial is not running, the lesson is completed (or already running), or the lesson cannot be triggered (e.g. trigger fails)" function="effect" type="" />
   <Child name="switch" scope="none" doc="Switch on a trigger for the evaluation of another trigger with an optional fallback trigger." function="effect" type="" />-->
-  <Child name="trigger_event" scope="none" doc="triggers an event or on_action" function="effect" type="event">
+  <Child name="trigger_event" scope="none" doc="triggers an event or on_action" function="effect" type="event,on_action"/>
+  <Child name="trigger_event" scope="none" doc="triggers an event or on_action" function="effect" type="function">
     <Child name="id" type="event" />
     <Child name="on_action" type="on_action" />
     <Child name="days" type="value" />

@@ -24,7 +24,8 @@ namespace JominiParse
             BaseCK3Library.Path = Globals.CK3Path;
             EnumManager.Instance.Load();
             LoadCK3Scripts(BaseCK3Library, true, true);
-          //  BaseCK3Library.SaveBinary("binary.dat");
+            ScriptObject.ClearCachedScriptedEffects();
+            //  BaseCK3Library.SaveBinary("binary.dat");
             //BaseCK3Library.LoadBinary("");
         }
 
@@ -42,7 +43,7 @@ namespace JominiParse
             ModCK3Library.Name = mod;
 
             PostInitialize();
-
+            ScriptObject.ClearCachedScriptedEffects();
         }
         public void LoadMod(string mod)
         {
@@ -55,6 +56,7 @@ namespace JominiParse
             LoadCK3Scripts(ModCK3Library, false, false);
 
             PostInitialize();
+            ScriptObject.ClearCachedScriptedEffects();
         }
 
         private void LoadModFiles(string mod)
@@ -102,7 +104,6 @@ namespace JominiParse
         }
         public bool LoadCK3File(string filename, bool forceBase=false, bool forceReload = false)
         {
-            ScriptObject.DeferedInitializationList.Clear();
             bool fromBase = false;
             if (!ModCK3Library.FileMap.ContainsKey(filename))
                 fromBase = true;
@@ -157,56 +158,79 @@ namespace JominiParse
        
         public void PostInitialize()
         {
-
-            foreach (var scriptObject in ScriptObject.DeferedInitializationList)
+            do
             {
+                ScriptObject.DeferedPostInitializationList = ScriptObject.DeferedPostInitializationListNext;
+                ScriptObject.DeferedPostInitializationListNext = new List<ScriptObject>();
+                for (int i = 0; i < ScriptObject.DeferedPostInitializationList.Count; i++)
+                {
+                    var scriptObject = ScriptObject.DeferedPostInitializationList[i];
+                    scriptObject.PostInitialize();
+
+                }
+                ScriptObject.DeferedPostInitializationList.Clear();
+
+            } while (ScriptObject.DeferedPostInitializationListNext.Count > 0);
+
+            /*while (ScriptObject.DeferedInitializationList.Count > 0)
+            {
+                var scriptObject = ScriptObject.DeferedInitializationList[0];
                 scriptObject.PostInitialize();
             }
+            */
 
-            ScriptObject.DeferedInitializationList.Clear();
         }
+
         public void LoadCK3Scripts(ScriptLibrary lib, bool save = true, bool load = true)
         {
             LoadingCK3Library = lib;
 
             // events...
-            string startDir = lib.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
+            string startDir = lib.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
 
             LoadingCK3Library.LoadLocalizations(startDir + "localization/english");
 
-            for(int x=0;x<(int)ScriptContext.Max;x++)
+            for (int x = 0; x < (int) ScriptContext.Max; x++)
             {
-                if(LoadingCK3Library.ContextData.ContainsKey((ScriptContext)x))
+                if (LoadingCK3Library.ContextData.ContainsKey((ScriptContext) x))
                 {
-                    if(!string.IsNullOrEmpty(LoadingCK3Library.ContextData[(ScriptContext)x].Directory))
+                    if (!string.IsNullOrEmpty(LoadingCK3Library.ContextData[(ScriptContext) x].Directory))
                     {
-                        ScriptLibrary.ContextInfo info = LoadingCK3Library.ContextData[(ScriptContext)x];
-                        var r = FileTokenizer.Instance.LoadDirectory(startDir + info.Directory + "/", startDir, (ScriptContext)x, save, load);
-                        LoadingCK3Library.Add(r, (ScriptContext)x);
+                        ScriptLibrary.ContextInfo info = LoadingCK3Library.ContextData[(ScriptContext) x];
+                        var r = FileTokenizer.Instance.LoadDirectory(startDir + info.Directory + "/", startDir,
+                            (ScriptContext) x, save, load);
+                        LoadingCK3Library.Add(r, (ScriptContext) x);
 
                     }
                 }
 
             }
-            foreach (var scriptObject in ScriptObject.DeferedInitializationList)
+
+
+            for (int i = 0; i < ScriptObject.DeferedInitializationList.Count; i++)
             {
+                var scriptObject = ScriptObject.DeferedInitializationList[i];
                 scriptObject.Initialize();
+
             }
+
+            ScriptObject.DeferedInitializationList.Clear();
 
             LoadingCK3Library.RecalculateGroups();
 
+        
         }
-
 
         public void UpdateFile(string filename, string text)
         {
-            ScriptObject.DeferedInitializationList.Clear();
+            VariableStore.Instance.RemoveAllVariablesFromFile(filename);
+            ScriptObject.DeferedPostInitializationListNext.Clear();
 
             string startDir = ModCK3Library.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
             
             LoadingCK3Library = ModCK3Library;
 
-            var c = GetContextFromDirectory(filename.Substring(filename.LastIndexOf("/")));
+            var c = GetContextFromDirectory(filename.Substring(0, filename.LastIndexOf("/")));
 
             try
             {
@@ -220,10 +244,15 @@ namespace JominiParse
 
             try
             {
-                foreach (var scriptObject in ScriptObject.DeferedInitializationList)
+          
+                 for (int i = 0; i < ScriptObject.DeferedPostInitializationListNext.Count; i++)
                 {
+                    var scriptObject = ScriptObject.DeferedPostInitializationListNext[i];
                     scriptObject.Initialize();
+
                 }
+                
+               
             }
             catch (Exception e)
             {
@@ -233,19 +262,26 @@ namespace JominiParse
             {
                 LoadingCK3Library.RecalculateGroups();
 
-                foreach (var scriptObject in ScriptObject.DeferedInitializationList)
+                do
                 {
-                    scriptObject.PostInitialize();
-                }
+                    ScriptObject.DeferedPostInitializationList = ScriptObject.DeferedPostInitializationListNext;
+                    ScriptObject.DeferedPostInitializationListNext = new List<ScriptObject>();
+                    for (int i = 0; i < ScriptObject.DeferedPostInitializationList.Count; i++)
+                    {
+                        var scriptObject = ScriptObject.DeferedPostInitializationList[i];
+                        scriptObject.PostInitialize();
+
+                    }
+                    ScriptObject.DeferedPostInitializationList.Clear();
+
+                } while (ScriptObject.DeferedPostInitializationListNext.Count > 0);
             }
             catch (Exception e)
             {
             }
-       
-          
-         
-            ScriptObject.DeferedInitializationList.Clear();
 
+
+            ScriptObject.ClearCachedScriptedEffects();
 
 
         }
@@ -460,5 +496,10 @@ namespace JominiParse
 
             return results;
         }
+
+
+        
+
+
     }
 }

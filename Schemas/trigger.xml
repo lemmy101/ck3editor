@@ -46,11 +46,11 @@
   <Child name="county_opinion" scope="landed_title" type="value" doc="compares the county's opinion of the current count" function="trigger"/>
   <Child name="county_opinion_target" scope="landed_title" type="function" doc="compares the county's opinion of the target character to the specified value, county_opinion_target = { target = X value &gt;/&lt;/= Y }" function="trigger">
     <Child name="target" />
-    <Child name="value" />
+    <Child name="value" type="value" />
   </Child>
   <Child name="de_jure_drift_progress" scope="landed_title" type="function" doc="Compare drift progress towards target with value&lt;drifting_title&gt; = { de_jure_drif_progress = {     target = &lt;drift_target_title&gt;    value &gt; 50 } }" function="trigger">
     <Child name="target" />
-    <Child name="value" />
+    <Child name="value" type="value" />
   </Child>
   <Child name="de_jure_drifting_towards" scope="landed_title" type="landed_title" doc="Is the scoped landed title de jure drifts toward another title?&lt;drifting_title&gt; = { de_jure_drifting_towards = &lt;drift_target_title&gt; }" function="trigger"/>
   <Child name="development_level" scope="landed_title" type="value" doc="does the county title have the required county development level?" function="trigger"/>
@@ -198,7 +198,7 @@
     <Child name="cb" />
     <Child name="casus_belli" />
   </Child>
-  <Child name="has_character_flag" scope="character" type="character_flag" doc="Does the character have this flag?" function="trigger"/>
+  <Child name="has_character_flag" scope="character" type="any" doc="Does the character have this flag?" function="trigger"/>
   <Child name="has_character_modifier" scope="character" type="modifier" doc="Does the scoped character have a given modifier" function="trigger"/>
   <Child name="has_character_modifier_duration_remaining" scope="character" type="modifier" doc="Does the scoped character have the duration remaining on a given modifier" function="trigger"/>
   <Child name="has_claim_on" scope="character" type="landed_title" doc="does the character have a claim on the target title?" function="trigger"/>
@@ -230,7 +230,7 @@
   <Child name="has_hook_from_secret" scope="character" type="secret" doc="does the character have a hook based on the target secret? example use: has_hook_from_secret = scope:saved_secret" function="trigger"/>
   <Child name="has_hook_of_type" scope="character" type="function" doc="does the character have a hook on the target of the given type?, has_hook_of_type = { target = X type = Y }" function="trigger">
     <Child name="target" />
-    <Child name="type" />
+    <Child name="type" type="hook" />
   </Child>
   <Child name="has_imprisonment_reason" scope="character" type="character" doc="Does the character have the imprisonment reason towards the target?" function="trigger"/>
   <Child name="has_inactive_trait" scope="character" type="trait" doc="Does the character have this trait or a trait of this trait group amongst their inactive traits?" function="trigger"/>
@@ -241,11 +241,11 @@
   <Child name="has_non_interference" scope="character" type="character" doc="Does the character have the non-interference reason towards the target?" function="trigger"/>
   <Child name="has_opinion_modifier" scope="character" type="function" doc="does the character have the specified opinion modifier on the target? (optional *value &lt;|&lt;=|=|&gt;=|&gt; X* or *value = { MIN MAX }* inclusive)" function="trigger">
     <Child name="target" />
-    <Child name="modifier" />
+    <Child name="modifier" type="modifier" />
   </Child>
   <Child name="has_opposite_relation" scope="character" type="function" doc="Does the scope character have an opposite relationship of the relation value with the target character? target = , relation =" function="trigger">
     <Child name="target" />
-    <Child name="relation" />
+    <Child name="relation" type="relation_type" />
   </Child>
   <Child name="has_owned_scheme" scope="character" type="bool" doc="Does this character own a scheme?" function="trigger"/>
   <Child name="has_pending_interaction_of_type" scope="character" Dpe="bool" doc="Does the character have a pending interaction of the type? Only works if the scope is player-controlled." function="trigger"/>
@@ -261,7 +261,9 @@
   <Child name="has_relation_crush" scope="character" type="character" doc="Checks for a scripted relationship with a target character" function="trigger"/>
   <Child name="has_relation_flag" scope="character" type="function" doc="Does the scope character have a specific flag on a relation with the target character? target = , relation = , flag =" function="trigger">
     <Child name="target" />
-    <Child name="flag" />
+    <Child name="flag" type="relation_flag"/>
+    <Child name="relation" type="relation_type"/>
+	
   </Child>
   <Child name="has_relation_friend" scope="character" type="character" doc="Checks for a scripted relationship with a target character" function="trigger"/>
   <Child name="has_relation_guardian" scope="character" type="character" doc="Checks for a scripted relationship with a target character" function="trigger"/>
@@ -316,7 +318,7 @@
   <Child name="has_trait" scope="character" type="trait" doc="Does the character have this trait or a trait of this trait group?" function="trigger"/>
   <Child name="has_trait_rank" scope="character" type="function" doc="Compare the trait rank of a character to a value or other character." function="trigger">
     <Child name="trait" />
-    <Child name="rank" />
+    <Child name="rank" type="value" />
   </Child>
   <Child name="has_trait_with_flag" scope="character" type="trait_flag" doc="does the scope character have a trait with a certain flag?" function="trigger"/>
   <Child name="has_truce" scope="character" type="character" doc="Does the scope character have a truce with the target character? Truces are one way, which means we ask if the scope character can't attack the target character" function="trigger"/>
@@ -463,13 +465,13 @@
   <Child name="is_visibly_fertile" scope="character" type="bool" doc="Is the scoped character visibly fertile, that is: not too old if a woman, not too young and has no traits blocking having children" function="trigger"/>
   <Child name="join_faction_chance" scope="character" type="function" doc="Check if the chance of the scope character to join the faction against the scripted value" function="trigger">
     <Child name="faction" />
-    <Child name="min" />
-    <Child name="max" />
+    <Child name="min" type="value" />
+    <Child name="max" type="value" />
   </Child>
   <Child name="join_scheme_chance" scope="character" type="function" doc="Check if the change of the scope character is between the given range (being min and max exclusive)" function="trigger">
     <Child name="scheme" />
-    <Child name="min" />
-    <Child name="max" />
+    <Child name="min" type="value" />
+    <Child name="max" type="value" />
   </Child>
 
   <Child name="learning" scope="character" type="value" doc="does the character have the required learning skill level?" function="trigger"/>
@@ -528,7 +530,7 @@
   <Child name="number_of_commander_traits" scope="character" type="value" doc="does the character have this many commander traits?" function="trigger"/>
   <Child name="number_of_commander_traits_in_common" scope="character" type="function" doc="does the character and the target have a number of commander traits in common?" function="trigger">
     <Child name="target" />
-    <Child name="value" />
+    <Child name="value" type="value" />
   </Child>
   <Child name="number_of_concubines" scope="character" type="value" doc="The number of concubines the scoped character has" function="trigger"/>
   <Child name="number_of_desired_concubines" scope="character" type="value" doc="The number of fertile concubines the scoped character should have to not get penalties" function="trigger"/>
@@ -539,26 +541,26 @@
   <Child name="number_of_maa_regiments" scope="character" type="value" doc="The number of men at arms the scoped character has" function="trigger"/>
   <Child name="number_of_opposing_personality_traits" scope="character" type="function" doc="does the character and the target have a number of opposing personality traits?" function="trigger">
     <Child name="target" />
-    <Child name="value" />
+    <Child name="value" type="value" />
   </Child>
   <Child name="number_of_opposing_traits" scope="character" type="function" doc="does the character and the target have a number of opposing traits?" function="trigger">
-    <Child name="target" />
-    <Child name="value" />
+    <Child name="target" type="character" />
+    <Child name="value" type="value" />
   </Child>
   <Child name="number_of_personality_traits" scope="character" type="value" doc="does the character have this many personality traits?" function="trigger"/>
   <Child name="number_of_personality_traits_in_common" scope="character" type="function" doc="does the character and the target have a number of personality traits in common?" function="trigger">
-    <Child name="target" />
-    <Child name="value" />
+    <Child name="target" type="character" />
+    <Child name="value" type="value" />
   </Child>
   <Child name="number_of_powerful_vassals" scope="character" type="value" doc="Does the character have a specified number of powerful vassals?" function="trigger"/>
   <Child name="number_of_traits" scope="character" type="value" doc="does the character have this many traits?" function="trigger"/>
   <Child name="number_of_traits_in_common" scope="character" type="function" doc="does the character and the target have a number of traits in common?" function="trigger">
-    <Child name="target" />
-    <Child name="value" />
+    <Child name="target" type="character"  />
+    <Child name="value" type="value" />
   </Child>
   <Child name="opinion" scope="character" type="function" doc="is the character's opinion of the target greater or equal than the value? opinion = { target = X [*value &gt;/&lt;/&gt;=/&lt;= Y* or *value = { min max }*  }" function="trigger">
-    <Child name="target" />
-    <Child name="value" />
+    <Child name="target" type="character" />
+    <Child name="value" type="value" />
   </Child>
   <Child name="owns_a_story" scope="character" type="bool" doc="checks whether the scope character is the owner of any currently active story" function="trigger"/>
   <Child name="owns_an_activity" scope="character" type="bool" doc="checks whether the scope character is the owner of any currently active activity" function="trigger"/>
@@ -742,15 +744,18 @@
   <Child name="raid_loot" scope="army" type="value" doc="How much raid loot is the army carrying?" function="trigger"/>
   <Child name="building_garrison" scope="landed_title,province" type="value" doc="The amount of garrison in a county or province from buildings" function="trigger"/>
   <Child name="building_levies" scope="landed_title,province" type="value" doc="The amount of levies in a county or province from buildings" function="trigger"/>
-  <Child name="squared_distance" scope="landed_title,province" type="value" doc="How far away is the province/barony/county from the target? Measured in map pixels. Squared for performance reasons (square root is expensive). squared_distance = { target = some province/barony/county value &gt; 10000 }" function="trigger"/>
-  <Child name="add_to_temporary_list" scope="none" type="list" doc="Saves a temporary target for use during the trigger execution" function="trigger"/>
+  <Child name="squared_distance" scope="landed_title,province" type="value" doc="How far away is the province/barony/county from the target? Measured in map pixels. Squared for performance reasons (square root is expensive). squared_distance = { target = some province/barony/county value &gt; 10000 }" function="trigger">
+	<Child name="target" type="province"/>
+	<Child name="value" type="value"/>
+  </Child>
+  <Child name="add_to_temporary_list" scope="none" type="any" doc="Saves a temporary target for use during the trigger execution" function="trigger"/>
   <Child name="ALL_FALSE" scope="none" type="function" inherits="trigger" doc="true if all children are false (equivalent to NOR)" function="trigger"/>
   <Child name="always" scope="none" type="bool" doc="Always the same value" function="trigger"/>
   <Child name="AND" scope="none" type="function" inherits="trigger" doc="all inside trigger must be true" function="trigger"/>
   <!--<Child name="assert_if" scope="none" type="" doc="Conditionally cause an assert during run time" function="trigger"/>
   <Child name="assert_read" scope="none" type="" doc="Conditionally cause an assert during read time" function="trigger"/>-->
   <Child name="calc_true_if" scope="none" type="function" inherits="trigger" doc="Returns true if the specified number of sub-triggers return true" function="trigger">
-    <Child name="amount" />
+    <Child name="amount" type="value" />
   </Child>
   <Child name="can_start_tutorial_lesson" scope="none" type="tutorial_lesson" doc="Can the specified tutorial lesson be started?" function="trigger"/>
   <Child name="current_computer_date" scope="none" type="date" doc="Compare the current computer date." function="trigger"/>
@@ -769,24 +774,24 @@
   <Child name="game_start_date" scope="none" type="date" doc="Compare the date of the bookmarked game launched." function="trigger"/>
   <Child name="global_variable_list_size" scope="none" type="function" doc="Checks the size of a variable list" function="trigger">
     <Child name="name" />
-    <Child name="value" />
+    <Child name="value" type="value" />
   </Child>
   <Child name="has_dlc" scope="none" type="dlc" doc="Does the host have this DLC" function="trigger"/>
   <Child name="has_game_rule" scope="none" type="game_rule" doc="Is the given game rule setting enabled?" function="trigger"/>
-  <Child name="has_global_variable" scope="none" type="var" doc="Checks whether the current scope has the specified variable set" function="trigger"/>
-  <Child name="has_global_variable_list" scope="none" type="list" doc="Checks whether the current scope has the specified variable list set" function="trigger"/>
-  <Child name="has_local_variable" scope="none" type="var" doc="Checks whether the current scope has the specified variable set" function="trigger"/>
-  <Child name="has_local_variable_list" scope="none" type="list" doc="Checks whether the current scope has the specified variable list set" function="trigger"/>
+  <Child name="has_global_variable" scope="none" type="global_var" doc="Checks whether the current scope has the specified variable set" function="trigger"/>
+  <Child name="has_global_variable_list" scope="none" type="any" doc="Checks whether the current scope has the specified variable list set" function="trigger"/>
+  <Child name="has_local_variable" scope="none" type="local_var" doc="Checks whether the current scope has the specified variable set" function="trigger"/>
+  <Child name="has_local_variable_list" scope="none" type="any" doc="Checks whether the current scope has the specified variable list set" function="trigger"/>
   <Child name="has_map_mode" scope="none" type="map_mode" doc="Checks if the current map mode is the specified one" function="trigger"/>
   <Child name="has_multiple_players" scope="none" type="bool" doc="Does the game have at least two players currently connected?" function="trigger"/>
   <Child name="has_variable" scope="none" type="var" doc="Checks whether the current scope has the specified variable set" function="trigger"/>
-  <Child name="has_variable_list" scope="none" type="list" doc="Checks whether the current scope has the specified variable list set" function="trigger"/>
+  <Child name="has_variable_list" scope="none" type="any" doc="Checks whether the current scope has the specified variable list set" function="trigger"/>
   <Child name="has_war_result_message_with_outcome" scope="none" type="war_outcome" doc="Is there a war result message with the specified outcome?" function="trigger"/>
   <Child name="is_bad_nickname" scope="none" type="nickname" doc="Is the nickname bad?" function="trigger"/>
   <Child name="is_frontend_character_selected" scope="none" type="bool" doc="is the specified front end character selected (also can be used with &quot;= yes&quot; and &quot;= no&quot;)?" function="trigger"/>
   <!--<Child name="is_game_view_open" scope="none" type="" doc="is the specified in-game view open?" function="trigger"/>-->
   <Child name="is_gamestate_tutorial_active" scope="none" type="bool" doc="Is the gamestate tutorial active? See save_progress_in_gamestate in tutorial_lesson_chains documentation." function="trigger"/>
-  <Child name="is_in_list" scope="none" type="list" doc="Checks if a target in in a list" function="trigger"/>
+  <Child name="is_in_list" scope="none" type="any" doc="Checks if a target in in a list" function="trigger"/>
   <Child name="is_player_selected" scope="none" type="bool" doc="is the player playing a character?" function="trigger"/>
   <Child name="is_target_in_global_variable_list" scope="none" type="function" doc="Checks if a target is in a variable list" function="trigger">
     <Child name="name" />
@@ -809,9 +814,10 @@
   <Child name="is_war_overview_tab_open" scope="none" type="" doc="is the war overview open at a specified tab (victory, defeat, white_peace)?" function="trigger"/>-->
   <Child name="is_widget_open" scope="none" type="widget" doc="is the widget with the specified name open?" function="trigger"/>
   <Child name="list_size" scope="none" type="value" doc="Checks the size of a list" function="trigger"/>
+  <Child name="scriptedtrigger" namesFrom="scripted_trigger" scope="none" type="bool" function="trigger"/>
   <Child name="local_variable_list_size" scope="none" type="function" doc="Checks the size of a variable list" function="trigger">
     <Child name="name" />
-    <Child name="value" />
+    <Child name="value" type="value" />
   </Child>
  <!-- <Child name="monarchs_journey_unlock" scope="none" type="" doc="" function="trigger"/>-->
   <Child name="NAND" scope="none" type="block" inherits="trigger" doc="a negated AND trigger" function="trigger"/>
@@ -836,13 +842,13 @@
   </Child>
   <Child name="variable_list_size" scope="none" type="function" doc="Checks the size of a variable list" function="trigger">
     <Child name="name" />
-    <Child name="value" />
+    <Child name="value" type="value" />
   </Child>
   <Child name="weighted_calc_true_if" scope="none" type="num_list_triggers" doc="Returns true if the sum of weights of fulfilled sub-triggers amount to the specified sum" function="trigger">
-    <Child name="amount" />
+    <Child name="amount" type="value" />
   </Child>
   <Child name="years_from_game_start" scope="none" type="value" doc="How many years it has been since the start of the game" function="trigger"/>
-  <Child name="in_color_list" scope="color" type="list" doc="Check if the scoped color is part of the given color list" function="trigger"/>
+  <Child name="in_color_list" scope="color" type="any" doc="Check if the scoped color is part of the given color list" function="trigger"/>
   <Child name="is_color" scope="color" type="color" doc="Check if the scoped color is the same as another color. The right hand side can be either a hex, rgb, or hsv color,  or a named color, or another color scope." function="trigger"/>
   <Child name="has_maa_of_type" scope="combat_side" type="maa_type" doc="Does this combat side have at least one MaA of the given regiment type? has_maa_of_type = onager" function="trigger"/>
   <Child name="is_combat_side_attacker" scope="combat_side" type="bool" doc="whether the combat side was the attacker or not" function="trigger"/>

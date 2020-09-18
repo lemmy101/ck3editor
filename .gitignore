@@ -1118,3 +1118,9 @@
 /obj/Release/DesignTimeResolveAssemblyReferences.cache
 /obj/Release/DesignTimeResolveAssemblyReferencesInput.cache
 /p.txt
+/data/common/on_action/test_on_action.bin
+/data/common/scripted_effects/test.bin
+/data/events/test_event2.bin
+/data/events/test_event3.bin
+/data/events/test_event4.bin
+/data/events/test_event5.bin

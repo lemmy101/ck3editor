@@ -242,7 +242,7 @@ namespace JominiParse
             { ScriptContext.ScriptedRelations, new ContextInfo() {Directory = "common/scripted_relations", Type="scripted_relation"}},
             { ScriptContext.ScriptedRules, new ContextInfo() {Directory = "common/scripted_rules", Type="scripted_rule"}},
             { ScriptContext.ScriptedTriggers, new ContextInfo() {Directory = "common/scripted_triggers", Type="scripted_trigger"}},
-            { ScriptContext.ScriptedValues, new ContextInfo() {Directory = "common/script_values", Type="num"}},
+            { ScriptContext.ScriptedValues, new ContextInfo() {Directory = "common/script_values", Type="value"}},
             { ScriptContext.SecretTypes, new ContextInfo() {Directory = "common/secret_types", Type="secret_type"}},
             { ScriptContext.StoryCycles, new ContextInfo() {Directory = "common/story_cycles", Type="story_cycle"}},
             { ScriptContext.SuccessionElections, new ContextInfo() {Directory = "common/succession_election", Type="succession_election"}},
@@ -535,13 +535,13 @@ namespace JominiParse
             }
         }
 
+        public void RegisterScriptEffectCall(ScriptObject node)
+        {
+            ReferenceManager.Instance.AddConnection(node.Topmost, node, node.Name);
+        }
+
         public void RegisterTrigger(ScriptObject node)
         {
-            if (node.Topmost.Name == "abduct_outcome.0001")
-            {
-
-            }
-               
             if (node.Children.Count > 0)
             {
                 var idNodes = node.Children.Where(a => a.Name == "id");

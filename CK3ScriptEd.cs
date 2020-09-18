@@ -125,12 +125,13 @@ namespace CK3ScriptEditor
 
             BackupManager.Instance.UpdateTick();
 
-            GetTextEditor("events/test_event.txt", false);
+            GetTextEditor("common/on_action/test_on_action.txt", false);
+            //   GetTextEditor("events/test_event5.txt", false);
             //  GetTextEditor("events/health_events.txt", false);
 
-        //    ScriptObjectBehaviourManager.Instance.PrintDebug();
+            //    ScriptObjectBehaviourManager.Instance.PrintDebug();
 
-  
+
         }
 
         private void DockPanel_ContentRemoved(object sender, DockContentEventArgs e)

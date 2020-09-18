@@ -1,0 +1,17 @@
+<Schema name="ai_chance" id="ai_chance">
+	<Child name="base" type="value"/>
+	<Child name="factor" type="value"/>
+	<Child name="modifier" type="modifier" inherits="modifier"/>
+	<Child name="ai_value_modifier" type="ai_value_modifier" inherits="ai_value_modifier"/>
+	<Child name="compare_modifier" type="compare_modifier"/>
+	<Child name="scriptedmodifier" type="scripted_modifier" namesFrom="scripted_modifier"/>
+	<Child name="if" scope="none" doc="Executes enclosed effects if limit criteria are met" function="ai_chance" type="block" inherits="ai_chance">
+		<Child name="limit" type="trigger" inherits="trigger" />
+	</Child>
+	<Child name="else" scope="none" function="trigger" type="block" inherits="ai_chance">
+	</Child>
+	<Child name="else_if" scope="none" function="trigger" type="block"  inherits="ai_chance">
+		<Child name="limit" type="trigger" />
+	</Child>
+	<Child name="opinion_modifier" type="opinion_modifier" inherits="opinion_modifier"/>
+</Schema>

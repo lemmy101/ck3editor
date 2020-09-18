@@ -68,7 +68,8 @@ namespace CK3ScriptEditor
             ";",
 
         };
-
+            
+        private Color VarColor = Color.FromArgb(203, 236, 139);
         private Color FunctionColor = Color.White;// Color.FromArgb(173, 139, 236);
         private Color ScopeColor = Color.FromArgb(139, 229, 236);
         private Color OverriddenColor = Color.FromArgb(128, 96, 96);
@@ -114,6 +115,27 @@ namespace CK3ScriptEditor
                 col = FunctionColor;
                 if (baseCommands.Contains(data.lhs) || (scriptObject.Parent != null && scriptObject.Parent.Parent == null))
                     col = BaseCommandColor;
+                if (data.NameIsReference == true)
+                {
+                    col = ReferencedObjectColor;
+                    bold = true;
+                    italic = true;
+                }
+            }
+
+            if (scriptObject.lhsSchema?.namesFrom == "value")
+            {
+                float val;
+
+                if (Single.TryParse(data.lhs, out val))
+                {
+                    col = NumberColor;
+                }
+            }
+
+            if (data.ParentData != null && data.ParentData.ChildrenAreValueRange)
+            {
+                col = NumberColor;
             }
 
             if (data.lhsScopeTextColorLength > 0)
@@ -141,24 +163,29 @@ namespace CK3ScriptEditor
                     // scope from save_scope_as etc
                     if (scriptObject.lhsSchema != null)
                     {
-                        if (scriptObject.lhsSchema.type == "scope")
+                        if (scriptObject.lhsSchema.TypeList.Contains("scope"))
                             col = ScopeColor;
-                        if (scriptObject.lhsSchema.type == "bool")
+                        if (scriptObject.lhsSchema.TypeList.Contains("var") || scriptObject.lhsSchema.TypeList.Contains("global_var") ||
+                            scriptObject.lhsSchema.TypeList.Contains("local_var"))
+                            col = VarColor;
+                        if (scriptObject.lhsSchema.TypeList.Contains("bool"))
                         {
                             if (strVal == "yes" || strVal == "no")
                                 col = BaseCommandColor;
                         }
-                        if (scriptObject.lhsSchema.type == "localized")
+
+                        if (scriptObject.lhsSchema.TypeList.Contains("localized"))
                         {
                             col = LocalizedStringColor;
-                         }
-                        if (scriptObject.lhsSchema.type == "string")
+                        }
+
+                        if (scriptObject.lhsSchema.TypeList.Contains("string"))
                         {
                             italic = true;
                             col = StringColor;
                         }
 
-                        if (scriptObject.lhsSchema.type == "value")
+                        if (scriptObject.lhsSchema.TypeList.Contains("value"))
                         {
                             float val;
 
@@ -168,7 +195,17 @@ namespace CK3ScriptEditor
                             }
                         }
 
+                        if (scriptObject.lhsSchema.TypeList.Contains("any"))
+                        {
+                            float val;
+
+                            if (Single.TryParse(data.rhs, out val))
+                            {
+                                col = NumberColor;
+                            }
+                        }
                     }
+
 
                     if (data.ReferenceValid)
                     {

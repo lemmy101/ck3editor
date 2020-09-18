@@ -1,0 +1,9 @@
+<Schema name="widget" id="widget">
+	<Child name="gui" type="string"/>
+	<Child name="container" type="string"/>
+	<Child name="is_shown" type="block" inherits="trigger"/>
+	<Child name="controller" type="string"/>
+	<Child name="setup_scope" type="block" inherits="effect"/>
+	
+	
+</Schema>
