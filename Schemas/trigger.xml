@@ -120,8 +120,8 @@
   <Child name="ai_rationality" scope="character" type="value" doc="AI rationality" function="trigger"/>
   <Child name="ai_sociability" scope="character" type="value" doc="AI sociability" function="trigger"/>
   <Child name="ai_values_divergence" scope="character" type="function" doc="target = other character value &gt;/&lt;/= sum of differences in ai values" function="trigger">
-    <Child name="target" />
-    <Child name="value" />
+    <Child name="target" type="character" />
+    <Child name="value" type="value" />
   </Child>
   <Child name="ai_vengefulness" scope="character" type="value" doc="AI vengefulness" function="trigger"/>
   <Child name="ai_zeal" scope="character" type="value" doc="AI zeal" function="trigger"/>
@@ -679,6 +679,11 @@
   <Child name="controls_holy_site" scope="faith" type="holy_site" doc="Does the faith control a holy site? controls_holy_site = key_of_holy_site" function="trigger"/>
   <Child name="controls_holy_site_with_flag" scope="faith" type="holy_site_flag" doc="Does the faith control a holy site with the given flag? controls_holy_site_with_flag = some flag" function="trigger"/>
   <Child name="estimated_faith_strength" scope="faith" type="value" doc="How strong is the scoped faith? *Expensive*, if you're gonna use the value repeatedly, save it to a scope first! This is scaled by a factor of 1000, so '1' means 1000 men. This is due to the cap of ~2 million, which would be too low in many cases" function="trigger"/>
+  <Child name="faith_hostility_level" scope="faith" type="value" doc="What is the faith's hostility level towards the target faith? faith_hostility_level { target = scope:some_faith value &gt; 1 }" function="trigger">
+     <Child name="target" type="faith" />
+     <Child name="value" type="value" />
+ 
+  </Child>
   <Child name="faith_hostility_level" scope="faith" type="value" doc="What is the faith's hostility level towards the target faith? faith_hostility_level { target = scope:some_faith value &gt; 1 }" function="trigger"/>
   <Child name="faith_hostility_level_comparison" scope="faith" type="function" doc="Compares the scoped faith's hostility level towards two other faiths. faith_hostility_level_comparison { faith1 &gt; faith2 }" function="trigger">
     <Child name="comparison" />
@@ -766,7 +771,7 @@
   <Child name="current_month" scope="none" type="value" doc="Compare the current ingame month (1..12)" function="trigger"/>
   <Child name="current_tooltip_depth" scope="none" type="value" doc="What is number of tooltips open rigth now?" function="trigger"/>
   <Child name="custom_description" scope="none" type="function" inherits="trigger" doc="Wraps triggers that get a custom description instead of the auto-generated one" function="trigger">
-    <Child name="text" />
+    <Child name="text" type="trigger_localization" />
   </Child>
   <Child name="custom_tooltip" scope="none" type="localized" doc="Replaces the tooltips for the enclosed triggers with a custom text" function="trigger"/>
   <Child name="debug_only" scope="none" type="bool" doc="Checks if the game is in debug mode or not." function="trigger"/>

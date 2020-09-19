@@ -1,0 +1,22 @@
+<Schema id="council_task">
+	<Child name="default_task" type="bool"/>	
+	<Child name="position" type="council_position"/>	
+	<Child name="task_type" type="council_task_type"/>	
+	<Child name="task_progress" type="task_progress_type"/>	
+	<Child name="effect_desc" type="localized"/>	
+	<Child name="effect_desc" type="localized" inherits="localized"/>	
+	<Child name="skill" type="skill"/>	
+	<Child name="county_target" type="county_target"/>	
+	<Child name="ai_county_target" type="county_target"/>	
+	<Child name="task_current_value" type="value"/>	
+	<Child name="task_max_value" type="value"/>	
+	<Child name="highlight_own_realm" type="bool"/>	
+	<Child name="potential_county" type="trigger" inherits="trigger"/>	
+
+	<Child name="on_start_task" type="effect" inherits="effect"/>	
+	<Child name="on_cancel_task" type="effect" inherits="effect"/>	
+	<Child name="on_monthly" type="effect" inherits="effect"/>	
+	<Child name="ai_will_do" type="value" inherits="modifier"/>	
+	<Child name="council_owner_modifier" inherits="council_owner_modifier"/>	
+
+</Schema>

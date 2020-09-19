@@ -1,0 +1,22 @@
+<Schema id="activity">	
+
+	<Child name="solo" type="bool"/>
+	<Child name="activity_show_accepted" type="bool"/>
+	<Child name="expiration_days" type="value"/>
+	<Child name="has_activity_window" type="bool"/>
+	<Child name="days_until_auto_start" type="value"/>
+	<Child name="frame" type="value"/>
+	<Child name="color" type="color"/>
+	<Child name="valid" inherits="trigger"/>
+	<Child name="on_spawn" inherits="effect"/>
+	<Child name="on_activate" inherits="effect"/>
+	<Child name="on_complete" inherits="effect"/>
+	<Child name="on_participant_death" inherits="effect"/>
+	<Child name="on_expire" inherits="effect"/>
+	<Child name="on_invalidated" inherits="effect"/>
+	<Child name="on_participant_death" inherits="effect"/>
+	<Child name="on_complete" inherits="effect"/>
+	<Child name="on_expire" inherits="effect"/>
+	<Child name="on_invalidated" inherits="effect"/>
+
+</Schema>

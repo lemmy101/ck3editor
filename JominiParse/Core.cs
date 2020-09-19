@@ -83,7 +83,7 @@ namespace JominiParse
                 return res[0].Key;
             }
 
-            return ScriptContext.Events;
+            return ScriptContext.Event;
         }
 
         public void LoadCK3BaseFile(string filename)
@@ -197,9 +197,19 @@ namespace JominiParse
                     if (!string.IsNullOrEmpty(LoadingCK3Library.ContextData[(ScriptContext) x].Directory))
                     {
                         ScriptLibrary.ContextInfo info = LoadingCK3Library.ContextData[(ScriptContext) x];
-                        var r = FileTokenizer.Instance.LoadDirectory(startDir + info.Directory + "/", startDir,
-                            (ScriptContext) x, save, load);
-                        LoadingCK3Library.Add(r, (ScriptContext) x);
+                        if (info.Directory.EndsWith(".txt"))
+                        {
+                            var r = FileTokenizer.Instance.LoadFile(startDir + info.Directory, startDir,
+                                (ScriptContext)x, save);
+                            LoadingCK3Library.Add(r, (ScriptContext)x);
+                        }
+                        else
+                        {
+                            var r = FileTokenizer.Instance.LoadDirectory(startDir + info.Directory + "/", startDir,
+                                (ScriptContext)x, save, load);
+                            LoadingCK3Library.Add(r, (ScriptContext)x);
+
+                        }
 
                     }
                 }
@@ -218,7 +228,7 @@ namespace JominiParse
 
             LoadingCK3Library.RecalculateGroups();
 
-        
+
         }
 
         public void UpdateFile(string filename, string text)
@@ -312,7 +322,7 @@ namespace JominiParse
             return eventNames;
         }
 
-        public List<string> GetNameSet(string type, ScriptLibrary lib, bool allowPrepend=false)
+        public List<string> GetNameSet(string type, ScriptLibrary lib, bool allowPrepend=false, bool addPrepend=false)
         {
             List<string> l = new List<string>();
             var where = lib.ContextData.Where(a => a.Value.Type == type);
@@ -326,7 +336,7 @@ namespace JominiParse
                 }
                 else
                 {
-                    if (keyValuePair.Value.Prepend != null)
+                    if (keyValuePair.Value.Prepend != null && addPrepend)
                         l.AddRange(keyValuePair.Value.Keys().Select(a => string.Concat(keyValuePair.Value.Prepend, ":", a)));
                     else
                         l.AddRange(keyValuePair.Value.Keys());
@@ -343,15 +353,15 @@ namespace JominiParse
             return l;
         }
 
-        public HashSet<string> GetNameSet(string type, bool modOnly, bool allowPrepend=false)
+        public HashSet<string> GetNameSet(string type, bool modOnly, bool allowPrepend=false, bool addPrepend=false)
         {
             HashSet<string> eventNames = new HashSet<string>();
 
-            eventNames.UnionWith(GetNameSet(type, ModCK3Library, allowPrepend));
+            eventNames.UnionWith(GetNameSet(type, ModCK3Library, allowPrepend, addPrepend));
             if (modOnly)
                 return eventNames;
 
-            eventNames.UnionWith(GetNameSet(type, BaseCK3Library, allowPrepend));
+            eventNames.UnionWith(GetNameSet(type, BaseCK3Library, allowPrepend,addPrepend));
 
             return eventNames;
         }
@@ -401,7 +411,7 @@ namespace JominiParse
 
         public ScriptObject GetEvent(string name)
         {
-            return ModCK3Library.Get(ScriptContext.Events, name);
+            return ModCK3Library.Get(ScriptContext.Event, name);
         }
 
         public string GetDirectoryFromContext(ScriptContext context)
@@ -409,14 +419,14 @@ namespace JominiParse
             return BaseCK3Library.ContextData[context].Directory;
         }
 
-        public HashSet<string> GetNameSetFromEnumType(string type, bool allowPrepend=false)
+        public HashSet<string> GetNameSetFromEnumType(string type, bool allowPrepend=false, bool addPrepend=false)
         {
 
             
 
             //  if (type == "building_type")
             //    return GetNameSet(ScriptContext.Buildings, false);
-            return GetNameSet(type, false, allowPrepend);
+            return GetNameSet(type, false, allowPrepend, addPrepend);
 
         }
 

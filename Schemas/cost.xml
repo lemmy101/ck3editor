@@ -1,0 +1,6 @@
+<Schema id="cost">
+	<Child name="prestige" type="value"/>
+	<Child name="piety" type="value"/>
+	<Child name="gold" type="value"/>
+	
+</Schema>

@@ -1,0 +1,10 @@
+<Schema id="duel">
+	<Child name="skill" type="skill"/>
+	<Child name="target" type="character"/>
+	<Child name="chance" type="block" namesFrom="value" inherits="effect">
+		<Child name="compare_modifier" inherits="compare_modifier"/>
+	
+	</Child>
+	<Child name="value" type="value"/>
+
+</Schema>

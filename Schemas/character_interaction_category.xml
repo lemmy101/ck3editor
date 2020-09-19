@@ -1,0 +1,4 @@
+<Schema id="character_interaction_category">
+	<Child name="index" type="value"/>
+	<Child name="desc" type="localized"/>	
+</Schema>

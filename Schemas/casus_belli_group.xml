@@ -1,0 +1,7 @@
+<Schema id="casus_belli_group">	
+
+	<Child name="allowed_for_character" type="trigger" inherits="trigger" scope="character"/>
+	<Child name="should_check_for_interface_availability" type="bool"/>
+	<Child name="can_only_start_via_script" type="bool"/>
+
+</Schema>

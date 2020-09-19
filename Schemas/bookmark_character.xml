@@ -1,0 +1,20 @@
+<Schema id="bookmark_character">
+	<Child name="name" type="string"/>
+	<Child name="dynasty" type="value"/>
+	<Child name="dynasty_splendor_level" type="value"/>
+	<Child name="type" type="gender"/>
+	<Child name="birth" type="any"/>
+	<Child name="title" type="title"/>
+	<Child name="government" type="government"/>
+	<Child name="culture" type="culture"/>
+	<Child name="religion" type="faith"/>
+	<Child name="difficulty" type="string"/>
+	<Child name="history_id" type="value"/>
+	<Child name="position" type="value"/>
+	<Child name="animation" type="any"/>
+	<Child name="character" inherits="bookmark_character">
+		<Child name="relation" type="string"/>		
+	</Child>
+
+	
+</Schema>

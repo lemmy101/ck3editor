@@ -110,6 +110,18 @@ namespace CK3ScriptEditor
             if (data == null)
                 return;
 
+            bool avoidRed = false;
+
+            if (scriptObject.Parent != null && scriptObject.Parent.lhsSchema != null && scriptObject.Parent.lhsSchema.avoidRed)
+            {
+                avoidRed = true;
+                col = FunctionColor;
+            }
+            if (scriptObject.Topmost != null && scriptObject.Topmost.lhsSchema != null && scriptObject.Topmost.lhsSchema.avoidRed)
+            {
+                avoidRed = true;
+                col = FunctionColor;
+            }
             if (data.lhsError == null)
             {
                 col = FunctionColor;
@@ -151,7 +163,10 @@ namespace CK3ScriptEditor
 
             if (scriptObject is ScriptValue)
             {
-                col = Color.Red;
+                if(avoidRed)
+                    col = FunctionColor;
+                else
+                    col = Color.Red;
 
                 var strVal = (scriptObject as ScriptValue).GetStringValue();
 
@@ -175,6 +190,10 @@ namespace CK3ScriptEditor
                         }
 
                         if (scriptObject.lhsSchema.TypeList.Contains("localized"))
+                        {
+                            col = LocalizedStringColor;
+                        }
+                        if (scriptObject.lhsSchema.TypeList.Contains("trigger_localization"))
                         {
                             col = LocalizedStringColor;
                         }

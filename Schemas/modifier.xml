@@ -1,3 +1,16 @@
 <Schema name="modifier" id="modifier" inherits="trigger">
   <Child name="add" type="value" />
+  <Child name="subtract" type="value" />
+  <Child name="multiply" type="value" />
+  <Child name="divide" type="value" />
+  <Child name="factor" type="value" />
+  <Child name="else" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met" function="modifier" type="block" inherits="modifier">
+  </Child>
+  <Child name="else_if" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met, and its own limit is met" function="modifier" type="block" inherits="modifier">
+    <Child name="limit" type="trigger" inherits="trigger" />
+  </Child>
+  <Child name="if" scope="none" doc="Executes enclosed effects if limit criteria are met" function="modifier" type="block" inherits="modifier">
+    <Child name="limit" type="trigger" inherits="trigger" />
+  </Child>
+
 </Schema>

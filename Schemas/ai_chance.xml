@@ -3,7 +3,7 @@
 	<Child name="factor" type="value"/>
 	<Child name="modifier" type="modifier" inherits="modifier"/>
 	<Child name="ai_value_modifier" type="ai_value_modifier" inherits="ai_value_modifier"/>
-	<Child name="compare_modifier" type="compare_modifier"/>
+	<Child name="compare_modifier" inherits="compare_modifier"/>
 	<Child name="scriptedmodifier" type="scripted_modifier" namesFrom="scripted_modifier"/>
 	<Child name="if" scope="none" doc="Executes enclosed effects if limit criteria are met" function="ai_chance" type="block" inherits="ai_chance">
 		<Child name="limit" type="trigger" inherits="trigger" />

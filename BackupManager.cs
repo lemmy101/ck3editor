@@ -30,9 +30,8 @@ namespace CK3ScriptEditor
 
         private void DoRecentAutoBackup()
         {
-            string destDirectory = Globals.CK3ModPath;
+            string destDirectory = Globals.CK3EdDataPath;
 
-            destDirectory = destDirectory.Substring(0, destDirectory.LastIndexOf("mod/"));
             destDirectory += "CK3EditBackups/";
             if (!Directory.Exists(destDirectory))
                 Directory.CreateDirectory(destDirectory);
@@ -49,7 +48,8 @@ namespace CK3ScriptEditor
 
                     string backupDirFromTo = destDirectory + Core.Instance.ModCK3Library.Name + "_" + (x+2);
                     DeleteDir(backupDirFromTo + "/");
-                    Directory.Move(backupDirFrom + "/", backupDirFromTo + "/");
+                    if(Directory.Exists(backupDirFrom + "/"))
+                        Directory.Move(backupDirFrom + "/", backupDirFromTo + "/");
 
                 }
             }

@@ -1,0 +1,6 @@
+<Schema name="modifierblock" id="modifierblock" inherits="modifiers">
+	<Child name="name" type="localized"/>
+	<Child name="name" type="localized" inherits="localized"/>
+	<Child name="scale" type="value"/>
+
+</Schema>

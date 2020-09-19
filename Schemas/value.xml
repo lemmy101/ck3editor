@@ -1,0 +1,19 @@
+<Schema id="value" inherits="eventtarget">
+	<Child name="value" type="value"/>
+	<Child name="desc" type="localized"/>
+	<Child name="if" scope="none" doc="Executes enclosed effects if limit criteria are met" function="value" type="block" inherits="value">
+		<Child name="limit" type="trigger" inherits="trigger" />
+	</Child>
+	<Child name="every_in_list" scope="none" function="value" inherits="value" >
+		<Child name="limit" type="trigger" inherits="trigger" />
+		<Child name="list" type="any" />
+	</Child>
+
+	<Child name="multiply" type="value"/>
+	<Child name="add" type="value"/>
+    <Child name="else" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met" function="value" type="block" inherits="value">
+    </Child>
+	<Child name="else_if" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met, and its own limit is met" function="value" type="block" inherits="value">
+		<Child name="limit" type="trigger" inherits="trigger" function="trigger"/>
+	</Child>
+</Schema>

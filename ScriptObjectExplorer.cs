@@ -30,14 +30,48 @@ namespace CK3ScriptEditor
             tree.SuspendLayout();
             tree.SuspendNodeEvents();
 
-            var c = Core.Instance.BaseCK3Library.ContextData.ToList().OrderBy(a => a.Key.ToString());
+            List<KeyValuePair<ScriptContext, ScriptLibrary.ContextInfo>> c = Core.Instance.BaseCK3Library.ContextData.ToList().OrderBy(a => a.Key.ToString()).ToList();
+
+            Dictionary<string, DarkTreeNode> parents = new Dictionary<string, DarkTreeNode>();
             foreach (var keyValuePair in c)
             {
                 DarkTreeNode activities = new DarkTreeNode(keyValuePair.Key.ToString());
-                tree.Nodes.Add(activities);
+
+                var parent = tree.Nodes;
+
+                if (keyValuePair.Value.Category != null)
+                {
+                    if (parents.ContainsKey(keyValuePair.Value.Category))
+                        parent = parents[keyValuePair.Value.Category].Nodes;
+                    else
+                    {
+                        DarkTreeNode category = new DarkTreeNode(keyValuePair.Value.Category.ToString());
+                        parents[keyValuePair.Value.Category] = category;
+                        tree.Nodes.Add(category);
+                        parent = parents[keyValuePair.Value.Category].Nodes;
+                    }
+                }
+                parent.Add(activities);
+
+                var ordered = (parent).ToList().OrderBy(a => a.Text);
+
+                parent.Clear();
+
+                parent.AddRange(ordered);
+                
                 FillBranch(activities, keyValuePair.Key);
             }
-         
+
+            {
+
+                var ordered = (tree.Nodes).ToList().OrderBy(a => a.Text);
+
+                tree.Nodes.Clear();
+
+                tree.Nodes.AddRange(ordered);
+
+            }
+
             tree.ResumeNodeEvents();
             tree.ResumeLayout(true);
         }
@@ -62,10 +96,7 @@ namespace CK3ScriptEditor
               
                 if (e != null)
                 {
-                    if (e.Name == "education_intrigue_1")
-                    {
-
-                    }
+ 
                     var namesp = defaultNamespace;
                     if (!string.IsNullOrEmpty(e.Namespace))
                     {

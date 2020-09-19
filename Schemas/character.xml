@@ -1,0 +1,16 @@
+<Schema id="character">
+	<Child name="name" type="string"/>
+	<Child name="dynasty_house" type="dynasty_house"/>
+	<Child name="female" type="bool"/>
+	<Child name="martial" type="value"/>
+	<Child name="diplomacy" type="value"/>
+	<Child name="intrigue" type="value"/>
+	<Child name="stewardship" type="value"/>
+	<Child name="religion" type="string"/>
+	<Child name="culture" type="culture"/>
+	<Child name="trait" type="trait"/>
+	<Child name="father" type="character"/>
+	<Child name="mother" type="character"/>
+
+
+</Schema>

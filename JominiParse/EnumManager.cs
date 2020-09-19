@@ -24,8 +24,19 @@ namespace JominiParse
             Enums["event_type"] = new HashSet<string>() { "character_event", "letter_event" };
             Enums["prison_type"] = new HashSet<string>() { "dungeon", "house_arrest" };
             Enums["sexuality"] = new HashSet<string>() { "asexual", "homosexual", "bisexual", "homosexual", "heterosexual" };
-            
+            Enums["council_task_type"] = new HashSet<string>() { "task_type_general", "task_type_county" };
+            Enums["task_progress_type"] = new HashSet<string>() { "task_progress_infinite", "task_progress_value" };
 
+            Enums["skill"] = new HashSet<string>() { "diplomacy" , "martial" , "stewardship" , "intrigue" , "learning" , "prowess" };
+            Enums["county_target"] = new HashSet<string>() { "realm", "all", "neighbor_land", "domain" };
+            Enums["gender"] = new HashSet<string>() { "male", "female" };
+
+            Enums["building_type"] = new HashSet<string>() { "special", "duchy_capital" };
+            Enums["greeting"] = new HashSet<string>() { "positive" };
+            Enums["culture_group_type"] = new HashSet<string>() { "culture_group_military", "culture_group_regional", "culture_group_civic" };
+
+            Enums["regiment_category"] = new HashSet<string>() { "heavy_infantry", "heavy_cavalry", "archers" };
+            
         }
 
         private void Load(string file)
@@ -56,13 +67,13 @@ namespace JominiParse
             return results;
         }
 
-        public HashSet<string> GetEnums(string type, bool allowPrepend=false)
+        public HashSet<string> GetEnums(string type, bool allowPrepend=false, bool addPrepend=false)
         {
             if(type == null)
                 return new HashSet<string>();
             if (!Enums.ContainsKey(type))
             {
-                return Core.Instance.GetNameSetFromEnumType(type, allowPrepend);
+                return Core.Instance.GetNameSetFromEnumType(type, allowPrepend,addPrepend);
             }
 
             return Enums[type];

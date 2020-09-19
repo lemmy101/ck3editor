@@ -10,12 +10,12 @@ namespace JominiParse
 
     public class SchemaNode
     {
-        internal Dictionary<string, SchemaNode> childrenMap = new Dictionary<string, SchemaNode>();
         internal List<SchemaNode> children = new List<SchemaNode>();
         public List<ScopeType> scopes = new List<ScopeType>();
 
         HashSet<string> inheritsIds = new HashSet<string>();
-        public List<SchemaNode> inherits = new List<SchemaNode>();
+        public HashSet<SchemaNode> inherits = new HashSet<SchemaNode>();
+        public HashSet<SchemaNode> inheritsCached = new HashSet<SchemaNode>();
         private List<SchemaNode> cachedChildren;
 
         public string namesFrom { get; set; }
@@ -27,8 +27,9 @@ namespace JominiParse
         public string doc { get; set; }
         public string function { get; set; }
         string typeList { get; set; }
-        
+
         public bool rightHandOnly { get; set; }
+        public bool avoidRed { get; set; }
         public bool requiresData { get; set; }
         public bool globalLink { get; set; }
         public bool wildcard { get; set; }
@@ -38,10 +39,9 @@ namespace JominiParse
         public void copyTo(SchemaNode dest)
         {
             dest.children = new List<SchemaNode>(children);
-            dest.childrenMap = new Dictionary<string, SchemaNode>(childrenMap);
             dest.inheritsIds = new HashSet<string>();
             dest.inheritsIds.UnionWith(inheritsIds);
-            dest.inherits = new List<SchemaNode>(inherits);
+            dest.inherits = new HashSet<SchemaNode>(inherits);
             dest.scopes = new List<ScopeType>(scopes);
          
             dest.namesFrom = namesFrom;
@@ -57,12 +57,12 @@ namespace JominiParse
             dest.allowScopes = allowScopes;
         }
 
-        bool loadBool(XmlNode node, string attribute)
+        bool loadBool(XmlNode node, string attribute, bool def)
         {
             if (node.Attributes[attribute] != null)
                 return node.Attributes[attribute].InnerText=="yes";
 
-            return false;
+            return def;
 
         }
         string loadString(XmlNode node, string attribute)
@@ -87,7 +87,14 @@ namespace JominiParse
 
         public void LoadNode(XmlNode node)
         {
+
             id = loadString(node as XmlNode, "id");
+
+            if(id == "bookmark_character")
+            {
+
+            }
+            
             name = loadString(node as XmlNode, "name");
             typeList = loadString(node as XmlNode, "type");
             namesFrom = loadString(node as XmlNode, "namesFrom");
@@ -131,13 +138,15 @@ namespace JominiParse
             Enum.TryParse(targetScope, out tsv);
 
             this.targetScope = tsv;
-            
+
             function = loadString(node as XmlNode, "function");
-            requiresData = loadBool(node as XmlNode, "requiresData");
-            globalLink = loadBool(node as XmlNode, "globalLink");
-            wildcard = loadBool(node as XmlNode, "wildcard");
-            allowScopes = loadBool(node as XmlNode, "allowScopes");
-            rightHandOnly = loadBool(node as XmlNode, "rightHandOnly");
+
+            requiresData = loadBool(node as XmlNode, "requiresData", false);
+            globalLink = loadBool(node as XmlNode, "globalLink", false);
+            wildcard = loadBool(node as XmlNode, "wildcard", false);
+            allowScopes = loadBool(node as XmlNode, "allowScopes", true);
+            rightHandOnly = loadBool(node as XmlNode, "rightHandOnly", false);
+            avoidRed = loadBool(node as XmlNode, "avoidRed", false);
 
             var c = node.FirstChild;
 
@@ -159,7 +168,7 @@ namespace JominiParse
                     cn.copyTo(any);
                     any.name = "any_" + cn.name;
                     children.Add(any);
-                    childrenMap[any.name] = any;
+                 
                     any.inheritsIds.Add("scriptlistTriggerInherits");
                     any.inheritsIds.Add("trigger");
 
@@ -167,7 +176,7 @@ namespace JominiParse
                     cn.copyTo(random);
                     random.name = "random_" + cn.name;
                     children.Add(random);
-                    childrenMap[random.name] = random;
+                 
                     random.inheritsIds.Add("scriptlistEffectInherits");
                     random.inheritsIds.Add("effect");
 
@@ -175,7 +184,7 @@ namespace JominiParse
                     cn.copyTo(every);
                     every.name = "every_" + cn.name;
                     children.Add(every);
-                    childrenMap[every.name] = every;
+                
                     every.inheritsIds.Add("scriptlistEffectInherits");
                     every.inheritsIds.Add("effect");
 
@@ -183,7 +192,7 @@ namespace JominiParse
                     cn.copyTo(ordered);
                     ordered.name = "ordered_" + cn.name;
                     children.Add(ordered);
-                    childrenMap[ordered.name] = ordered;
+                
                     ordered.inheritsIds.Add("scriptlistEffectInherits");
                     ordered.inheritsIds.Add("effect");
 
@@ -191,7 +200,7 @@ namespace JominiParse
                 else
                 {
                     children.Add(cn);
-                    childrenMap[cn.name] = cn;
+                 
 
                 }
 
@@ -199,15 +208,10 @@ namespace JominiParse
             }
 
 
-            if (children.Count > 0 && !childrenMap.ContainsKey("scope"))
+            if (children.Count > 0 && !children.Any(a=>a.name == "scope"))
             {
                 var cc = SchemaManager.Instance.GetSchema("rhscope").children;
                 children.AddRange(cc);
-                foreach (var schemaNode in cc)
-                {
-                    childrenMap[schemaNode.name] = schemaNode;
-
-                }
             }
 
             if (id != null)
@@ -220,7 +224,16 @@ namespace JominiParse
             get
             {
                 if (cachedChildren != null)
-                    return cachedChildren;
+                {
+                    if(inheritsCached != null)
+                    {
+                        bool match = inherits.SequenceEqual(inheritsCached);
+
+                        if(match)
+                            return cachedChildren;
+                    }
+                    
+                }
 
                 List<SchemaNode> nodes = new List<SchemaNode>(children);
 
@@ -234,26 +247,7 @@ namespace JominiParse
                 return cachedChildren;
             }
         }
-        public Dictionary<string, SchemaNode> ChildrenMap
-        {
-            get
-            {
-                Dictionary<string, SchemaNode> nodes = childrenMap.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-
-                foreach (var schemaNode in inherits)
-                {
-                    var map = schemaNode.ChildrenMap;
-                    foreach (var entry in map)
-                    {
-                        nodes[entry.Key] = entry.Value;
-                    }
-                }
-
-                return nodes;
-            }
-        }
-
-
+     
         public string[] TypeList
         {
             get
@@ -284,22 +278,10 @@ namespace JominiParse
                 inherits.Add(SchemaManager.Instance.GetSchema(inheritsId));
             }
 
+            //inherits = inherits;
         }
 
-        public void DetermineChildSchema(ScriptObject so)
-        {
-            if (so.Name == null)
-                return;
-
-            var cm = ChildrenMap;
-
-            if (cm.ContainsKey(so.Name))
-            {
-                so.lhsSchema = cm[so.Name];
-            }
-        }
-
-        public SchemaNode FindChild(ScriptObject obj, string name, bool allowScriptList, bool rhs, int index)
+        public SchemaNode FindChild(ScriptObject obj, string name, bool allowScriptList, bool rhs, ScopeType scope, int index)
         {
             string data = null;
             if (name.Contains(":"))
@@ -310,8 +292,8 @@ namespace JominiParse
 
              var c = Children;
 
-            if (allowScriptList && (name.StartsWith("any_") || name.StartsWith("every_") || (name.StartsWith("random_") && !IsNonScriptedListRandomTag(name)) || name.StartsWith("ordered_")))
-                return FindScriptList(obj, name, allowScriptList, rhs, index);
+            if (allowScriptList && !IsNonScriptedListTag(name) && (name.StartsWith("any_") || name.StartsWith("every_") || (name.StartsWith("random_")) || name.StartsWith("ordered_")))
+                return FindScriptList(obj, name, allowScriptList, rhs, scope, index);
 
            
             if (c.Any(a=>a.name == name && (!a.rightHandOnly || rhs)))
@@ -324,17 +306,33 @@ namespace JominiParse
 
                     if (f.requiresData)
                     {
-                        if (data == null || index != 0)
+                        if (data == null)
                             continue;
 
                         bool success;
-                        ScopeType scopeType = GetScopeChangeFromData(obj, f, name, data, rhs, out success);
+                        ScopeType scopeType = GetScopeChangeFromData(obj, f, name, data, rhs, scope, out success);
                         if (success)
                         {
+                            
                             SchemaNode clone = new SchemaNode();
                             f.copyTo(clone);
-                            clone.inherits.AddRange(inherits);
-                            clone.inheritsIds.UnionWith(inheritsIds);
+
+                            if (rhs)
+                            {
+                                clone.inheritsIds.Add("trigger");
+                                clone.inherits.Add(SchemaManager.Instance.GetSchema("trigger"));
+                            }
+                            else
+                            {
+                                clone.inherits.UnionWith(inherits);
+                                clone.inheritsIds.UnionWith(inheritsIds);
+                                if (obj.Parent.lhsSchema != null)
+                                {
+                                    clone.children.AddRange(obj.Parent.lhsSchema.children);
+                                }
+
+                            }
+//                            clone.inherits = clone.inherits.Distinct().ToList();
                             clone.targetScope = scopeType;
                             return clone;
 
@@ -347,8 +345,11 @@ namespace JominiParse
                     {
                         SchemaNode clone = new SchemaNode();
                         f.copyTo(clone);
-                        clone.inherits.AddRange(inherits);
+                        clone.inherits.UnionWith(inherits);
+                     //   clone.inherits = clone.inherits.Distinct().ToList();
                         clone.inheritsIds.UnionWith(inheritsIds);
+                        if (f.targetScope == ScopeType.none)
+                            clone.targetScope = scope;
                         return clone;
                     }
                     else if (f.function == "script_list" && data == null)
@@ -369,7 +370,7 @@ namespace JominiParse
                             continue;
                     }
 
-                    if (obj.Children.Count == 0 && f.Children.Count > 0)
+                    if (!obj.IsBlock && f.Children.Count > 0 && !f.TypeList.Contains("value"))
                     {
                         continue;
                     }
@@ -378,7 +379,24 @@ namespace JominiParse
                 }
 
             }
-
+            if(rhs && obj.lhsSchema != null && obj.lhsSchema.TypeList.Contains("value"))
+            {
+                var sv = Core.Instance.Get(ScriptContext.ScriptedValues, name, false);
+                if(sv != null)
+                {
+                    return new SchemaNode() {typeList = "value", name = sv.Name, targetScope = ScopeType.value, function = "effect"};
+                }
+            }
+          /*  if(rhs && !inheritsIds.Contains("trigger") && id!="trigger")
+            {
+                // we get to try a trigger...
+                SchemaNode clone = new SchemaNode();
+                copyTo(clone);
+                clone.children.Clear();
+                clone.inheritsIds.Add("trigger");
+                clone.inherits.Add(SchemaManager.Instance.GetSchema("trigger"));
+                return clone.FindChild(obj, name, allowScriptList, rhs, scope, index);
+            }*/
             if (c.Any(a => a.namesFrom != null && !rhs))
             {
                 var namesFrom = c.Where(a => a.namesFrom != null).ToList();
@@ -412,17 +430,19 @@ namespace JominiParse
                 return null;
         }
 
-        private static List<string> nonScriptedListRandomTags = new List<string>()
+        private static List<string> nonScriptedListTags = new List<string>()
         {
             "random",
             "random_list",
+            "random_in_list",
             "random_valid",
             "random_events",
             "random_on_action",
+            "every_in_list",
         };
-        private bool IsNonScriptedListRandomTag(string s)
+        private bool IsNonScriptedListTag(string s)
         {
-            return nonScriptedListRandomTags.Contains(s);
+            return nonScriptedListTags.Contains(s);
         }
 
         private bool HandleUnexpectedChildren(SchemaNode schemaNode, ScriptObject scriptObject, string s, bool rhs, int index)
@@ -436,7 +456,7 @@ namespace JominiParse
         }
 
         private ScopeType GetScopeChangeFromData(ScriptObject obj, SchemaNode node, string name, string data,
-            bool rhs, out bool success)
+            bool rhs, ScopeType scope, out bool success)
         {
             success = false;
             if (name == "scope")
@@ -456,7 +476,7 @@ namespace JominiParse
             {
                 if (VariableStore.Instance.unsortedScopedVariables.ContainsKey(data))
                 {
-                    var results = VariableStore.Instance.unsortedScopedVariables[data].Where(a => a.InsideScope == obj.Parent.GetScopeType());
+                    var results = VariableStore.Instance.unsortedScopedVariables[data].Where(a => a.InsideScope == scope);
 
                     if (results.Any())
                     {
@@ -465,6 +485,33 @@ namespace JominiParse
 
                     }
 
+
+                }
+            }
+            if (name == "cp")
+            {
+                if (EnumManager.Instance.GetEnums("council_position", true).Contains(data))
+                {
+                    success = true;
+                    return ScopeType.character;
+
+                }
+            }
+            if (name == "culture_group")
+            {
+                if (EnumManager.Instance.GetEnums("culture_group", true).Contains(data))
+                {
+                    success = true;
+                    return ScopeType.culture_group;
+
+                }
+            }
+            if (name == "culture")
+            {
+                if (EnumManager.Instance.GetEnums("culture", true).Contains(data))
+                {
+                    success = true;
+                    return ScopeType.culture;
 
                 }
             }
@@ -500,17 +547,17 @@ namespace JominiParse
             return obj.GetScopeType();
         }
 
-        private SchemaNode FindScriptList(ScriptObject obj, string s, bool allowScriptList, bool rhs, int index)
+        private SchemaNode FindScriptList(ScriptObject obj, string s, bool allowScriptList, bool rhs, ScopeType scope, int index)
         {
             SchemaNode clone = new SchemaNode();
             var schema = SchemaManager.Instance.GetSchema("scriptlist");
 
-            var f = schema.FindChild(obj, s, false, rhs, index);
+            var f = schema.FindChild(obj, s, false, rhs, scope, index);
             if (f == null)
                 return null;
 
             f.copyTo(clone);
-            clone.inherits.AddRange(inherits);
+            clone.inherits.UnionWith(inherits);
             clone.inheritsIds.UnionWith(inheritsIds);
             return clone;
         }
@@ -548,7 +595,6 @@ namespace JominiParse
                 
             }
 
-            var cmap = SchemaMap["option"].ChildrenMap;
         }
         public SchemaManager()
         {

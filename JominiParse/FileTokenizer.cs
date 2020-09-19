@@ -58,7 +58,7 @@ namespace JominiParse
 
                     string binFilename = file.Replace(".txt", ".bin");
                     binFilename = binFilename.Replace(Globals.CK3Path, "");
-                    binFilename = Directory.GetCurrentDirectory().Replace("\\", "/") + "/data/" + binFilename;
+                    binFilename = Globals.CK3EdDataPath.Replace("\\", "/") + "CachedCK3Data/" + binFilename;
 
                     if (File.Exists(binFilename) && load)
                     {
@@ -75,6 +75,9 @@ namespace JominiParse
         }
         public List<ScriptObject> LoadFile(string filename, string basePath, ScriptContext context, bool save)
         {
+            if(!File.Exists(filename))
+                return new List<ScriptObject>();
+
             string text = System.IO.File.ReadAllText(filename);
             return LoadText(text, filename, basePath, context, save);
         }
@@ -175,7 +178,7 @@ namespace JominiParse
             using (BinaryReader reader = new BinaryReader(File.Open(s, FileMode.Open)))
             {
                 ScriptContext context = (ScriptContext) reader.ReadInt32();
-                var filename = s.Substring(s.IndexOf("/data/") + 6);
+                var filename = s.Substring(s.IndexOf("/CachedCK3Data/") + 15).Replace("\\", "/");
 
                 int count = reader.ReadInt32();
 
@@ -199,7 +202,7 @@ namespace JominiParse
 
             int lineStart = reader.ReadInt32();
             int lineEnd = reader.ReadInt32();
-
+            bool isBlock = reader.ReadBoolean();
             string op = null;
             if (reader.ReadBoolean())
                 op = reader.ReadString();
@@ -220,7 +223,7 @@ namespace JominiParse
             p.value = values;
             p.lineNumbers.Add(lineStart);
             p.lineNumbers.Add(lineEnd);
-
+            p.isBlock = isBlock;
             for (int x = 0; x < numChildren; x++)
             {
                 p.children.Add(LoadParsable(reader, filename));
@@ -233,7 +236,7 @@ namespace JominiParse
         {
             string binFilename = filename.Replace(".txt", ".bin");
 
-            binFilename = Directory.GetCurrentDirectory().Replace("\\", "/") + "/data/" + binFilename;
+            binFilename = Globals.CK3EdDataPath.Replace("\\", "/") + "CachedCK3Data/" + binFilename;
             string binDir = binFilename.Substring(0, binFilename.LastIndexOf("/"));
             if (!Directory.Exists(binDir))
                 Directory.CreateDirectory(binDir);
@@ -259,6 +262,7 @@ namespace JominiParse
             writer.Write(parsableResults.lineNumbers[0]);
             writer.Write(parsableResults.lineNumbers[parsableResults.lineNumbers.Count - 1]);
 
+            writer.Write(parsableResults.isBlock);
 
             writer.Write(parsableResults.op != null);
             if(parsableResults.op !=null)

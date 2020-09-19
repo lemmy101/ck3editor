@@ -1,0 +1,69 @@
+<Schema id="character_interaction">
+	<Child name="category" type="character_interaction_category"/>
+	<Child name="use_diplomatic_range" type="bool"/>
+	<Child name="common_interaction" type="bool"/>
+	
+	<Child name="needs_recipient_to_open" type="bool"/>
+	
+	
+	<Child name="interface" type="interface"/>
+	
+	<Child name="special_interaction" type="character_interaction"/>
+	<Child name="use_diplomatic_range" type="trigger" inherits="trigger"/>
+	
+	<Child name="desc" type="localized" inherits="localized"/>
+	<Child name="desc" type="localized"/>
+	<Child name="send_name" type="localized" inherits="localized"/>
+	<Child name="send_name" type="localized"/>
+	
+	<Child name="populate_actor_list" type="effect" inherits="effect"/>
+	<Child name="populate_recipient_list" type="effect" inherits="effect"/>
+	
+	<Child name="interface_priority" type="value"/>
+		
+	<Child name="can_be_picked" type="trigger" inherits="trigger"/>
+	<Child name="has_valid_target_showing_failures_only" type="trigger" inherits="trigger"/>
+	
+	<Child name="ignores_pending_interaction_block" type="bool"/>
+	<Child name="is_shown" type="trigger" inherits="trigger"/>
+	<Child name="on_accept" type="effect" inherits="effect"/>
+	<Child name="pre_auto_accept" type="effect" inherits="effect"/>
+	<Child name="on_decline" type="effect" inherits="effect"/>
+	<Child name="auto_accept" type="bool"/>
+	<Child name="auto_accept" type="trigger" inherits="trigger"/>
+	<Child name="redirect" type="effect" inherits="effect"/>
+	<Child name="greeting" type="greeting"/>
+	<Child name="is_valid_showing_failures_only" type="trigger" inherits="trigger"/>
+	<Child name="ai_chance" type="ai_chance" inherits="ai_chance"/>
+
+	<Child name="should_use_extra_icon" type="trigger" inherits="trigger"/>
+	<Child name="extra_icon" type="string"/>
+
+	<Child name="show_effects_in_notification" type="bool"/>
+	<Child name="notification_text" type="localized" inherits="localized"/>
+	<Child name="notification_text" type="localized"/>
+
+	<Child name="send_options_exclusive" type="bool"/>
+	<Child name="ai_min_reply_days" type="value"/>
+	<Child name="ai_max_reply_days" type="value"/>
+	
+	<Child name="ai_targets" type="block">
+		<Child name="ai_recipients" type="ai_recipients"/>
+	</Child>
+	
+	<Child name="send_option">
+		<Child name="is_shown" type="trigger" inherits="trigger"/>
+		<Child name="is_valid" type="trigger" inherits="trigger"/>
+		<Child name="flag" type="flag"/>
+		<Child name="localization" type="localized"/>	
+		<Child name="current_description" type="localized" inherits="localized"/>	
+		<Child name="can_be_changed" type="trigger" inherits="trigger"/>
+		<Child name="starts_enabled" type="trigger" inherits="trigger"/>
+	</Child>
+	
+	<Child name="ai_frequency" type="value"/>
+	<Child name="ai_potential" type="trigger" inherits="trigger"/>
+	<Child name="ai_will_do" type="ai_chance" inherits="ai_chance"/>
+	<Child name="ai_accept" type="ai_accept" inherits="ai_chance"/>
+
+</Schema>

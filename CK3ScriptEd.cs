@@ -125,7 +125,9 @@ namespace CK3ScriptEditor
 
             BackupManager.Instance.UpdateTick();
 
-            GetTextEditor("common/on_action/test_on_action.txt", false);
+
+            CK3EditorPreferencesManager.Instance.Load();
+            //    GetTextEditor("common/on_action/test_on_action.txt", false);
             //   GetTextEditor("events/test_event5.txt", false);
             //  GetTextEditor("events/health_events.txt", false);
 
@@ -181,7 +183,7 @@ namespace CK3ScriptEditor
 
         }
 
-        private TextEditorControl GetTextEditor(string filename, bool fromBase = true)
+        public TextEditorControl GetTextEditor(string filename, bool fromBase = true)
         {
 
             string startDir = fromBase ? Globals.CK3Path : Core.Instance.ModCK3Library.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
@@ -218,17 +220,19 @@ namespace CK3ScriptEditor
             ScriptWindow window = new ScriptWindow(fromBase);
             
             openScriptWindows[filename] = window;
-            DockPanel.AddContent(window);
-            DockPanel.ActiveContent = window;
+            
             string startDir = fromBase ? Globals.CK3Path : Core.Instance.ModCK3Library.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
             window.Filename = filename;
             AllowUpdateFile = false;
             window.ScriptFile = Core.Instance.GetFile(filename, fromBase);
             textEditors[filename] = window.LoadFile(startDir+filename);
+            DockPanel.AddContent(window);
+            DockPanel.ActiveContent = window;
             window.UpdateLocalizations();
+            window.Name = window.Text = filename;
             AllowUpdateFile = true;
             fileOverview.UpdateTree(filename, textEditors[filename].ActiveTextAreaControl.Caret.Line, fromBase);
-
+            CK3EditorPreferencesManager.Instance.Save();
 
         }
       
@@ -368,6 +372,89 @@ namespace CK3ScriptEditor
         private void AutoSave_Tick(object sender, EventArgs e)
         {
             BackupManager.Instance.UpdateTick();
+        }
+
+        public List<string> GetOpenModWindowsFilenameList()
+        {
+            List<string> files = new List<string>();
+
+            foreach (var openModScriptWindow in openModScriptWindows)
+            {
+                files.Add(openModScriptWindow.Value.Filename);
+            }
+
+            return files;
+        }
+        
+        public int GetOpenWindowsFilenameListIndex()
+        {
+            List<ScriptWindow> files = new List<ScriptWindow>();
+
+            foreach (var openModScriptWindow in openModScriptWindows)
+            {
+                files.Add(openModScriptWindow.Value);
+            }
+
+            foreach (var openModScriptWindow in openBaseScriptWindows)
+            {
+                files.Add(openModScriptWindow.Value);
+            }
+
+            files = files.OrderBy(a => DockPanel.Controls[0].Controls[0].Controls.IndexOf(a)).ToList();
+
+            List<string> results = new List<string>();
+
+            for (var index = 0; index < files.Count; index++)
+            {
+                var scriptWindow = files[index];
+                if (scriptWindow == DockPanel.ActiveContent)
+                    return index;
+            }
+
+            return -1;
+        }
+        public List<string> GetOpenWindowsFilenameList()
+        {
+            List<ScriptWindow> files = new List<ScriptWindow>();
+
+            foreach (var openModScriptWindow in openModScriptWindows)
+            {
+                files.Add(openModScriptWindow.Value);
+            }
+
+            foreach (var openModScriptWindow in openBaseScriptWindows)
+            {
+                files.Add(openModScriptWindow.Value);
+            }
+
+            files = files.OrderBy(a => DockPanel.Controls[0].Controls[0].Controls.IndexOf(a)).ToList();
+
+            List<string> results = new List<string>();
+
+            foreach (var scriptWindow in files)
+            {
+                if (scriptWindow.Filename == null)
+                    return null;
+                results.Add(scriptWindow.ScriptFile.IsBase ? "base:" + scriptWindow.Filename : "mod:" + scriptWindow.Filename);
+            }
+
+            return results;
+        }
+        public List<string> GetOpenBaseWindowsFilenameList()
+        {
+            List<string> files = new List<string>();
+
+            foreach (var openModScriptWindow in openBaseScriptWindows)
+            {
+                files.Add(openModScriptWindow.Value.Filename);
+            }
+
+            return files;
+        }
+
+        public void SetActiveEditor(TextEditorControl c)
+        {
+            DockPanel.ActiveContent = c.Parent as ScriptWindow;
         }
     }
 }

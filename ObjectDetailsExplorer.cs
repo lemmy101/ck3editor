@@ -40,15 +40,19 @@ namespace CK3ScriptEditor
 
             if (obj == null)
                 return;
+            string str = obj.Topmost.Name;
 
-            var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(obj.Topmost.Name);
+            if (str.Contains(" "))
+                str = str.Split(' ')[1];
+
+            var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(str);
 
             foreach (var eventConnection in ConnectionsIn)
             {
                 AddIncoming(eventConnection.From, eventConnection);
             }
             
-            var Connections = ReferenceManager.Instance.GetConnectionsFrom(obj.Topmost.Name).Distinct().ToList();
+            var Connections = ReferenceManager.Instance.GetConnectionsFrom(str).Distinct().ToList();
 
             foreach (var eventConnection in Connections)
             {
@@ -117,7 +121,7 @@ namespace CK3ScriptEditor
             while (name.Length < col2)
                 name += " ";
 
-            name += objScriptScope.IsValue ? objScriptScope.VarType.ToString().ToLower() : objScriptScope.To.ToString().ToLower();
+            name += objScriptScope.To.ToString().ToLower();
 
             while (name.Length < col3)
                 name += " ";
@@ -133,14 +137,24 @@ namespace CK3ScriptEditor
 
         private void AddOutgoing(string eventConnectionTo, ReferenceManager.EventConnection c)
         {
-            var i = new DarkListItem(eventConnectionTo);
+            string str = eventConnectionTo;
+
+            if (str.Contains(" "))
+                str = str.Split(' ')[1];
+
+            var i = new DarkListItem(str);
             i.Tag = c;
             referencesList.Items.Add(i);
         }
 
         private void AddIncoming(ScriptObject eventConnectionFrom, ReferenceManager.EventConnection c)
         {
-            var i = new DarkListItem(eventConnectionFrom.Name);
+            string str = eventConnectionFrom.Name;
+
+            if (str.Contains(" "))
+                str = str.Split(' ')[1];
+
+            var i = new DarkListItem(str);
             i.Tag = c;
             referencedByList.Items.Add(i);
         }

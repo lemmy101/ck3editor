@@ -1,0 +1,4 @@
+<ScriptObject id="asset">	
+	<Child name="type" type="any"/>		
+	<Child name="name" type="string"/>		
+</ScriptObject>

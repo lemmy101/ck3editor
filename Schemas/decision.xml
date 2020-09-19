@@ -1,0 +1,23 @@
+<Schema id="decision">	
+	<Child name="picture" type="string"/>
+	<Child name="major" type="bool"/>
+	
+	<Child name="desc" type="localized"/>
+	<Child name="desc" type="localized" inherits="localized"/>
+	<Child name="cooldown">
+		<Child name="days" type="value"/>
+		<Child name="months" type="value"/>
+		<Child name="years" type="value"/>
+	</Child>
+	<Child name="selection_tooltip" type="localized"/>
+	<Child name="cost" inherits="cost"/>
+	
+	<Child name="ai_check_interval" type="value"/>
+	<Child name="is_shown" type="trigger" inherits="trigger"/>
+	<Child name="is_valid" type="trigger" inherits="trigger"/>
+	<Child name="is_valid_showing_failures_only" type="trigger" inherits="trigger"/>
+	<Child name="effect" type="effect" inherits="effect"/>
+	<Child name="ai_potential" type="trigger" inherits="trigger"/>
+	<Child name="ai_will_do" type="ai_will_do" inherits="ai_chance"/>
+	<Child name="ai_priority" type="value"/>
+</Schema>

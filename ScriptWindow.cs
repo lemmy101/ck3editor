@@ -315,7 +315,7 @@ namespace CK3ScriptEditor
         {
             var line = textEditorControl1.ActiveTextAreaControl.Caret.Line + 1;
 
-            var file = Core.Instance.GetFile(Filename);
+            var file = Core.Instance.GetFile(Filename.Replace("\\", "/"));
             ScriptObject best = null;
             foreach (var scriptObject in file.Map.Values)
             {
@@ -431,6 +431,11 @@ namespace CK3ScriptEditor
             textEditorControl1.ActiveTextAreaControl.TextArea.Invalidate();
         }
 
+        public override string ToString()
+        {
+            return DockText;
+        }
+
         public string Filename { get; set; }
         public ScriptFile ScriptFile { get; set; }
 
@@ -441,7 +446,7 @@ namespace CK3ScriptEditor
 
             if (IsBaseFile)
             {
-                DockText = "Base:" + filename.Substring(filename.LastIndexOf("/") + 1) + " (Read-Only)";
+                Name = Text = DockText = "Base: " + filename.Substring(filename.LastIndexOf("/") + 1) + " (Read-Only)";
                 textEditorControl1.Document.ReadOnly = true;
                 textEditorControl1.Document.HighlightingStrategy = new DefaultHighlightingStrategy("Default", true);//textEditorControl1.Document.HighlightingStrategy
                 var d = (textEditorControl1.Document.HighlightingStrategy as DefaultHighlightingStrategy);
@@ -482,7 +487,8 @@ namespace CK3ScriptEditor
             }
             else
             {
-                DockText = "Mod:" + filename.Substring(filename.LastIndexOf("/") + 1);
+                Name = Text = DockText = "Mod: " + filename.Substring(filename.LastIndexOf("/") + 1);
+                
                 textEditorControl1.Document.ReadOnly = false;
                // textEditorControl1.Document.HighlightingStrategy = new DefaultHighlightingStrategy("Default", false);//textEditorControl1.Document.HighlightingStrategy
                 var d = (textEditorControl1.Document.HighlightingStrategy as DefaultHighlightingStrategy);
@@ -579,6 +585,8 @@ namespace CK3ScriptEditor
                 if(ScriptFile!=null)
                     UpdateLocalizations();
             }
+
+            CK3EditorPreferencesManager.Instance.Save();
         }
 
         private void textEditorControl1_Click(object sender, EventArgs e)

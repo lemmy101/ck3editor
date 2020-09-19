@@ -70,6 +70,10 @@ namespace JominiParse
             public string Prepend { get; set; }
             public string IgnoreChildren { get; set; }
             public bool Recurse { get; set; }
+            public string Trim { get; set; }
+            public int Depth { get; set; }
+            public string InsideChild { get; set; }
+            public string Category { get; set; }
 
             public List<ScriptGroupContext> Groups = new List<ScriptGroupContext>();
             Dictionary<string, ScriptObject> Map = new Dictionary<string, ScriptObject>();
@@ -192,24 +196,32 @@ namespace JominiParse
 
         public Dictionary<ScriptContext, ContextInfo> ContextData = new Dictionary<ScriptContext, ContextInfo>()
         {
-            { ScriptContext.Events, new ContextInfo() {Directory = "events", Type="event"}},
-            { ScriptContext.CultureGroups, new ContextInfo() {Directory = "common/culture/cultures", Type="culture_group"}},
-            { ScriptContext.Cultures, new ContextInfo() {ChildOf = ScriptContext.CultureGroups, Type="culture", Prepend="culture", IgnoreChildren="graphical_cultures,mercenary_names"}},
-            { ScriptContext.CulturalInnovations, new ContextInfo() {Directory = "common/culture/innovations", Type="innovation"}},
+            { ScriptContext.Event, new ContextInfo() {Directory = "events", Type="event", Category="Events"}},
+            
+            { ScriptContext.CultureGroups, new ContextInfo() {Directory = "common/culture/cultures", Type="culture_group", Category="Culture"}},
+            { ScriptContext.Cultures, new ContextInfo() {ChildOf = ScriptContext.CultureGroups, Type="culture", Prepend="culture", IgnoreChildren="graphical_cultures,mercenary_names", Category="Culture"}},
+            { ScriptContext.CulturalInnovations, new ContextInfo() {Directory = "common/culture/innovations", Type="innovation", Category="Culture"}},
+            { ScriptContext.CultureEra, new ContextInfo() {Directory = "common/culture/eras", Type="culture_era", Category="Culture"}},
+     
             { ScriptContext.Decisions, new ContextInfo() {Directory = "common/decisions", Type="decision"}},
             { ScriptContext.Activities, new ContextInfo() {Directory = "common/activities", Type = "activity"}},
             { ScriptContext.Bookmark, new ContextInfo() {Directory = "common/bookmarks", Type="bookmark"}},
             { ScriptContext.Buildings, new ContextInfo() {Directory = "common/buildings", Type="building"}},
-            { ScriptContext.CasusBelliType, new ContextInfo() {Directory = "common/casus_belli_types", Type="casus_belli_types"}},
-            { ScriptContext.CharacterInteractions, new ContextInfo() {Directory = "common/character_interactions", Type="character_interactions"}},
+            
+            { ScriptContext.CasusBelliGroups, new ContextInfo() {Directory = "common/casus_belli_groups", Type="casus_belli_group", Category="Casus Belli"}},
+            { ScriptContext.CasusBelliType, new ContextInfo() {Directory = "common/casus_belli_types", Type="casus_belli_type", Category="Casus Belli"}},
+            { ScriptContext.CharacterInteractionCategory, new ContextInfo() {Directory = "common/character_interaction_categories", Type="character_interaction_category", Category="Character Interactions"}},
+
+            { ScriptContext.CharacterInteractions, new ContextInfo() {Directory = "common/character_interactions", Type="character_interaction", Category="Character Interactions"}},
             { ScriptContext.Characters, new ContextInfo() {Directory = "history/characters", Type = "character", Prepend = "character"}},
-            { ScriptContext.CouncilPositions, new ContextInfo() {Directory = "common/council_positions", Type="council_position"}},
-            { ScriptContext.CouncilTasks, new ContextInfo() {Directory = "common/council_tasks", Type="council_task"}},
+            { ScriptContext.CouncilPositions, new ContextInfo() {Directory = "common/council_positions", Type="council_position", Category="Council"}},
+            { ScriptContext.CouncilTasks, new ContextInfo() {Directory = "common/council_tasks", Type="council_task", Category="Council"}},
             { ScriptContext.Defines, new ContextInfo() {Directory = "common/Defines", Type="define"}},
-            { ScriptContext.DynastyLegacies, new ContextInfo() {Directory = "common/dynasty_legacies", Type="legacy"}},
-            { ScriptContext.DynastyPerks, new ContextInfo() {Directory = "common/dynasty_perks", Type="dynasty_perk"}},
-            { ScriptContext.EventBackgrounds, new ContextInfo() {Directory = "common/event_backgrounds", Type="event_background"}},
-            { ScriptContext.EventThemes, new ContextInfo() {Directory = "common/event_themes", Type="event_theme"}},
+            { ScriptContext.DynastyLegacies, new ContextInfo() {Directory = "common/dynasty_legacies", Type="legacy", Category="Dynasty"}},
+            { ScriptContext.DynastyPerks, new ContextInfo() {Directory = "common/dynasty_perks", Type="dynasty_perk", Category="Dynasty"}},
+            { ScriptContext.DynastyHouses, new ContextInfo() {Directory = "common/dynasty_houses", Type = "dynasty_house", Category="Dynasty"}},
+            { ScriptContext.EventBackgrounds, new ContextInfo() {Directory = "common/event_backgrounds", Type="event_background", Category="Events"}},
+            { ScriptContext.EventThemes, new ContextInfo() {Directory = "common/event_themes", Type="event_theme", Category="Events"}},
             { ScriptContext.Factions, new ContextInfo() {Directory = "common/factions", Type = "faction"}},
             { ScriptContext.Focuses, new ContextInfo() {Directory = "common/focuses", Type = "focus"}},
             { ScriptContext.GameRuleCategories, new ContextInfo() {Directory = "common/game_rules", Type="game_rule_category"}},
@@ -220,34 +232,41 @@ namespace JominiParse
             { ScriptContext.ImportantActions, new ContextInfo() {Directory = "common/important_actions", Type="important_action"}},
             { ScriptContext.LandedTitles, new ContextInfo() {Directory = "common/landed_titles", Type="title", Prepend = "title", Recurse=true, IgnoreChildren = "color,color2,ai_primary_priority,male_names,cultural_names"}},
 
-            { ScriptContext.Laws, new ContextInfo() {Directory = "common/laws", Type="law"}},
+            { ScriptContext.LawGroup, new ContextInfo() {Directory = "common/laws", Type="law_group"}},
+            { ScriptContext.Laws, new ContextInfo() {ChildOf = ScriptContext.LawGroup, Type="law"}},
             { ScriptContext.LifestylePerks, new ContextInfo() {Directory = "common/lifestyle_perks", Type="perk"}},
             { ScriptContext.Lifestyles, new ContextInfo() {Directory = "common/lifestyles", Type="lifestyle"}},
             { ScriptContext.StaticModifiers, new ContextInfo() {Directory = "common/modifiers", Type="modifier"}},
             { ScriptContext.Nicknames, new ContextInfo() {Directory = "common/nicknames", Type="nickname"}},
             { ScriptContext.OnActions, new ContextInfo() {Directory = "common/on_action", Type="on_action"}},
             { ScriptContext.OptionModifiers, new ContextInfo() {Directory = "common/opinion_modifiers", Type="opinion_modifier"}},
-            { ScriptContext.Doctrines, new ContextInfo() {Directory = "common/religion/doctrines", Type="doctrine"}},
-            { ScriptContext.FervorModifiers, new ContextInfo() {Directory = "common/religion/fervor_modifiers", Type="fervor_modifier"}},
+            { ScriptContext.DoctrineGroups, new ContextInfo() {Directory = "common/religion/doctrines", Type="doctrine_group", Category="Religion"}},
+            { ScriptContext.Doctrines, new ContextInfo() {ChildOf = ScriptContext.DoctrineGroups, Type="doctrine", Category="Religion"}},
+            { ScriptContext.FervorModifiers, new ContextInfo() {Directory = "common/religion/fervor_modifiers", Type="fervor_modifier", Category="Religion"}},
 
-            { ScriptContext.HolySites, new ContextInfo() {Directory = "common/religion/holy_sites", Type="holy_site"}},
-            { ScriptContext.ReligionFamilys, new ContextInfo() {Directory = "common/religion/religion_families", Type="religion_family"}},
-            { ScriptContext.Religions, new ContextInfo() {Directory = "common/religion/religions", Type="religion"}},
+            { ScriptContext.HolySites, new ContextInfo() {Directory = "common/religion/holy_sites", Type="holy_site", Category="Religion"}},
+            { ScriptContext.ReligionFamilys, new ContextInfo() {Directory = "common/religion/religion_families", Type="religion_family", Category="Religion"}},
+            { ScriptContext.Religions, new ContextInfo() {Directory = "common/religion/religions", Type="religion", Category="Religion"}},
+            { ScriptContext.Faiths, new ContextInfo() {ChildOf = ScriptContext.Religions, Type="faith", Depth=1, InsideChild="faiths", IgnoreChildren = "traits,reserved_male_names,reserved_female_names,custom_faith_icons,holy_order_names,holy_order_maa,localization", Category="Religion"}},
 
-            { ScriptContext.Schemes, new ContextInfo() {Directory = "common/schemes", Type="scheme_type"}},
+            { ScriptContext.Schemes, new ContextInfo() {Directory = "common/schemes", Type="scheme_type", Category="Schemes"}},
             { ScriptContext.ScriptedCharacterTemplates, new ContextInfo() {Directory = "common/scripted_character_templates", Type="scripted_character_template"}},
-            { ScriptContext.ScriptedEffects, new ContextInfo() {Directory = "common/scripted_effects", Type="scripted_effect"}},
-            { ScriptContext.ScriptedLists, new ContextInfo() {Directory = "common/scripted_lists", Type="scripted_list"}},
-            { ScriptContext.ScriptedModifiers, new ContextInfo() {Directory = "common/scripted_modifiers", Type="scripted_modifier"}},
-            { ScriptContext.ScriptedRelations, new ContextInfo() {Directory = "common/scripted_relations", Type="scripted_relation"}},
-            { ScriptContext.ScriptedRules, new ContextInfo() {Directory = "common/scripted_rules", Type="scripted_rule"}},
-            { ScriptContext.ScriptedTriggers, new ContextInfo() {Directory = "common/scripted_triggers", Type="scripted_trigger"}},
-            { ScriptContext.ScriptedValues, new ContextInfo() {Directory = "common/script_values", Type="value"}},
-            { ScriptContext.SecretTypes, new ContextInfo() {Directory = "common/secret_types", Type="secret_type"}},
+            { ScriptContext.ScriptedEffects, new ContextInfo() {Directory = "common/scripted_effects", Type="scripted_effect", Category="Scripted Objects"}},
+            { ScriptContext.ScriptedLists, new ContextInfo() {Directory = "common/scripted_lists", Type="scripted_list", Category="Scripted Objects"}},
+            { ScriptContext.ScriptedModifiers, new ContextInfo() {Directory = "common/scripted_modifiers", Type="scripted_modifier", Category="Scripted Objects"}},
+            { ScriptContext.ScriptedRelations, new ContextInfo() {Directory = "common/scripted_relations", Type="scripted_relation", Category="Scripted Objects"}},
+            { ScriptContext.ScriptedRules, new ContextInfo() {Directory = "common/scripted_rules", Type="scripted_rule", Category="Scripted Objects"}},
+            { ScriptContext.ScriptedTriggers, new ContextInfo() {Directory = "common/scripted_triggers", Type="scripted_trigger", Trim="scripted_trigger", Category="Scripted Objects"}},
+            { ScriptContext.ScriptedValues, new ContextInfo() {Directory = "common/script_values", Type="value", Category="Scripted Objects"}},
+            { ScriptContext.SecretTypes, new ContextInfo() {Directory = "common/secret_types", Type="secret_type", Category="Schemes"}},
             { ScriptContext.StoryCycles, new ContextInfo() {Directory = "common/story_cycles", Type="story_cycle"}},
             { ScriptContext.SuccessionElections, new ContextInfo() {Directory = "common/succession_election", Type="succession_election"}},
             { ScriptContext.Traits, new ContextInfo() {Directory = "common/traits", Type="trait", Groups = new List<ScriptGroupContext>() {ScriptGroupContext.TraitGroups}}},
+            { ScriptContext.TriggerLocalization, new ContextInfo() {Directory = "common/trigger_localization", Type="trigger_localization"}},
             { ScriptContext.VassalContracts, new ContextInfo() {Directory = "common/vassal_contracts", Type = "vassal_contract"}},
+            { ScriptContext.Messages, new ContextInfo() {Directory = "common/messages", Type = "message_type"}},
+            { ScriptContext.RegimentType, new ContextInfo() {Directory = "common/regiment_types", Type="regiment_type"}},
+            { ScriptContext.GeographicRegion, new ContextInfo() {Directory = "map_data/geographical_region.txt", Type="geographic_region"}},
 
         };
 
@@ -317,7 +336,10 @@ namespace JominiParse
         public void Add(List<ScriptObject> objects, ScriptContext context)
         {
          
+            if(context == ScriptContext.CasusBelliGroups)
+            {
 
+            }
 
             foreach (var dec in objects)
             {
@@ -336,7 +358,13 @@ namespace JominiParse
 
                     dec.Context = context;
                     dec.ScriptFile = f;
-                    f.Map[dec.Name] = dec;
+                    string name = dec.Name;
+
+                    //if(ContextData[context].Trim != null)
+                    {
+                     //   name = name.Substring(name.IndexOf(ContextData[context].Trim) + ContextData[context].Trim.Length);
+                    }
+                    f.Map[name] = dec;
                 }
             }
             
@@ -491,7 +519,7 @@ namespace JominiParse
                     {
                         var e = scriptObject.GetStringValue();
                         // found a random event...
-                        if (ContextData[ScriptContext.Events].Get(e) != null)
+                        if (ContextData[ScriptContext.Event].Get(e) != null)
                         {
                             trigger_event n = new trigger_event();
                             if (e == "abduct_outcome.1001")
@@ -520,7 +548,7 @@ namespace JominiParse
                     {
                         var e = scriptObject.Name;
                         // found a random event...
-                        if (ContextData[ScriptContext.Events].Get(e) != null)
+                        if (ContextData[ScriptContext.Event].Get(e) != null)
                         {
                             trigger_event n = new trigger_event();
                            
@@ -536,6 +564,10 @@ namespace JominiParse
         }
 
         public void RegisterScriptEffectCall(ScriptObject node)
+        {
+            ReferenceManager.Instance.AddConnection(node.Topmost, node, node.Name);
+        }
+        public void RegisterScriptTriggerCall(ScriptObject node)
         {
             ReferenceManager.Instance.AddConnection(node.Topmost, node, node.Name);
         }
@@ -600,7 +632,15 @@ namespace JominiParse
       
         private void DoFile(ScriptObject dec, ScriptContext context)
         {
-            AllTypeMap[dec.Name] = dec;
+            string s = dec.Name;
+            if (dec.Name.StartsWith("scripted_trigger"))
+            {
+                s = (dec.Name.Substring(dec.Name.IndexOf(' ') + 1));
+        
+            }
+            
+            
+            AllTypeMap[s] = dec;
 
             ScriptFile f;
             if (FileMap.ContainsKey(dec.Filename))
@@ -616,7 +656,7 @@ namespace JominiParse
 
             dec.Context = context;
             dec.ScriptFile = f;
-            f.Map[dec.Name] = dec;
+            f.Map[s] = dec;
         }
 
         public ScriptFile GetFile(string file)
@@ -773,20 +813,47 @@ namespace JominiParse
                 {
                     var from = ContextData[contextDataValue.ChildOf];
 
-                    var vals = from.Values();
-                    string[] ignore = contextDataValue.IgnoreChildren == null ? new string[0] : contextDataValue.IgnoreChildren.Split(',');
-                    foreach (var scriptObject in vals)
+                    if(contextDataValue.InsideChild != null)
                     {
-                        
-                        // only blocks...
-                        var list = scriptObject.Children.Where(a => a.IsBlock && !ignore.Contains(a.Name)).ToList();
-
-                        foreach (var o in list)
+                        var vals = from.Values();
+                        string[] ignore = contextDataValue.IgnoreChildren == null ? new string[0] : contextDataValue.IgnoreChildren.Split(',');
+                        foreach (var scriptObject in vals)
                         {
-                            contextDataValue.Add(o.Name, o);
-                            o.ScriptFile = scriptObject.ScriptFile;
+
+                            // only blocks...
+                            var list = scriptObject.Children.Where(a => a.IsBlock && contextDataValue.InsideChild == a.Name).ToList();
+
+                            foreach (var b in list)
+                            {
+                                var list2 = b.Children.Where(a => a.IsBlock && !ignore.Contains(a.Name)).ToList();
+
+                                foreach (var o in list2)
+                                {
+                                    contextDataValue.Add(o.Name, o);
+                                    o.ScriptFile = scriptObject.ScriptFile;
+                                }
+                            }
                         }
                     }
+                    else
+                    {
+
+                        var vals = from.Values();
+                        string[] ignore = contextDataValue.IgnoreChildren == null ? new string[0] : contextDataValue.IgnoreChildren.Split(',');
+                        foreach (var scriptObject in vals)
+                        {
+
+                            // only blocks...
+                            var list = scriptObject.Children.Where(a => a.IsBlock && !ignore.Contains(a.Name)).ToList();
+
+                            foreach (var o in list)
+                            {
+                                contextDataValue.Add(o.Name, o);
+                                o.ScriptFile = scriptObject.ScriptFile;
+                            }
+                        }
+                    }
+
                 }
                 else
                 {

@@ -23,6 +23,10 @@ namespace JominiParse
         public ScriptObject CreateScriptObject(ScriptContext context, ScriptParsedSegment segment, ScriptObject parent,
             string scriptNamespace)
         {
+            if (context == ScriptContext.CharacterInteractions)
+            {
+
+            }
             ScriptObject obj = null;
 
             if (parent == null)
@@ -52,39 +56,26 @@ namespace JominiParse
 
             switch (context)
             {
-                case ScriptContext.ScriptedEffects:
-                    obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("scripted_effect"));
-                    break;
-                case ScriptContext.ScriptedValues:
-                    obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("building"));
-                    break;
-                case ScriptContext.Buildings:
-                    obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("building"));
-                    break;
-                case ScriptContext.Activities:
-                    obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("activity"));
-                    break;
-                case ScriptContext.Decisions:
-                    obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("decision"));
+
+                case ScriptContext.None:
+                    obj = new ScriptObject(parent, segment);
                     break;
                 case ScriptContext.ScriptObjectValue:
                     obj = ScriptValueParser.Instance.ParseScriptValue(parent, segment);
                     break;
-                case ScriptContext.Events:
+                case ScriptContext.Event:
                     if(segment.name.StartsWith("scripted_trigger "))
                         obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("trigger"));
                     else
                         obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("event"));
 
                     break;
-                case ScriptContext.OnActions:
-                    obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema("on_action"));
-                    break;
-                  default:
-                    obj = new ScriptObject(parent, segment);
-                    break;
+               default:
+                      obj = new ScriptObject(parent, segment, SchemaManager.Instance.GetSchema(Core.Instance.BaseCK3Library.ContextData[context].Type)); 
+                break;
             }
 
+            obj.Context = context;
             InitializeObject(obj, context);
 
 
@@ -109,6 +100,27 @@ namespace JominiParse
 
         private void InitializeObject(ScriptObject scriptObject, ScriptContext context)
         {
+            if (context == ScriptContext.CasusBelliType)
+            {
+                AddScriptScope("attacker", scriptObject, ScopeType.character, false, true);
+                AddScriptScope("defender", scriptObject, ScopeType.character, false, true);
+                AddScriptScope("claimant", scriptObject, ScopeType.character, false, true);
+                scriptObject.SetScopeType(ScopeType.none);
+            }
+            if (context == ScriptContext.CouncilTasks)
+            {
+                AddScriptScope("county", scriptObject, ScopeType.landed_title, false, true);
+                AddScriptScope("councillor_liege", scriptObject, ScopeType.character, false, true);
+                scriptObject.SetScopeType(ScopeType.none);
+            }
+            if (context == ScriptContext.ScriptedTriggers)
+            {
+                scriptObject.SetScopeType(ScopeType.none);
+            }
+            if (context == ScriptContext.ScriptedEffects)
+            {
+                scriptObject.SetScopeType(ScopeType.none);
+            }
             if (context == ScriptContext.Buildings)
             {
                 InitBuilding(scriptObject);
@@ -129,7 +141,7 @@ namespace JominiParse
                 InitCharacterInteraction(scriptObject);
                 scriptObject.SetScopeType(ScopeType.character);
             }
-            if (context == ScriptContext.Events)
+            if (context == ScriptContext.Event)
             {
                 InitEvent(scriptObject);
                 scriptObject.SetScopeType(ScopeType.character);
@@ -139,6 +151,12 @@ namespace JominiParse
             {
                 InitScheme(scriptObject);
                 scriptObject.SetScopeType(ScopeType.character);
+            }
+            
+            if(scriptObject.Name=="duel")
+            {
+                AddScriptScope("duel_value", scriptObject.Topmost, ScopeType.value, false, true);
+                
             }
         }
 

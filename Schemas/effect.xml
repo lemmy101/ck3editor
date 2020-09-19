@@ -21,7 +21,7 @@
   <Child name="remove_all_house_modifier_instances" scope="dynasty_house" doc="Remove all instances of a modifier from a house" function="effect" type="bool" />
   <Child name="remove_house_modifier" scope="dynasty_house" doc="Remove a modifier from a house" function="effect" type="modifier" />
   <Child name="add_scheme_modifier" scope="scheme" doc="adds the specified scheme modifier, add_scheme_modifier = { type = X days = Y } (days are optional, the modifier will expire in Y days if specified)" function="effect" type="function" >
-    <Child name="modifier" type="modifier" />
+    <Child name="type" type="modifier" />
     <Child name="days" type="value" />
     <Child name="months" type="value" />
     <Child name="years" type="value" />
@@ -112,10 +112,10 @@
   <Child name="add_opinion" scope="character" doc="Adds a temporary opinion modifier, add_opinion = { modifier = X days/months/years = Y target = Z }" function="effect" type="function">
     <Child name="target" type="character"/>
     <Child name="modifier" type="opinion"/>
-    <Child name="opinion" type="num"/>
-    <Child name="days" type="num"/>
-    <Child name="months" type="num"/>
-    <Child name="years" type="num"/>
+    <Child name="opinion" type="value"/>
+    <Child name="days" type="value"/>
+    <Child name="months" type="value"/>
+    <Child name="years" type="value"/>
   </Child>
   <Child name="add_perk" scope="character" doc="Adds the perk for this character" function="effect" type="perk" />
   <Child name="add_piety" scope="character" doc="gives (or takes) piety to a character" function="effect" type="value" />
@@ -350,21 +350,21 @@
   <Child name="reverse_add_opinion" scope="character" doc="Adds a temporary reverse opinion modifier, reverse_add_opinion = { modifier = X days/months/years = Y target = Z }" function="effect" type="function" >
     <Child name="target" type="character"/>
     <Child name="modifier" type="opinion"/>
-    <Child name="opinion" type="num"/>
-    <Child name="days" type="num"/>
-    <Child name="months" type="num"/>
-    <Child name="years" type="num"/>
+    <Child name="opinion" type="value"/>
+    <Child name="days" type="value"/>
+    <Child name="months" type="value"/>
+    <Child name="years" type="value"/>
   </Child>
 <!--  <Child name="scriptedtests_recalculate_character_modifier" scope="character" doc="Recalculates the modifier of the scoped character" function="effect" type="" />
   <Child name="scriptedtests_recalculate_succession" scope="character" doc="Recalculates the line of succession of the scoped character" function="effect" type="" />-->
   <Child name="send_interface_message" scope="character" doc="Sends a message to the player playing the character in the scope and then executes any effects inside." function="effect" type="function" inherits="effect" >
-    <Child name="type" type="event_type"/>
+    <Child name="type" type="message_type"/>
     <Child name="title" type="localized"/>
     <Child name="right_icon" type="character"/>
     <Child name="left_icon" type="character"/>
   </Child>
   <Child name="send_interface_toast" scope="character" doc="Sends a message to the player playing the character in the scope and then executes any effects inside." function="effect" type="function" inherits="effect" >
-    <Child name="type" type="event_type"/>
+    <Child name="type" type="message_type"/>
     <Child name="title" type="localized"/>
     <Child name="right_icon" type="character"/>
     <Child name="left_icon" type="character"/>
@@ -452,8 +452,7 @@
   <Child name="stress_impact" scope="character" doc="Stress impact according to specified traits (trait = value), use base = value for a base value that's always added" function="effect" type="function" inherits="stress_impact">
   </Child>
   <Child name="random_in_list" scope="none" function="effect" type="function" inherits="effect">
-	  <Child name="any" type="any"/>
-  
+	  <Child name="list" type="any"/>  
   </Child>
   
   <Child name="use_hook" scope="character" type="character" doc="Uses a hook a character has (removes if weak, puts on cooldown if strong), use_hook = some_character" function="effect"  />
@@ -642,6 +641,8 @@
     <Child name="chance" type="block" namesFrom="value" function="effect" inherits="effect">
       <Child name="trigger" type="trigger" inherits="trigger" />
       <Child name="opinion_modifier" type="opinion_modifier" inherits="opinion_modifier"/>
+      <Child name="compare_modifier" type="compare_modifier" inherits="compare_modifier"/>
+	  
       <Child name="modifier" type="modifier" inherits="modifier"/>
     </Child>
   </Child>
@@ -652,11 +653,20 @@
   </Child>
   <Child name="create_title_and_vassal_change" scope="none" doc="starts a title and vassal change and saves it as a temporary event target" function="effect" type="title_and_vassal_change" />
   <Child name="custom_description" scope="none" doc="Wraps effects that get a custom description instead of the auto-generated one" function="effect" type="function" inherits="effect">
-    <Child name="text" type="localized" />
+    <Child name="text" type="trigger_localization" />
+    <Child name="object" type="scope" />
+    <Child name="subject" type="scope" />
   </Child>
   <Child name="custom_description_no_bullet" scope="none" doc="Wraps effects that get a custom description instead of the auto-generated one. Also ensures no bullet point appears" function="effect" type="function" inherits="effect">
-    <Child name="text" type="localized" />
+    <Child name="text" type="trigger_localization" />
+    <Child name="object" type="scope" />
+	
   </Child>
+  <Child name="every_in_list" scope="none" function="effect" inherits="effect" >
+	<Child name="limit" type="trigger" inherits="trigger" />
+	<Child name="list" type="any" />
+  </Child>
+  
   <Child name="custom_label" scope="none" doc="just a tooltip, the scope as object (for grouping, localization)" function="effect" type="localized" />
   <Child name="custom_tooltip" scope="none" doc="just a tooltip, the scope as subject (for grouping, localization)" function="effect" type="localized" />
 <!--  <Child name="debug_log" scope="none" doc="Log a string to the debug log when this effect executes, debug_log = message, the message can be a localization string with ROOT, SCOPE and PREV available" function="effect" type="" />
@@ -686,18 +696,19 @@
     <Child name="modifier" type="modifier" inherits="modifier" />
   </Child>
   <Child name="remove_from_list" scope="none" doc="Removes the current scope from a named list remove_from_list = &lt;string&gt;" function="effect" type="any" />
-  <Child name="remove_global_variable" scope="none" doc="Removes a variable" function="effect" type="variable" />
+  <Child name="remove_global_variable" scope="none" doc="Removes a variable" function="effect" type="global_var" />
   <Child name="remove_list_global_variable" scope="none" doc="Removes the target from a variable list" function="effect" >
     <Child name="name" type="scope" />
     <Child name="target" type="any" />
   </Child>
+  <Child name="remove_variable" scope="none" doc="Removes a variable" function="effect" type="var" />
+  <Child name="remove_local_variable" scope="none" doc="Removes a variable" function="effect" type="local_var" />
   <!--
   <Child name="remove_list_local_variable" scope="none" doc="Removes the target from a variable list" function="effect" type="" />
   <Child name="remove_list_variable" scope="none" doc="Removes the target from a variable list" function="effect" type="" />
-  <Child name="remove_local_variable" scope="none" doc="Removes a variable" function="effect" type="" />
   <Child name="remove_title_law" scope="none" doc="remove law from scoped title. This will leave the law group empty, so only do this if you're getting rid of a law group. DOES NOT apply law removal costs and effects." function="effect" type="" />
   <Child name="remove_title_law_effects" scope="none" doc="remove law from scoped title. This will leave the law group empty, so only do this if you're getting rid of a law group. DOES apply law removal costs and effects." function="effect" type="" />
-  <Child name="remove_variable" scope="none" doc="Removes a variable" function="effect" type="" />
+  
   <Child name="resolve_title_and_vassal_change" scope="none" type="title_and_vassal_change" doc="resolve_title_and_vassal_change = scope:change" function="effect"  />
   <Child name="round_global_variable" scope="none" doc="Rounds a variable to the nearest specified value" function="effect" type="" />
   <Child name="round_local_variable" scope="none" doc="Rounds a variable to the nearest specified value" function="effect" type="" />
@@ -719,11 +730,13 @@
   <Child name="set_global_variable" scope="none" doc="Sets a variable" function="effect" type="function">
     <Child name="name" type="global_var" />
     <Child name="value" type="any" />
+	<Child name="days" type="value" />
 	<Child name="years" type="value" />
   </Child>
   <Child name="set_local_variable" scope="none" doc="Sets a variable" function="effect" type="function">
     <Child name="name" type="local_var" />
     <Child name="value" type="any" />
+	<Child name="days" type="value" />
 	<Child name="years" type="value" />
   </Child>
   <Child name="set_trait_rank" scope="none" doc="Sets the trait rank = { trait = trait_group rank = new rank }" function="effect" type="function">
@@ -733,6 +746,7 @@
   <Child name="set_variable" scope="none" doc="Sets a variable" function="effect" type="function">
     <Child name="name" type="var" />
     <Child name="value" type="any" />
+	<Child name="days" type="value" />
 	<Child name="years" type="value" />
   </Child>
   <!--  <Child name="setup_claim_cb" scope="none" doc="= { attacker = scope:attacker" function="effect" type="" />

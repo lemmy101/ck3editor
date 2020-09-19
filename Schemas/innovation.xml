@@ -1,0 +1,29 @@
+<Schema id="innovation" scope="culture">
+	<Child name="group" type="culture_group_type"/>
+	<Child name="culture_era" type="culture_era"/>
+	<Child name="icon" type="string"/>
+	
+	<Child name="custom" type="localized"/>
+	
+	<Child name="maa_upgrade">
+		<Child name="type" type="regiment_category"/>
+		<Child name="toughness" type="value"/>
+		<Child name="damage" type="value"/>
+
+	</Child>
+	
+	
+	
+	<Child name="can_progress" type="trigger" inherits="trigger"/>
+	<Child name="potential" type="trigger" inherits="trigger"/>
+	<Child name="unlock_maa" type="regiment_type"/>
+	<Child name="unlock_law" type="law"/>
+	<Child name="unlock_casus_belli" type="casus_belli_type"/>
+	<Child name="unlock_building" type="building"/>
+	
+	<Child name="region" type="geographic_region"/>
+	<Child name="modifier" type="modifiers" inherits="modifiers"/>
+	
+	<Child name="flag" type="any"/>
+	
+</Schema>

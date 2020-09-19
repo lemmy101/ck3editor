@@ -1,0 +1,4 @@
+<Schema id="culture">	
+	<Child name="color" type="color"/>
+
+</Schema>

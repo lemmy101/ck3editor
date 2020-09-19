@@ -1,0 +1,6 @@
+<Schema id="culture_era">	
+
+	<Child name="year" type="value"/>
+	<Child name="invalid_for_government" type="government"/>
+
+</Schema>

@@ -1,0 +1,18 @@
+<Schema id="council_position">
+	<Child name="skill" type="skill"/>
+	<Child name="name" type="localized"/>
+	<Child name="name" type="localized" inherits="localized"/>
+	
+	<Child name="tooltip" type="localized"/>
+	<Child name="tooltip" type="localized" inherits="localized"/>
+
+	<Child name="modifier" type="modifierblock" inherits="modifierblock"/>
+	<Child name="council_owner_modifier" type="modifierblock" inherits="modifierblock"/>
+	
+	<Child name="valid_character" type="trigger" inherits="trigger"/>
+	
+	<Child name="on_get_position" type="effect" inherits="effect"/>
+	<Child name="on_fired_from_position" type="effect" inherits="effect"/>
+	<Child name="portrait_animation" type="animation"/>
+	
+</Schema>

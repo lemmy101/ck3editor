@@ -3,21 +3,14 @@
 	<Child name="trigger" type="trigger" inherits="trigger" />
 	<Child name="desc" type="localized"/>	 
 	<Child name="desc" type="block" inherits="localized"/>	 
+	<Child name="triggered_desc" inherits="localized" type="block"/>
 	<Child name="random_valid" type="block">
-		<Child name="triggered_desc" type="block">
-			<Child name="desc" type="localized"/>	 
-			<Child name="desc" type="block" inherits="localized"/>	 
-			<Child name="trigger" type="trigger" inherits="trigger"/>	 
-		</Child>
+		<Child name="triggered_desc" inherits="localized" type="block"/>
 		<Child name="desc" type="localized"/>	 
 		<Child name="desc" type="block" inherits="localized"/>	 
 	</Child>
   <Child name="first_valid" type="block">
-		<Child name="triggered_desc" type="block">
-			<Child name="desc" type="localized"/>	 
-			<Child name="desc" type="block" inherits="localized"/>	 
-			<Child name="trigger" type="trigger" inherits="trigger"/>	 
-		</Child>
+		<Child name="triggered_desc" inherits="localized" type="block"/>
 		<Child name="desc" type="localized"/>	 
 		<Child name="desc" type="block" inherits="localized"/>	 
 	</Child>

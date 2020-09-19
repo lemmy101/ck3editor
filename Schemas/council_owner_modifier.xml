@@ -1,0 +1,4 @@
+<Schema id="council_owner_modifier" inherits="modifiers">
+	<Child name="name" type="any"/>
+	<Child name="scale" type="value"/>
+</Schema>

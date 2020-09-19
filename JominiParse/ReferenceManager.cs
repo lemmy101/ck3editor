@@ -67,14 +67,28 @@ namespace JominiParse
         public List<EventConnection> GetConnectionsTo(string to)
         {
             if (!ToMap.ContainsKey(to))
+            {
+                if (to.StartsWith("scripted_trigger "))
+                    to = to.Substring("scripted_trigger ".Length);
+                if (ToMap.ContainsKey(to))
+                    return ToMap[to];
+
                 return new List<EventConnection>();
+            }
 
             return ToMap[to];
         }
         public List<EventConnection> GetConnectionsFrom(string from)
         {
             if (!FromMap.ContainsKey(from))
-                return new List<EventConnection>();
+            {
+                if (FromMap.ContainsKey("scripted_trigger " + from))
+                    return FromMap["scripted_trigger " + from];
+
+                return new List<EventConnection>(); 
+
+            }
+
 
             return FromMap[from];
         }

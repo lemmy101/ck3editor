@@ -1,0 +1,27 @@
+<ScriptObject id="building">	
+	<Child name="asset" type="asset" inherits="asset"/>
+	<Child name="construction_time" type="value"/>
+	<Child name="type_icon" type="string"/>
+	<Child name="can_construct" inherits="trigger"/>
+	<Child name="can_construct_potential"  inherits="trigger"/>
+	<Child name="can_construct_showing_failures_only"  inherits="trigger"/>
+	
+	<Child name="is_enabled"  inherits="trigger"/>
+	<Child name="cost_gold" type="value"/>
+	
+	<Child name="character_modifier" inherits="modifiers"/>
+	<Child name="county_modifier" inherits="modifiers"/>
+	<Child name="province_modifier" inherits="modifiers"/>
+	<Child name="duchy_capital_county_modifier" inherits="modifiers"/>
+	
+	<Child name="show_disabled" type="bool"/>
+	<Child name="levy" type="value"/>
+	
+	<Child name="ai_value" inherits="ai_chance"/>
+	
+	<Child name="next_building" type="building"/>
+
+	<Child name="type" type="building_type"/>
+	<Child name="flag" type="flag"/>
+
+</ScriptObject>

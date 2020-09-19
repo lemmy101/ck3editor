@@ -1,0 +1,9 @@
+<Schema id="casus_belli_type">	
+
+	<Child name="group" type="casus_belli_group"/>
+	<Child name="mutually_exclusive_titles" inherits="trigger"/>
+	<Child name="allowed_against_character" inherits="trigger"/>
+	<Child name="is_allowed_claim_title" inherits="trigger"/>
+	<Child name="cost" inherits="cost"/>
+
+</Schema>

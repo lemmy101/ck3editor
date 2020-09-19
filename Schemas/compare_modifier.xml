@@ -1,0 +1,9 @@
+<Schema id="compare_modifier">
+	<Child name="target" type="scope"/>
+	<Child name="value" type="value"/>
+	<Child name="multiplier" type="value"/>
+	<Child name="min" type="value"/>
+	<Child name="max" type="value"/>
+	<Child name="offset" type="value"/>
+	
+</Schema>

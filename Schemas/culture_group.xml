@@ -1,0 +1,11 @@
+<Schema id="culture_group">	
+
+	<Child name="graphical_cultures" type="graphical_cultures">
+		<Child name="graphical_culture" namesFrom="graphical_culture" type="graphical_culture"/>
+	</Child>
+	<Child name="mercenary_names" type="mercenary_names">	
+	</Child>
+	<Child name="culture" namesFrom="culture" type="culture" inherits="culture">	
+	</Child>
+	
+</Schema>

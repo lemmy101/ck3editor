@@ -46,6 +46,7 @@ namespace CK3ScriptEditor
             "gui",
             "gfx",
             "history",
+            "map_data",
             "localization",
         };
         private void Fill(DarkTreeNode node, string startDir, bool mod)

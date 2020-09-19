@@ -40,6 +40,7 @@ namespace JominiParse
         culture_group,
         inheritparent,
         any,
+        @string,
         max,
 
     }

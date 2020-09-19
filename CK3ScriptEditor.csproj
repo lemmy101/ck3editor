@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackupManager.cs" />
+    <Compile Include="CK3EditorPreferencesManager.cs" />
     <Compile Include="CK3ScriptEd.cs">
       <SubType>Form</SubType>
     </Compile>

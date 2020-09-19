@@ -1,0 +1,4 @@
+<Schema id="dynasty_house">	
+	<Child name="name" type="string" />
+	<Child name="dynasty" type="value" />
+</Schema>

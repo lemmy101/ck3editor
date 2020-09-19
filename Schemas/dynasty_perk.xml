@@ -1,0 +1,10 @@
+<Schema id="dynasty_perk">	
+	<Child name="legacy" type="legacy" />
+	<Child name="cost" type="value" />
+	<Child name="character_modifier" type="modifierblock" inherits="modifierblock" />
+	<Child name="ai_chance" type="ai_chance" inherits="value" />
+	<Child name="effect" type="effect" inherits="effect" />
+	<Child name="traits">
+		<Child name="traits" type="value" namesFrom="trait"/>
+	</Child>
+</Schema>

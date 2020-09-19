@@ -23,9 +23,10 @@ namespace JominiParse
         public enum ScopeVarType
         {
             @bool,
-            num,
-            None,
-            String
+            value,
+            none,
+            @string,
+            flag
         }
         public class ScriptList
         {
@@ -42,8 +43,7 @@ namespace JominiParse
             public bool Temporary { get; set; }
             public string Name { get; set; }
             public bool IsValue { get; set; }
-            public ScopeVarType VarType { get; set; }
-
+        
             public ScopeType To
             {
                 get
@@ -122,21 +122,43 @@ namespace JominiParse
                 return _cachedScriptedEffects;
             }
         }
+        private static HashSet<string> _cachedScriptedTriggers = null;
+        static HashSet<string> CachedScriptedTriggers
+        {
+            get
+            {
+                if (_cachedScriptedTriggers == null)
+                    _cachedScriptedTriggers = Core.Instance.GetNameSet(ScriptContext.ScriptedTriggers, false);
+
+                return _cachedScriptedTriggers;
+            }
+        }
 
         public static void ClearCachedScriptedEffects()
         {
             _cachedScriptedEffects = null;
+            _cachedScriptedTriggers = null;
         }
 
         public virtual void Initialize()
         {
             //EnumExtractorUtility.Instance.Add(this);
 
+            if(Name == "chancellor_task_1001_new_claim_trigger")
+            {
+
+            }
+
             if (Name == "events")
             {
                 Core.Instance.LoadingCK3Library.RegisterFirstValidEventsTrigger(this);
             }
 
+            if (Parent != null && CachedScriptedTriggers.Contains(Name))
+            {
+                Core.Instance.LoadingCK3Library.RegisterScriptTriggerCall(this);
+                this.IsScriptedTriggerCall = true;
+            }
             if (Parent != null && CachedScriptedEffects.Contains(Name))
             {
                 Core.Instance.LoadingCK3Library.RegisterScriptEffectCall(this);
@@ -176,6 +198,8 @@ namespace JominiParse
             }
         }
 
+        public bool IsScriptedTriggerCall { get; set; }
+
         public bool IsScriptedEffectCall { get; set; }
 
         public ScriptObjectBehaviourData BehaviourData { get; set; }
@@ -192,6 +216,10 @@ namespace JominiParse
         public ScriptObject(ScriptObject parent, ScriptParsedSegment seg, SchemaNode schema = null)
         {
 
+            if (schema == null)
+            {
+
+            }
 
             Op = seg.op;
             IsBlock = seg.isBlock;
@@ -462,7 +490,7 @@ namespace JominiParse
 
         }
 
-        private void AddScopeVar(ScriptObject scope_command, bool temporary, ScopeVarType varType)
+        private void AddScopeVar(ScriptObject scope_command, bool temporary, ScopeType varType)
         {
             
             if (!(this == Topmost))
@@ -472,7 +500,7 @@ namespace JominiParse
             }
             ScriptScope s = new ScriptScope();
             s.IsValue = true;
-            s.VarType = varType;
+            s.To = varType;
           //  var sc = (scope_command as ScriptValue);
          //   if (sc != null)
             {
@@ -484,7 +512,8 @@ namespace JominiParse
                 if (scriptScopes.ContainsKey(s.Name))
                     return;
 
-                s.ToObj = scope_command.Parent;
+                //s.ToObj = scope_command.Parent;
+
                 s.Declared = scope_command;
                 if (scope_command == null)
                 {
@@ -506,7 +535,7 @@ namespace JominiParse
         private void AddScopeVar(ScriptObject scope_command, bool temporary)
         {
             var w = scope_command.Children.Where(a => a.Name == "value");
-            ScopeVarType type = ScopeVarType.@bool;
+            ScopeType type = ScopeType.@bool;
 
             if (w.Count() > 0)
             {
@@ -516,8 +545,11 @@ namespace JominiParse
 
                 if (!(s == "yes" || s == "no"))
                 {
-                    type = ScopeVarType.num;
+                    type = ScopeType.value;
                 }
+
+                if (s != null && s.StartsWith("flag:"))
+                    type = ScopeType.flag;
 
             }
             AddScopeVar(scope_command, temporary, type);
@@ -701,21 +733,23 @@ namespace JominiParse
             return isTriggerEnd;
         }
 
-        public ScopeVarType GetVarType()
+        public ScopeType GetVarType()
         {
             string val = GetStringValue();
 
             if (val == null)
-                return ScopeVarType.None;
+                return ScopeType.none;
 
             if (val == "yes" || val == "no")
-                return ScriptObject.ScopeVarType.@bool;
+                return ScopeType.@bool;
 
             if (val.Contains("\""))
-                return ScriptObject.ScopeVarType.String;
+                return ScopeType.@string;
 
+            if (val.StartsWith("flag:"))
+                return ScopeType.flag;
 
-            return ScriptObject.ScopeVarType.num;
+            return ScopeType.value;
         }
 
         public bool HasChild(string child)

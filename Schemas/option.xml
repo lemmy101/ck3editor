@@ -7,7 +7,8 @@
 	<Child name="ai_chance" inherits="ai_chance" />
 	<Child name="stress_impact" inherits="stress_impact" />
 	<Child name="trait" type="trait" />
-<!--	<Child name="duel" type="duel" />
+	<Child name="duel" type="duel" inherits="duel" />
+<!--	
 	<Child name="skill" type="skill" />
 	
 	<Child name="custom_tooltip" type="localized"/>

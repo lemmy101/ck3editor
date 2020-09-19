@@ -1,0 +1,12 @@
+<Schema id="bookmark">	
+
+	<Child name="default" type="bool"/>
+	<Child name="recommended" type="bool"/>
+	
+	<Child name="start_date" type="any"/>
+	<Child name="is_playable" type="bool"/>
+	<Child name="character" inherits="bookmark_character">
+		<Child name="tutorial" type="bool"/>
+	</Child>
+
+</Schema>

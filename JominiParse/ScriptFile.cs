@@ -23,14 +23,14 @@ namespace JominiParse
 
         }
 
-        public ScriptObject.ScopeVarType GetVarType(string name)
+        public ScopeType GetVarType(string name)
         {
             if (!LocalVars.ContainsKey(name))
-                return ScriptObject.ScopeVarType.None;
+                return ScopeType.none;
 
             return GetVarType(LocalVars[name]);
         }
-        public ScriptObject.ScopeVarType GetVarType(ScriptObject v)
+        public ScopeType GetVarType(ScriptObject v)
         {
             return v.GetVarType();
 
@@ -40,7 +40,7 @@ namespace JominiParse
         {
             return LocalVars.Keys.ToList();
         }
-        public List<string> LocalVarNamelist(ScriptObject.ScopeVarType type)
+        public List<string> LocalVarNamelist(ScopeType type)
         {
             var l = LocalVars.Keys.ToList();
 

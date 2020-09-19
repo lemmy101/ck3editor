@@ -54,12 +54,14 @@ namespace DarkUI.Docking
 
         public void AddMenuItem(ToolStripMenuItem menuItem)
         {
+            menuItem.Text = (menuItem.Tag as DarkDockContent).DockText;
             _menuItems.Add(menuItem);
             RebuildMenu();
         }
 
         public void RemoveMenuItem(ToolStripMenuItem menuItem)
         {
+            menuItem.Text = (menuItem.Tag as DarkDockContent).DockText;
             _menuItems.Remove(menuItem);
             RebuildMenu();
         }
@@ -99,7 +101,10 @@ namespace DarkUI.Docking
             }
 
             foreach (var item in orderedItems)
+            {
+                item.Text = (item.Tag as DarkDockContent).DockText;
                 _tabMenu.Items.Add(item);
+            }
         }
 
         #endregion
