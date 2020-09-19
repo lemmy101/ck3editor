@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime;
 using System.Text;
@@ -118,6 +119,10 @@ namespace JominiParse
             }
 
         }*/
+        public void Write(BinaryWriter writer)
+        {
+            
+        }
     }
 
     public class ScriptObjectBehaviourManager

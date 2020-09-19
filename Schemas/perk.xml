@@ -1,0 +1,13 @@
+<ScriptObject id="perk">	
+	<Child name="lifestyle" type="lifestyle"/>
+	<Child name="tree" type="any"/>
+	<Child name="position" type="value"/>
+	<Child name="icon" type="any"/>
+	<Child name="parent" type="perk"/>
+	<Child name="can_be_picked" type="trigger" inherits="trigger"/>
+	<Child name="character_modifier" type="modifier" inherits="modifiers"/>
+	
+	<Child name="auto_selection_weight" type="value"/>
+	<Child name="effect" type="effect" inherits="effect"/>
+	
+</ScriptObject>

@@ -1,0 +1,12 @@
+<ScriptObject id="opinion_modifier_base">	
+	<Child name="opinion" type="value"/>
+	<Child name="monthly_change" type="value"/>
+	
+	<Child name="revoke_title_reason" type="bool"/>
+	<Child name="decaying" type="bool"/>
+	<Child name="stacking" type="bool"/>
+	<Child name="days" type="value"/>
+	<Child name="months" type="value"/>
+	<Child name="years" type="value"/>
+	
+</ScriptObject>

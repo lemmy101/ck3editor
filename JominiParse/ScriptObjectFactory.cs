@@ -100,6 +100,21 @@ namespace JominiParse
 
         private void InitializeObject(ScriptObject scriptObject, ScriptContext context)
         {
+            
+            if (context == ScriptContext.ImportantActions)
+            {
+                
+                AddScriptScope("recipient", scriptObject, ScopeType.character, false, true);
+                AddScriptScope("actor", scriptObject, ScopeType.character, false, true);
+                AddScriptScope("landed_title", scriptObject, ScopeType.landed_title, false, true);
+                scriptObject.SetScopeType(ScopeType.character);
+            }
+            if (context == ScriptContext.Governments)
+            {
+                AddScriptScope("vassal", scriptObject, ScopeType.character, false, true);
+                AddScriptScope("liege", scriptObject, ScopeType.character, false, true);
+                scriptObject.SetScopeType(ScopeType.none);
+            }
             if (context == ScriptContext.CasusBelliType)
             {
                 AddScriptScope("attacker", scriptObject, ScopeType.character, false, true);
@@ -112,6 +127,10 @@ namespace JominiParse
                 AddScriptScope("county", scriptObject, ScopeType.landed_title, false, true);
                 AddScriptScope("councillor_liege", scriptObject, ScopeType.character, false, true);
                 scriptObject.SetScopeType(ScopeType.none);
+            }
+            if (context == ScriptContext.Factions)
+            {
+                AddScriptScope("target", scriptObject, ScopeType.character, false, true);
             }
             if (context == ScriptContext.ScriptedTriggers)
             {

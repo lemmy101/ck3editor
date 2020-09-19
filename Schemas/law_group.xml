@@ -1,0 +1,9 @@
+<Schema id="law_group">
+	<Child name="default" type="law"/>
+	<Child name="cumulative" type="bool"/>
+	<Child name="flag" type="any"/>
+	<Child name="law" inherits="law" namesFrom="law" type="law">
+		
+	</Child>
+	
+</Schema>

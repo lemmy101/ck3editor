@@ -1,0 +1,6 @@
+<Schema id="hook">
+	<Child name="expiration_days" type="value"/>
+	<Child name="requires_secret" type="bool"/>
+	<Child name="strong" type="bool"/>
+
+</Schema>

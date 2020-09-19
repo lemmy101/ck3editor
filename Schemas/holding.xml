@@ -1,0 +1,10 @@
+<Schema id="holding">
+	<Child name="primary_building" type="building"/>
+	<Child name="buildings" type="buildings">
+		<Child name="building" namesFrom="building" type="building"/>
+	</Child>
+	
+	<Child name="flag" type="any"/>
+	<Child name="can_be_inherited" type="bool"/>
+
+</Schema>

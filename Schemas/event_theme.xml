@@ -1,0 +1,12 @@
+<ScriptObject id="event_theme">	
+	<Child name="icon">
+		<Child name="reference" type="string"/>		
+	</Child>	
+	<Child name="sound">
+		<Child name="reference" type="string"/>		
+	</Child>	
+	<Child name="background">
+		<Child name="event_background" type="event_background"/>		
+	</Child>	
+
+</ScriptObject>

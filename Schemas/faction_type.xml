@@ -1,0 +1,22 @@
+<ScriptObject id="faction_type">	
+	<Child name="casus_belli" type="casus_belli_type" />
+	<Child name="short_effect_desc" type="localized" />
+	<Child name="short_effect_desc" type="localized" inherits="localized" />
+
+	<Child name="sort_order" type="value" />
+	<Child name="discontent_progress" type="modifierStack" inherits="modifierStack" />	
+	<Child name="power_threshold" type="modifierStack" inherits="modifierStack" />	
+	<Child name="ai_create_score" type="modifierStack" inherits="modifierStack" />	
+	<Child name="ai_join_score" type="modifierStack" inherits="modifierStack" />	
+	<Child name="ai_demand_chance" type="modifierStack" inherits="modifierStack" />	
+	
+	<Child name="can_character_join" type="trigger" inherits="trigger" />
+	<Child name="can_character_create" type="trigger" inherits="trigger" />
+		
+	<Child name="county_allow_join" type="bool" />
+	<Child name="county_allow_create" type="bool" />
+
+	<Child name="is_character_valid" type="trigger" inherits="trigger" />
+	<Child name="demand" type="effect" inherits="effect" />
+		
+</ScriptObject>

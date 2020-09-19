@@ -2,6 +2,9 @@
   <Child name="add" type="value" />
   <Child name="subtract" type="value" />
   <Child name="multiply" type="value" />
+  <Child name="desc" type="localized" />
+  <Child name="desc" type="localized" inherits="localized" />
+  
   <Child name="divide" type="value" />
   <Child name="factor" type="value" />
   <Child name="else" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met" function="modifier" type="block" inherits="modifier">

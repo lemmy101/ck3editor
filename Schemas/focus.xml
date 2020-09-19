@@ -1,0 +1,10 @@
+<ScriptObject id="focus">	
+	<Child name="lifestyle" type="lifestyle"/>		
+	<Child name="modifier" type="modifiers" inherits="modifiers"/>		
+	<Child name="desc" type="localized"/>
+	<Child name="desc" type="localized" inherits="localized"/>
+	
+	<Child name="auto_selection_weight" type="value"/>
+	<Child name="focus_id" type="value"/>
+	
+</ScriptObject>

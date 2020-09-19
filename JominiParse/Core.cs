@@ -17,6 +17,13 @@ namespace JominiParse
 
         public void Init()
         {
+
+            ScriptObject.TypeMap[typeof(ScriptObject).FullName.GetHashCode()] = typeof(ScriptObject);
+            ScriptObject.TypeMap[typeof(ReferenceScriptValue).FullName.GetHashCode()] = typeof(ReferenceScriptValue);
+            ScriptObject.TypeMap[typeof(StaticScriptValue).FullName.GetHashCode()] = typeof(StaticScriptValue);
+            ScriptObject.TypeMap[typeof(NullScriptValue).FullName.GetHashCode()] = typeof(NullScriptValue);
+            ScriptObject.TypeMap[typeof(FormulaScriptValue).FullName.GetHashCode()] = typeof(FormulaScriptValue);
+
             SchemaManager.Instance.Init();
             BaseCK3Library = new ScriptLibrary();
             ModCK3Library = new ScriptLibrary();
@@ -25,7 +32,8 @@ namespace JominiParse
             EnumManager.Instance.Load();
             LoadCK3Scripts(BaseCK3Library, true, true);
             ScriptObject.ClearCachedScriptedEffects();
-            //  BaseCK3Library.SaveBinary("binary.dat");
+        //    PostInitialize();
+        //    BaseCK3Library.SaveBinary("binary.dat");
             //BaseCK3Library.LoadBinary("");
         }
 

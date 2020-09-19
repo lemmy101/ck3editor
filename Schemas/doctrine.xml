@@ -1,0 +1,42 @@
+<ScriptObject id="doctrine" scope="faith">	
+	<Child name="icon" type="any"/>		
+	<Child name="piety_cost" type="value"/>		
+	<Child name="visible" type="bool"/>		
+	<Child name="is_shown" type="trigger" inherits="trigger"/>		
+	<Child name="can_pick" type="trigger" inherits="trigger"/>	
+	<Child name="character_modifier" type="character_modifier" inherits="modifiers"/>		
+	
+	<Child name="parameters">		
+		<Child name="doctrine_parameter" namesFrom="doctrine_parameter" type="bool"/>	
+		<Child name="hostility_override_tenet_islamic_syncretism" type="value"/>			
+		<Child name="hostility_override_tenet_christian_syncretism" type="value"/>			
+		<Child name="opinion_of_islamic_syncretic_actor_opinion_active" type="value"/>			
+		<Child name="opinion_of_christian_syncretic_actor_opinion_active" type="value"/>			
+		<Child name="opinion_of_jewish_syncretic_actor_opinion_active" type="value"/>			
+		<Child name="hostility_override_tenet_jewish_syncretism" type="value"/>			
+		<Child name="hostility_override_tenet_unreformed_syncretism" type="value"/>			
+		<Child name="opinion_of_unreformed_syncretic_actor_opinion_active" type="value"/>			
+
+
+		<Child name="hostility_same_religion" type="value"/>			
+		<Child name="hostility_override_special_doctrine_full_tolerance" type="value"/>			
+
+		<Child name="hostility_override_special_doctrine_ecumenical_christian" type="value"/>			
+
+
+		<Child name="unreformed_syncretic_recipient_opinion_active" type="bool"/>			
+		<Child name="christian_syncretic_recipient_opinion_active" type="bool"/>			
+		<Child name="islamic_syncretic_recipient_opinion_active" type="bool"/>			
+		<Child name="jewish_syncretic_recipient_opinion_active" type="bool"/>			
+
+	</Child>
+	<Child name="traits">
+		<Child name="virtues">			
+			<Child name="trait" type="trait" namesFrom="trait"/>			
+		</Child>
+		<Child name="sins">			
+			<Child name="trait" type="trait" namesFrom="trait"/>			
+		</Child>
+	
+	</Child>
+</ScriptObject>

@@ -1,0 +1,62 @@
+<ScriptObject id="government">	
+
+	<Child name="create_cadet_branches" type="bool"/>
+	<Child name="rulers_should_have_dynasty" type="bool"/>
+	<Child name="dynasty_named_realms" type="bool"/>
+	<Child name="always_use_patronym" type="bool"/>
+	<Child name="affected_by_development" type="bool"/>
+	<Child name="court_generate_spouses" type="bool"/>
+	<Child name="court_generate_commanders" type="value"/>
+	<Child name="council" type="bool"/>
+	<Child name="regiments_prestige_as_gold" type="bool"/>
+	<Child name="supply_limit_mult_for_others" type="value"/>
+
+	
+	<Child name="character_modifier" type="modifiers" inherits="modifiers"/>
+	
+	
+	<Child name="flag" type="any"/>
+	
+	<Child name="opinion_of_liege" type="value"/>
+	<Child name="opinion_of_liege_desc" type="localized"/>
+	<Child name="opinion_of_liege_desc" type="localized" inherits="localized"/>
+	
+	<Child name="fallback" type="value"/>
+	
+	<Child name="color" type="color"/>
+
+	<Child name="primary_holding" type="holding"/>
+	<Child name="religious" type="bool"/>
+	<Child name="valid_holdings">
+		<Child name="holding" namesFrom="holding" type="holding"/>
+	</Child>
+	<Child name="required_county_holdings">
+		<Child name="holding" namesFrom="holding" type="holding"/>
+	</Child>
+	
+	<Child name="vassal_contract">
+		<Child name="vassal_contract" namesFrom="vassal_contract" type="vassal_contract"/>
+	</Child>
+	<Child name="primary_culture_groups">
+		<Child name="primary_culture_groups" namesFrom="culture_group" type="culture_group"/>
+	</Child>
+	
+	<Child name="primary_cultures">
+		<Child name="primary_cultures" namesFrom="culture" type="culture"/>
+	</Child>
+	
+	<Child name="preferred_religions">
+		<Child name="preferred_religions" namesFrom="religion" type="religion"/>
+	</Child>
+	
+	<Child name="can_get_government" type="trigger" inherits="trigger"/>
+
+
+
+	<Child name="ai">
+		<Child name="arrange_marriage" type="bool"/>
+		<Child name="use_goals" type="bool"/>
+		<Child name="perform_religious_reformation" type="bool"/>
+	</Child>
+	
+</ScriptObject>

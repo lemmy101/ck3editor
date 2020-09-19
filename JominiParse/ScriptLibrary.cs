@@ -197,9 +197,11 @@ namespace JominiParse
         public Dictionary<ScriptContext, ContextInfo> ContextData = new Dictionary<ScriptContext, ContextInfo>()
         {
             { ScriptContext.Event, new ContextInfo() {Directory = "events", Type="event", Category="Events"}},
-            
+            { ScriptContext.EventBackgrounds, new ContextInfo() {Directory = "common/event_backgrounds", Type="event_background", Category="Events"}},
+            { ScriptContext.EventThemes, new ContextInfo() {Directory = "common/event_themes", Type="event_theme", Category="Events"}},
+
             { ScriptContext.CultureGroups, new ContextInfo() {Directory = "common/culture/cultures", Type="culture_group", Category="Culture"}},
-            { ScriptContext.Cultures, new ContextInfo() {ChildOf = ScriptContext.CultureGroups, Type="culture", Prepend="culture", IgnoreChildren="graphical_cultures,mercenary_names", Category="Culture"}},
+            { ScriptContext.Cultures, new ContextInfo() {ChildOf = ScriptContext.CultureGroups, Type="culture", IgnoreChildren="graphical_cultures,mercenary_names", Category="Culture"}},
             { ScriptContext.CulturalInnovations, new ContextInfo() {Directory = "common/culture/innovations", Type="innovation", Category="Culture"}},
             { ScriptContext.CultureEra, new ContextInfo() {Directory = "common/culture/eras", Type="culture_era", Category="Culture"}},
      
@@ -220,10 +222,7 @@ namespace JominiParse
             { ScriptContext.DynastyLegacies, new ContextInfo() {Directory = "common/dynasty_legacies", Type="legacy", Category="Dynasty"}},
             { ScriptContext.DynastyPerks, new ContextInfo() {Directory = "common/dynasty_perks", Type="dynasty_perk", Category="Dynasty"}},
             { ScriptContext.DynastyHouses, new ContextInfo() {Directory = "common/dynasty_houses", Type = "dynasty_house", Category="Dynasty"}},
-            { ScriptContext.EventBackgrounds, new ContextInfo() {Directory = "common/event_backgrounds", Type="event_background", Category="Events"}},
-            { ScriptContext.EventThemes, new ContextInfo() {Directory = "common/event_themes", Type="event_theme", Category="Events"}},
-            { ScriptContext.Factions, new ContextInfo() {Directory = "common/factions", Type = "faction"}},
-            { ScriptContext.Focuses, new ContextInfo() {Directory = "common/focuses", Type = "focus"}},
+            { ScriptContext.Factions, new ContextInfo() {Directory = "common/factions", Type = "faction_type"}},
             { ScriptContext.GameRuleCategories, new ContextInfo() {Directory = "common/game_rules", Type="game_rule_category"}},
             { ScriptContext.GameRules, new ContextInfo() {ChildOf = ScriptContext.GameRuleCategories, Type="game_rule"}},
             { ScriptContext.Governments, new ContextInfo() {Directory = "common/governments", Type="government"}},
@@ -234,12 +233,13 @@ namespace JominiParse
 
             { ScriptContext.LawGroup, new ContextInfo() {Directory = "common/laws", Type="law_group"}},
             { ScriptContext.Laws, new ContextInfo() {ChildOf = ScriptContext.LawGroup, Type="law"}},
-            { ScriptContext.LifestylePerks, new ContextInfo() {Directory = "common/lifestyle_perks", Type="perk"}},
-            { ScriptContext.Lifestyles, new ContextInfo() {Directory = "common/lifestyles", Type="lifestyle"}},
+            { ScriptContext.LifestylePerks, new ContextInfo() {Directory = "common/lifestyle_perks", Type="perk", Category="Lifestyles"}},
+            { ScriptContext.Focuses, new ContextInfo() {Directory = "common/focuses", Type = "focus", Category="Lifestyles"}},
+            { ScriptContext.Lifestyle, new ContextInfo() {Directory = "common/lifestyles", Type="lifestyle", Category="Lifestyles"}},
             { ScriptContext.StaticModifiers, new ContextInfo() {Directory = "common/modifiers", Type="modifier"}},
             { ScriptContext.Nicknames, new ContextInfo() {Directory = "common/nicknames", Type="nickname"}},
             { ScriptContext.OnActions, new ContextInfo() {Directory = "common/on_action", Type="on_action"}},
-            { ScriptContext.OptionModifiers, new ContextInfo() {Directory = "common/opinion_modifiers", Type="opinion_modifier"}},
+            { ScriptContext.OptionModifiers, new ContextInfo() {Directory = "common/opinion_modifiers", Type="opinion_modifier_base"}},
             { ScriptContext.DoctrineGroups, new ContextInfo() {Directory = "common/religion/doctrines", Type="doctrine_group", Category="Religion"}},
             { ScriptContext.Doctrines, new ContextInfo() {ChildOf = ScriptContext.DoctrineGroups, Type="doctrine", Category="Religion"}},
             { ScriptContext.FervorModifiers, new ContextInfo() {Directory = "common/religion/fervor_modifiers", Type="fervor_modifier", Category="Religion"}},
@@ -701,13 +701,6 @@ namespace JominiParse
 
             using (BinaryWriter writer = new BinaryWriter(File.Open(filename, FileMode.Create)))
             {
-                writer.Write(ScriptObject.TypeMap.Count);
-                foreach (var typeMapValue in ScriptObject.TypeMap.Values)
-                {
-                    writer.Write(typeMapValue.GetHashCode());
-                    writer.Write(typeMapValue.AssemblyQualifiedName);
-                }
-
                 writer.Write(FileMap.Count);
                 foreach (var file in FileMap.Values)
                 {
@@ -726,16 +719,7 @@ namespace JominiParse
         {
             using (BinaryReader reader = new BinaryReader(File.Open(fn, FileMode.Open)))
             {
-                int typeCount = reader.ReadInt32();
-
-                for(int x=0;x<typeCount;x++)
-                {
-                    int hash = reader.ReadInt32();
-                    string name = reader.ReadString();
-                    Type t = Type.GetType(name);
-                    ScriptObject.TypeMap[hash] = t;
-                }
-
+                
                 int nFiles = reader.ReadInt32();
 
                 for(int x=0;x<nFiles;x++)

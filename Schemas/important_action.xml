@@ -1,0 +1,8 @@
+<Schema id="important_action">
+	<Child name="combine_into_one" type="bool"/>
+	<Child name="type" type="important_action_type"/>
+	<Child name="check_create_action" type="effect" inherits="effect" />
+	<Child name="effect" type="effect" inherits="effect" />
+	<Child name="is_dangerous" type="bool"/>
+
+</Schema>

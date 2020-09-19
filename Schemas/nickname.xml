@@ -1,0 +1,4 @@
+<ScriptObject id="nickname">	
+	<Child name="is_bad" type="bool"/>
+	
+</ScriptObject>

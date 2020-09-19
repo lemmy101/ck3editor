@@ -35,7 +35,7 @@
         LandedTitles,
         Laws,
         LifestylePerks,
-        Lifestyles,
+        Lifestyle,
         Nicknames,
         OnActions,
         OptionModifiers,

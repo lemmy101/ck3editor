@@ -2,9 +2,11 @@
 
 	<Child name="trigger" type="trigger" inherits="trigger"/>
 	<Child name="random_events" type="random_events">
+		<Child name="chance_to_happen" type="value"/>
 		<Child name="event" namesFrom="value" type="event"/>
 	</Child>
 	<Child name="random_on_action" type="random_on_action">	
+		<Child name="chance_to_happen" type="value"/>
 		<Child name="on_action" namesFrom="value" type="on_action"/>
 	</Child>
 	<Child name="first_valid" type="first_valid" allowScopes="no">

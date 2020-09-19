@@ -1,0 +1,6 @@
+<ScriptObject id="doctrine_group">	
+	<Child name="group" type="string"/>	
+	<Child name="number_of_picks" type="value"/>		
+	<Child name="is_available_on_create" type="trigger" inherits="trigger"/>		
+	<Child name="doctrine" namesFrom="doctrine" type="doctrine" inherits="doctrine"/>		
+</ScriptObject>

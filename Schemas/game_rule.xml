@@ -1,0 +1,6 @@
+<Schema id="game_rule">
+	<Child name="flag" type="any"/>
+	<Child name="apply_modifier" type="any"/>
+	
+</Schema>
+

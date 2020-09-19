@@ -1,0 +1,9 @@
+<ScriptObject id="event_background">	
+	<Child name="background">
+		<Child name="trigger" inherits="trigger" type="trigger"/>		
+		<Child name="reference" type="string"/>		
+		<Child name="environment" type="string"/>		
+		<Child name="ambience" type="string"/>		
+	</Child>	
+
+</ScriptObject>

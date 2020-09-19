@@ -35,8 +35,11 @@ namespace JominiParse
             Enums["greeting"] = new HashSet<string>() { "positive" };
             Enums["culture_group_type"] = new HashSet<string>() { "culture_group_military", "culture_group_regional", "culture_group_civic" };
 
-            Enums["regiment_category"] = new HashSet<string>() { "heavy_infantry", "heavy_cavalry", "archers" };
+            Enums["regiment_category"] = new HashSet<string>() { "heavy_infantry", "heavy_cavalry", "light_cavalry", "light_infantry", "archers", "pikemen", "skirmishers" };
+            Enums["important_action_type"] = new HashSet<string>() { "alert"};
             
+            Enums["terrainType"] = new HashSet<string>() { "desert_mountains", "mountains", "hills", "desert", "taiga", "forest", "plains", "drylands", "jungle", "wetlands", "steppe", "floodplains", "oasis" };
+
         }
 
         private void Load(string file)

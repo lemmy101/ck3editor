@@ -1,0 +1,10 @@
+<Schema id="law">
+	<Child name="can_have" type="trigger" inherits="trigger"/>
+	<Child name="can_pass" type="trigger" inherits="trigger"/>
+	<Child name="on_pass" type="effect" inherits="effect"/>
+	<Child name="ai_will_do" type="modifierStack" inherits="modifierStack"/>
+	<Child name="pass_cost" type="cost" inherits="cost"/>
+	<Child name="modifier" type="modifier" inherits="modifiers"/>
+	<Child name="flag" type="any"/>
+	
+</Schema>

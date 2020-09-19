@@ -1,0 +1,6 @@
+<ScriptObject id="lifestyle">	
+	<Child name="is_highlighted" type="trigger" inherits="trigger"/>
+	<Child name="xp_per_level" type="value"/>
+	<Child name="base_xp_gain" type="value"/>
+	
+</ScriptObject>

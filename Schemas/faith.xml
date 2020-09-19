@@ -1,0 +1,11 @@
+<Schema id="faith">
+	<Child name="color" type="color"/>
+	<Child name="icon" type="any"/>
+	<Child name="graphical_faith" type="string"/>
+	<Child name="holy_site" type="holy_site"/>
+	<Child name="doctrine" type="doctrine"/>
+	<Child name="religious_head" type="title"/>
+
+
+
+</Schema>

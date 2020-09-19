@@ -1,0 +1,4 @@
+<Schema id="game_rule_category">
+	<Child name="default" type="game_rule"/>
+	<Child name="rule" namesFrom="game_rule" type="game_rule" inherits="game_rule"/>
+</Schema>

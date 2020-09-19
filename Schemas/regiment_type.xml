@@ -1,0 +1,28 @@
+<Schema id="regiment_type" type="block">
+	<Child name="type" type="regiment_category"/>		
+	<Child name="icon" type="any"/>		
+	<Child name="damage" type="value"/>		
+	<Child name="toughness" type="value"/>		
+	<Child name="pursuit" type="value"/>		
+	<Child name="screen" type="value"/>		
+	<Child name="buy_cost" type="cost" inherits="cost"/>		
+	<Child name="low_maintenance_cost" type="cost" inherits="cost"/>		
+	<Child name="high_maintenance_cost" type="cost" inherits="cost"/>		
+	
+	<Child name="mercenary_fallback" type="bool"/>		
+	<Child name="holy_order_fallback" type="bool"/>		
+	<Child name="ai_quality" type="value"/>		
+	<Child name="stack" type="value"/>		
+	<Child name="terrain_bonus">
+		<Child name="terrainType" namesFrom="terrainType">	
+			<Child name="damage" type="value"/>		
+			<Child name="toughness" type="value"/>		
+			<Child name="pursuit" type="value"/>		
+			<Child name="screen" type="value"/>							
+		</Child>
+	</Child>
+	<Child name="counters">
+		<Child name="regiment_category" namesFrom="regiment_category" type="value"/>	
+	</Child>
+
+</Schema>

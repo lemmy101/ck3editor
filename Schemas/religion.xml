@@ -1,0 +1,22 @@
+<Schema id="religion">
+	<Child name="family" type="religion_family"/>
+	<Child name="doctrine_background_icon" type="string"/>
+	<Child name="doctrine" type="doctrine"/>
+		
+	<Child name="piety_icon_group" type="string"/>
+
+	<Child name="traits">
+		<Child name="virtues">			
+			<Child name="trait" type="trait" namesFrom="trait"/>			
+		</Child>
+		<Child name="sins">			
+			<Child name="trait" type="trait" namesFrom="trait"/>			
+		</Child>
+	
+	</Child>
+
+	<Child name="faiths">			
+		<Child name="faith" type="faith" namesFrom="faith" inherits="faith"/>			
+	</Child>
+	
+</Schema>

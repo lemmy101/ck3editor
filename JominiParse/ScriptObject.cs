@@ -604,13 +604,19 @@ namespace JominiParse
 
         public virtual void Write(BinaryWriter writer)
         {
-            writer.Write(GetType().GetHashCode());
+            writer.Write(this.GetType().FullName.GetHashCode());
             writer.Write(Name);
             writer.Write(LineStart);
             writer.Write(LineEnd);
             writer.Write((int)ScopeType);
             writer.Write((int)Context);
+
+            BehaviourData.Write(writer);
+
+
             writer.Write(Children.Count);
+
+
             foreach (var scriptObject in Children)
             {
                 scriptObject.Write(writer);
@@ -620,7 +626,6 @@ namespace JominiParse
         public virtual void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
         {
            
-
         }
         protected string TabFormat(string str, int depth = 0)
         {
