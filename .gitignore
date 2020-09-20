@@ -1179,3 +1179,5 @@
 /obj/Debug/CK3ScriptEditor.NewFileFolder.resources
 /obj/Debug/CK3ScriptEditor.NewScriptObjectDialog.resources
 /obj/Debug/CK3ScriptEditor.TabOpenWindowsDlg.resources
+/obj/Debug/CK3ScriptEditor.LocalizationEditor.resources
+/obj/Debug/CK3ScriptEditor.NewLocalizationFileObjectDialog.resources

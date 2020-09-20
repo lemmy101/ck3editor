@@ -42,7 +42,6 @@ namespace JominiParse
             EnumManager.Instance = new EnumManager();
             FileTokenizer.Instance = new FileTokenizer();
             JomaniScriptDocLogsToSchemaConverter.Instance = new JomaniScriptDocLogsToSchemaConverter();
-            LocalizationParser.Instance = new LocalizationParser();
             ReferenceManager.Instance = new ReferenceManager();
             BaseCK3Library = null;
             ModCK3Library = null;

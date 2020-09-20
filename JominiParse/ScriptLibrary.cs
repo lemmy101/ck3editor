@@ -13,6 +13,8 @@ namespace JominiParse
    
         public Dictionary<string, ScriptFile> FileMap = new Dictionary<string, ScriptFile>();
 
+        public LocalizationParser LocalizationParser = new LocalizationParser();
+
         public class GroupContextInfo
         {
             public ScriptContext GroupItemContext { get; set; }
@@ -222,7 +224,7 @@ namespace JominiParse
 
         public void LoadLocalizations(string dir)
         {
-            var results = LocalizationParser.Instance.Load(dir);
+            var results = LocalizationParser.Load(dir);
 
             this.Localization = results;
         }
@@ -389,14 +391,14 @@ namespace JominiParse
 
             return Localization[tag].english;
         }
-        public bool HasLocalizedText(string tag)
+        public bool HasLocalizedText(string tag, bool canCheckBase=true)
         {
             if (Localization == null)
                 return false;
 
             if (!Localization.ContainsKey(tag))
             {
-                if (Parent != null)
+                if (Parent != null && canCheckBase)
                     return Parent.HasLocalizedText(tag);
 
                 return false;
@@ -674,6 +676,14 @@ namespace JominiParse
             return false;
         }
 
+        public List<string> GetDirectoryListFromLocalization()
+        {
+            List<string> results = new List<string>();
+            
+            results.AddRange(LocalizationParser.LocalizationFiles.Keys);
+
+            return results;
+        }
         public List<string> GetDirectoryListFromContext(ScriptContext context, string requiredNamespace)
         {
             List<string> results = new List<string>();

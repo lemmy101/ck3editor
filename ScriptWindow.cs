@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -22,11 +23,17 @@ namespace CK3ScriptEditor
         public string FullFilename;
         public bool IgnoredFirstDirty = false;
 
+        private LocalizationEditor LocalEditor;
         public TextEditorControl Editor
         {
             get { return textEditorControl1; }
         }
 
+        public void CloseLocalization()
+        {
+            LocalEditor.Close();
+            LocalEditor = null;
+        }
         public ScriptWindow(bool fromBase)
         {
             IsBaseFile = fromBase;
@@ -51,12 +58,178 @@ namespace CK3ScriptEditor
             textEditorControl1.ActiveTextAreaControl.TextArea.DoProcessDialogKey += TextArea_DoProcessDialogKey;
             textEditorControl1.ActiveTextAreaControl.TextArea.KeyPress +=TextAreaOnKeyPress;
 
+            textEditorControl1.ActiveTextAreaControl.TextArea.MouseDoubleClick += TextAreaOnMouseDoubleClick;
             textEditorControl1.ActiveTextAreaControl.TextArea.KeyDown += TextAreaOnKeyDown;
 
             var cm = ((ContextMenu) textEditorControl1.ActiveTextAreaControl.ContextMenuStrip);
 
             cm.ContextMenuShown += CmOnContextMenuShown;
 
+        }
+
+        private void TextAreaOnMouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            int l = textEditorControl1.ActiveTextAreaControl.Caret.Line;
+            int c = textEditorControl1.ActiveTextAreaControl.Caret.Column;
+
+            var inside = GetInside();
+
+            if (inside.lhsSchema != null)
+            {
+                if (inside.lhsSchema.TypeList.Contains("localized"))
+                {
+                    if (LocalEditor == null)
+                    {
+                        LocalEditor = new LocalizationEditor();
+                        LocalEditor.TopMost = true;
+                        LocalEditor.Location = textEditorControl1.ActiveTextAreaControl.Caret.ScreenPosition;
+                        Point location = textEditorControl1.PointToScreen(new Point(0, LocalEditor.Location.Y));
+                        Point location2 = CK3ScriptEd.Instance.PointToScreen(new Point(0, 0));
+                        location.X = location2.X;
+                        location.Y += textEditorControl1.ActiveTextAreaControl.TextArea.TextView.FontHeight + 4;
+                        location.X -= CK3ScriptEd.Instance.Location.X;
+                        location.Y -= CK3ScriptEd.Instance.Location.Y;
+                        LocalEditor.Location = location;//new Point(location.X + location.X, location.Y + location.Y);
+
+                        LocalEditor.Width = CK3ScriptEd.Instance.Width;
+                        var str = inside.GetStringValue();
+
+                        if (str != null)
+                        {
+                            string localized = Core.Instance.GetLocalizedText(str);
+                            LocalEditor.Set(this, str, localized);
+                        }
+
+                        if (LocalEditor.ShowDialog(CK3ScriptEd.Instance) == DialogResult.OK)
+                        {
+                            if (!Core.Instance.ModCK3Library.HasLocalizedText(LocalEditor.LocalizedTag, false))
+                            {
+                                // we don't have this to edit in the mod, so pop up the dialog to create a new localization file...
+                                NewLocalizationFileObjectDialog dlg = new NewLocalizationFileObjectDialog();
+
+                                dlg.Init();
+                                if (dlg.ShowDialog(CK3ScriptEd.Instance) == DialogResult.OK)
+                                {
+                                    CreateLocalizationFile(dlg.ChosenFilename, LocalEditor.LocalizedTag, LocalEditor.localTextEdit.Document.TextContent.Replace("\n", "\\n"));
+                                }
+                            }
+                            else
+                            {
+                                EditLocalizationFile(LocalEditor.LocalizedTag, LocalEditor.localTextEdit.Document.TextContent.Replace("\n", "\\n"));
+                            }
+
+
+                 
+                        }
+                        LocalEditor = null;
+                    }
+                }
+            }
+        }
+
+        private void EditLocalizationFile(string tag, string str)
+        {
+            var f = Core.Instance.ModCK3Library.LocalizationParser.LocalizationFiles.Where(a => a.Value.Any(b=>b.tag==tag)).ToList();
+
+            if(f.Any())
+            {
+                string file = f.First().Key;
+                string dir = file;
+
+                dir = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/";
+                dir += "localization/english/";
+                dir += file;
+                string text = System.IO.File.ReadAllText(dir);
+                text = text.Replace("\r", "");
+
+                var lines = text.Split(new char[] { '\n' }).ToList();
+
+                for (var index = 0; index < lines.Count; index++)
+                {
+                    var line = lines[index];
+                    if (line.StartsWith(tag))
+                    {
+                        line = tag + ":0 \"" + str + "\"";
+                        lines[index] = line;
+                    }
+                }
+
+                using (FileStream fs = new FileStream(dir, FileMode.Create))
+                {
+                    // create a new file....
+                    using (StreamWriter outputFile = new StreamWriter(fs, Encoding.UTF8))
+                    {
+
+                        foreach (string line in lines)
+                            if (line.Trim().Length > 0)
+                                outputFile.WriteLine(line);
+                    }
+                }
+                string startDir = Core.Instance.ModCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
+                Core.Instance.ModCK3Library.LoadLocalizations(startDir + "localization/english");
+                UpdateDatabase();
+            }
+        }
+
+        private void CreateLocalizationFile(string filename, string tag, string str)
+        {
+            string dir = filename;
+         
+            dir = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/";
+            dir += "localization/english/";
+           
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            filename = dir + filename;
+            if (!File.Exists(filename))
+            {
+                using (FileStream fs = new FileStream(filename, FileMode.Create))
+                {
+                    using (System.IO.TextWriter writeFile = new StreamWriter(fs, Encoding.UTF8))
+                    {
+                        writeFile.Write("l_english:\n");
+                        writeFile.Write(tag+":0 \"" + str + "\"\n");
+                    }
+                }
+
+                filename = filename.Replace(Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/", "");
+                
+                string startDir = Core.Instance.ModCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
+
+                Core.Instance.ModCK3Library.LoadLocalizations(startDir + "localization/english");
+            
+            }
+            else
+            {
+                string text = System.IO.File.ReadAllText(filename);
+                text = text.Replace("\r", "");
+                var lines = text.Split(new char[] { '\n' }).ToList();
+
+                {
+                    lines.Add(tag + ":0 \"" + str + "\"\n");
+
+                }
+
+                using (FileStream fs = new FileStream(filename, FileMode.Create))
+                {
+                    // create a new file....
+                    using (StreamWriter outputFile = new StreamWriter(fs, Encoding.UTF8))
+                    {
+
+                        foreach (string line in lines)
+                        {
+                            if(line.Trim().Length > 0)
+                                outputFile.WriteLine(line);
+                        }
+                    }
+                }
+                string startDir = Core.Instance.ModCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
+                Core.Instance.ModCK3Library.LoadLocalizations(startDir + "localization/english");
+                UpdateDatabase();
+            }
         }
 
         public void Save()

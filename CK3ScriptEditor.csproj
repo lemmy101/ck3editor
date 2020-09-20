@@ -67,6 +67,18 @@
     <Compile Include="CK3ScriptEd.Designer.cs">
       <DependentUpon>CK3ScriptEd.cs</DependentUpon>
     </Compile>
+    <Compile Include="LocalizationEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LocalizationEditor.Designer.cs">
+      <DependentUpon>LocalizationEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewLocalizationFileObjectDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewLocalizationFileObjectDialog.Designer.cs">
+      <DependentUpon>NewLocalizationFileObjectDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="NewScriptObjectDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -161,6 +173,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="CK3ScriptEd.resx">
       <DependentUpon>CK3ScriptEd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LocalizationEditor.resx">
+      <DependentUpon>LocalizationEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewLocalizationFileObjectDialog.resx">
+      <DependentUpon>NewLocalizationFileObjectDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NewScriptObjectDialog.resx">
       <DependentUpon>NewScriptObjectDialog.cs</DependentUpon>

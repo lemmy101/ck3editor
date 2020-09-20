@@ -152,7 +152,7 @@ namespace CK3ScriptEditor
 
             if (data.lhsScopeTextColorLength > 0)
             {
-                ColourName(name.Substring(0, data.lhsScopeTextColorLength), doc, lineSeg, ScopeColor, backgroundColor, true, italic);
+                ColourName(name.Substring(0, Math.Min(data.lhsScopeTextColorLength, name.Length)), doc, lineSeg, ScopeColor, backgroundColor, true, italic);
                 if(data.lhsScopeTextColorLength < name.Length)
                     ColourName(name.Substring(data.lhsScopeTextColorLength), doc, lineSeg, col, backgroundColor, bold, italic);
             }
@@ -235,7 +235,7 @@ namespace CK3ScriptEditor
 
                 if (data.rhsScopeTextColorLength > 0)
                 {
-                    ColourName(strVal.Substring(0, data.rhsScopeTextColorLength), doc, lineSeg, ScopeColor, backgroundColor, true, italic);
+                    ColourName(strVal.Substring(0, Math.Min(data.rhsScopeTextColorLength, strVal.Length)), doc, lineSeg, ScopeColor, backgroundColor, true, italic);
                     if (data.rhsScopeTextColorLength < strVal.Length)
                         ColourName(strVal.Substring(data.rhsScopeTextColorLength), doc, lineSeg, col, backgroundColor, bold, italic);
                 }

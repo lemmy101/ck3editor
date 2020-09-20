@@ -121,6 +121,7 @@ namespace CK3ScriptEditor
 
 
             var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(eventConnectionFrom.Name).Distinct().ToList();
+            visited.Add(eventConnectionFrom);
 
             if (ConnectionsIn.Count > 0)
             {
@@ -147,8 +148,7 @@ namespace CK3ScriptEditor
 
                 scopes.UnionWith(Scopes);
             }
-            visited.Add(eventConnectionFrom);
-
+      
         }
 
         private void AddScriptScope(ScriptObject.ScriptScope objScriptScope, string type)

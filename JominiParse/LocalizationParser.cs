@@ -12,19 +12,19 @@ namespace JominiParse
     }
     public class LocalizationParser
     {
-        public static LocalizationParser Instance = new LocalizationParser();
-
         public Dictionary<string, LocalizationEntry> Load(string dir)
         {
             Dictionary<string, LocalizationEntry> map = new Dictionary<string, LocalizationEntry>();
-            
-            LoadLocalizationDir(dir, map);
+
+            string odir = dir;
+            LoadLocalizationDir(odir+"/", dir, map);
 
             return map;
         }
 
+        public Dictionary<string, List<LocalizationEntry>> LocalizationFiles = new Dictionary<string, List<LocalizationEntry>>();
 
-        private void LoadLocalizationDir(string dir, Dictionary<string, LocalizationEntry> results)
+        private void LoadLocalizationDir(string odir, string dir, Dictionary<string, LocalizationEntry> results)
         {
             if (!Directory.Exists(dir))
                 return;
@@ -33,7 +33,7 @@ namespace JominiParse
 
             foreach (var s in dirs)
             {
-                LoadLocalizationDir(s, results);
+                LoadLocalizationDir(odir, s, results);
             }
 
             var files = Directory.GetFiles(dir);
@@ -41,14 +41,17 @@ namespace JominiParse
             foreach (var file in files)
             {
                 if (file.EndsWith(".yml"))
-                    LoadLocalizationFile(file, results);
+                    LoadLocalizationFile(odir, file, results);
             }
         }
 
-        private void LoadLocalizationFile(string file, Dictionary<string, LocalizationEntry> results)
+        private void LoadLocalizationFile(string odir, string file, Dictionary<string, LocalizationEntry> results)
         {
             string text = System.IO.File.ReadAllText(file);
             string[] lines = text.Split(new char[] { '\n' });
+            file = file.Replace("\\", "/");
+
+            LocalizationFiles[file.Replace(odir, "")] = new List<LocalizationEntry>();
 
             for (int i = 1; i < lines.Length; i++)
             {
@@ -67,6 +70,7 @@ namespace JominiParse
                 LocalizationEntry e = new LocalizationEntry() {tag = tag, english = str};
 
                 results[tag] = e;
+                LocalizationFiles[file.Replace(odir, "")].Add(e);
             }
         }
     }

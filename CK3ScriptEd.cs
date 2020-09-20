@@ -274,7 +274,8 @@ namespace CK3ScriptEditor
             window.FullFilename = startDir + filename;
             AllowUpdateFile = true;
             fileOverview.UpdateTree(filename, textEditors[filename].ActiveTextAreaControl.Caret.Line, fromBase);
-            this.OpenScriptWindows.Add(window);
+            if(!this.OpenScriptWindows.Contains(window))
+                this.OpenScriptWindows.Add(window);
             CK3EditorPreferencesManager.Instance.Save();
 
         }

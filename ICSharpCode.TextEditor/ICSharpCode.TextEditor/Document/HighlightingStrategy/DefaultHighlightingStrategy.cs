@@ -63,10 +63,10 @@ namespace ICSharpCode.TextEditor.Document
 		{
 		}
 
-		public DefaultHighlightingStrategy(string name, bool red=false)
+		public DefaultHighlightingStrategy(string name, bool red = false)
 		{
 			this.name = name;
-			
+
 			digitColor = new HighlightColor(Color.FromArgb(255, 189, 147, 249), true, false);
 			defaultTextColor = new HighlightColor(SystemColors.WindowText, true, false);
 
@@ -87,39 +87,91 @@ namespace ICSharpCode.TextEditor.Document
 			environmentColors["SpaceMarkers"] = new HighlightColor("ControlLight", "Window", false, false);
 			environmentColors["TabMarkers"] = new HighlightColor("ControlLight", "Window", false, false);
 			*/
-            var bkg = Color.FromArgb(255, 40, 42, 54);
+			var bkg = Color.FromArgb(255, 40, 42, 54);
 
-            var s = Color.FromArgb(255, 70, 73, 92);
+			var s = Color.FromArgb(255, 70, 73, 92);
 			var cl = Color.FromArgb(255, 40, 43, 62);
-            var ln = Color.FromArgb(255, 139, 233, 253);
+			var ln = Color.FromArgb(255, 139, 233, 253);
 
 			if (red)
-            {
-                bkg = Color.FromArgb(255, 54, 42, 40);
-                s = Color.FromArgb(255, 92, 73, 70);
-                cl = Color.FromArgb(255, 62, 43, 40);
-                ln = Color.FromArgb(255, 253, 233, 139);
+			{
+				bkg = Color.FromArgb(255, 54, 42, 40);
+				s = Color.FromArgb(255, 92, 73, 70);
+				cl = Color.FromArgb(255, 62, 43, 40);
+				ln = Color.FromArgb(255, 253, 233, 139);
 
 			}
 
 			digitColor = new HighlightColor(Color.White, bkg, true, false);
-            defaultTextColor = new HighlightColor(Color.White, bkg, true, false);
+			defaultTextColor = new HighlightColor(Color.White, bkg, true, false);
 
-            // set small 'default color environment'
-            environmentColors["Default"] = new HighlightBackground(Color.White, bkg, true, false);
-            environmentColors["Selection"] = new HighlightColor(Color.White, s, true, false);
-            environmentColors["VRuler"] = new HighlightColor(Color.White, bkg, true, false);
-            environmentColors["InvalidLines"] = new HighlightColor(Color.Red, true, false);
-            environmentColors["CaretMarker"] = new HighlightColor(Color.Yellow, bkg, true, false);
-            environmentColors["CaretLine"] = new HighlightBackground(Color.White, cl, false, false);
-            environmentColors["LineNumbers"] = new HighlightBackground(ln, bkg, false, false);
+			// set small 'default color environment'
+			environmentColors["Default"] = new HighlightBackground(Color.White, bkg, true, false);
+			environmentColors["Selection"] = new HighlightColor(Color.White, s, true, false);
+			environmentColors["VRuler"] = new HighlightColor(Color.White, bkg, true, false);
+			environmentColors["InvalidLines"] = new HighlightColor(Color.Red, true, false);
+			environmentColors["CaretMarker"] = new HighlightColor(Color.Yellow, bkg, true, false);
+			environmentColors["CaretLine"] = new HighlightBackground(Color.White, cl, false, false);
+			environmentColors["LineNumbers"] = new HighlightBackground(ln, bkg, false, false);
 
-            environmentColors["FoldLine"] = new HighlightColor(Color.White, bkg, false, false);
-            environmentColors["FoldMarker"] = new HighlightColor(Color.White, false, false);
-            environmentColors["SelectedFoldLine"] = new HighlightColor(Color.White, false, false);
-            environmentColors["EOLMarkers"] = new HighlightColor(Color.White, false, false);
-            environmentColors["SpaceMarkers"] = new HighlightColor(Color.White, false, false);
-            environmentColors["TabMarkers"] = new HighlightColor(Color.White, false, false);
+			environmentColors["FoldLine"] = new HighlightColor(Color.White, bkg, false, false);
+			environmentColors["FoldMarker"] = new HighlightColor(Color.White, false, false);
+			environmentColors["SelectedFoldLine"] = new HighlightColor(Color.White, false, false);
+			environmentColors["EOLMarkers"] = new HighlightColor(Color.White, false, false);
+			environmentColors["SpaceMarkers"] = new HighlightColor(Color.White, false, false);
+			environmentColors["TabMarkers"] = new HighlightColor(Color.White, false, false);
+
+		}
+		public DefaultHighlightingStrategy(string name, Color background)
+		{
+			this.name = name;
+
+			digitColor = new HighlightColor(Color.FromArgb(255, 189, 147, 249), true, false);
+			defaultTextColor = new HighlightColor(SystemColors.WindowText, true, false);
+
+			// set small 'default color environment'
+			/*
+			environmentColors["Default"] = new HighlightBackground("WindowText", "Window", false, false);
+			environmentColors["Selection"] = new HighlightColor("HighlightText", "Highlight", false, false);
+			environmentColors["VRuler"] = new HighlightColor("ControlLight", "Window", false, false);
+			environmentColors["InvalidLines"] = new HighlightColor(Color.Red, false, false);
+			environmentColors["CaretMarker"] = new HighlightColor(Color.Yellow, false, false);
+			environmentColors["CaretLine"] = new HighlightBackground("ControlLight", "Window", false, false);
+			environmentColors["LineNumbers"] = new HighlightBackground("ControlDark", "Window", false, false);
+
+			environmentColors["FoldLine"] = new HighlightColor("ControlDark", false, false);
+			environmentColors["FoldMarker"] = new HighlightColor("WindowText", "Window", false, false);
+			environmentColors["SelectedFoldLine"] = new HighlightColor("WindowText", false, false);
+			environmentColors["EOLMarkers"] = new HighlightColor("ControlLight", "Window", false, false);
+			environmentColors["SpaceMarkers"] = new HighlightColor("ControlLight", "Window", false, false);
+			environmentColors["TabMarkers"] = new HighlightColor("ControlLight", "Window", false, false);
+			*/
+			var bkg = background;
+
+			var s = Color.FromArgb(255, 70, 73, 92);
+			var cl = Color.FromArgb(255, 40, 43, 62);
+			var ln = Color.FromArgb(255, 139, 233, 253);
+           
+            bkg = background;
+
+			digitColor = new HighlightColor(Color.White, bkg, true, false);
+			defaultTextColor = new HighlightColor(Color.White, bkg, true, false);
+
+			// set small 'default color environment'
+			environmentColors["Default"] = new HighlightBackground(Color.White, bkg, true, false);
+			environmentColors["Selection"] = new HighlightColor(Color.White, s, true, false);
+			environmentColors["VRuler"] = new HighlightColor(Color.White, bkg, true, false);
+			environmentColors["InvalidLines"] = new HighlightColor(Color.Red, true, false);
+			environmentColors["CaretMarker"] = new HighlightColor(Color.Yellow, bkg, true, false);
+			environmentColors["CaretLine"] = new HighlightBackground(Color.White, cl, false, false);
+			environmentColors["LineNumbers"] = new HighlightBackground(ln, bkg, false, false);
+
+			environmentColors["FoldLine"] = new HighlightColor(Color.White, bkg, false, false);
+			environmentColors["FoldMarker"] = new HighlightColor(Color.White, false, false);
+			environmentColors["SelectedFoldLine"] = new HighlightColor(Color.White, false, false);
+			environmentColors["EOLMarkers"] = new HighlightColor(Color.White, false, false);
+			environmentColors["SpaceMarkers"] = new HighlightColor(Color.White, false, false);
+			environmentColors["TabMarkers"] = new HighlightColor(Color.White, false, false);
 
 		}
 
