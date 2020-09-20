@@ -112,6 +112,22 @@ namespace ICSharpCode.TextEditor.Document
 			else
 				return "[LineSegment: LineNumber=" + LineNumber + ", Offset = "+ Offset +", Length = " + Length + ", TotalLength = " + TotalLength + ", DelimiterLength = " + delimiterLength + "]";
 		}
+
+        public string LineToString()
+        {
+            string s = "";
+            foreach (var textWord in words)
+            {
+                if (textWord.IsWhiteSpace)
+                {
+					for(int x=0;x<textWord.Length;x++)
+                        s += " ";
+                }
+                else s += textWord.Word;
+            }
+
+            return s;
+        }
 		
 		#region Anchor management
 		Util.WeakCollection<TextAnchor> anchors;

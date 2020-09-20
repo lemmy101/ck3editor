@@ -116,7 +116,7 @@
             this.darkGroupBox3.Size = new System.Drawing.Size(423, 461);
             this.darkGroupBox3.TabIndex = 3;
             this.darkGroupBox3.TabStop = false;
-            this.darkGroupBox3.Text = "Scopes";
+            this.darkGroupBox3.Text = "Scopes (local or inherited through all incoming events)";
             // 
             // scopesList
             // 

@@ -717,7 +717,7 @@
   <Child name="save_scope_as" scope="none" doc="Saves the current scope as an arbitrarily-named target to be referenced later in the (unbroken) event chain" function="effect" type="scope" />
   <Child name="save_scope_value_as" scope="none" doc="Saves a numerical or bool value as an arbitrarily-named target to be referenced later in the (unbroken) event chain" function="effect" type="function">
     <Child name="name" type="scope" />
-    <Child name="value" type="any" />
+    <Child name="value" type="value" />
   </Child>
   <Child name="save_temporary_scope_as" scope="none" doc="Saves the current scope as an arbitrarily-named temporary target to be referenced later in the same effect" function="effect" type="scope" />
   <Child name="save_temporary_scope_value_as" scope="none" doc="Saves a numerical or bool value as an arbitrarily-named temporary target to be referenced later in the same effect" function="effect" type="function">

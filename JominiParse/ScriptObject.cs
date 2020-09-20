@@ -9,14 +9,7 @@ namespace JominiParse
 {
     public class ScriptObject
     {
-        public static Dictionary<int, Type> TypeMap = new Dictionary<int, Type>();
-
-        public static List<ScriptObject> DeferedInitializationList = new List<ScriptObject>();
-        public static List<ScriptObject> DeferedPostInitializationList = new List<ScriptObject>();
-        public static List<ScriptObject> DeferedPostInitializationListNext = new List<ScriptObject>();
-
-        public static List<ScriptObject> BehaviourRecalculateList = new List<ScriptObject>();
-
+     
         public string Namespace { get; set; }
         public SchemaNode lhsSchema;
         public ScriptFile ScriptFile { get; set; }
@@ -109,51 +102,40 @@ namespace JominiParse
         {
         }
 
-        private static HashSet<string> _cachedScriptedEffects = null;
-
+     
         static HashSet<string> CachedScriptedEffects
         {
             get
             {
-                if (_cachedScriptedEffects == null)
-                    _cachedScriptedEffects = Core.Instance.GetNameSet(ScriptContext.ScriptedEffects, false);
+                if (Core.Instance._cachedScriptedEffects == null)
+                    Core.Instance._cachedScriptedEffects = Core.Instance.GetNameSet(ScriptContext.ScriptedEffects, false);
 
-                return _cachedScriptedEffects;
+                return Core.Instance._cachedScriptedEffects;
             }
         }
 
-        private static HashSet<string> _cachedScriptedTriggers = null;
-
+       
         static HashSet<string> CachedScriptedTriggers
         {
             get
             {
-                if (_cachedScriptedTriggers == null)
-                    _cachedScriptedTriggers = Core.Instance.GetNameSet(ScriptContext.ScriptedTriggers, false);
+                if (Core.Instance._cachedScriptedTriggers == null)
+                    Core.Instance._cachedScriptedTriggers = Core.Instance.GetNameSet(ScriptContext.ScriptedTriggers, false);
 
-                return _cachedScriptedTriggers;
+                return Core.Instance._cachedScriptedTriggers;
             }
         }
 
         public static void ClearCachedScriptedEffects()
         {
-            _cachedScriptedEffects = null;
-            _cachedScriptedTriggers = null;
+            Core.Instance._cachedScriptedEffects = null;
+            Core.Instance._cachedScriptedTriggers = null;
         }
 
         public virtual void Initialize()
         {
             //EnumExtractorUtility.Instance.Add(this);
-
-            if (Name == "chancellor_task_1001_new_claim_trigger")
-            {
-            }
-
-            if (Name == "events")
-            {
-                Core.Instance.LoadingCK3Library.RegisterFirstValidEventsTrigger(this);
-            }
-
+       
             if (Parent != null && CachedScriptedTriggers.Contains(Name))
             {
                 Core.Instance.LoadingCK3Library.RegisterScriptTriggerCall(this);
@@ -164,6 +146,11 @@ namespace JominiParse
             {
                 Core.Instance.LoadingCK3Library.RegisterScriptEffectCall(this);
                 this.IsScriptedEffectCall = true;
+            }
+
+            if (Name == "events")
+            {
+                Core.Instance.LoadingCK3Library.RegisterFirstValidEventsTrigger(this);
             }
 
             if (Name == "trigger_event")
@@ -227,8 +214,8 @@ namespace JominiParse
             IsBlock = seg.isBlock;
             if (parent == null)
             {
-                ScriptObject.DeferedPostInitializationListNext.Add(this);
-                ScriptObject.DeferedInitializationList.Add(this);
+                Core.Instance.DeferedPostInitializationListNext.Add(this);
+                Core.Instance.DeferedInitializationList.Add(this);
             }
             else
             {
@@ -767,10 +754,13 @@ namespace JominiParse
 
         private bool CheckNameMatchSmartFind(SmartFindOptions options)
         {
-            if (options.SearchValues && MatchTextSmartFind(options, GetStringValue()))
+            if (options.SearchRHS && MatchTextSmartFind(options, GetStringValue()))
                 return true;
 
-            return MatchTextSmartFind(options, Name);
+            if(options.SearchLHS)
+                return MatchTextSmartFind(options, Name);
+
+            return false;
         }
 
         private bool MatchTextSmartFind(SmartFindOptions options, string str)
@@ -804,33 +794,7 @@ namespace JominiParse
                 return false;
             }
 
-            /*
-            if (options.SearchSavedScopes &&
-                (this.BehaviourData.Type == ScriptObjectBehaviourType.SavedScopeBlock || this.BehaviourData.Type == ScriptObjectBehaviourType.SavedScopeToProperty))
-            {
-                return true;
-            }
-
-            if (options.SearchFunctionParameters &&
-                (this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionParameter))
-            {
-                return true;
-            }
-
-            if (options.SearchTriggerFunctions &&
-                (this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionMultiline ||
-                  this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionSingleLine || this.BehaviourData.Type == ScriptObjectBehaviourType.InherentScopeToProperty) && BehaviourData.ParentExpectTriggers)
-            {
-                return true;
-            }
-            if (options.SearchEffectFunctions &&
-                (this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionMultiline ||
-                  this.BehaviourData.Type == ScriptObjectBehaviourType.FunctionSingleLine) && BehaviourData.ParentExpectEffects)
-            {
-                return true;
-            }
-            */
-            return false;
+            return true;
         }
 
         public string Op { get; set; } = "=";

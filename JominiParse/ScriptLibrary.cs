@@ -416,7 +416,7 @@ namespace JominiParse
                     {
                         var e = scriptObject.GetStringValue();
                         // found a random event...
-                        if (ContextData[ScriptContext.OnActions].Get(e) != null)
+                        if (Core.Instance.Get(ScriptContext.OnActions, e) != null)
                         {
                             trigger_event n = new trigger_event();
 
@@ -442,7 +442,7 @@ namespace JominiParse
                     {
                         var e = scriptObject.Name;
                         // found a random event...
-                        if (ContextData[ScriptContext.OnActions].Get(e) != null)
+                        if (Core.Instance.Get(ScriptContext.OnActions, e) != null)
                         {
                             trigger_event n = new trigger_event();
 
@@ -468,7 +468,7 @@ namespace JominiParse
                     {
                         var e = scriptObject.GetStringValue();
                         // found a random event...
-                        if (ContextData[ScriptContext.Event].Get(e) != null)
+                        if (Core.Instance.Get(ScriptContext.Event, e) != null)
                         {
                             trigger_event n = new trigger_event();
                             if (e == "abduct_outcome.1001")
@@ -497,7 +497,7 @@ namespace JominiParse
                     {
                         var e = scriptObject.Name;
                         // found a random event...
-                        if (ContextData[ScriptContext.Event].Get(e) != null)
+                        if (Core.Instance.Get(ScriptContext.Event, e) != null)
                         {
                             trigger_event n = new trigger_event();
                            
@@ -701,6 +701,7 @@ namespace JominiParse
                 {
                     Remove(keyValuePair.Key, keyValuePair.Value.Context);
                 }
+                file.Map.Clear();
             }
         }
 
@@ -819,6 +820,17 @@ namespace JominiParse
             {
                 fileMapValue.DoSmartFind(options, results);
             }
+        }
+
+        public void AddFile(string file)
+        {
+            ScriptFile f = new ScriptFile();
+
+            f.IsBase = false;
+            f.Filename = file;
+            string dir = file.Substring(0, file.LastIndexOf("/") + 1);
+            f.Context = Core.Instance.BaseCK3Library.ContextData.Where(a => a.Value.Directory != null && dir.Contains(a.Value.Directory)).First().Key;
+            FileMap[file] = f;
         }
     }
 }

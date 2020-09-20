@@ -173,7 +173,7 @@ namespace JominiParse
                 if (!VariableStore.Instance.HasScopedVariableComplete(data.lhs, obj.GetScopeType()) && obj.DeferedCount < 1)
                 {
                     obj.DeferedCount++;
-                    ScriptObject.BehaviourRecalculateList.Add(obj);
+                    Core.Instance.BehaviourRecalculateList.Add(obj);
 
                 }
             }
@@ -184,7 +184,7 @@ namespace JominiParse
                     data.deepestRHSScopeFound) && obj.DeferedCount < 1)
                 {
                     obj.DeferedCount++;
-                    ScriptObject.BehaviourRecalculateList.Add(obj);
+                    Core.Instance.BehaviourRecalculateList.Add(obj);
 
                 }
             }

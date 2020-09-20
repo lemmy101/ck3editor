@@ -45,7 +45,9 @@
             this.tree.Size = new System.Drawing.Size(426, 604);
             this.tree.TabIndex = 0;
             this.tree.Text = "darkTreeView1";
+            this.tree.MouseClick += new System.Windows.Forms.MouseEventHandler(this.tree_MouseClick);
             this.tree.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tree_MouseDoubleClick);
+            this.tree.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tree_MouseUp);
             // 
             // showModOnly
             // 

@@ -1175,3 +1175,7 @@
 /Schemas/old/trigger_if.xml
 /Schemas/old/triggered_desc.xml
 /Schemas/old/value_modifier.xml
+/obj/Debug/CK3ScriptEditor.BasicFind.resources
+/obj/Debug/CK3ScriptEditor.NewFileFolder.resources
+/obj/Debug/CK3ScriptEditor.NewScriptObjectDialog.resources
+/obj/Debug/CK3ScriptEditor.TabOpenWindowsDlg.resources

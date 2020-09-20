@@ -12,13 +12,10 @@ namespace JominiParse
         public bool SmartDoFind { get; set; }
 
         public bool SearchOverridden { get; set; }
-        public bool SearchSavedScopes { get; set; }
-        public bool SearchFunctionParameters { get; set; }
-        public bool SearchValues { get; set; }
-
-        public bool SearchTriggerFunctions { get; set; }
-        public bool SearchEffectFunctions { get; set; }
+       
         public bool ShowChildren { get; set; }
+        public bool SearchRHS { get; set; }
+        public bool SearchLHS { get; set; }
 
 
         public List<ScopeType> ScopesToSearch = new List<ScopeType>();

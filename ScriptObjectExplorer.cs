@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,9 +22,63 @@ namespace CK3ScriptEditor
             DockArea = DarkDockArea.Left;
             InitializeComponent();
         }
+        public string AddToPath { get; set; }
+
+        string CurrentSelectedPath
+        {
+            get
+            {
+
+                if (tree.SelectedNodes.Count > 0)
+                {
+                    var sel = tree.SelectedNodes[0];
+
+                    string path = "";
+
+                    while (sel != null)
+                    {
+                        path = sel.Text + ">" + path;
+                        sel = sel.ParentNode;
+
+                    }
+                    if (AddToPath != null)
+                        return path + ">" + AddToPath;
+
+                    return path;
+
+                }
+
+                return "";
+            }
+        }
+
+        private void SelectPath(string path)
+        {
+            string[] p = path.Split('>');
+
+            var nodes = tree.Nodes;
+
+            foreach (var s in p)
+            {
+                foreach (var node in nodes)
+                {
+                    if (node.Text == s)
+                    {
+                        node.Expanded = true;
+                        tree.SelectNode(node);
+                        nodes = node.Nodes;
+                        break;
+                    }
+                }
+            }
+        }
 
         public void UpdateScriptExplorer()
         {
+            if (Core.Instance.ModCK3Library == null)
+                return;
+
+            string path = CurrentSelectedPath;
             namespaces.Clear();
             tree.Nodes.Clear();
 
@@ -47,9 +102,15 @@ namespace CK3ScriptEditor
                     {
                         DarkTreeNode category = new DarkTreeNode(keyValuePair.Value.Category.ToString());
                         parents[keyValuePair.Value.Category] = category;
+                        
                         tree.Nodes.Add(category);
                         parent = parents[keyValuePair.Value.Category].Nodes;
                     }
+                }
+               
+
+                {
+                    activities.Tag = keyValuePair.Key;
                 }
                 parent.Add(activities);
 
@@ -74,6 +135,7 @@ namespace CK3ScriptEditor
 
             tree.ResumeNodeEvents();
             tree.ResumeLayout(true);
+            SelectPath(path);
         }
 
         class NamespaceItems
@@ -357,11 +419,125 @@ namespace CK3ScriptEditor
 
             }
         }
-
+        
         private void showOveridden_CheckedChanged(object sender, EventArgs e)
         {
             UpdateScriptExplorer();
 
+        }
+        ContextMenu menu = new ContextMenu();
+        private void tree_MouseClick(object sender, MouseEventArgs e)
+        {
+          
+        }
+
+        private void tree_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                tree.Invalidate();
+                menu.MenuItems.Clear();
+
+                if (tree.SelectedNodes.Count > 0 && tree.SelectedNodes[0].Tag != null)
+                {
+                    var selectedO = tree.SelectedNodes[0].Tag;
+
+                    if (selectedO is ScriptContext)
+                    {
+                        ScriptContext c = (ScriptContext)selectedO;
+
+                        MenuItem newObject = new MenuItem("&New " + c.ToString());
+                        newObject.Click += NewObject_Click;
+                        newObject.Tag = selectedO;
+                        menu.MenuItems.Add(newObject);
+
+                    }
+
+                    if (menu.MenuItems.Count > 0)
+                    {
+                        menu.Show(tree, new Point(e.X, e.Y));
+
+                    }
+                }
+
+            }
+        }
+
+        private void NewObject_Click(object sender, EventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+
+            var context = (ScriptContext)menuItem.Tag;
+
+            NewScriptObjectDialog dlg = new NewScriptObjectDialog();
+
+            dlg.Text = "Create new " + context + " script object.";
+            dlg.Init(context);
+            if (dlg.ShowDialog(CK3ScriptEd.Instance) == DialogResult.OK)
+            {
+
+                string dir = Core.Instance.GetDirectoryFromContext(dlg.Context) + "/";
+
+                string path = dir + dlg.ChosenFilename;
+                string fullPath = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/" + path;
+                 bool exists = File.Exists(fullPath);
+                string textToImplant = dlg.soName.Text + " = { \n\n\n}";
+                
+                if (exists)
+                {
+                    // need to insert it into the file....
+                    string text = System.IO.File.ReadAllText(fullPath);
+                    text = text.Replace("\r", "");
+                    var lines = text.Split(new char[] { '\n' }).ToList();
+
+                    var file = Core.Instance.GetFile(path, false);
+
+                    {
+                        var lines2 = textToImplant.Split(new char[] { '\n' }).ToList();
+
+                        lines.AddRange(lines2);
+
+                    }
+
+                    using (FileStream fs = new FileStream(fullPath, FileMode.Create))
+                    {
+                        // create a new file....
+                        using (StreamWriter outputFile = new StreamWriter(fs, Encoding.UTF8))
+                        {
+
+                            foreach (string line in lines)
+                                outputFile.WriteLine(line);
+                        }
+                    }
+                }
+                else
+                {
+                    using (FileStream fs = new FileStream(fullPath, FileMode.Create))
+                    {
+                        // create a new file....
+                        using (StreamWriter outputFile = new StreamWriter(fs, Encoding.UTF8))
+                        {
+                            var lines = textToImplant.Split(new char[] { '\n' }).ToList();
+                          
+                            foreach (string line in lines)
+                                outputFile.WriteLine(line);
+                        }
+                    }
+                }
+
+
+
+                Core.Instance.ModCK3Library.EnsureFile(path, context);
+                Core.Instance.LoadCK3File(path, false, true);
+                CK3ScriptEd.Instance.projectExplorer.FillProjectView();
+                CK3ScriptEd.Instance.soExplorer.UpdateScriptExplorer();
+                CK3ScriptEd.Instance.CloseDocument(true, path);
+                int newLine = Core.Instance.ModCK3Library.GetFile(path).Map[dlg.soName.Text].LineStart - 1;
+                CK3ScriptEd.Instance.Goto(path, newLine, false); CK3ScriptEd.Instance.Goto(path, newLine, false);
+
+
+                CK3ScriptEd.Instance.UpdateAllWindows();
+            }
         }
     }
 }

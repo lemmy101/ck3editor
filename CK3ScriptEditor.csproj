@@ -54,12 +54,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackupManager.cs" />
+    <Compile Include="BasicFind.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BasicFind.Designer.cs">
+      <DependentUpon>BasicFind.cs</DependentUpon>
+    </Compile>
     <Compile Include="CK3EditorPreferencesManager.cs" />
     <Compile Include="CK3ScriptEd.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CK3ScriptEd.Designer.cs">
       <DependentUpon>CK3ScriptEd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewScriptObjectDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewScriptObjectDialog.Designer.cs">
+      <DependentUpon>NewScriptObjectDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="CloneToModDialog.cs">
       <SubType>Form</SubType>
@@ -91,6 +103,12 @@
     </Compile>
     <Compile Include="IntellisenseDlg.Designer.cs">
       <DependentUpon>IntellisenseDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewFileFolder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewFileFolder.Designer.cs">
+      <DependentUpon>NewFileFolder.cs</DependentUpon>
     </Compile>
     <Compile Include="ObjectDetailsExplorer.cs">
       <SubType>UserControl</SubType>
@@ -132,8 +150,20 @@
       <DependentUpon>SmartFindOptionWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="SyntaxHighlightingManager.cs" />
+    <Compile Include="TabOpenWindowsDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TabOpenWindowsDlg.Designer.cs">
+      <DependentUpon>TabOpenWindowsDlg.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="BasicFind.resx">
+      <DependentUpon>BasicFind.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CK3ScriptEd.resx">
       <DependentUpon>CK3ScriptEd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewScriptObjectDialog.resx">
+      <DependentUpon>NewScriptObjectDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CloneToModDialog.resx">
       <DependentUpon>CloneToModDialog.cs</DependentUpon>
@@ -149,6 +179,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="IntellisenseDlg.resx">
       <DependentUpon>IntellisenseDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewFileFolder.resx">
+      <DependentUpon>NewFileFolder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ObjectDetailsExplorer.resx">
       <DependentUpon>ObjectDetailsExplorer.cs</DependentUpon>
@@ -176,6 +209,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SmartFindOptionWindow.resx">
       <DependentUpon>SmartFindOptionWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TabOpenWindowsDlg.resx">
+      <DependentUpon>TabOpenWindowsDlg.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="format.xshd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

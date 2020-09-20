@@ -6,9 +6,13 @@ namespace JominiParse
 {
     public class Globals
     {
-        public static string CK3Path { get; set; } = "D:/SteamLibrary/steamapps/common/Crusader Kings III/game/";
-        public static string CK3DocPath { get; set; } = "C:/Users/LEMMYOFFICE/Documents/Paradox Interactive/Crusader Kings III/";
-        public static string CK3EdDataPath { get; set; } = CK3DocPath + "CK3EditorData/";
+        public static string CK3Path { get; set; }// = "D:/SteamLibrary/steamapps/common/Crusader Kings III/game/";
+        public static string CK3DocPath { get; set; }// = "C:/Users/LEMMYOFFICE/Documents/Paradox Interactive/Crusader Kings III/";
+
+        public static string CK3EdDataPath
+        {
+            get { return CK3DocPath + "CK3EditorData/"; }
+        }
         public static string CK3ModPath
         {
             get { return CK3DocPath + "mod/"; }

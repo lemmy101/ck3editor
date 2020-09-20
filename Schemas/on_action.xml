@@ -9,6 +9,9 @@
 		<Child name="chance_to_happen" type="value"/>
 		<Child name="on_action" namesFrom="value" type="on_action"/>
 	</Child>
+	<Child name="events" type="events" allowScopes="no">
+		<Child name="event" namesFrom="event" type="event"/>
+	</Child>
 	<Child name="first_valid" type="first_valid" allowScopes="no">
 		<Child name="event" namesFrom="event" type="event"/>
 	</Child>

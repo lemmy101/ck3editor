@@ -30,6 +30,9 @@ namespace CK3ScriptEditor
 
         private void DoRecentAutoBackup()
         {
+            if (Core.Instance.ModCK3Library == null)
+                return;
+
             string destDirectory = Globals.CK3EdDataPath;
 
             destDirectory += "CK3EditBackups/";

@@ -16,51 +16,121 @@ namespace CK3ScriptEditor
 
         public void Save()
         {
-            string filename = Globals.CK3EdDataPath + "OpenFileWindows.txt";
-            List<string> files = CK3ScriptEd.Instance.GetOpenWindowsFilenameList();
-            if (files == null)
-                return;
-
-            using (System.IO.TextWriter writeFile = new StreamWriter(filename))
             {
-             
-                foreach (var file in files)
-                {
-                    writeFile.WriteLine(file);
-                }
+                string filename = Globals.CK3EdDataPath + "Directories.txt";
 
-                int index = CK3ScriptEd.Instance.GetOpenWindowsFilenameListIndex();
-                
-                writeFile.WriteLine("openIndex:"+index);
+                using (System.IO.TextWriter writeFile = new StreamWriter(filename))
+                {
+                    writeFile.WriteLine(Globals.CK3Path);
+                    writeFile.WriteLine(Globals.CK3DocPath);
+                }
+            }
+            if(Core.Instance.ModCK3Library != null)
+            {
+                string filename = Globals.CK3EdDataPath + "LoadedMod.txt";
+
+                using (System.IO.TextWriter writeFile = new StreamWriter(filename))
+                {
+                    writeFile.WriteLine(Core.Instance.ModCK3Library.Name);
+                }
+            }
+            if (CK3ScriptEd.Instance != null)
+            {
+                string filename = Globals.CK3EdDataPath + Core.Instance.ModCK3Library.Name + "_OpenFileWindows.txt";
+                List<string> files = CK3ScriptEd.Instance.GetOpenWindowsFilenameList();
+                if (files == null)
+                    return;
+
+                using (System.IO.TextWriter writeFile = new StreamWriter(filename))
+                {
+
+                    foreach (var file in files)
+                    {
+                        writeFile.WriteLine(file);
+                    }
+
+                    int index = CK3ScriptEd.Instance.GetOpenWindowsFilenameListIndex();
+
+                    index = Math.Max(0, index);
+                    writeFile.WriteLine("openIndex:" + index);
+                }
             }
     
         }
 
+        public void LoadDirectories()
+        {
+            {
+                string filename = Globals.CK3EdDataPath + "Directories.txt";
+
+                if (!File.Exists(filename))
+                    return;
+
+                string text = System.IO.File.ReadAllText(filename);
+
+                string[] lines = text.Replace("\r", "").Split('\n');
+                Globals.CK3Path = lines[0].Trim();
+                Globals.CK3DocPath = lines[1].Trim();
+            }
+        }
+
         public void Load()
         {
-            string filename = Globals.CK3EdDataPath + "OpenFileWindows.txt";
+            if(Core.Instance.ModCK3Library == null)
+            {
+                string filename = Globals.CK3EdDataPath + "LoadedMod.txt";
 
-            if (!File.Exists(filename))
+                if (!File.Exists(filename))
+                    return;
+
+                string text = System.IO.File.ReadAllText(filename);
+
+                string[] lines = text.Replace("\r", "").Split('\n');
+                CK3ScriptEd.Instance.Load(lines[0].Trim());
+              
+            }
+            if (Core.Instance.ModCK3Library == null)
                 return;
 
-            string text = System.IO.File.ReadAllText(filename);
+            LoadWindows();
+        }
+        public void LoadWindows()
+        {
 
-            string[] lines = text.Replace("\r", "").Split('\n');
-            List<Control> windows = new List<Control>();
-            for (var index = 0; index < lines.Length; index++)
+            if (Core.Instance.ModCK3Library == null)
+                return;
+
             {
-                var line = lines[index];
-                if (line.Trim().Length == 0)
-                    continue;
+                string filename = Globals.CK3EdDataPath + Core.Instance.ModCK3Library.Name + "_OpenFileWindows.txt";
 
-                line = line.Replace("\\", "/");
+                if (!File.Exists(filename))
+                    return;
 
-                if (line.StartsWith("openIndex:"))
+                string text = System.IO.File.ReadAllText(filename);
+
+                string[] lines = text.Replace("\r", "").Split('\n');
+                List<Control> windows = new List<Control>();
+                for (var index = 0; index < lines.Length; index++)
                 {
-                    CK3ScriptEd.Instance.SetActiveEditor(
-                        windows[Convert.ToInt32(line.Substring(line.IndexOf(':') + 1))] as TextEditorControl);
+                    var line = lines[index];
+                    if (line.Trim().Length == 0)
+                        continue;
+
+                    line = line.Replace("\\", "/");
+
+                    if (line.StartsWith("openIndex:"))
+                    {
+                        var i = Convert.ToInt32(line.Substring(line.IndexOf(':') + 1));
+                        i = Math.Max(i, 0);
+                        if (windows.Count > i)
+                        {
+                            CK3ScriptEd.Instance.SetActiveEditor(
+                                windows[i] as TextEditorControl);
+
+                        }
+                    }
+                    else windows.Add(CK3ScriptEd.Instance.GetTextEditor(line.Split(':')[1], line.Split(':')[0] == "base"));
                 }
-                else windows.Add(CK3ScriptEd.Instance.GetTextEditor(line.Split(':')[1], line.Split(':')[0] == "base"));
             }
         }
     }

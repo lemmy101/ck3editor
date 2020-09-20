@@ -27,9 +27,10 @@ namespace CK3ScriptEditor
         public void SetObject(ScriptObject o)
         {
             var oldo = obj;
-            obj = o.Topmost;
+            if(o != null)
+                obj = o.Topmost;
 
-            if(o != oldo)
+            if(o != oldo || o == null)
                 Fill();
         }
         private void Fill()
@@ -58,25 +59,46 @@ namespace CK3ScriptEditor
             {
                 AddOutgoing(eventConnection.ToTag, eventConnection);
             }
-            
+            scopesList.SuspendEvents(true);
+
             foreach (var objScriptScope in obj.scriptScopes.OrderBy(a=>a.Value.Name))
             {
                 // add local script scopes...
                 AddScriptScope(objScriptScope.Value, "local");
             }
 
-            HashSet<ScriptObject.ScriptScope> Scopes = new HashSet<ScriptObject.ScriptScope>();
-            visited.Clear();
-            foreach (var eventConnection in ConnectionsIn)
+            if (ConnectionsIn.Count > 0)
             {
-                GetScriptScopesFromReferences(eventConnection.From, Scopes);
-            }
+                HashSet<ScriptObject.ScriptScope> Scopes = new HashSet<ScriptObject.ScriptScope>();
+                HashSet<ScriptObject.ScriptScope> scopesThis = new HashSet<ScriptObject.ScriptScope>();
+                scopesThis.Clear();
+                // get first reference list...
+                visited.Clear();
+                GetScriptScopesFromReferences(ConnectionsIn[0].From, scopesThis);
+                Scopes.UnionWith(scopesThis);
 
-            foreach (var scope in Scopes.OrderBy(a=>a.Name))
-            {
-                AddScriptScope(scope, "inherited");
 
+                for (var index = 1; index < ConnectionsIn.Count; index++)
+                {
+                    visited.Clear();
+                    scopesThis.Clear();
+                    var eventConnection = ConnectionsIn[index];
+                    GetScriptScopesFromReferences(eventConnection.From, scopesThis);
+
+                    // remove any that don't appear in every reference...
+                    Scopes.RemoveWhere(a => !scopesThis.Any(b => b.Name == a.Name));
+
+                }
+
+                foreach (var scope in Scopes.OrderBy(a => a.Name))
+                {
+                    AddScriptScope(scope, "inherited");
+
+                }
             }
+         
+
+            scopesList.SuspendEvents(false);
 
             var l = scopesList.Items.OrderBy(a => a.Text).ToList();
             scopesList.Items.Clear();
@@ -90,8 +112,7 @@ namespace CK3ScriptEditor
             if (visited.Contains(eventConnectionFrom))
                 return;
 
-            visited.Add(eventConnectionFrom);
-
+    
             foreach (var keyValuePair in eventConnectionFrom.scriptScopes)
             {
                 if (!keyValuePair.Value.Temporary)
@@ -99,20 +120,40 @@ namespace CK3ScriptEditor
             }
 
 
-            var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(eventConnectionFrom.Name).Distinct();
+            var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(eventConnectionFrom.Name).Distinct().ToList();
 
-            foreach (var eventConnection in ConnectionsIn)
+            if (ConnectionsIn.Count > 0)
             {
-                GetScriptScopesFromReferences(eventConnection.From, scopes);
-            }
+                HashSet<ScriptObject.ScriptScope> Scopes = new HashSet<ScriptObject.ScriptScope>();
+                HashSet<ScriptObject.ScriptScope> scopesThis = new HashSet<ScriptObject.ScriptScope>();
+                scopesThis.Clear();
+                // get first reference list...
+               
+                GetScriptScopesFromReferences(ConnectionsIn[0].From, scopesThis);
+                Scopes.UnionWith(scopesThis);
 
+
+                for (var index = 1; index < ConnectionsIn.Count; index++)
+                {
+                    scopesThis.Clear();
+                    var eventConnection = ConnectionsIn[index];
+                    GetScriptScopesFromReferences(eventConnection.From, scopesThis);
+
+                    // remove any that don't appear in every reference...
+                    if(scopesThis.Count > 0)
+                        Scopes.RemoveWhere(a => !scopesThis.Any(b => b.Name == a.Name));
+
+                }
+
+                scopes.UnionWith(Scopes);
+            }
+            visited.Add(eventConnectionFrom);
 
         }
 
         private void AddScriptScope(ScriptObject.ScriptScope objScriptScope, string type)
         {
             string name = objScriptScope.Name;
-
             int col2 = (int) (scopesList.Width / 2.7f);
             int col3 = (int) (col2 * 1.6f);
             col2 /= 6;
@@ -129,6 +170,8 @@ namespace CK3ScriptEditor
             name += (objScriptScope.Temporary ? "temp " : "");
 
             name += type + " " + (objScriptScope.IsValue ? "scope value" : "scope");
+            if (scopesList.Items.Any(a => a.Text == name))
+                return;
 
             var i = new DarkListItem(name);
             i.Tag = objScriptScope;

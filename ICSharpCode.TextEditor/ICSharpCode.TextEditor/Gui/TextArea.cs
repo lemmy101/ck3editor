@@ -653,8 +653,13 @@ namespace ICSharpCode.TextEditor
 				Document.UndoStack.EndUndoGroup();
 			}
 		}
-		
-		protected override void OnKeyPress(KeyPressEventArgs e)
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+        }
+
+        protected override void OnKeyPress(KeyPressEventArgs e)
 		{
 			base.OnKeyPress(e);
 			SimulateKeyPress(e.KeyChar);

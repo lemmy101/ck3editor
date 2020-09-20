@@ -41,6 +41,12 @@ namespace CK3ScriptEditor
 
         }
 
+        public void Clear()
+        {
+            TreeView.Nodes.Clear();
+            TreeView.SelectedNodes.Clear();
+
+        }
         public void UpdateTree(string filename, int lineNumber, bool isBaseFile)
         {
             IsBaseFile = isBaseFile;

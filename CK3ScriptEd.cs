@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using DarkUI.Controls;
 using DarkUI.Docking;
 using DarkUI.Forms;
 using DarkUI.Win32;
@@ -22,13 +23,15 @@ namespace CK3ScriptEditor
 {
     public partial class CK3ScriptEd : DarkForm
     {
+        public static CK3ScriptEd Instance;
+        public List<ScriptWindow> OpenScriptWindows = new List<ScriptWindow>();
+
         Dictionary<string, TabPage> tabs = new Dictionary<string, TabPage>();
         Dictionary<string, ICSharpCode.TextEditor.TextEditorControl> modTextEditors = new Dictionary<string, ICSharpCode.TextEditor.TextEditorControl>();
         Dictionary<string, ICSharpCode.TextEditor.TextEditorControl> baseTextEditors = new Dictionary<string, ICSharpCode.TextEditor.TextEditorControl>();
         private Dictionary<string, ScriptWindow> openModScriptWindows = new Dictionary<string, ScriptWindow>();
         private Dictionary<string, ScriptWindow> openBaseScriptWindows = new Dictionary<string, ScriptWindow>();
         private bool fileOverviewDirty;
-        public static CK3ScriptEd Instance;
         private List<DarkDockContent> _toolWindows = new List<DarkDockContent>();
         internal FileOverviewToolWindow fileOverview;
         internal ProjectExplorer projectExplorer;
@@ -36,6 +39,7 @@ namespace CK3ScriptEditor
         internal ObjectDetailsExplorer detailsExplorer;
         internal SmartFindOptionWindow smartFind;
         internal SearchResultsWindow searchResults;
+
        // internal EventRepresentationPanel eventPreview;
         private void ToggleToolWindow(DarkToolWindow toolWindow)
         {
@@ -56,22 +60,47 @@ namespace CK3ScriptEditor
             fileOverview.Invalidate();
             
         }
-      
+
+        public void Load(string modName)
+        {
+            for (var index = 0; index < OpenScriptWindows.Count; index++)
+            {
+                var openScriptWindow = OpenScriptWindows[index];
+                if (!openScriptWindow.CheckSave())
+                    return;
+
+            }
+
+            for (var index = 0; index < OpenScriptWindows.Count; index++)
+            {
+                var openScriptWindow = OpenScriptWindows[index];
+                openScriptWindow.Close();
+            }
+
+            Core.Instance = new Core();
+
+            UpdateAllWindows();
+            Core.Instance.Init();
+
+            Core.Instance.CreateOrLoadMod(modName);
+            CK3EditorPreferencesManager.Instance.LoadWindows();
+
+            CK3EditorPreferencesManager.Instance.Save();
+
+            UpdateAllWindows();
+            BackupManager.Instance.MinutesSinceLastSave = 1000000000;
+            BackupManager.Instance.UpdateTick();
+        }
         public CK3ScriptEd()
         {
             Instance = this;
             
-            JomaniScriptDocLogsToSchemaConverter.Instance.Export("Schema2");
-
             InitializeComponent();
             AutoSave.Interval = BackupManager.Instance.TickTimeMS;
           //  ScopeManager.Instance.LoadScopeDefinitions("ScopeDefs/scopes.xml");
           //  ScopeManager.Instance.LoadTriggerDefinitions("ScopeDefs/triggers.xml");
           //  ScopeManager.Instance.LoadEffectDefinitions("ScopeDefs/effects.xml");
-            Core.Instance.Init();
-
-            Core.Instance.CreateOrLoadMod("TestMod");
-
+        
             Application.AddMessageFilter(new ControlScrollFilter());
             // Add the dock content drag message filter to handle moving dock content around.
             Application.AddMessageFilter(DockPanel.DockContentDragFilter);
@@ -107,7 +136,7 @@ namespace CK3ScriptEditor
                 DockPanel.AddContent(toolWindow);
 
 //            DockPanel.AddContent(detailsExplorer, smartFind.DockGroup);
-            DockPanel.AddContent(smartFind, detailsExplorer.DockGroup);
+            DockPanel.AddContent(detailsExplorer, smartFind.DockGroup);
 
             DockPanel.AddContent(soExplorer, projectExplorer.DockGroup);
 
@@ -117,35 +146,47 @@ namespace CK3ScriptEditor
             // Add the history panel to the layer panel group
             //     DockPanel.AddContent(_dockHistory, _dockLayers.DockGroup);
 
-            EnumExtractorUtility.Instance.Export("p.txt");
-
-            var fsmProvider = new FileSyntaxModeProvider("./");
+             var fsmProvider = new FileSyntaxModeProvider("./");
 
             HighlightingManager.Manager.AddSyntaxModeFileProvider(fsmProvider); // Attach to the text editor.
 
             BackupManager.Instance.UpdateTick();
 
-
             CK3EditorPreferencesManager.Instance.Load();
-            //    GetTextEditor("common/on_action/test_on_action.txt", false);
-            //   GetTextEditor("events/test_event5.txt", false);
-            //  GetTextEditor("events/health_events.txt", false);
-
-            //    ScriptObjectBehaviourManager.Instance.PrintDebug();
 
 
         }
 
         private void DockPanel_ContentRemoved(object sender, DockContentEventArgs e)
         {
+            
             if (e.Content is ScriptWindow)
             {
                 var sw = e.Content as ScriptWindow;
-                sw.RemoveEventHandlers();
-                this.baseTextEditors.Remove(sw.Filename);
-                this.modTextEditors.Remove(sw.Filename);
-                this.openBaseScriptWindows.Remove(sw.Filename);
-                this.openModScriptWindows.Remove(sw.Filename);
+
+             
+                if (!sw.CheckSave())
+                {
+                    AllowUpdateFile = false;
+                    sw.IgnoredFirstDirty = true;
+                    sw.DockArea = DarkDockArea.Document;
+                    DockPanel.AddContent(sw);
+                    DockPanel.ActiveContent = sw;
+                    AllowUpdateFile = true;
+                    sw.IgnoredFirstDirty = false;
+
+                }
+                else
+                {
+
+                    sw.RemoveEventHandlers();
+                    this.baseTextEditors.Remove(sw.Filename);
+                    this.modTextEditors.Remove(sw.Filename);
+                    this.openBaseScriptWindows.Remove(sw.Filename);
+                    this.openModScriptWindows.Remove(sw.Filename);
+                    this.OpenScriptWindows.Remove(e.Content as ScriptWindow);
+
+                }
             }
         }
 
@@ -230,8 +271,10 @@ namespace CK3ScriptEditor
             DockPanel.ActiveContent = window;
             window.UpdateLocalizations();
             window.Name = window.Text = filename;
+            window.FullFilename = startDir + filename;
             AllowUpdateFile = true;
             fileOverview.UpdateTree(filename, textEditors[filename].ActiveTextAreaControl.Caret.Line, fromBase);
+            this.OpenScriptWindows.Add(window);
             CK3EditorPreferencesManager.Instance.Save();
 
         }
@@ -241,6 +284,8 @@ namespace CK3ScriptEditor
         public IHighlightingStrategy HighlightStrategy { get; set; }
 
         public string CurrentFile { get; set; }
+        public BasicFind Find { get; set; }
+        public TabOpenWindowsDlg TabOpenDlg { get; set; }
 
         private void windowToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -348,17 +393,27 @@ namespace CK3ScriptEditor
                     File.Delete(file);
                 }
 
+                Core.Instance = new Core();
                 Core.Instance.Init();
                 Core.Instance.LoadMod(Core.Instance.ModCK3Library.Name);
                 CK3ScriptEd.Instance.CloseAllModFileWindows();
                 CK3ScriptEd.Instance.UpdateAllWindows();
+                CK3EditorPreferencesManager.Instance.Save();
             }
         }
 
-        private void UpdateAllWindows()
+        public void UpdateAllWindows()
         {
             projectExplorer.FillProjectView();
             soExplorer.UpdateScriptExplorer();
+            detailsExplorer.SetObject(null);
+            if (DockPanel.ActiveContent is ScriptWindow)
+            {
+                fileOverview.UpdateTree((DockPanel.ActiveContent as ScriptWindow).Filename, (DockPanel.ActiveContent as ScriptWindow).Editor.ActiveTextAreaControl.Caret.Line, (DockPanel.ActiveContent as ScriptWindow).ScriptFile.IsBase);
+                
+            }
+            
+            
         }
 
         private void CloseAllModFileWindows()
@@ -455,6 +510,53 @@ namespace CK3ScriptEditor
         public void SetActiveEditor(TextEditorControl c)
         {
             DockPanel.ActiveContent = c.Parent as ScriptWindow;
+        }
+
+        public void ActivateWindow(ScriptWindow scriptWindow)
+        {
+            DockPanel.ActiveContent = scriptWindow;
+        }
+
+        private void loadModToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = Globals.CK3ModPath.Replace("/", "\\");
+                openFileDialog.Filter = "descriptor.mod file (descriptor.mod)|descriptor.mod";
+                openFileDialog.FilterIndex = 0;
+                openFileDialog.RestoreDirectory = false;
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    //Get the path of specified file
+                    var filePath = openFileDialog.FileName.Replace("\\", "/");
+                    filePath = filePath.Substring(0, filePath.LastIndexOf("/"));
+
+                    Load(filePath.Substring(filePath.LastIndexOf("/") + 1));
+                }
+            }
+        }
+
+        private void CK3ScriptEd_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            foreach (var openScriptWindow in OpenScriptWindows)
+            {
+                if (!openScriptWindow.CheckSave())
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var sw = (DockPanel.ActiveContent as ScriptWindow);
+
+            if (sw != null && !sw.ScriptFile.IsBase)
+            {
+                sw.Save();
+            }
         }
     }
 }

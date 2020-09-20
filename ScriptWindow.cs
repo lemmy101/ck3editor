@@ -19,6 +19,14 @@ namespace CK3ScriptEditor
     public partial class ScriptWindow : DarkToolWindow
     {
         bool IsBaseFile = false;
+        public string FullFilename;
+        public bool IgnoredFirstDirty = false;
+
+        public TextEditorControl Editor
+        {
+            get { return textEditorControl1; }
+        }
+
         public ScriptWindow(bool fromBase)
         {
             IsBaseFile = fromBase;
@@ -41,12 +49,94 @@ namespace CK3ScriptEditor
             textEditorControl1.Document.TextContentChanged += ActiveTextAreaControlOnTextChanged;
             textEditorControl1.ActiveTextAreaControl.TextArea.KeyEventHandler += TextArea_KeyEventHandler;
             textEditorControl1.ActiveTextAreaControl.TextArea.DoProcessDialogKey += TextArea_DoProcessDialogKey;
+            textEditorControl1.ActiveTextAreaControl.TextArea.KeyPress +=TextAreaOnKeyPress;
+
+            textEditorControl1.ActiveTextAreaControl.TextArea.KeyDown += TextAreaOnKeyDown;
 
             var cm = ((ContextMenu) textEditorControl1.ActiveTextAreaControl.ContextMenuStrip);
 
             cm.ContextMenuShown += CmOnContextMenuShown;
 
         }
+
+        public void Save()
+        {
+            textEditorControl1.SaveFile(FullFilename);
+            Dirty = false;
+
+        }
+        private void TextAreaOnKeyDown(object sender, KeyEventArgs e)
+        {
+
+            if (e.KeyCode == Keys.S)
+            {
+                if (e.Control)
+                {
+                    textEditorControl1.SaveFile(FullFilename);
+                    Dirty = false;
+                }
+            
+                // intellisense...
+            }
+            if (e.KeyCode == Keys.Tab && e.Control)
+            {
+                if (CK3ScriptEd.Instance.OpenScriptWindows.Count > 1)
+                {
+
+                    DoCloseIntellisense();
+            
+                    if (CK3ScriptEd.Instance.TabOpenDlg == null || CK3ScriptEd.Instance.TabOpenDlg.IsDisposed)
+                        CK3ScriptEd.Instance.TabOpenDlg = new TabOpenWindowsDlg();
+
+                    if (!CK3ScriptEd.Instance.TabOpenDlg.Visible)
+                    {
+                        CK3ScriptEd.Instance.TabOpenDlg.Show(CK3ScriptEd.Instance);
+                        CK3ScriptEd.Instance.TabOpenDlg.Fill();
+                        CK3ScriptEd.Instance.TabOpenDlg.Focus();
+
+                        Point location = PointToScreen(Location);
+
+                        location.X += textEditorControl1.Size.Width / 2;
+                        location.Y += textEditorControl1.Size.Height / 2;
+
+                        location.X -= CK3ScriptEd.Instance.TabOpenDlg.Size.Width / 2;
+                        location.Y -= CK3ScriptEd.Instance.TabOpenDlg.Size.Height / 2;
+
+                        CK3ScriptEd.Instance.TabOpenDlg.Location = new Point(location.X, location.Y);
+
+                    }
+                }
+             
+            }
+        }
+
+        private void TextAreaOnKeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((Control.ModifierKeys & Keys.Control) != 0)
+            {
+                if (e.KeyChar == '\u0006')
+                {
+                    if(CK3ScriptEd.Instance.Find == null || CK3ScriptEd.Instance.Find.IsDisposed)
+                        CK3ScriptEd.Instance.Find = new BasicFind(this);
+
+                    if (!CK3ScriptEd.Instance.Find.Visible)
+                    {
+                        CK3ScriptEd.Instance.Find.Show(CK3ScriptEd.Instance);
+
+                        Point location = CK3ScriptEd.Instance.PointToScreen(Location);
+
+                        CK3ScriptEd.Instance.Find.Location = new Point(location.X + (textEditorControl1.Width - (CK3ScriptEd.Instance.Find.Size.Width)), location.Y);
+
+                    }
+
+                    if (textEditorControl1.ActiveTextAreaControl.SelectionManager.SelectedText != null)
+                        CK3ScriptEd.Instance.Find.FindText.Text = textEditorControl1.ActiveTextAreaControl.SelectionManager.SelectedText;
+
+                       // intellisense...
+                }
+            }
+        }
+
         public void RemoveEventHandlers()
         {
             var cm = ((ContextMenu)textEditorControl1.ActiveTextAreaControl.ContextMenuStrip);
@@ -131,6 +221,31 @@ namespace CK3ScriptEditor
         {
            UpdateDatabase();
             //DoIntellisense();
+            if(!IgnoredFirstDirty)
+                Dirty = true;
+
+        }
+
+        public bool Dirty
+        {
+            get => _dirty;
+            set
+            {
+                if (value == true && !_dirty)
+                {
+                    DockText = "* " + DockText;
+                }
+                if (value == false && _dirty)
+                {
+                    if(DockText.StartsWith("*"))
+                        DockText = DockText.Substring(2);
+                }
+
+                _dirty = value;
+
+                
+
+            }
         }
 
         private bool TextArea_DoProcessDialogKey(Keys keyData)
@@ -181,16 +296,18 @@ namespace CK3ScriptEditor
 
         private bool TextArea_KeyEventHandler(char ch)
         {
-           
+
             if ((Control.ModifierKeys & Keys.Control) != 0)
             {
                 if (ch == 's')
                 {
-                    textEditorControl1.SaveFile(Filename);
+                    textEditorControl1.SaveFile(FullFilename);
+                    Dirty = false;
                     // intellisense...
                     return true;
                 }
             }
+          
             if ((Control.ModifierKeys & Keys.Control) != 0)
             {
                 if (ch == ' ')
@@ -205,6 +322,7 @@ namespace CK3ScriptEditor
 
             return false;
         }
+
 
         private bool FlaggedCloseIntellisense;
         public void DoCloseIntellisense()
@@ -242,7 +360,10 @@ namespace CK3ScriptEditor
             {
                 Core.Instance.UpdateFile(Filename, this.textEditorControl1.Document.TextContent);
                 SyntaxHighlightingManager.Instance.DoDocument(this.textEditorControl1.Document, backgroundColor, Core.Instance.GetFile(Filename));
-                
+
+                CK3ScriptEd.Instance.fileOverview.UpdateTree(Filename, textEditorControl1.ActiveTextAreaControl.Caret.Line, IsBaseFile);
+
+
             }
         }
         private void DoIntellisense(bool force=false, bool onlyUpdate=false)
@@ -361,6 +482,7 @@ namespace CK3ScriptEditor
 
         public int lineForIntellisense;
         private Color backgroundColor;
+        private bool _dirty;
         public IntellisenseDlg CurrentIntellisense { get; set; }
 
         private void CaretOnPositionChanged(object sender, EventArgs e)
@@ -441,6 +563,7 @@ namespace CK3ScriptEditor
 
         public TextEditorControl LoadFile(string filename)
         {
+            IgnoredFirstDirty = true;
           //  Filename = filename.Substring(filename.LastIndexOf("game/") + 5);
             textEditorControl1.LoadFile(filename);
 
@@ -514,79 +637,31 @@ namespace CK3ScriptEditor
                 }
                 SyntaxHighlightingManager.Instance.DoDocument(textEditorControl1.Document, backgroundColor, ScriptFile);
             }
-
+            IgnoredFirstDirty = false;
             return textEditorControl1;
         }
 
 
         public void Activate()
         {
+
+            if (CK3ScriptEd.Instance.Find != null)
+                CK3ScriptEd.Instance.Find.Window = this;
+
             if (Filename != null)
             {
                 CK3ScriptEd.Instance.fileOverview.UpdateTree(Filename, textEditorControl1.ActiveTextAreaControl.Caret.Line, IsBaseFile);
-                /*
-                if (IsBaseFile)
-                {
-                    textEditorControl1.Document.ReadOnly = true;
-                          textEditorControl1.Document.HighlightingStrategy = new DefaultHighlightingStrategy("Default", true);//textEditorControl1.Document.HighlightingStrategy
-                    var d = (textEditorControl1.Document.HighlightingStrategy as DefaultHighlightingStrategy);
-                    {
-                        var c = Color.FromArgb(255, 54, 42, 40);
-                        var s = Color.FromArgb(255, 92, 73, 70);
-                        var cl = Color.FromArgb(255, 62, 43, 40);
 
-                        d.environmentColors["Default"].BackgroundColor = c;
-                        d.environmentColors["FoldLine"].BackgroundColor = c;
-                        d.environmentColors["VRuler"].BackgroundColor = c;
-
-                        d.environmentColors["Selection"].BackgroundColor = s;
-                        d.environmentColors["CaretLine"].BackgroundColor = cl;
-                        //  d.environmentColors["VRuler"].BackgroundColor = c;
-                        d.DigitColor.BackgroundColor = c;
-                        d.DefaultTextColor.BackgroundColor = c;
-                        
-                        foreach (var lineSegment in textEditorControl1.Document.LineSegmentCollection)
-                        {
-                            if (lineSegment.Words != null)
-                            foreach (var lineSegmentWord in lineSegment.Words)
-                            {
-                                if (lineSegmentWord.SyntaxColor != null)
-                                    lineSegmentWord.SyntaxColor.BackgroundColor = c;
-                            }
-                        }
-                        
-                    }
-
-                }
-                else
-                {
-                    textEditorControl1.Document.ReadOnly = false;
-                  //  textEditorControl1.Document.HighlightingStrategy = new DefaultHighlightingStrategy("Default", false);//textEditorControl1.Document.HighlightingStrategy
-                    var d = (textEditorControl1.Document.HighlightingStrategy as DefaultHighlightingStrategy);
-                    {
-                        var c = Color.FromArgb(255, 40, 42, 54);
-                        var s = Color.FromArgb(255, 70, 73, 92);
-                        var cl = Color.FromArgb(255, 40, 43, 62);
-
-                        
-                        foreach (var lineSegment in textEditorControl1.Document.LineSegmentCollection)
-                        {
-                            if(lineSegment.Words != null)
-                            foreach (var lineSegmentWord in lineSegment.Words)
-                            {
-                                if (lineSegmentWord.SyntaxColor != null)
-                                    lineSegmentWord.SyntaxColor.BackgroundColor = c;
-                            }
-                        }
-
-                    }
-                }
-                */
-                if(ScriptFile!=null)
+                if (ScriptFile!=null)
                     UpdateLocalizations();
             }
 
             CK3EditorPreferencesManager.Instance.Save();
+
+            CK3ScriptEd.Instance.OpenScriptWindows.Remove(this);
+            CK3ScriptEd.Instance.OpenScriptWindows.Insert(0, this);
+
+
         }
 
         private void textEditorControl1_Click(object sender, EventArgs e)
@@ -601,6 +676,36 @@ namespace CK3ScriptEditor
             if (Filename != null)
                 CK3ScriptEd.Instance.fileOverview.UpdateTree(Filename, textEditorControl1.ActiveTextAreaControl.Caret.Line, IsBaseFile);
 
+        }
+
+        public bool CheckSave()
+        {
+            if (!Dirty)
+                return true;
+            if (ScriptFile.IsBase)
+                return true;
+
+            var res = MessageBox.Show("Save modified file: " + Filename, "Warning: Unsaved script file.",
+                MessageBoxButtons.YesNoCancel);
+
+            if (res == DialogResult.Yes)
+            {
+                textEditorControl1.SaveFile(FullFilename);
+                Dirty = false;
+                return true;
+            }
+
+            if (res == DialogResult.Cancel)
+            {
+                return false;
+            }
+
+            if (res == DialogResult.No)
+            {
+                return true;
+            }
+
+            return false;
         }
 
     }

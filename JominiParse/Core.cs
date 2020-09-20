@@ -12,17 +12,46 @@ namespace JominiParse
         public static Core Instance = new Core();
 
 
-        public ScriptLibrary BaseCK3Library = new ScriptLibrary();
-        public ScriptLibrary ModCK3Library = new ScriptLibrary();
+        public ScriptLibrary BaseCK3Library;// = new ScriptLibrary();
+        public ScriptLibrary ModCK3Library;// = new ScriptLibrary();
         public ScriptLibrary LoadingCK3Library = null;
+
+
+        public List<ScriptObject> DeferedInitializationList = new List<ScriptObject>();
+        public List<ScriptObject> DeferedPostInitializationList = new List<ScriptObject>();
+        public List<ScriptObject> DeferedPostInitializationListNext = new List<ScriptObject>();
+
+        public List<ScriptObject> BehaviourRecalculateList = new List<ScriptObject>();
+        
+        public HashSet<string> _cachedScriptedEffects = null;
+        public HashSet<string> _cachedScriptedTriggers = null;
+
+
+        public Core()
+        {
+            Wipe();
+
+
+        }
+
+        void Wipe()
+        {
+            SchemaManager.Instance = new SchemaManager();
+            CoreIntellisenseHandler.Instance = new CoreIntellisenseHandler();
+            EnumExtractorUtility.Instance = new EnumExtractorUtility();
+            EnumManager.Instance = new EnumManager();
+            FileTokenizer.Instance = new FileTokenizer();
+            JomaniScriptDocLogsToSchemaConverter.Instance = new JomaniScriptDocLogsToSchemaConverter();
+            LocalizationParser.Instance = new LocalizationParser();
+            ReferenceManager.Instance = new ReferenceManager();
+            BaseCK3Library = null;
+            ModCK3Library = null;
+            LoadingCK3Library = null;
+        }
 
         public void Init()
         {
-            ScriptObject.TypeMap[typeof(ScriptObject).FullName.GetHashCode()] = typeof(ScriptObject);
-            ScriptObject.TypeMap[typeof(ReferenceScriptValue).FullName.GetHashCode()] = typeof(ReferenceScriptValue);
-            ScriptObject.TypeMap[typeof(StaticScriptValue).FullName.GetHashCode()] = typeof(StaticScriptValue);
-            ScriptObject.TypeMap[typeof(NullScriptValue).FullName.GetHashCode()] = typeof(NullScriptValue);
-            ScriptObject.TypeMap[typeof(FormulaScriptValue).FullName.GetHashCode()] = typeof(FormulaScriptValue);
+            Wipe();
 
             SchemaManager.Instance.Init();
             BaseCK3Library = new ScriptLibrary();
@@ -32,7 +61,6 @@ namespace JominiParse
             EnumManager.Instance.Load();
             LoadCK3Scripts(BaseCK3Library, true, true);
             ScriptObject.ClearCachedScriptedEffects();
-
 
             ProcessBaseFileBehaviour();
 
@@ -116,11 +144,12 @@ namespace JominiParse
             RePostProcessUntilComplete();
 
             ScriptObject.ClearCachedScriptedEffects();
+
         }
 
         private void RePostProcessUntilComplete()
         {
-            var list = ScriptObject.BehaviourRecalculateList.ToList();
+            var list = Core.Instance.BehaviourRecalculateList.ToList();
             while (list.Count > 0)
             {
                 foreach (var scriptObject in list)
@@ -128,8 +157,8 @@ namespace JominiParse
                     scriptObject.PostInitialize(null, null);
                 }
                 int n = list.Count;
-                list = ScriptObject.BehaviourRecalculateList.ToList();
-                ScriptObject.BehaviourRecalculateList.Clear();
+                list = Core.Instance.BehaviourRecalculateList.ToList();
+                Core.Instance.BehaviourRecalculateList.Clear();
                 if (list.Count == n)
                 {
                     // unable to resolve any more
@@ -137,7 +166,7 @@ namespace JominiParse
                 }
             }
 
-            ScriptObject.BehaviourRecalculateList.Clear();
+            Core.Instance.BehaviourRecalculateList.Clear();
         }
 
         public string GetLocalizedText(string tag)
@@ -150,7 +179,7 @@ namespace JominiParse
             return ModCK3Library.HasLocalizedText(tag);
         }
 
-        ScriptContext GetContextFromDirectory(string dir)
+        public ScriptContext GetContextFromDirectory(string dir)
         {
             var res = BaseCK3Library.ContextData
                 .Where(a => a.Value.Directory != null && dir.StartsWith(a.Value.Directory)).ToList();
@@ -217,6 +246,8 @@ namespace JominiParse
 
             LoadingCK3Library.Add(results, context);
 
+            PostInitialize(null, null);
+
             return fromBase;
         }
 
@@ -238,16 +269,16 @@ namespace JominiParse
         {
             do
             {
-                ScriptObject.DeferedPostInitializationList = ScriptObject.DeferedPostInitializationListNext;
-                ScriptObject.DeferedPostInitializationListNext = new List<ScriptObject>();
-                for (int i = 0; i < ScriptObject.DeferedPostInitializationList.Count; i++)
+                Core.Instance.DeferedPostInitializationList = Core.Instance.DeferedPostInitializationListNext;
+                Core.Instance.DeferedPostInitializationListNext = new List<ScriptObject>();
+                for (int i = 0; i < Core.Instance.DeferedPostInitializationList.Count; i++)
                 {
-                    var scriptObject = ScriptObject.DeferedPostInitializationList[i];
+                    var scriptObject = Core.Instance.DeferedPostInitializationList[i];
                     scriptObject.PostInitialize(writer, reader);
                 }
 
-                ScriptObject.DeferedPostInitializationList.Clear();
-            } while (ScriptObject.DeferedPostInitializationListNext.Count > 0);
+                Core.Instance.DeferedPostInitializationList.Clear();
+            } while (Core.Instance.DeferedPostInitializationListNext.Count > 0);
         }
 
         public void LoadCK3Scripts(ScriptLibrary lib, bool save = true, bool load = true)
@@ -283,13 +314,13 @@ namespace JominiParse
             }
 
 
-            for (int i = 0; i < ScriptObject.DeferedInitializationList.Count; i++)
+            for (int i = 0; i < Core.Instance.DeferedInitializationList.Count; i++)
             {
-                var scriptObject = ScriptObject.DeferedInitializationList[i];
+                var scriptObject = Core.Instance.DeferedInitializationList[i];
                 scriptObject.Initialize();
             }
 
-            ScriptObject.DeferedInitializationList.Clear();
+            Core.Instance.DeferedInitializationList.Clear();
 
             LoadingCK3Library.RecalculateGroups();
         }
@@ -297,8 +328,9 @@ namespace JominiParse
         public void UpdateFile(string filename, string text)
         {
             VariableStore.Instance.RemoveAllVariablesFromFile(filename);
-            ScriptObject.DeferedPostInitializationListNext.Clear();
+            Core.Instance.DeferedPostInitializationListNext.Clear();
 
+            ModCK3Library.ClearFile(filename);
             string startDir = ModCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
 
             LoadingCK3Library = ModCK3Library;
@@ -317,9 +349,9 @@ namespace JominiParse
 
             try
             {
-                for (int i = 0; i < ScriptObject.DeferedPostInitializationListNext.Count; i++)
+                for (int i = 0; i < Core.Instance.DeferedPostInitializationListNext.Count; i++)
                 {
-                    var scriptObject = ScriptObject.DeferedPostInitializationListNext[i];
+                    var scriptObject = Core.Instance.DeferedPostInitializationListNext[i];
                     scriptObject.Initialize();
                 }
             }
@@ -333,16 +365,16 @@ namespace JominiParse
 
                 do
                 {
-                    ScriptObject.DeferedPostInitializationList = ScriptObject.DeferedPostInitializationListNext;
-                    ScriptObject.DeferedPostInitializationListNext = new List<ScriptObject>();
-                    for (int i = 0; i < ScriptObject.DeferedPostInitializationList.Count; i++)
+                    Core.Instance.DeferedPostInitializationList = Core.Instance.DeferedPostInitializationListNext;
+                    Core.Instance.DeferedPostInitializationListNext = new List<ScriptObject>();
+                    for (int i = 0; i < Core.Instance.DeferedPostInitializationList.Count; i++)
                     {
-                        var scriptObject = ScriptObject.DeferedPostInitializationList[i];
+                        var scriptObject = Core.Instance.DeferedPostInitializationList[i];
                         scriptObject.PostInitialize(null, null);
                     }
 
-                    ScriptObject.DeferedPostInitializationList.Clear();
-                } while (ScriptObject.DeferedPostInitializationListNext.Count > 0);
+                    Core.Instance.DeferedPostInitializationList.Clear();
+                } while (Core.Instance.DeferedPostInitializationListNext.Count > 0);
             }
             catch (Exception e)
             {

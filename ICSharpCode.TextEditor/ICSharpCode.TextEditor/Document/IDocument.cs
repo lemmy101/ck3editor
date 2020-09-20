@@ -313,5 +313,5 @@ namespace ICSharpCode.TextEditor.Document
 		event DocumentEventHandler DocumentChanged;
 		
 		event EventHandler TextContentChanged;
-	}
+    }
 }

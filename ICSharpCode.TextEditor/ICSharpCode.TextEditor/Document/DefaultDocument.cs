@@ -449,8 +449,8 @@ namespace ICSharpCode.TextEditor.Document
 		
 		public event EventHandler UpdateCommited;
 		public event EventHandler TextContentChanged;
-		
-		[Conditional("DEBUG")]
+
+        [Conditional("DEBUG")]
 		internal static void ValidatePosition(IDocument document, TextLocation position)
 		{
 			document.GetLineSegment(position.Line);
