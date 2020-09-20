@@ -11,13 +11,13 @@ namespace JominiParse
     {
         public static Core Instance = new Core();
 
+
         public ScriptLibrary BaseCK3Library = new ScriptLibrary();
         public ScriptLibrary ModCK3Library = new ScriptLibrary();
         public ScriptLibrary LoadingCK3Library = null;
 
         public void Init()
         {
-
             ScriptObject.TypeMap[typeof(ScriptObject).FullName.GetHashCode()] = typeof(ScriptObject);
             ScriptObject.TypeMap[typeof(ReferenceScriptValue).FullName.GetHashCode()] = typeof(ReferenceScriptValue);
             ScriptObject.TypeMap[typeof(StaticScriptValue).FullName.GetHashCode()] = typeof(StaticScriptValue);
@@ -32,9 +32,56 @@ namespace JominiParse
             EnumManager.Instance.Load();
             LoadCK3Scripts(BaseCK3Library, true, true);
             ScriptObject.ClearCachedScriptedEffects();
-        //    PostInitialize();
-        //    BaseCK3Library.SaveBinary("binary.dat");
-            //BaseCK3Library.LoadBinary("");
+
+
+            ProcessBaseFileBehaviour();
+
+            SchemaManager.Instance.SaveBinary();
+        }
+
+        private void ProcessBaseFileBehaviour()
+        {
+            string binFilename = "behaviourData.bin";
+            binFilename = Globals.CK3EdDataPath.Replace("\\", "/") + binFilename;
+            BinaryReader reader = null;
+            BinaryWriter writer = null;
+            if (File.Exists(binFilename))
+            {
+                reader = new BinaryReader(File.Open(binFilename, FileMode.Open));
+            }
+            else
+            {
+                writer = new BinaryWriter(File.Open(binFilename, FileMode.Create));
+            }
+
+            if (reader != null)
+            {
+                int v = reader.ReadInt32();
+                if (v != Globals.DataVersion)
+                {
+                    reader.Close();
+                    reader = null;
+                    writer = new BinaryWriter(File.Open(binFilename, FileMode.Create));
+                }
+            }
+
+            if (writer != null)
+            {
+                writer.Write(Globals.DataVersion);
+            }
+
+            PostInitialize(writer, reader);
+
+            if (writer != null)
+            {
+                writer.Flush();
+                writer.Close();
+            }
+
+            if (reader != null)
+            {
+                reader.Close();
+            }
         }
 
         public void CreateOrLoadMod(string mod)
@@ -53,6 +100,7 @@ namespace JominiParse
             PostInitialize();
             ScriptObject.ClearCachedScriptedEffects();
         }
+
         public void LoadMod(string mod)
         {
             ModCK3Library = new ScriptLibrary();
@@ -64,18 +112,39 @@ namespace JominiParse
             LoadCK3Scripts(ModCK3Library, false, false);
 
             PostInitialize();
+
+            RePostProcessUntilComplete();
+
             ScriptObject.ClearCachedScriptedEffects();
         }
 
-        private void LoadModFiles(string mod)
+        private void RePostProcessUntilComplete()
         {
-            
+            var list = ScriptObject.BehaviourRecalculateList.ToList();
+            while (list.Count > 0)
+            {
+                foreach (var scriptObject in list)
+                {
+                    scriptObject.PostInitialize(null, null);
+                }
+                int n = list.Count;
+                list = ScriptObject.BehaviourRecalculateList.ToList();
+                ScriptObject.BehaviourRecalculateList.Clear();
+                if (list.Count == n)
+                {
+                    // unable to resolve any more
+                    break;
+                }
+            }
+
+            ScriptObject.BehaviourRecalculateList.Clear();
         }
 
         public string GetLocalizedText(string tag)
         {
             return ModCK3Library.GetLocalizedText(tag);
         }
+
         public bool HasLocalizedText(string tag)
         {
             return ModCK3Library.HasLocalizedText(tag);
@@ -83,9 +152,10 @@ namespace JominiParse
 
         ScriptContext GetContextFromDirectory(string dir)
         {
-            var res = BaseCK3Library.ContextData.Where(a => a.Value.Directory != null && dir.StartsWith(a.Value.Directory)).ToList();
+            var res = BaseCK3Library.ContextData
+                .Where(a => a.Value.Directory != null && dir.StartsWith(a.Value.Directory)).ToList();
 
-            if(res.Any())
+            if (res.Any())
 
             {
                 return res[0].Key;
@@ -103,14 +173,14 @@ namespace JominiParse
             string directory = filename.Substring(0, filename.LastIndexOf("/"));
 
             ScriptContext context = GetContextFromDirectory(directory);
-            string startDir = Globals.CK3Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
+            string startDir = Globals.CK3Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
 
-            var results = FileTokenizer.Instance.LoadFile(startDir + filename,startDir, context, true);
+            var results = FileTokenizer.Instance.LoadFile(startDir + filename, startDir, context, true);
 
             BaseCK3Library.Add(results, context);
-
         }
-        public bool LoadCK3File(string filename, bool forceBase=false, bool forceReload = false)
+
+        public bool LoadCK3File(string filename, bool forceBase = false, bool forceReload = false)
         {
             bool fromBase = false;
             if (!ModCK3Library.FileMap.ContainsKey(filename))
@@ -131,18 +201,17 @@ namespace JominiParse
                     if (ModCK3Library.FileMap.ContainsKey(filename))
                         return fromBase;
                 }
-
             }
             else
             {
                 LoadingCK3Library.ClearFile(filename);
             }
 
-           
+
             string directory = filename.Substring(0, filename.LastIndexOf("/"));
 
             ScriptContext context = GetContextFromDirectory(directory);
-            string startDir = LoadingCK3Library.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
+            string startDir = LoadingCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
 
             var results = FileTokenizer.Instance.LoadFile(startDir + filename, startDir, context, true);
 
@@ -158,13 +227,14 @@ namespace JominiParse
 
             return ModCK3Library.GetFile(file);
         }
+
         public ScriptFile GetFile(string file)
         {
             return ModCK3Library.GetFile(file);
         }
-       
-       
-        public void PostInitialize()
+
+
+        public void PostInitialize(BinaryWriter writer = null, BinaryReader reader = null)
         {
             do
             {
@@ -173,20 +243,11 @@ namespace JominiParse
                 for (int i = 0; i < ScriptObject.DeferedPostInitializationList.Count; i++)
                 {
                     var scriptObject = ScriptObject.DeferedPostInitializationList[i];
-                    scriptObject.PostInitialize();
-
+                    scriptObject.PostInitialize(writer, reader);
                 }
+
                 ScriptObject.DeferedPostInitializationList.Clear();
-
             } while (ScriptObject.DeferedPostInitializationListNext.Count > 0);
-
-            /*while (ScriptObject.DeferedInitializationList.Count > 0)
-            {
-                var scriptObject = ScriptObject.DeferedInitializationList[0];
-                scriptObject.PostInitialize();
-            }
-            */
-
         }
 
         public void LoadCK3Scripts(ScriptLibrary lib, bool save = true, bool load = true)
@@ -208,20 +269,17 @@ namespace JominiParse
                         if (info.Directory.EndsWith(".txt"))
                         {
                             var r = FileTokenizer.Instance.LoadFile(startDir + info.Directory, startDir,
-                                (ScriptContext)x, save);
-                            LoadingCK3Library.Add(r, (ScriptContext)x);
+                                (ScriptContext) x, save);
+                            LoadingCK3Library.Add(r, (ScriptContext) x);
                         }
                         else
                         {
                             var r = FileTokenizer.Instance.LoadDirectory(startDir + info.Directory + "/", startDir,
-                                (ScriptContext)x, save, load);
-                            LoadingCK3Library.Add(r, (ScriptContext)x);
-
+                                (ScriptContext) x, save, load);
+                            LoadingCK3Library.Add(r, (ScriptContext) x);
                         }
-
                     }
                 }
-
             }
 
 
@@ -229,14 +287,11 @@ namespace JominiParse
             {
                 var scriptObject = ScriptObject.DeferedInitializationList[i];
                 scriptObject.Initialize();
-
             }
 
             ScriptObject.DeferedInitializationList.Clear();
 
             LoadingCK3Library.RecalculateGroups();
-
-
         }
 
         public void UpdateFile(string filename, string text)
@@ -244,8 +299,8 @@ namespace JominiParse
             VariableStore.Instance.RemoveAllVariablesFromFile(filename);
             ScriptObject.DeferedPostInitializationListNext.Clear();
 
-            string startDir = ModCK3Library.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
-            
+            string startDir = ModCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
+
             LoadingCK3Library = ModCK3Library;
 
             var c = GetContextFromDirectory(filename.Substring(0, filename.LastIndexOf("/")));
@@ -262,15 +317,11 @@ namespace JominiParse
 
             try
             {
-          
-                 for (int i = 0; i < ScriptObject.DeferedPostInitializationListNext.Count; i++)
+                for (int i = 0; i < ScriptObject.DeferedPostInitializationListNext.Count; i++)
                 {
                     var scriptObject = ScriptObject.DeferedPostInitializationListNext[i];
                     scriptObject.Initialize();
-
                 }
-                
-               
             }
             catch (Exception e)
             {
@@ -287,11 +338,10 @@ namespace JominiParse
                     for (int i = 0; i < ScriptObject.DeferedPostInitializationList.Count; i++)
                     {
                         var scriptObject = ScriptObject.DeferedPostInitializationList[i];
-                        scriptObject.PostInitialize();
-
+                        scriptObject.PostInitialize(null, null);
                     }
-                    ScriptObject.DeferedPostInitializationList.Clear();
 
+                    ScriptObject.DeferedPostInitializationList.Clear();
                 } while (ScriptObject.DeferedPostInitializationListNext.Count > 0);
             }
             catch (Exception e)
@@ -300,11 +350,9 @@ namespace JominiParse
 
 
             ScriptObject.ClearCachedScriptedEffects();
-
-
         }
 
-        
+
         public HashSet<string> GetGroupNameList(ScriptGroupContext context, bool modOnly)
         {
             HashSet<string> eventNames = new HashSet<string>();
@@ -317,6 +365,7 @@ namespace JominiParse
 
             return eventNames;
         }
+
         public HashSet<string> GetNameSet(ScriptContext context, bool modOnly)
         {
             HashSet<string> eventNames = new HashSet<string>();
@@ -330,27 +379,28 @@ namespace JominiParse
             return eventNames;
         }
 
-        public List<string> GetNameSet(string type, ScriptLibrary lib, bool allowPrepend=false, bool addPrepend=false)
+        public List<string> GetNameSet(string type, ScriptLibrary lib, bool allowPrepend = false,
+            bool addPrepend = false)
         {
             List<string> l = new List<string>();
             var where = lib.ContextData.Where(a => a.Value.Type == type);
 
-            
+
             foreach (var keyValuePair in where)
             {
                 if (keyValuePair.Value.Prepend != null && !allowPrepend)
                 {
-
                 }
                 else
                 {
                     if (keyValuePair.Value.Prepend != null && addPrepend)
-                        l.AddRange(keyValuePair.Value.Keys().Select(a => string.Concat(keyValuePair.Value.Prepend, ":", a)));
+                        l.AddRange(keyValuePair.Value.Keys()
+                            .Select(a => string.Concat(keyValuePair.Value.Prepend, ":", a)));
                     else
                         l.AddRange(keyValuePair.Value.Keys());
                 }
-                    
             }
+
             var where2 = lib.GroupContextData.Where(a => a.Value.Type == type);
 
             foreach (var keyValuePair in where2)
@@ -361,7 +411,7 @@ namespace JominiParse
             return l;
         }
 
-        public HashSet<string> GetNameSet(string type, bool modOnly, bool allowPrepend=false, bool addPrepend=false)
+        public HashSet<string> GetNameSet(string type, bool modOnly, bool allowPrepend = false, bool addPrepend = false)
         {
             HashSet<string> eventNames = new HashSet<string>();
 
@@ -369,7 +419,7 @@ namespace JominiParse
             if (modOnly)
                 return eventNames;
 
-            eventNames.UnionWith(GetNameSet(type, BaseCK3Library, allowPrepend,addPrepend));
+            eventNames.UnionWith(GetNameSet(type, BaseCK3Library, allowPrepend, addPrepend));
 
             return eventNames;
         }
@@ -393,7 +443,6 @@ namespace JominiParse
             }
 
             return res;
-
         }
 
         public ScriptObject Get(string name, bool forceBase = false)
@@ -414,7 +463,6 @@ namespace JominiParse
             }
 
             return res;
-
         }
 
         public ScriptObject GetEvent(string name)
@@ -427,15 +475,11 @@ namespace JominiParse
             return BaseCK3Library.ContextData[context].Directory;
         }
 
-        public HashSet<string> GetNameSetFromEnumType(string type, bool allowPrepend=false, bool addPrepend=false)
+        public HashSet<string> GetNameSetFromEnumType(string type, bool allowPrepend = false, bool addPrepend = false)
         {
-
-            
-
             //  if (type == "building_type")
             //    return GetNameSet(ScriptContext.Buildings, false);
             return GetNameSet(type, false, allowPrepend, addPrepend);
-
         }
 
         public HashSet<string> LocalVarListFromObjectFile(ScriptObject o)
@@ -449,6 +493,7 @@ namespace JominiParse
 
             return s;
         }
+
         public HashSet<string> LocalVarListFromObjectFile(ScriptObject o, ScriptObject.ScopeVarType type)
         {
             HashSet<string> s = new HashSet<string>();
@@ -457,6 +502,7 @@ namespace JominiParse
             {
                 s.Add(d);
             }
+
             return s;
         }
 
@@ -482,7 +528,7 @@ namespace JominiParse
                         return keyValuePair.Value.Get(id);
                 }
             }
-            
+
             if (BaseCK3Library.ContextData.Any(a => a.Value.Type == expectedType))
             {
                 var l = BaseCK3Library.ContextData.Where(a => a.Value.Type == expectedType).ToList();
@@ -491,12 +537,10 @@ namespace JominiParse
                 {
                     if (keyValuePair.Value.Has(id))
                         return keyValuePair.Value.Get(id);
-
                 }
             }
 
             return null;
-
         }
 
         public List<SmartFindResults> DoSmartFind(SmartFindOptions options)
@@ -507,6 +551,7 @@ namespace JominiParse
             {
                 BaseCK3Library.DoSmartFind(options, results);
             }
+
             if (options.SearchMod)
             {
                 ModCK3Library.DoSmartFind(options, results);
@@ -514,10 +559,5 @@ namespace JominiParse
 
             return results;
         }
-
-
-        
-
-
     }
 }

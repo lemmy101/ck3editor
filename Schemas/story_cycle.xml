@@ -1,0 +1,16 @@
+<Schema name="story_cycle" id="story_cycle" scope="story_cycle">
+	<Effect name="on_setup"/>
+	<Effect name="on_end"/>
+	<Effect name="on_owner_death"/>
+	<Effect name="on_owner_death"/>
+
+	<Effect_Group>
+		<Value name="days"/>
+		<Trigger/>
+		<Triggered_Effect>
+			<Trigger/>
+			<Effect/>
+		</Triggered_Effect>
+	</Effect_Group>
+	
+ </Schema>

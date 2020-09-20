@@ -1,0 +1,39 @@
+<Schema id="scheme_type" scope="scheme">	
+	<Skill name="skill"/>
+	<Bool name="hostile"/>
+
+	<Value name="power_per_skill_point"/>
+	<Value name="resistance_per_skill_point"/>
+	<Value name="power_per_agent_skill_point"/>
+
+	<Value name="minimum_progress_chance"/>
+	<Value name="maximum_progress_chance"/>
+	<Value name="minimum_success"/>
+	<Value name="maximum_secrecy"/>
+	<Value name="maximum_success"/>
+	
+	<Trigger name="allow"/>
+	<Trigger name="valid"/>
+	
+	<ModifierStack name="agent_join_chance"/>
+	<ModifierStack name="base_success_chance"/>
+	<ModifierStack name="agent_success_chance"/>
+	
+	<Value name="agent_leave_threshold"/>
+	
+	<Child name="cooldown">
+		<Value name="years"/>
+	</Child>
+	
+	<Bool name="is_secret"/>
+	<Value name="base_secrecy"/>
+	
+	<Effect name="on_ready"/>
+	<Effect name="on_monthly"/>
+	<Effect name="on_invalidated"/>
+	
+	<Localized name="success_desc"/>
+	<Localized name="discovery_desc"/>
+	
+
+</Schema>

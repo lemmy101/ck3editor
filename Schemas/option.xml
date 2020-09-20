@@ -14,4 +14,6 @@
 	<Child name="custom_tooltip" type="localized"/>
 	<Child name="scopeeffects" type="scopeeffects"/>-->
 	
+	<Localized name="flavor"/>
+	
 </Schema>

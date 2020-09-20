@@ -15,4 +15,22 @@
 	<Child name="on_fired_from_position" type="effect" inherits="effect"/>
 	<Child name="portrait_animation" type="animation"/>
 	
+	<Bool name="use_for_scheme_power"/>
+	<Bool name="use_for_scheme_resistance"/>
+	<Bool name="auto_fill"/>
+
+	<Trigger name="can_fire"/>
+	<Trigger name="can_reassign"/>
+	<Trigger name="can_change_once"/>
+	<Trigger name="valid_position"/>
+	
+	<Effect name="on_lose_position"/>
+	
+	<Bool name="inherit"/>
+	<Bool name="fill_from_pool"/>
+	
+	<Value name="councillor_cooldown_days"/>
+	<Bool name="special_council_position"/>
+
+	
 </Schema>

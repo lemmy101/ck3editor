@@ -1,0 +1,21 @@
+<Schema name="scripted_relation" id="scripted_relation">
+	<Scripted_Relation name="corresponding"/>
+	<Bool name="title_grant_target"/>
+	<Child name="opposites">
+		<Scripted_Relation namesFrom="scripted_relation" name="relation"/>
+	</Child>
+	<Child name="relation_aliases">
+		<Scripted_Relation namesFrom="scripted_relation" name="relation"/>
+	</Child>
+	<Secret_Type name="secret"/>
+	<Value name="opinion"/>
+	<Value name="fertility"/>
+	<Bool name="special_guest"/>
+	<Bool name="hidden"/>
+	
+	<Child name="random_skills">
+		<Value name="value"/>	
+		<Trigger name="trigger" />
+	</Child>
+	
+</Schema>

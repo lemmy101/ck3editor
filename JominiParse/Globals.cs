@@ -17,5 +17,7 @@ namespace JominiParse
         {
             get { return CK3DocPath + "logs/"; }
         }
+
+        public static int DataVersion = 1;
     }
 }

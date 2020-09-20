@@ -39,6 +39,10 @@ namespace CK3ScriptEditor
         public void Load()
         {
             string filename = Globals.CK3EdDataPath + "OpenFileWindows.txt";
+
+            if (!File.Exists(filename))
+                return;
+
             string text = System.IO.File.ReadAllText(filename);
 
             string[] lines = text.Replace("\r", "").Split('\n');

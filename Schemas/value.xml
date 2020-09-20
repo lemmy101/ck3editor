@@ -10,6 +10,11 @@
 	</Child>
 
 	<Child name="multiply" type="value"/>
+	<Child name="subtract" type="value"/>
+	<Child name="divide" type="value"/>
+	<Child name="floor" type="value"/>
+	<Child name="min" type="value"/>
+	<Child name="max" type="value"/>
 	<Child name="add" type="value"/>
     <Child name="else" scope="none" doc="Executes enclosed effects if limit criteria of preceding 'if' or 'else_if' is not met" function="value" type="block" inherits="value">
     </Child>

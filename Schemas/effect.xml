@@ -453,6 +453,7 @@
   </Child>
   <Child name="random_in_list" scope="none" function="effect" type="function" inherits="effect">
 	  <Child name="list" type="any"/>  
+	  <ModifierStack name="weight"/>
   </Child>
   
   <Child name="use_hook" scope="character" type="character" doc="Uses a hook a character has (removes if weak, puts on cooldown if strong), use_hook = some_character" function="effect"  />

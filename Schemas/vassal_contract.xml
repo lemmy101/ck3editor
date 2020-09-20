@@ -1,0 +1,11 @@
+<ScriptObject id="vassal_contract">	
+	<Bool name="uses_opinion_of_liege"/>
+	<Display_Mode name="display_mode"/>
+	<Trigger name="is_shown"/>
+	
+	<Obligation_Levels>
+		<Vassal_Contract_Obligation namesFrom="vassal_contract_obligation" inherits="vassal_contract_obligation" />
+		<Vassal_Contract_Obligation names="default" inherits="vassal_contract_obligation"  />
+	</Obligation_Levels>
+	
+</ScriptObject>

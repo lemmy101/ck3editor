@@ -132,58 +132,6 @@ namespace JominiParse
             }
         }
 
-        /*
-               if (type == "innovation")
-                return GetNameSet(ScriptContext.CulturalInnovations, false);
-            if (type == "building")
-                return GetNameSet(ScriptContext.Buildings, false);
-            if (type == "event_background")
-                return GetNameSet(ScriptContext.EventBackgrounds, false);
-            if (type == "scheme_type")
-                return GetNameSet(ScriptContext.Schemes, false);
-            if (type == "relation")
-                return GetNameSet(ScriptContext.ScriptedRelations, false);
-            if (type == "scripted_modifier")
-                return GetNameSet(ScriptContext.ScriptedModifiers, false);
-            if (type == "scripted_trigger")
-                return GetNameSet(ScriptContext.ScriptedTriggers, false);
-            if (type == "opinion")
-                return GetNameSet(ScriptContext.OptionModifiers, false);
-            if (type == "hook")
-                return GetNameSet(ScriptContext.HookTypes, false);
-            if (type == "on_action")
-                return GetNameSet(ScriptContext.OnActions, false);
-            if (type == "modifier")
-                return GetNameSet(ScriptContext.StaticModifiers, false);
-            if (type == "event_theme")
-                return GetNameSet(ScriptContext.EventThemes, false);
-                 if (type == "perk")
-                return GetNameSet(ScriptContext.LifestylePerks, false);
-            if (type == "decision")
-                return GetNameSet(ScriptContext.Decisions, false);
-            if (type == "event")
-                return GetNameSet(ScriptContext.Events, false);
-            if(type == "culture_group")
-                return GetNameSet(ScriptContext.CultureGroups, false).PrependToken("culture_group:");
-            if (type == "trait")
-            {
-                var a = GetNameSet(ScriptContext.Traits, false);
-                var b = GetGroupNameList(ScriptGroupContext.TraitGroups, false);
-                var h = new HashSet<string>();
-
-                foreach (var v in a)
-                {
-                    h.Add(v);
-                }
-                foreach (var v in b)
-                {
-                    h.Add(v);
-                }
-
-                return h;
-            }
-         *
-         */
 
         public Dictionary<ScriptGroupContext, GroupContextInfo> GroupContextData =
             new Dictionary<ScriptGroupContext, GroupContextInfo>()
@@ -264,9 +212,10 @@ namespace JominiParse
             { ScriptContext.Traits, new ContextInfo() {Directory = "common/traits", Type="trait", Groups = new List<ScriptGroupContext>() {ScriptGroupContext.TraitGroups}}},
             { ScriptContext.TriggerLocalization, new ContextInfo() {Directory = "common/trigger_localization", Type="trigger_localization"}},
             { ScriptContext.VassalContracts, new ContextInfo() {Directory = "common/vassal_contracts", Type = "vassal_contract"}},
-            { ScriptContext.Messages, new ContextInfo() {Directory = "common/messages", Type = "message_type"}},
+            { ScriptContext.VassalContractObligation, new ContextInfo() {ChildOf = ScriptContext.VassalContracts, InsideChild="obligation_levels", Type = "vassal_contract_obligation"}},
             { ScriptContext.RegimentType, new ContextInfo() {Directory = "common/regiment_types", Type="regiment_type"}},
             { ScriptContext.GeographicRegion, new ContextInfo() {Directory = "map_data/geographical_region.txt", Type="geographic_region"}},
+            // { ScriptContext.Messages, new ContextInfo() {Directory = "common/messages", Type = "message_type"}},
 
         };
 
@@ -710,40 +659,6 @@ namespace JominiParse
                     foreach (var scriptObject in file.Map.Values)
                     {
                         scriptObject.Write(writer);
-                    }
-                }
-            }
-        }
-
-        public void LoadBinary(string fn)
-        {
-            using (BinaryReader reader = new BinaryReader(File.Open(fn, FileMode.Open)))
-            {
-                
-                int nFiles = reader.ReadInt32();
-
-                for(int x=0;x<nFiles;x++)
-                {
-                    string filename = reader.ReadString();
-                    int nObjects = reader.ReadInt32();
-                    ScriptFile sf = new ScriptFile();
-                    sf.Filename = filename;
-                    sf.IsBase = true;
-                    
-                    sf.Context = (ScriptContext) reader.ReadInt32();
-                    for (int m = 0; m < nObjects; m++)
-                    {
-                        ScriptObject o = ScriptObject.LoadFromData(reader, null);
-                        o.Read(reader, sf, null);
-                        sf.Map[o.Name] = o;
-                    }
-
-                    FileMap[sf.Filename] = sf;
-
-                    var l = sf.Map.Values.ToList().GroupBy(a => a.Context).ToList();
-                    foreach (var pair in l)
-                    {
-                        Add(pair.ToList(), pair.Key);
                     }
                 }
             }

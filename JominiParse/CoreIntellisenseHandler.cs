@@ -52,94 +52,17 @@ namespace JominiParse
                 return results;
 
             var scope = inside.GetScopeType();
-            /*
-            if (inside.BehaviourData.ExpectTriggers)
-            {
-                results.AddRange(ScopeManager.Instance.Defs[scope].ValidTriggerMap.Keys);
-                results.AddRange(ScopeManager.Instance.Defs[scope].ValidTriggerScopes.Keys);
-                results.AddRange(ScopeManager.Instance.Defs[ScopeType.any].ValidTriggerMap.Keys);
-                results.AddRange(ScopeManager.Instance.Defs[ScopeType.any].ValidTriggerScopes.Keys);
-                if (inside.BehaviourData.IsScopedBlock)
-                {
-                    results.Add("limit");
-                    results.Add("trigger_if");
-                }
 
-            }
-            if (inside.BehaviourData.ExpectEffects)
+            if (inside.lhsSchema != null)
             {
-                results.AddRange(ScopeManager.Instance.Defs[scope].ValidEffectMap.Keys);
-                results.AddRange(ScopeManager.Instance.Defs[scope].ValidEffectScopes.Keys);
-                results.AddRange(ScopeManager.Instance.Defs[ScopeType.any].ValidEffectMap.Keys);
-                results.AddRange(ScopeManager.Instance.Defs[ScopeType.any].ValidEffectScopes.Keys);
-                results.Add("if");
+                var ch = inside.lhsSchema.Children;
 
-            }
-          
-            if (inside.BehaviourData.Type == ScriptObjectBehaviourType.FunctionMultiline && inside.Schema != null)
-            {
-                foreach (var keyValuePair in inside.Schema.children)
+                foreach (var schemaNode in ch)
                 {
-                    if (keyValuePair.Value.namesFrom == null)
-                        results.Add(keyValuePair.Key);
-                    else if (keyValuePair.Value.namesFrom != "num")
-                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.namesFrom));
-                }
-            }
-            else if (inside.BehaviourData.Type == ScriptObjectBehaviourType.RootObject && inside.Schema != null)
-            {
-                foreach (var keyValuePair in inside.Schema.children)
-                {
-                    if (keyValuePair.Value.namesFrom == null)
-                        results.Add(keyValuePair.Key);
-                    else if (keyValuePair.Value.namesFrom != "num")
-                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.namesFrom));
-                }
-            }
-            else if (inside.BehaviourData.Type == ScriptObjectBehaviourType.RootObjectPropertyBlock && inside.Schema != null)
-            {
-                foreach (var keyValuePair in inside.Schema.children)
-                {
-                    if (keyValuePair.Value.namesFrom == null)
-                        results.Add(keyValuePair.Key);
-                    else if (keyValuePair.Value.namesFrom != "num")
-                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.namesFrom));
-                }
-            }
-            else if (inside.BehaviourData.Type == ScriptObjectBehaviourType.FunctionNamedFromParameterBlock && inside.Schema != null)
-            {
-                foreach (var keyValuePair in inside.Schema.children)
-                {
-                    if (keyValuePair.Value.namesFrom == null)
-                        results.Add(keyValuePair.Key);
-                    else if (keyValuePair.Value.namesFrom != "num")
-                        results.AddRange(EnumManager.Instance.GetEnums(keyValuePair.Value.namesFrom));
-                }
-            }
-
-            if (inside.BehaviourData.ExpectTriggers || inside.BehaviourData.ExpectEffects)
-            {
-                var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(inside.Topmost.Name);
-                HashSet<ScriptObject.ScriptScope> Scopes = new HashSet<ScriptObject.ScriptScope>();
-                visited.Clear();
-                foreach (var eventConnection in ConnectionsIn)
-                {
-                    GetScriptScopesFromReferences(eventConnection.From, Scopes);
-                }
-
-                foreach (var scriptScope in inside.scriptScopes.Values)
-                {
-                    if (scriptScope.RequiresScopeTag)
-                        results.Add("scope:" + scriptScope.Name);
+                    if(schemaNode.namesFrom != null)
+                        results.AddRange(EnumManager.Instance.GetEnums(schemaNode.namesFrom));
                     else
-                        results.Add(scriptScope.Name);
-                }
-                foreach (var scriptScope in Scopes)
-                {
-                    if (scriptScope.RequiresScopeTag)
-                        results.Add("scope:" + scriptScope.Name);
-                    else
-                        results.Add(scriptScope.Name);
+                        results.Add(schemaNode.name);
                 }
 
             }
@@ -149,17 +72,14 @@ namespace JominiParse
                 results.RemoveAll(a => !a.ToLower().Contains(match.ToLower()));
 
             results = results.OrderBy(a => a).Distinct().ToList();
-            if(match != null)
+            if (match != null)
                 results = results.OrderBy(a => !a.ToLower().StartsWith(match.ToLower())).ToList();
-              */
+
             return results;
         }
         public List<string> GetValidTokensEqual(ScriptObject inside, string child, string sofar)
         {
             List<string> results = new List<string>();
-            /*
-            if (inside.BehaviourData == null)
-                return new List<string>();
 
             if (inside == null)
             {
@@ -167,100 +87,127 @@ namespace JominiParse
                 return results;
             }
 
-            var expected = inside.BehaviourData.TypeExpected;
+            if (inside.BehaviourData == null)
+                return new List<string>();
 
-         
-            if (expected != null)
+            List<string> expectedType = new List<string>();
+
+            if (inside.lhsSchema != null)
             {
-                results.AddRange(EnumManager.Instance.GetEnums(expected, false));
-                //results.AddRange();
-                List<ScriptObject.ScriptScope> scoperesults = new List<ScriptObject.ScriptScope>();
-           
-                var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(inside.Topmost.Name);
-                HashSet<ScriptObject.ScriptScope> Scopes = new HashSet<ScriptObject.ScriptScope>();
-                visited.Clear();
-                foreach (var eventConnection in ConnectionsIn)
+                expectedType.AddRange(inside.lhsSchema.TypeList);
+                if (inside.BehaviourData.candidates != null)
                 {
-                    GetScriptScopesFromReferences(eventConnection.From, Scopes);
-                }
-                inside.Topmost.GetValidScriptScopes(scoperesults, true, ScriptObject.ScopeFindType.Any);
-                scoperesults.AddRange(Scopes);
-                var scopesval = scoperesults.Where(a => a.IsValue && a.VarType.ToString().ToLower() == expected).ToList();
-                var scopes = scoperesults.Where(a => !a.IsValue && a.To.ToString().ToLower() == expected).ToList();
-                scopes = scopes.Union(scopesval).ToList();
-                foreach (var scriptScope in scopes)
-                {
-                    if (scriptScope.RequiresScopeTag)
-                        results.Add("scope:"+scriptScope.Name);
-                    else
-                        results.Add(scriptScope.Name);
-                }
-            }
-            List<string> addToTop = new List<string>();
 
-            if (expected != null)
-            {
-                var l = Core.Instance.BaseCK3Library.ContextData.Where(a => a.Value.Type == expected).ToList();
-
-                if (l.Any())
-                {
-                    foreach (var keyValuePair in l)
-                    {
-                        if (keyValuePair.Value.Prepend != null)
-                        {
-                            if (string.IsNullOrEmpty(sofar) || ((keyValuePair.Value.Prepend + ":").Contains(sofar) && (keyValuePair.Value.Prepend + ":") != sofar))
-                            {
-                                addToTop.Add(keyValuePair.Value.Prepend + ":");
-                            }
-                            else if (sofar.StartsWith(keyValuePair.Value.Prepend + ":"))
-                            {
-                                var list = Core.Instance.GetNameSet(keyValuePair.Key, false).Select(a=>string.Concat(keyValuePair.Value.Prepend, ":", a)).ToList();
-                                results.AddRange(list);
-                            }
-                        }
-                    }
                 }
             }
 
-            results = results.OrderBy(a => a).Distinct().ToList();
-            if(sofar != null)
-                results.RemoveAll(a => !a.ToLower().Contains(sofar.ToLower()));
 
 
-            foreach (var v in addToTop)
-            {
-                results.Insert(0, v);
-
-            }
-
-            if (sofar != null)
-                results = results.OrderBy(a => !a.ToLower().StartsWith(sofar.ToLower())).ToList();
-
-            if (results.Count==1 && results[0] == sofar)
-                results.Clear();
-
-            if (child == "limit" && string.IsNullOrEmpty(sofar) ||
-                (string.IsNullOrEmpty(sofar) && expected == null &&
-                 inside.BehaviourData.ExpectedEffectFunction != null) ||
-                (string.IsNullOrEmpty(sofar) && expected == null &&
-                inside.BehaviourData.ExpectedTriggerFunction != null) ||
-                (inside.BehaviourData.CanBeScope && string.IsNullOrEmpty(sofar))
-                )
-            {
-                results.Insert(0, "{ }");
-            }
-
-            if (sofar != null && sofar.Trim().Length > 0)
-            {
-                int test;
-                if (Int32.TryParse(sofar, out test))
-                {
-                    results.Clear();
-                }
-            }*/
             return results;
+
+            /*
+                  if (inside.BehaviourData == null)
+                      return new List<string>();
+
+                  if (inside == null)
+                  {
+
+                      return results;
+                  }
+
+                  var expected = inside.BehaviourData.TypeExpected;
+
+
+                  if (expected != null)
+                  {
+                      results.AddRange(EnumManager.Instance.GetEnums(expected, false));
+                      //results.AddRange();
+                      List<ScriptObject.ScriptScope> scoperesults = new List<ScriptObject.ScriptScope>();
+
+                      var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(inside.Topmost.Name);
+                      HashSet<ScriptObject.ScriptScope> Scopes = new HashSet<ScriptObject.ScriptScope>();
+                      visited.Clear();
+                      foreach (var eventConnection in ConnectionsIn)
+                      {
+                          GetScriptScopesFromReferences(eventConnection.From, Scopes);
+                      }
+                      inside.Topmost.GetValidScriptScopes(scoperesults, true, ScriptObject.ScopeFindType.Any);
+                      scoperesults.AddRange(Scopes);
+                      var scopesval = scoperesults.Where(a => a.IsValue && a.VarType.ToString().ToLower() == expected).ToList();
+                      var scopes = scoperesults.Where(a => !a.IsValue && a.To.ToString().ToLower() == expected).ToList();
+                      scopes = scopes.Union(scopesval).ToList();
+                      foreach (var scriptScope in scopes)
+                      {
+                          if (scriptScope.RequiresScopeTag)
+                              results.Add("scope:"+scriptScope.Name);
+                          else
+                              results.Add(scriptScope.Name);
+                      }
+                  }
+                  List<string> addToTop = new List<string>();
+
+                  if (expected != null)
+                  {
+                      var l = Core.Instance.BaseCK3Library.ContextData.Where(a => a.Value.Type == expected).ToList();
+
+                      if (l.Any())
+                      {
+                          foreach (var keyValuePair in l)
+                          {
+                              if (keyValuePair.Value.Prepend != null)
+                              {
+                                  if (string.IsNullOrEmpty(sofar) || ((keyValuePair.Value.Prepend + ":").Contains(sofar) && (keyValuePair.Value.Prepend + ":") != sofar))
+                                  {
+                                      addToTop.Add(keyValuePair.Value.Prepend + ":");
+                                  }
+                                  else if (sofar.StartsWith(keyValuePair.Value.Prepend + ":"))
+                                  {
+                                      var list = Core.Instance.GetNameSet(keyValuePair.Key, false).Select(a=>string.Concat(keyValuePair.Value.Prepend, ":", a)).ToList();
+                                      results.AddRange(list);
+                                  }
+                              }
+                          }
+                      }
+                  }
+
+                  results = results.OrderBy(a => a).Distinct().ToList();
+                  if(sofar != null)
+                      results.RemoveAll(a => !a.ToLower().Contains(sofar.ToLower()));
+
+
+                  foreach (var v in addToTop)
+                  {
+                      results.Insert(0, v);
+
+                  }
+
+                  if (sofar != null)
+                      results = results.OrderBy(a => !a.ToLower().StartsWith(sofar.ToLower())).ToList();
+
+                  if (results.Count==1 && results[0] == sofar)
+                      results.Clear();
+
+                  if (child == "limit" && string.IsNullOrEmpty(sofar) ||
+                      (string.IsNullOrEmpty(sofar) && expected == null &&
+                       inside.BehaviourData.ExpectedEffectFunction != null) ||
+                      (string.IsNullOrEmpty(sofar) && expected == null &&
+                      inside.BehaviourData.ExpectedTriggerFunction != null) ||
+                      (inside.BehaviourData.CanBeScope && string.IsNullOrEmpty(sofar))
+                      )
+                  {
+                      results.Insert(0, "{ }");
+                  }
+
+                  if (sofar != null && sofar.Trim().Length > 0)
+                  {
+                      int test;
+                      if (Int32.TryParse(sofar, out test))
+                      {
+                          results.Clear();
+                      }
+                  }*/
         }
-            
-     
+
+
     }
 }

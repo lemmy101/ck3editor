@@ -15,6 +15,8 @@ namespace JominiParse
         public static List<ScriptObject> DeferedPostInitializationList = new List<ScriptObject>();
         public static List<ScriptObject> DeferedPostInitializationListNext = new List<ScriptObject>();
 
+        public static List<ScriptObject> BehaviourRecalculateList = new List<ScriptObject>();
+
         public string Namespace { get; set; }
         public SchemaNode lhsSchema;
         public ScriptFile ScriptFile { get; set; }
@@ -28,6 +30,7 @@ namespace JominiParse
             @string,
             flag
         }
+
         public class ScriptList
         {
             public string Name { get; set; }
@@ -37,13 +40,14 @@ namespace JominiParse
             public ScriptObject Declared { get; set; }
             public bool Temporary { get; set; }
         }
+
         public class ScriptScope
         {
             private ScopeType toScope;
             public bool Temporary { get; set; }
             public string Name { get; set; }
             public bool IsValue { get; set; }
-        
+
             public ScopeType To
             {
                 get
@@ -92,26 +96,21 @@ namespace JominiParse
 
             return null;
         }
+
         protected List<ScriptObject> FindChildren(string name)
         {
-         
             var f = Children.Where(a => a.Name == name).ToList();
 
 
             return f;
         }
 
-        public virtual void PostRead()
-        {
-
-        }
-
         public virtual void OnPostInitializeChild(ScriptObject child)
         {
-
         }
 
         private static HashSet<string> _cachedScriptedEffects = null;
+
         static HashSet<string> CachedScriptedEffects
         {
             get
@@ -122,7 +121,9 @@ namespace JominiParse
                 return _cachedScriptedEffects;
             }
         }
+
         private static HashSet<string> _cachedScriptedTriggers = null;
+
         static HashSet<string> CachedScriptedTriggers
         {
             get
@@ -144,9 +145,8 @@ namespace JominiParse
         {
             //EnumExtractorUtility.Instance.Add(this);
 
-            if(Name == "chancellor_task_1001_new_claim_trigger")
+            if (Name == "chancellor_task_1001_new_claim_trigger")
             {
-
             }
 
             if (Name == "events")
@@ -159,6 +159,7 @@ namespace JominiParse
                 Core.Instance.LoadingCK3Library.RegisterScriptTriggerCall(this);
                 this.IsScriptedTriggerCall = true;
             }
+
             if (Parent != null && CachedScriptedEffects.Contains(Name))
             {
                 Core.Instance.LoadingCK3Library.RegisterScriptEffectCall(this);
@@ -169,14 +170,17 @@ namespace JominiParse
             {
                 Core.Instance.LoadingCK3Library.RegisterTrigger(this);
             }
+
             if (Name == "first_valid_on_action")
             {
                 Core.Instance.LoadingCK3Library.RegisteFirstValidOnActionTrigger(this);
             }
+
             if (Name == "random_on_action")
             {
                 Core.Instance.LoadingCK3Library.RegisterRandomOnActionTrigger(this);
             }
+
             if (Name == "on_actions")
             {
                 Core.Instance.LoadingCK3Library.RegisteFirstValidOnActionTrigger(this);
@@ -186,10 +190,12 @@ namespace JominiParse
             {
                 Core.Instance.LoadingCK3Library.RegisterRandomEventsTrigger(this);
             }
+
             if (Name == "first_valid")
             {
                 Core.Instance.LoadingCK3Library.RegisterFirstValidEventsTrigger(this);
             }
+
             HandleScopeDeclarationFunctions(this, this.Parent);
 
             foreach (var scriptObject in Children)
@@ -204,21 +210,17 @@ namespace JominiParse
 
         public ScriptObjectBehaviourData BehaviourData { get; set; }
 
-        public virtual void PostInitialize()
+        public virtual void PostInitialize(BinaryWriter writer, BinaryReader reader)
         {
+            //      ScriptObject.DeferedInitializationList.Remove(this);
 
-      //      ScriptObject.DeferedInitializationList.Remove(this);
-         
-            ScriptObjectBehaviourManager.Instance.ProcessObject(this);
-
+            ScriptObjectBehaviourManager.Instance.ProcessObject(writer, reader, this);
         }
 
         public ScriptObject(ScriptObject parent, ScriptParsedSegment seg, SchemaNode schema = null)
         {
-
             if (schema == null)
             {
-
             }
 
             Op = seg.op;
@@ -230,7 +232,6 @@ namespace JominiParse
             }
             else
             {
-                
             }
 
             if (seg == null)
@@ -248,10 +249,9 @@ namespace JominiParse
             if (LineStart == ScriptObjectBehaviourManager.BreakpointLine &&
                 Topmost.Filename.Contains(ScriptObjectBehaviourManager.BreakpointFile))
             {
-
             }
 
-           
+
             lhsSchema = schema;
 
 
@@ -260,9 +260,7 @@ namespace JominiParse
                 ScriptObject so = null;
                 if (scriptParsedSegment.value.Count > 0)
                 {
-
                     so = ScriptValueParser.Instance.ParseScriptValue(this, scriptParsedSegment);
-
                 }
                 else
                 {
@@ -271,28 +269,10 @@ namespace JominiParse
                 }
 
                 Children.Add(so);
-             
 
 
                 OnPostInitializeChild(so);
             }
-
-            /*
-            if (parent != null)
-            {
-
-                parent.Children.Add(this);
-
-
-                if (Parent != null)
-                {
-                    if (GetScopeType() == ScopeType.none)
-                        SetScopeType(ScopeType.inheritparent);
-                }
-
-
-
-            }*/
         }
 
         private void HandleScopeDeclarationFunctions(ScriptObject scriptObject, ScriptObject parent)
@@ -301,10 +281,12 @@ namespace JominiParse
             {
                 VariableStore.Instance.RegisterSetLocalVariable(this);
             }
+
             if (Name == "set_variable")
             {
                 VariableStore.Instance.RegisterSetScopedVariable(this);
             }
+
             if (Name == "set_global_variable")
             {
                 VariableStore.Instance.RegisterSetGlobalVariable(this);
@@ -314,14 +296,17 @@ namespace JominiParse
             {
                 scriptObject.Topmost.AddList(this, true);
             }
+
             if (Name == "add_to_list")
             {
                 scriptObject.Topmost.AddList(this, false);
             }
+
             if (Name == "save_scope_as")
             {
                 scriptObject.Topmost.AddScope(this, false);
             }
+
             if (Name == "save_scope_value_as")
             {
                 scriptObject.Topmost.AddScopeVar(this, false);
@@ -330,7 +315,6 @@ namespace JominiParse
             {
                 scriptObject.Topmost.AddScope(this, true);
             }
-
         }
 
         public enum ScopeFindType
@@ -339,6 +323,7 @@ namespace JominiParse
             Value,
             Any,
         }
+
         static List<ScriptObject> visited = new List<ScriptObject>();
 
         public void GetValidScriptScopesInit(List<ScriptScope> results, bool allowTemp = true,
@@ -348,12 +333,14 @@ namespace JominiParse
             GetValidScriptScopes(results, allowTemp, values);
         }
 
-        void GetValidScriptScopes(List<ScriptScope> results, bool allowTemp = true, ScopeFindType values = ScopeFindType.Object)
+        void GetValidScriptScopes(List<ScriptScope> results, bool allowTemp = true,
+            ScopeFindType values = ScopeFindType.Object)
         {
             if (Topmost != this || allowTemp)
             {
                 visited.Clear();
             }
+
             if (Topmost != this)
             {
                 Topmost.GetValidScriptScopes(results, allowTemp, values);
@@ -380,10 +367,10 @@ namespace JominiParse
             {
                 foreach (var scriptScopesValue in scriptScopes.Values)
                 {
-                    if (!scriptScopesValue.Temporary && !results.Any(a => a.Name == scriptScopesValue.Name && a.Show(values)))
+                    if (!scriptScopesValue.Temporary &&
+                        !results.Any(a => a.Name == scriptScopesValue.Name && a.Show(values)))
                         results.Add(scriptScopesValue);
                 }
-
             }
 
             var Connections = ReferenceManager.Instance.GetConnectionsTo(this.Topmost.Name);
@@ -408,6 +395,7 @@ namespace JominiParse
             {
                 visited.Clear();
             }
+
             if (Topmost != this)
             {
                 Topmost.GetValidLocalVariables(results);
@@ -425,7 +413,6 @@ namespace JominiParse
                     if (!results.Any(a => a.Name == scriptScopesValue.Name))
                         results.Add(scriptScopesValue);
                 }
-
             }
 
             var Connections = ReferenceManager.Instance.GetConnectionsTo(this.Topmost.Name);
@@ -445,11 +432,11 @@ namespace JominiParse
                 AddScope(scope_command, temporary);
                 return;
             }
+
             ScriptScope s = new ScriptScope();
             var sc = (scope_command as ScriptValue);
             if (sc != null)
             {
-
                 s.Temporary = temporary;
                 s.Name = sc.GetStringValue();
                 if (scriptScopes.ContainsKey(s.Name))
@@ -460,12 +447,12 @@ namespace JominiParse
                 s.Declared = scope_command;
                 if (scope_command == null)
                 {
-
                 }
+
                 scriptScopes[s.Name] = s;
             }
-
         }
+
         private void AddList(ScriptObject addToListCommand, bool temp)
         {
             if (!(this == Topmost))
@@ -478,7 +465,6 @@ namespace JominiParse
             var sc = (addToListCommand as ScriptValue);
             if (sc != null)
             {
-
                 s.Name = sc.GetStringValue();
                 s.Temporary = temp;
                 if (scriptLists.ContainsKey(s.Name))
@@ -487,41 +473,34 @@ namespace JominiParse
                 s.Declared = addToListCommand;
                 scriptLists[s.Name] = s;
             }
-
         }
 
         private void AddScopeVar(ScriptObject scope_command, bool temporary, ScopeType varType)
         {
-            
             if (!(this == Topmost))
             {
                 AddScopeVar(scope_command, temporary);
                 return;
             }
+
             ScriptScope s = new ScriptScope();
             s.IsValue = true;
             s.To = varType;
-          //  var sc = (scope_command as ScriptValue);
-         //   if (sc != null)
-            {
-
+             {
                 s.Temporary = temporary;
-                s.Name = scope_command.GetChildStringValue("name");//.GetStringValue();
+                s.Name = scope_command.GetChildStringValue("name"); //.GetStringValue();
                 if (s.Name == null)
                     return;
                 if (scriptScopes.ContainsKey(s.Name))
                     return;
 
-                //s.ToObj = scope_command.Parent;
-
                 s.Declared = scope_command;
                 if (scope_command == null)
                 {
-
                 }
+
                 scriptScopes[s.Name] = s;
             }
-
         }
 
         public string GetChildStringValue(string name)
@@ -550,10 +529,9 @@ namespace JominiParse
 
                 if (s != null && s.StartsWith("flag:"))
                     type = ScopeType.flag;
-
             }
-            AddScopeVar(scope_command, temporary, type);
 
+            AddScopeVar(scope_command, temporary, type);
         }
 
         public ScriptLibrary Library { get; set; }
@@ -578,14 +556,16 @@ namespace JominiParse
 
                 return Parent.GetScopeType();
             }
+
             return ScopeType;
         }
+
         public virtual void SetScopeType(ScopeType type)
         {
-            if(type == ScopeType.any)
+            if (type == ScopeType.any)
             {
-
             }
+
             ScopeType = type;
         }
 
@@ -608,8 +588,8 @@ namespace JominiParse
             writer.Write(Name);
             writer.Write(LineStart);
             writer.Write(LineEnd);
-            writer.Write((int)ScopeType);
-            writer.Write((int)Context);
+            writer.Write((int) ScopeType);
+            writer.Write((int) Context);
 
             BehaviourData.Write(writer);
 
@@ -625,8 +605,8 @@ namespace JominiParse
 
         public virtual void Read(BinaryReader reader, ScriptFile file, ScriptObject parent)
         {
-           
         }
+
         protected string TabFormat(string str, int depth = 0)
         {
             string[] splitLines = str.Split('\n');
@@ -635,7 +615,7 @@ namespace JominiParse
             {
                 var splitLine = splitLines[index];
                 splitLine = splitLine.Trim();
-                if(splitLine.Length==0)
+                if (splitLine.Length == 0)
                     continue;
                 if (splitLine.Contains("}"))
                     depth--;
@@ -648,31 +628,34 @@ namespace JominiParse
 
                 if (splitLine.Contains("{"))
                 {
-                    if(depth == 0)
+                    if (depth == 0)
                         results.Add("");
                     depth++;
                 }
 
-                
+
                 results.Add(splitLine);
             }
 
             return String.Join("\n", results);
         }
+
         protected string GetStart(string name)
         {
             return name + @" = { 
             ";
         }
+
         protected string GetEnd()
         {
             return @" 
             }";
         }
+
         //  public abstract void Parse(string name, ScriptParsedSegment segment);
         public virtual string ToScript()
         {
-              return "";
+            return "";
         }
 
 
@@ -680,23 +663,15 @@ namespace JominiParse
         private bool isScope;
         private bool isTriggerEnd;
 
-      
-
-        public static ScriptObject LoadFromData(BinaryReader reader, ScriptObject parent)
-        {
-            int id = reader.ReadInt32();
-
-            var type = TypeMap[id];
-
-            ScriptObject o = (ScriptObject)Activator.CreateInstance(type, parent, null);
-
-            return o;
-        }
-
-        public ScriptScope AddScriptScope(string name, ScriptObject scriptObject, ScopeType to, bool temporary, bool requiresScopeTag)
+        public ScriptScope AddScriptScope(string name, ScriptObject scriptObject, ScopeType to, bool temporary,
+            bool requiresScopeTag)
         {
             var ss = new ScriptScope()
-                {Declared = null, Name = name, Temporary = temporary, To = to, RequiresScopeTag = requiresScopeTag};
+            {
+                Declared = null, Name = name, Temporary = temporary, To = to, RequiresScopeTag = requiresScopeTag,
+                IsValue = (to == ScopeType.value || to == ScopeType.@bool || to == ScopeType.@string ||
+                           to == ScopeType.flag)
+            };
             scriptScopes[name] = ss;
             return ss;
         }
@@ -724,6 +699,7 @@ namespace JominiParse
 
             return GetScopeType();
         }
+
         public ScopeType GetRootScopeType()
         {
             return Topmost.GetScopeType();
@@ -733,6 +709,7 @@ namespace JominiParse
         {
             return isScope;
         }
+
         public bool IsTriggerEnd()
         {
             return isTriggerEnd;
@@ -766,7 +743,6 @@ namespace JominiParse
         {
             if (this.Name == "culture")
             {
-
             }
 
             if (this.BehaviourData == null)
@@ -774,7 +750,7 @@ namespace JominiParse
 
             if (CheckMatchesSmartFind(options))
             {
-                if(CheckNameMatchSmartFind(options))
+                if (CheckNameMatchSmartFind(options))
                 {
                     SmartFindResults r = new SmartFindResults();
                     r.ScriptObject = this;
@@ -815,7 +791,6 @@ namespace JominiParse
             {
                 return str.Contains(toFind);
             }
-
         }
 
         private bool CheckMatchesSmartFind(SmartFindOptions options)
@@ -828,6 +803,7 @@ namespace JominiParse
             {
                 return false;
             }
+
             /*
             if (options.SearchSavedScopes &&
                 (this.BehaviourData.Type == ScriptObjectBehaviourType.SavedScopeBlock || this.BehaviourData.Type == ScriptObjectBehaviourType.SavedScopeToProperty))

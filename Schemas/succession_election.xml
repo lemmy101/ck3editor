@@ -1,0 +1,4 @@
+<Schema name="succession_election" id="succession_election">
+	<ModifierStack name="elector_vote_strength"/>
+	<ModifierStack name="candidate_score"/>			
+ </Schema>

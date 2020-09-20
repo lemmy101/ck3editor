@@ -1,0 +1,8 @@
+<ScriptObject id="holy_site">	
+	<Child name="county" type="title"/>
+	<Child name="barony" type="title"/>
+	<Child name="character_modifier" type="modifier" inherits="modifiers">
+		<Child name="name" type="localized"/>
+	</Child>
+
+</ScriptObject>

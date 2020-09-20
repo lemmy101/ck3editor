@@ -48,52 +48,8 @@ namespace JominiParse
 
         public ScriptObject ScriptObject { get; set; }
         public ScriptObjectBehaviourData ParentData { get; set; }
-        public ScriptObjectBehaviourType Type { get; set; }
         public bool IsBlock { get; set; }
-        public bool ExpectTriggers { get; set; }
-        public bool ParentExpectTriggers { get; set; }
-        public bool ExpectFunctionParameters { get; set; }
-        public bool ParentExpectEffects { get; set; }
-        public bool ExpectEffects { get; set; }
-        /*
-        public bool IsScopedBlock
-        {
-            get
-            {
-                return Type == ScriptObjectBehaviourType.SavedScopeBlock ||
-                       Type == ScriptObjectBehaviourType.InherentScopeBlock;
-            }
-        }
-        public bool IsScope
-        {
-            get
-            {
-                return Type == ScriptObjectBehaviourType.SavedScopeBlock ||
-                       Type == ScriptObjectBehaviourType.InherentScopeBlock ||
-                       Type == ScriptObjectBehaviourType.SavedScopeToProperty ||
-                       Type == ScriptObjectBehaviourType.InherentScopeToProperty;
-            }
-        }
-        public bool IsInheritContents
-        {
-            get
-            {
-                return IsScopedBlock || Type == ScriptObjectBehaviourType.LogicalOperand || Type == ScriptObjectBehaviourType.If || Type == ScriptObjectBehaviourType.TriggerIf || Type == ScriptObjectBehaviourType.Else || Type == ScriptObjectBehaviourType.TriggerElse;
-            }
-        }
-        public bool IsProperty
-        {
-            get
-            {
-                return Type == ScriptObjectBehaviourType.SavedScopeToProperty ||
-                       Type == ScriptObjectBehaviourType.InherentScopeToProperty;
-            }
-        }
-        */
-        public string TypeExpected { get; set; }
-    /*    public FunctionDef Function { get; set; }
-        public FunctionProperty Parameter { get; set; }*/
-        public string NameTypeExpected { get; set; }
+      
         public ScriptObject ReferencedObject { get; set; }
         public bool ValueFound { get; set; }
 
@@ -105,6 +61,7 @@ namespace JominiParse
         public bool ChildrenAreValueRange { get; set; }
         public bool NameIsReference { get; set; }
         public ScopeType deepestRHSScopeFound { get; set; }
+        public List<SchemaNode> candidates { get; set; } = new List<SchemaNode>();
 
         /*public bool ValueIsScope { get; set; }
         public FunctionDef ExpectedEffectFunction { get; set; }
@@ -153,18 +110,20 @@ namespace JominiParse
         public static string BreakpointFile = "events/test_event.txt";
 
 
-        public void ProcessObject(ScriptObject obj)
+        public void ProcessObject(BinaryWriter writer, BinaryReader reader, ScriptObject obj)
         {
             if (obj.Name == "root")
                 obj.SetScopeType(obj.Topmost.GetScopeType());
 
-            BreakpointLine = 2;
+
+
+            BreakpointLine = 24;
             //   BreakpointFile = "common/on_action/test_on_action.txt";
             //BreakpointFile = "events/test_event5.txt";
             //BreakpointFile = "common/scripted_effects/test.txt";
             //BreakpointFile = "events/test_events_8.txt";
             //BreakpointFile = "common/bookmarks/a.txt";
-            BreakpointFile = "common/character_interactions/";
+            BreakpointFile = "events/test_event/";
 
 
             if (obj.Filename.Contains(BreakpointFile))
@@ -181,59 +140,143 @@ namespace JominiParse
             var data = new ScriptObjectBehaviourData();
             data.ScriptObject = obj;
             data.ScopeType = obj.GetScopeType();
-            
+
             if (obj.Parent != null)
                 data.ParentData = obj.Parent.BehaviourData;
 
             obj.BehaviourData = data;
 
             data.lhs = obj.Name;
+            if(obj.Parent != null)
+                data.ParentData = obj.Parent.BehaviourData;
 
             if (data.lhs == "set_variable")
             {
                 VariableStore.Instance.CompleteScopedVar(obj, data, obj.Parent.GetScopeType());
-                
+
             }
 
             data.rhs = obj.GetStringValue();
             data.IsBlock = obj.IsBlock;
-            
-            DetermineBehaviourScope(obj, data);
 
-            DetermineBehaviourType(obj, data);
+            if (reader == null)
+            {
+                DetermineBehaviourScope(obj, data);
+            }
+            else
+            {
+                ReadBehaviour(reader, obj);
+            }
 
             if (data.lhs.Contains("var:"))
             {
                 if (!VariableStore.Instance.HasScopedVariableComplete(data.lhs, obj.GetScopeType()) && obj.DeferedCount < 1)
                 {
                     obj.DeferedCount++;
-                    ScriptObject.DeferedPostInitializationListNext.Add(obj);
-                    return;
+                    ScriptObject.BehaviourRecalculateList.Add(obj);
+
                 }
             }
+
             if (data.rhs != null && data.rhs.Contains("var:"))
             {
-                if (!VariableStore.Instance.HasScopedVariableComplete(data.rhs.Substring(data.rhs.IndexOf("var:")), data.deepestRHSScopeFound) && obj.DeferedCount < 1)
+                if (!VariableStore.Instance.HasScopedVariableComplete(data.rhs.Substring(data.rhs.IndexOf("var:")),
+                    data.deepestRHSScopeFound) && obj.DeferedCount < 1)
                 {
                     obj.DeferedCount++;
-                    ScriptObject.DeferedPostInitializationListNext.Add(obj);
-                    return;
+                    ScriptObject.BehaviourRecalculateList.Add(obj);
+
                 }
             }
-            //   DetermineEffectiveSchema(obj, data);
 
-            //  if (obj.Parent != null)
-            //     DetermineBehaviourScope(obj, data);
 
-            if (!data.IsBlock)
+            if (writer != null)
             {
-        //        DetermineOperationType(obj, data);
+                WriteBehaviour(writer, obj);
             }
-
 
             foreach (var scriptObject in obj.Children)
             {
-                scriptObject.PostInitialize();
+                scriptObject.PostInitialize(writer, reader);
+            }
+          
+        }
+
+        private void WriteBehaviour(BinaryWriter writer, ScriptObject obj)
+        {
+            var data = obj.BehaviourData;
+
+            writer.Write(data.ChildrenAreValueRange);
+            writer.Write(data.IsBlock);
+            writer.Write(data.NameIsReference);
+            writer.Write(data.ReferenceValid);
+            writer.Write(data.ValueFound);
+            writer.Write(data.foundRHSScope);
+            
+            writer.Write(data.lhsNamedFrom!= null);
+
+            if (data.lhsNamedFrom != null)
+                writer.Write(data.lhsNamedFrom);
+
+            writer.Write((int) data.ScopeType);
+            writer.Write(data.candidates.Count);
+            foreach (var dataCandidate in data.candidates)
+            {
+                writer.Write(dataCandidate.GetHashCodeL());
+            }
+
+            writer.Write((int)data.deepestRHSScopeFound);
+            writer.Write(data.rhsScopeTextColorLength);
+            writer.Write(data.lhsScopeTextColorLength);
+            writer.Write(obj.lhsSchema != null); 
+            if(obj.lhsSchema != null)
+                writer.Write(obj.lhsSchema.GetHashCodeL());
+            writer.Write(obj.rhsSchema != null);
+            if (obj.rhsSchema != null)
+                writer.Write(obj.rhsSchema.GetHashCodeL());
+
+        }
+
+        private void ReadBehaviour(BinaryReader reader, ScriptObject obj)
+        {
+            var data = obj.BehaviourData;
+
+            data.ChildrenAreValueRange = reader.ReadBoolean();
+            data.IsBlock = reader.ReadBoolean();
+            data.NameIsReference = reader.ReadBoolean();
+            data.ReferenceValid = reader.ReadBoolean();
+            data.ValueFound = reader.ReadBoolean();
+            data.foundRHSScope = reader.ReadBoolean();
+
+            if (reader.ReadBoolean())
+                data.lhsNamedFrom = reader.ReadString();
+
+            data.ScopeType = (ScopeType) reader.ReadInt32();
+
+            int nCand = reader.ReadInt32();
+
+            for (int x = 0; x < nCand; x++)
+            {
+                var node = reader.ReadInt64();
+                var n = SchemaManager.Instance.GetSchema(node);
+                data.candidates.Add(n);
+            }
+
+            data.deepestRHSScopeFound = (ScopeType)reader.ReadInt32();
+            data.rhsScopeTextColorLength = reader.ReadInt32();
+            data.lhsScopeTextColorLength = reader.ReadInt32();
+
+            if (reader.ReadBoolean())
+            {
+                var node = reader.ReadInt64();
+                var n = SchemaManager.Instance.GetSchema(node);
+                obj.lhsSchema = n;
+            }
+            if (reader.ReadBoolean())
+            {
+                var node = reader.ReadInt64();
+                var n = SchemaManager.Instance.GetSchema(node);
+                obj.rhsSchema = n;
             }
         }
 
@@ -243,24 +286,28 @@ namespace JominiParse
             {
                 var parentScope = obj.Parent.GetScopeType();
 
-                if(data.lhs != null)
+                if (data.lhs != null)
                 {
                     int scopeColorLength = 0;
                     string[] scopeLine = data.lhs.Split('.');
                     ScopeType type = parentScope;
                     SchemaNode node = obj.Parent.lhsSchema;
-                    if(node != null)
+                    if (node != null)
                     {
+                        List<SchemaNode> candidates = new List<SchemaNode>();
+
                         if (obj.Parent.lhsSchema != null && !obj.Parent.lhsSchema.allowScopes)
                         {
                             scopeLine = new[] {data.lhs};
                         }
+
                         for (int i = 0; i < scopeLine.Length; i++)
                         {
                             string scopeChange = scopeLine[i];
-                  
-                            node = node.FindChild(obj, scopeChange, scopeLine.Length == 1, false, type, i);
-                            
+
+                            node = node.FindChild(obj, scopeChange, scopeLine.Length == 1, false, type, i,
+                                i == scopeLine.Length - 1 ? candidates : null);
+
                             if (node != null && (node.function == "event_target" || node.function == "script_list"))
                             {
                                 scopeColorLength += scopeChange.Length;
@@ -275,20 +322,27 @@ namespace JominiParse
                             type = node.targetScope;
                         }
 
+                        data.candidates = candidates;
                     }
 
+
+
                     // no effect or trigger blocks after '.'s
-                    if (node != null && (node.TypeList.Contains("block") || node.TypeList.Contains("function") || node.function == "effect") && scopeLine.Length > 1)
+                    if (node != null &&
+                        (node.TypeList.Contains("block") || node.TypeList.Contains("function") ||
+                         node.function == "effect") && scopeLine.Length > 1)
                         node = null;
 
 
                     obj.lhsSchema = node;
-                    if(obj.lhsSchema!=null)
+                    if (obj.lhsSchema != null)
                     {
-                        if(obj.lhsSchema.TypeList.Contains("value"))
+                        if (obj.lhsSchema.TypeList.Contains("value"))
                         {
+                            obj.lhsSchema.inheritsIds.Add("value");
                             obj.lhsSchema.inherits.Add(SchemaManager.Instance.GetSchema("value"));
                         }
+
                         data.lhsScopeTextColorLength = scopeColorLength;
                         if (obj.lhsSchema.function == "trigger")
                         {
@@ -296,7 +350,7 @@ namespace JominiParse
                             bool foundScope = false;
                             foreach (var s in node.TypeList)
                             {
-                                if(Enum.TryParse(s, out scope))
+                                if (Enum.TryParse(s, out scope))
                                 {
                                     obj.SetScopeType(scope);
                                     foundScope = true;
@@ -304,9 +358,11 @@ namespace JominiParse
 
 
                             }
+
                             if (!foundScope)
                             {
-                                if (obj.lhsSchema.targetScope != ScopeType.any && obj.lhsSchema.targetScope != ScopeType.none)
+                                if (obj.lhsSchema.targetScope != ScopeType.any &&
+                                    obj.lhsSchema.targetScope != ScopeType.none)
                                 {
                                     obj.SetScopeType(obj.lhsSchema.targetScope);
                                 }
@@ -327,9 +383,11 @@ namespace JominiParse
 
 
                             }
+
                             if (!foundScope)
                             {
-                                if (obj.lhsSchema.targetScope != ScopeType.any && obj.lhsSchema.targetScope != ScopeType.none)
+                                if (obj.lhsSchema.targetScope != ScopeType.any &&
+                                    obj.lhsSchema.targetScope != ScopeType.none)
                                 {
                                     obj.SetScopeType(obj.lhsSchema.targetScope);
                                 }
@@ -337,29 +395,32 @@ namespace JominiParse
                         }
                         else if (obj.lhsSchema.function == "event_target")
                         {
-                            if (obj.lhsSchema.targetScope != ScopeType.any && obj.lhsSchema.targetScope != ScopeType.none)
+                            if (obj.lhsSchema.targetScope != ScopeType.any &&
+                                obj.lhsSchema.targetScope != ScopeType.none)
                             {
                                 obj.SetScopeType(obj.lhsSchema.targetScope);
                             }
                         }
                         else if (obj.lhsSchema.function == "script_list")
                         {
-                            if (obj.lhsSchema.targetScope != ScopeType.any && obj.lhsSchema.targetScope != ScopeType.none)
+                            if (obj.lhsSchema.targetScope != ScopeType.any &&
+                                obj.lhsSchema.targetScope != ScopeType.none)
                             {
                                 obj.SetScopeType(obj.lhsSchema.targetScope);
                             }
                         }
-                    
+
                     }
                     else
                     {
-                        if(data.ParentData.ChildrenAreValueRange)
+                        if (data.ParentData.ChildrenAreValueRange)
                         {
                             data.ValueFound = true;
                         }
                         else data.lhsError = "Unexpected";
                     }
                 }
+
                 if (data.rhs != null && obj.lhsSchema != null)
                 {
                     string[] scopeLine = data.rhs.Split('.');
@@ -373,9 +434,10 @@ namespace JominiParse
                         string scopeChange = scopeLine[i];
 
                         var prev = node;
-                        node = node.FindChild(obj, scopeChange, false, true, type, i);
+                        node = node.FindChild(obj, scopeChange, false, true, type, i, null);
 
-                        if (node != null && (node.function == "event_target" || node.function == "script_list") && node.name != "yes" && node.name != "no")
+                        if (node != null && (node.function == "event_target" || node.function == "script_list") &&
+                            node.name != "yes" && node.name != "no")
                         {
                             scopeColorLength += scopeChange.Length;
                             if (i < scopeLine.Length - 1)
@@ -387,7 +449,7 @@ namespace JominiParse
                         if (node == null)
                         {
                             data.foundRHSScope = false;
-                            if(prev.targetScope != ScopeType.any && prev.targetScope != ScopeType.none)
+                            if (prev.targetScope != ScopeType.any && prev.targetScope != ScopeType.none)
                                 data.deepestRHSScopeFound = prev.targetScope;
                             break;
                         }
@@ -413,9 +475,11 @@ namespace JominiParse
 
 
                             }
+
                             if (!foundScope)
                             {
-                                if (obj.rhsSchema.targetScope != ScopeType.any && obj.rhsSchema.targetScope != ScopeType.none)
+                                if (obj.rhsSchema.targetScope != ScopeType.any &&
+                                    obj.rhsSchema.targetScope != ScopeType.none)
                                 {
                                     data.rhsScope = (obj.rhsSchema.targetScope);
                                 }
@@ -435,9 +499,11 @@ namespace JominiParse
 
 
                             }
+
                             if (!foundScope)
                             {
-                                if (obj.rhsSchema.targetScope != ScopeType.any && obj.rhsSchema.targetScope != ScopeType.none)
+                                if (obj.rhsSchema.targetScope != ScopeType.any &&
+                                    obj.rhsSchema.targetScope != ScopeType.none)
                                 {
                                     data.rhsScope = (obj.rhsSchema.targetScope);
                                 }
@@ -445,14 +511,16 @@ namespace JominiParse
                         }
                         else if (obj.rhsSchema.function == "event_target")
                         {
-                            if (obj.rhsSchema.targetScope != ScopeType.any && obj.rhsSchema.targetScope != ScopeType.none)
+                            if (obj.rhsSchema.targetScope != ScopeType.any &&
+                                obj.rhsSchema.targetScope != ScopeType.none)
                             {
                                 data.rhsScope = (obj.rhsSchema.targetScope);
                             }
                         }
                         else if (obj.rhsSchema.function == "script_list")
                         {
-                            if (obj.rhsSchema.targetScope != ScopeType.any && obj.rhsSchema.targetScope != ScopeType.none)
+                            if (obj.rhsSchema.targetScope != ScopeType.any &&
+                                obj.rhsSchema.targetScope != ScopeType.none)
                             {
                                 data.rhsScope = (obj.rhsSchema.targetScope);
                             }
@@ -465,7 +533,7 @@ namespace JominiParse
                     }
                     else
                     {
-                        if(!ValidateValue(obj, data))
+                        if (!ValidateValue(obj, data))
                             data.rhsError = "Unexpected";
                     }
                 }
@@ -482,15 +550,17 @@ namespace JominiParse
 
                             float range = 0;
 
-                            if(Single.TryParse(a, out range) && Single.TryParse(b, out range))
+                            if (Single.TryParse(a, out range) && Single.TryParse(b, out range))
                             {
                                 data.ChildrenAreValueRange = true;
                             }
                         }
-                    } 
-                    else if (data.rhs==null && data.lhsNamedFrom != null)
+                    }
+                    else if (data.rhs == null && data.lhsNamedFrom != null)
                     {
-                        var nameSet = EnumManager.Instance.GetEnums(data.lhsNamedFrom, true);//Core.Instance.GetNameSetFromEnumType(type, true);
+                        var nameSet =
+                            EnumManager.Instance.GetEnums(data.lhsNamedFrom,
+                                true); //Core.Instance.GetNameSetFromEnumType(type, true);
 
                         if (nameSet.Contains(data.lhs))
                         {
@@ -498,11 +568,11 @@ namespace JominiParse
                             data.ReferenceValid = true;
                             data.NameIsReference = true;
                         }
-                        
+
                     }
                 }
             }
-          
+
         }
 
         private bool ValidateValue(ScriptObject scriptObject, ScriptObjectBehaviourData data)
@@ -515,7 +585,7 @@ namespace JominiParse
 
                 string type = scriptObject.rhsSchema == null ? InferTypeFromRHS(scriptObject, data, s) : s;
 
-                string ltype =  s;
+                string ltype = s;
                 if (ltype == null)
                     ltype = scriptObject.lhsSchema.targetScope.ToString();
                 if (type != ltype)
@@ -530,12 +600,14 @@ namespace JominiParse
                         return true;
                     }
 
-                    var nameSet = EnumManager.Instance.GetEnums("value", true);//Core.Instance.GetNameSetFromEnumType(type, true);
+                    var nameSet =
+                        EnumManager.Instance.GetEnums("value",
+                            true); //Core.Instance.GetNameSetFromEnumType(type, true);
 
                     var v = data.rhs;
 
                     if (v != null && v.Contains("."))
-                        v = v.Substring(v.LastIndexOf(".")+1);
+                        v = v.Substring(v.LastIndexOf(".") + 1);
 
                     if (nameSet.Contains(v))
                     {
@@ -548,9 +620,9 @@ namespace JominiParse
 
                     var results = triggerSchema.Children.Where(a =>
                         a.name == v && (a.scopes.Contains(data.deepestRHSScopeFound) ||
-                                               a.scopes.Contains(ScopeType.none)));
+                                        a.scopes.Contains(ScopeType.none)));
 
-                    if(results.Count() > 0)
+                    if (results.Count() > 0)
                     {
                         data.ReferenceValid = true;
                         return true;
@@ -558,11 +630,13 @@ namespace JominiParse
                     }
 
                 }
+
                 if (type == "any" || type == "string")
                 {
                     data.ReferenceValid = true;
                     return true;
                 }
+
                 if (type == "flag")
                 {
                     if (data.rhs.StartsWith("flag:"))
@@ -617,7 +691,7 @@ namespace JominiParse
                         data.ReferenceValid = true;
                         return true;
                     }
-                 
+
                 }
                 else if (type == "trigger_localization")
                 {
@@ -638,7 +712,8 @@ namespace JominiParse
 
                 {
 
-                    var nameSet = EnumManager.Instance.GetEnums(type, true);//Core.Instance.GetNameSetFromEnumType(type, true);
+                    var nameSet =
+                        EnumManager.Instance.GetEnums(type, true); //Core.Instance.GetNameSetFromEnumType(type, true);
 
                     if (nameSet.Contains(data.rhs))
                     {
@@ -666,7 +741,7 @@ namespace JominiParse
                 {
                     return expected;
                 }
-                
+
             }
 
             if (data.rhs == "yes" || data.rhs == "no")
@@ -680,8 +755,8 @@ namespace JominiParse
         private bool CheckCompatibilityOfSides(ScriptObject obj, ScriptObjectBehaviourData data)
         {
             bool foundTypeMatch = false;
-            
-            if(obj.rhsSchema != null)
+
+            if (obj.rhsSchema != null)
                 foreach (var s in obj.lhsSchema.TypeList)
                 {
                     if (obj.rhsSchema.TypeList.Contains(s))
@@ -700,25 +775,5 @@ namespace JominiParse
 
             return false;
         }
-
-        private void DetermineBehaviourType(ScriptObject obj, ScriptObjectBehaviourData data)
-        {
-            if (obj.Parent == null)
-                data.Type = ScriptObjectBehaviourType.RootObject;
-
-            if(obj.lhsSchema!=null)
-            {
-                switch (obj.lhsSchema.function)
-                {
-                    case "effect":
-                        data.Type = ScriptObjectBehaviourType.Effect;
-                        break;
-                    case "trigger":
-                        data.Type = ScriptObjectBehaviourType.Trigger;
-                        break;
-                }
-            }
-        }
-
-        }
     }
+}

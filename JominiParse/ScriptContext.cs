@@ -72,6 +72,7 @@
         RegimentType,
         GeographicRegion,
         LawGroup,
+        VassalContractObligation,
         Max,
     }
 

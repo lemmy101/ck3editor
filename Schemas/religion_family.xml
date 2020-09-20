@@ -1,0 +1,7 @@
+<Schema id="religion_family">
+
+	<Child name="is_pagan" type="bool"/>
+	<Child name="graphical_faith" type="string"/>
+	<Child name="hostility_doctrine" type="doctrine"/>
+	<Child name="doctrine_background_icon" type="string"/>	
+</Schema>

@@ -1,0 +1,46 @@
+<Schema name="trait" id="trait" inherits="modifiers">
+	<Value name="index"/>
+	<Bool name="lifestyle"/>
+	<Bool name="education"/>
+	<Bool name="personality"/>
+	<Any name="flag"/>
+	<Bool name="genetic"/>
+	<Bool name="physical"/>
+	<Bool name="health_trait"/>
+	<Value name="random_creation"/>
+	<Value name="birth"/>
+	
+
+	<Opposites>
+		<Trait namesFrom="trait" name="opposite"/>
+	</Opposites>
+	
+	<Bool name="add_commander_trait"/>
+	
+	<Bool name="shown_in_encyclopedia"/>
+		
+	<Value name="same_opinion"/>
+	
+	<Value name="stewardship"/>
+	<Value name="diplomacy"/>
+	<Value name="intrigue"/>
+	<Value name="learning"/>
+	
+	<TraitGroup name="group"/>
+	
+	<Value name="minimum_age"/>
+	
+	<Value name="stewardship"/>
+	
+	<Value name="level"/>
+	
+	<Localized name="desc"/>
+	
+	<Value name="ai_rationality"/>
+	<Value name="ai_energy"/>
+	
+	<Compatibility>
+		<Value namesFrom="trait" name="compat"/>
+	</Compatibility>
+	
+ </Schema>

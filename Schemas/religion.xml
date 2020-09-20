@@ -2,6 +2,7 @@
 	<Child name="family" type="religion_family"/>
 	<Child name="doctrine_background_icon" type="string"/>
 	<Child name="doctrine" type="doctrine"/>
+	<Child name="pagan_roots" type="bool"/>
 		
 	<Child name="piety_icon_group" type="string"/>
 

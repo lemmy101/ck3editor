@@ -325,10 +325,11 @@ namespace DarkUI.Controls
 
             if (!horizontal)
             {
+                var v = _vScrollBar.Maximum - _vScrollBar.Minimum;
                 if (e.Delta > 0)
-                    _vScrollBar.ScrollByPhysical(8);
+                    _vScrollBar.ScrollBy(-30);
                 else if (e.Delta < 0)
-                    _vScrollBar.ScrollByPhysical(-8);
+                    _vScrollBar.ScrollBy(30);
             }
          /*   else
             {

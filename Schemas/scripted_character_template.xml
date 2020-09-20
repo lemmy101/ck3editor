@@ -1,0 +1,14 @@
+<Schema name="scripted_character_template" id="scripted_character_template">
+	<Value name="age"/>
+	<Gender name="gender"/>
+	<Value name="martial"/>
+	<Value name="diplomacy"/>
+	<Value name="intrigue"/>
+	<Value name="stewardship"/>
+	<Value name="learning"/>
+	<String name="faith"/>
+	<Culture name="culture"/>
+	<Trait name="trait"/>
+	<Bool name="random_traits"/>
+	<Value name="gender_female_chance"/>
+ </Schema>

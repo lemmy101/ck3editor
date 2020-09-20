@@ -100,10 +100,31 @@ namespace JominiParse
 
         private void InitializeObject(ScriptObject scriptObject, ScriptContext context)
         {
-            
+
+            if (context == ScriptContext.VassalContracts)
+            {
+                AddScriptScope("vassal", scriptObject, ScopeType.character, false, true);
+                AddScriptScope("liege", scriptObject, ScopeType.character, false, true);
+                AddScriptScope("opinion_of_liege", scriptObject, ScopeType.value, false, true);
+                scriptObject.SetScopeType(ScopeType.character);
+            }
+            if (context == ScriptContext.StoryCycles)
+            {
+                AddScriptScope("story", scriptObject, ScopeType.story_cycle, false, true);
+                scriptObject.SetScopeType(ScopeType.story_cycle);
+            }
+            if (context == ScriptContext.SecretTypes)
+            {
+
+                AddScriptScope("secret_owner", scriptObject, ScopeType.character, false, true);
+                AddScriptScope("secret_target", scriptObject, ScopeType.character, false, true);
+                AddScriptScope("discoverer", scriptObject, ScopeType.character, false, true);
+                AddScriptScope("secret_exposer", scriptObject, ScopeType.character, false, true);
+                scriptObject.SetScopeType(ScopeType.secret);
+            }
             if (context == ScriptContext.ImportantActions)
             {
-                
+
                 AddScriptScope("recipient", scriptObject, ScopeType.character, false, true);
                 AddScriptScope("actor", scriptObject, ScopeType.character, false, true);
                 AddScriptScope("landed_title", scriptObject, ScopeType.landed_title, false, true);
@@ -123,6 +144,12 @@ namespace JominiParse
                 scriptObject.SetScopeType(ScopeType.none);
             }
             if (context == ScriptContext.CouncilTasks)
+            {
+                AddScriptScope("county", scriptObject, ScopeType.landed_title, false, true);
+                AddScriptScope("councillor_liege", scriptObject, ScopeType.character, false, true);
+                scriptObject.SetScopeType(ScopeType.none);
+            }
+            if (context == ScriptContext.CouncilPositions)
             {
                 AddScriptScope("county", scriptObject, ScopeType.landed_title, false, true);
                 AddScriptScope("councillor_liege", scriptObject, ScopeType.character, false, true);

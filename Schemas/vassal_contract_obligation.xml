@@ -1,0 +1,23 @@
+<ScriptObject id="vassal_contract_obligation">	
+	
+	<Bool name="default"/>
+	<Value name="position"/>
+	
+	<Value name="ai_liege_desire"/>
+	<Value name="ai_vassal_desire"/>
+
+	<Value name="tax"/>
+	<Value name="levies"/>
+	<Value name="min_levies"/>
+	<Value name="min_tax"/>
+		
+	<Value name="vassal_opinion"/>
+
+	<Any name="flag"/>
+
+	<Localized name="tax_contribution_postfix"/>
+	<Localized name="levies_contribution_postfix"/>
+	<Localized name="unclamped_contribution_label"/>
+	<Localized name="min_contribution_label"/>
+
+</ScriptObject>
