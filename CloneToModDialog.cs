@@ -34,7 +34,7 @@ namespace CK3ScriptEditor
             }
 
             this.ScriptObject = scriptObject;
-            string dirFromContext = Core.Instance.GetDirectoryFromContext(context) + "/";
+            string dirFromContext = Core.Instance.GetBaseDirectoryFromContext(context).ToRelativeFilename();
 
             DarkTreeNode root = new DarkTreeNode(context.ToString());
       
@@ -94,11 +94,10 @@ namespace CK3ScriptEditor
 
             saveFileDialog1.Filter = "txt files (*.txt)|*.txt";
             saveFileDialog1.FilterIndex = 1;
-            saveFileDialog1.InitialDirectory = (Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/" +
-                                               Core.Instance.GetDirectoryFromContext(Context)).Replace("/", "\\");
+            saveFileDialog1.InitialDirectory = Core.Instance.GetModDirectoryFromContext(Context).ToFullWindowsFilename();
 
-            string dir = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/" +
-                         Core.Instance.GetDirectoryFromContext(Context);
+
+            string dir = Core.Instance.GetModDirectoryFromContext(Context).ToFullWindowsFilename();
             
             dir = dir.ToLower();
 
@@ -114,18 +113,16 @@ namespace CK3ScriptEditor
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
                     if (!saveFileDialog1.FileName.Replace("\\", "/").Contains(
-                        Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/" +
-                        Core.Instance.GetDirectoryFromContext(Context)))
+                        Core.Instance.GetModDirectoryFromContext(Context).ToRelativeFilename()))
                     {
-                        MessageBox.Show("Error: File must be in " + Core.Instance.GetDirectoryFromContext(Context) +
+                        MessageBox.Show("Error: File must be in " + Core.Instance.GetModDirectoryFromContext(Context).ToRelativeFilename() +
                                         " directory", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     else
                     {
                         done = true;
                         string f = saveFileDialog1.FileName.Replace("\\", "/");
-                        string r = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/" +
-                                   Core.Instance.GetDirectoryFromContext(Context) + "/";
+                        string r = Core.Instance.GetModDirectoryFromContext(Context).ToFullFilename();
 
                         chosenFilename.Text = saveFileDialog1.FileName = f.Replace(r, "");
                         newFileRadio.Checked = true;
@@ -175,7 +172,7 @@ namespace CK3ScriptEditor
 
             if (existingFileView.SelectedNodes.Count > 0 && existingFileView.SelectedNodes[0].Tag != null)
             {
-                ChosenFilename = existingFileView.SelectedNodes[0].Tag.ToString();
+                ChosenFilename = (existingFileView.SelectedNodes[0].Tag as RefFilename).ToRelativeFilename();
                 cloneToExisting.Checked = true;
                 OK.Enabled = true;
             }

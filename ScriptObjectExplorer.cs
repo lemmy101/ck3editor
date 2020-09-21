@@ -349,7 +349,7 @@ namespace CK3ScriptEditor
             if (dlg.ShowDialog(CK3ScriptEd.Instance) == DialogResult.OK)
             {
 
-                RefFilename dir = Core.Instance.GetDirectoryFromContext(dlg.Context);
+                RefFilename dir = Core.Instance.GetBaseDirectoryFromContext(dlg.Context);
 
                 RefFilename fullPath = dir.Append(dlg.ChosenFilename);
                 fullPath.IsBase = false;

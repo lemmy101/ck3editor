@@ -19,14 +19,14 @@ namespace CK3ScriptEditor
             dlg.Init(scriptObject.Filename, scriptObject.LineStart, scriptObject.LineEnd, scriptObject);
             if(dlg.ShowDialog(CK3ScriptEd.Instance) == DialogResult.OK)
             {
-                RefFilename dir = Core.Instance.GetDirectoryFromContext(dlg.Context);
-
+                RefFilename dir = Core.Instance.GetBaseDirectoryFromContext(dlg.Context);
+                RefFilename basePath = scriptObject.Filename;
                 RefFilename fullPath = dir.Append(dlg.ChosenFilename);
-                
                 fullPath.IsBase = false;
 
+
                 bool exists = fullPath.Exists;
-                string textToImplant = dlg.GetTextToImplant(fullPath);
+                string textToImplant = dlg.GetTextToImplant(basePath);
                 textToImplant = textToImplant.Replace("\r", "");
                 if (exists)
                 {

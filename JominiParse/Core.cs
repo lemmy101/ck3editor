@@ -494,9 +494,13 @@ namespace JominiParse
             return ModCK3Library.Get(ScriptContext.Event, name);
         }
 
-        public RefFilename GetDirectoryFromContext(ScriptContext context)
+        public RefFilename GetBaseDirectoryFromContext(ScriptContext context)
         {
             return new RefFilename(BaseCK3Library.ContextData[context].Directory, true);
+        }
+        public RefFilename GetModDirectoryFromContext(ScriptContext context)
+        {
+            return new RefFilename(BaseCK3Library.ContextData[context].Directory, false);
         }
 
         public HashSet<string> GetNameSetFromEnumType(string type, bool allowPrepend = false, bool addPrepend = false)
