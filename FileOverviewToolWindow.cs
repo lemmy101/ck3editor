@@ -49,6 +49,9 @@ namespace CK3ScriptEditor
         }
         public void UpdateTree(string filename, int lineNumber, bool isBaseFile)
         {
+            if (filename.EndsWith(".yml"))
+                return;
+
             IsBaseFile = isBaseFile;
             TreeView.Nodes.Clear();
             TreeView.SelectedNodes.Clear();
@@ -58,6 +61,11 @@ namespace CK3ScriptEditor
             
             TreeView.SuspendNodeEvents();
             var file = Core.Instance.GetFile(filename, isBaseFile);
+            if (file == null)
+            {
+                TreeView.ResumeNodeEvents();
+                return;
+            }
 
             foreach (var scriptObject in file.Map.Values) 
             {

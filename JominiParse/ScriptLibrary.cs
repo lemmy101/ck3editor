@@ -66,7 +66,12 @@ namespace JominiParse
         }
         public class ContextInfo
         {
-            public string Directory { get; set; }
+            public string Directory
+            {
+                get => _directory;
+                set => _directory = value.ToLower();
+            }
+
             public string Type { get; set; }
             public ScriptContext ChildOf { get; set; }
             public string Prepend { get; set; }
@@ -79,6 +84,7 @@ namespace JominiParse
 
             public List<ScriptGroupContext> Groups = new List<ScriptGroupContext>();
             Dictionary<string, ScriptObject> Map = new Dictionary<string, ScriptObject>();
+            private string _directory;
 
             public void Add(string s, ScriptObject o)
             {
@@ -168,7 +174,7 @@ namespace JominiParse
             { ScriptContext.Characters, new ContextInfo() {Directory = "history/characters", Type = "character", Prepend = "character"}},
             { ScriptContext.CouncilPositions, new ContextInfo() {Directory = "common/council_positions", Type="council_position", Category="Council"}},
             { ScriptContext.CouncilTasks, new ContextInfo() {Directory = "common/council_tasks", Type="council_task", Category="Council"}},
-            { ScriptContext.Defines, new ContextInfo() {Directory = "common/Defines", Type="define"}},
+            { ScriptContext.Defines, new ContextInfo() {Directory = "common/defines", Type="define"}},
             { ScriptContext.DynastyLegacies, new ContextInfo() {Directory = "common/dynasty_legacies", Type="legacy", Category="Dynasty"}},
             { ScriptContext.DynastyPerks, new ContextInfo() {Directory = "common/dynasty_perks", Type="dynasty_perk", Category="Dynasty"}},
             { ScriptContext.DynastyHouses, new ContextInfo() {Directory = "common/dynasty_houses", Type = "dynasty_house", Category="Dynasty"}},
@@ -232,7 +238,17 @@ namespace JominiParse
         public Dictionary<string, LocalizationEntry> Localization { get; set; }
         public ScriptLibrary Parent { get; set; }
         public string Name { get; set; }
-        public string Path { get; set; }
+
+        public string Path
+        {
+            get
+            {
+                if (Core.Instance.BaseCK3Library == this)
+                    return Globals.CK3Path;
+
+                return Globals.CK3ModPath + Name + "/";
+            }
+        }
 
 
         public bool Has(string name)
@@ -287,13 +303,10 @@ namespace JominiParse
         public void Add(List<ScriptObject> objects, ScriptContext context)
         {
          
-            if(context == ScriptContext.CasusBelliGroups)
-            {
-
-            }
-
+         
             foreach (var dec in objects)
             {
+       
                 ScriptFile f = null;
                 {
                     if (FileMap.ContainsKey(dec.Filename))
@@ -339,6 +352,7 @@ namespace JominiParse
                     }
                     else
                     {
+                     
                         ContextData[context].Add(dec.Name, dec);
 
                     }
@@ -832,15 +846,20 @@ namespace JominiParse
             }
         }
 
-        public void AddFile(string file)
+        public bool AddFile(string file)
         {
             ScriptFile f = new ScriptFile();
 
             f.IsBase = false;
             f.Filename = file;
             string dir = file.Substring(0, file.LastIndexOf("/") + 1);
-            f.Context = Core.Instance.BaseCK3Library.ContextData.Where(a => a.Value.Directory != null && dir.Contains(a.Value.Directory)).First().Key;
+            var l = Core.Instance.BaseCK3Library.ContextData.Where(a =>
+                a.Value.Directory != null && dir.Contains(a.Value.Directory));
+            if(l.Count() == 0)
+                return false;
+            f.Context = l.First().Key;
             FileMap[file] = f;
+            return true;
         }
     }
 }

@@ -98,6 +98,8 @@ namespace CK3ScriptEditor
 
             string dir = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/" +
                          Core.Instance.GetDirectoryFromContext(Context);
+            
+            dir = dir.ToLower();
 
             if (!Directory.Exists(dir))
             {

@@ -40,6 +40,7 @@ namespace JominiParse
                 return new List<string>();
 
             List<string> results = new List<string>();
+            List<string> results2 = new List<string>();
             if (inside == null)
             {
 
@@ -55,25 +56,78 @@ namespace JominiParse
 
             if (inside.lhsSchema != null)
             {
-                var ch = inside.lhsSchema.Children;
+                var ch = inside.lhsSchema.Children.Where(a=>!a.rightHandOnly && (a.scopes.Contains(scope) || a.scopes.Contains(ScopeType.none) || a.scopes.Contains(ScopeType.inheritparent)));
 
                 foreach (var schemaNode in ch)
                 {
-                    if(schemaNode.namesFrom != null)
-                        results.AddRange(EnumManager.Instance.GetEnums(schemaNode.namesFrom));
+                    if (schemaNode.namesFrom != null)
+                    {
+
+                    }
                     else
                         results.Add(schemaNode.name);
                 }
 
-            }
+                if (inside.lhsSchema.IsEffect())
+                {
+                    var sl = SchemaManager.Instance.GetSchema("scriptlist");
 
+                    var options = sl.Children.Where(a => a.scopes.Contains(scope) && (a.name.StartsWith("every_") || a.name.StartsWith("random_") || a.name.StartsWith("ordered_"))).ToList();
+
+                    foreach (var schemaNode in options)
+                    {
+                        results.Add(schemaNode.name);
+                    }
+                }
+
+                if (inside.lhsSchema.IsTrigger())
+                {
+                    var sl = SchemaManager.Instance.GetSchema("scriptlist");
+
+                    var options = sl.Children.Where(a => a.scopes.Contains(scope) && (a.name.StartsWith("any_"))).ToList();
+
+                    foreach (var schemaNode in options)
+                    {
+                        results.Add(schemaNode.name);
+                    }
+
+                }
+            }
 
             if (match != null)
                 results.RemoveAll(a => !a.ToLower().Contains(match.ToLower()));
 
             results = results.OrderBy(a => a).Distinct().ToList();
+
+
+
+            if (inside.lhsSchema != null)
+            {
+                var ch = inside.lhsSchema.Children.Where(a =>
+                    !a.rightHandOnly && (a.scopes.Contains(scope) || a.scopes.Contains(ScopeType.none) ||
+                                         a.scopes.Contains(ScopeType.inheritparent)));
+
+                foreach (var schemaNode in ch)
+                {
+                    if (schemaNode.namesFrom != null)
+                        results2.AddRange(EnumManager.Instance.GetEnums(schemaNode.namesFrom));
+              
+                }
+            }
+
+
+            if (match != null)
+                results2.RemoveAll(a => !a.ToLower().Contains(match.ToLower()));
+
+            results2 = results2.OrderBy(a => a).Distinct().ToList();
+
+            results.AddRange(results2);
+
+
             if (match != null)
                 results = results.OrderBy(a => !a.ToLower().StartsWith(match.ToLower())).ToList();
+
+
 
             return results;
         }
@@ -92,16 +146,68 @@ namespace JominiParse
 
             List<string> expectedType = new List<string>();
 
+            var scope = inside.GetScopeType();
+
             if (inside.lhsSchema != null)
             {
                 expectedType.AddRange(inside.lhsSchema.TypeList);
-                if (inside.BehaviourData.candidates != null)
+
+                var ch = inside.lhsSchema.Children.Where(a => a.rightHandOnly && (a.scopes.Contains(scope) || a.scopes.Contains(ScopeType.none) || a.scopes.Contains(ScopeType.inheritparent)));
+
+                //var l = ch.Where(a => a.TypeList.Any(b => inside.lhsSchema.TypeList.Contains(b))).ToList();
+
+                foreach (var schemaNode in ch)
                 {
+                    results.Add(schemaNode.name);
+                }
+
+                foreach (var s in inside.lhsSchema.TypeList)
+                {
+                    var enums = EnumManager.Instance.GetEnums(s, false, false);
+
+                    results.AddRange(enums);
+                }
+                
+
+            }
+            results = results.OrderBy(a => a).Distinct().ToList();
+            if (sofar != null)
+                results.RemoveAll(a => !a.ToLower().Contains(sofar.ToLower()));
+
+            if (sofar != null)
+                results = results.OrderBy(a => !a.ToLower().StartsWith(sofar.ToLower())).ToList();
+
+            if (string.IsNullOrWhiteSpace(sofar))
+            {
+                if (expectedType.Contains("value"))
+                {
+                    results.Insert(0, "{ }");
 
                 }
+                else if (inside.BehaviourData.candidates != null)
+                {
+                    foreach (var behaviourDataCandidate in inside.BehaviourData.candidates)
+                    {
+                        if (behaviourDataCandidate.Children.Count > 0)
+                        {
+                            results.Insert(0, "{ }");
+                            break;
+                        }
+                    }
+                }
+
             }
 
-
+            if (results.Count == 1 && results[0] == sofar)
+                results.Clear();
+            if (sofar != null && sofar.Trim().Length > 0)
+            {
+                int test;
+                if (Int32.TryParse(sofar, out test))
+                {
+                    results.Clear();
+                }
+            }
 
             return results;
 

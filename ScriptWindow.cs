@@ -19,7 +19,7 @@ namespace CK3ScriptEditor
 {
     public partial class ScriptWindow : DarkToolWindow
     {
-        bool IsBaseFile = false;
+        public bool IsBaseFile = false;
         public string FullFilename;
         public bool IgnoredFirstDirty = false;
 
@@ -74,6 +74,10 @@ namespace CK3ScriptEditor
 
             var inside = GetInside();
 
+
+            if (inside == null)
+                return;
+
             if (inside.lhsSchema != null)
             {
                 if (inside.lhsSchema.TypeList.Contains("localized"))
@@ -91,7 +95,7 @@ namespace CK3ScriptEditor
                         location.Y -= CK3ScriptEd.Instance.Location.Y;
                         LocalEditor.Location = location;//new Point(location.X + location.X, location.Y + location.Y);
 
-                        LocalEditor.Width = CK3ScriptEd.Instance.Width;
+                        LocalEditor.Width = CK3ScriptEd.Instance.Width-20;
                         var str = inside.GetStringValue();
 
                         if (str != null)
@@ -162,12 +166,13 @@ namespace CK3ScriptEditor
 
                         foreach (string line in lines)
                             if (line.Trim().Length > 0)
-                                outputFile.WriteLine(line);
+                                outputFile.WriteLine(line.Replace("\r", ""));
                     }
                 }
                 string startDir = Core.Instance.ModCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
                 Core.Instance.ModCK3Library.LoadLocalizations(startDir + "localization/english");
                 UpdateDatabase();
+                CK3ScriptEd.Instance.UpdateAllWindows();
             }
         }
 
@@ -200,7 +205,8 @@ namespace CK3ScriptEditor
                 string startDir = Core.Instance.ModCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
 
                 Core.Instance.ModCK3Library.LoadLocalizations(startDir + "localization/english");
-            
+                UpdateDatabase();
+
             }
             else
             {
@@ -229,13 +235,18 @@ namespace CK3ScriptEditor
                 string startDir = Core.Instance.ModCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
                 Core.Instance.ModCK3Library.LoadLocalizations(startDir + "localization/english");
                 UpdateDatabase();
+                CK3ScriptEd.Instance.UpdateAllWindows();
             }
         }
 
         public void Save()
         {
-            textEditorControl1.SaveFile(FullFilename);
-            Dirty = false;
+            if (!IsBaseFile)
+            {
+                textEditorControl1.SaveFile(FullFilename);
+                Dirty = false;
+
+            }
 
         }
         private void TextAreaOnKeyDown(object sender, KeyEventArgs e)
@@ -660,6 +671,9 @@ namespace CK3ScriptEditor
 
         private void CaretOnPositionChanged(object sender, EventArgs e)
         {
+            if (IsLocalization)
+                return;
+
             if (Filename != null)
             {
                 CK3ScriptEd.Instance.fileOverview.UpdateTreeSelection(Filename, textEditorControl1.ActiveTextAreaControl.Caret.Line);
@@ -736,83 +750,96 @@ namespace CK3ScriptEditor
 
         public TextEditorControl LoadFile(string filename)
         {
+            if (filename.EndsWith(".yml"))
+            {
+                IsLocalization = true;
+          }
+
             IgnoredFirstDirty = true;
+            if(File.Exists(filename))
+            {
+                textEditorControl1.LoadFile(filename);
+
+                if (IsBaseFile)
+                {
+                    Name = Text = DockText = "Base: " + filename.Substring(filename.LastIndexOf("/") + 1) + " (Read-Only)";
+                    textEditorControl1.Document.ReadOnly = true;
+                    textEditorControl1.Document.HighlightingStrategy = new DefaultHighlightingStrategy("Default", true);//textEditorControl1.Document.HighlightingStrategy
+                    var d = (textEditorControl1.Document.HighlightingStrategy as DefaultHighlightingStrategy);
+                    {
+                        var c = Color.FromArgb(255, 54, 42, 40);
+                        var s = Color.FromArgb(255, 92, 73, 70);
+                        var cl = Color.FromArgb(255, 62, 43, 40);
+
+                        d.environmentColors["Default"].BackgroundColor = c;
+                        d.environmentColors["FoldLine"].BackgroundColor = c;
+                        d.environmentColors["VRuler"].BackgroundColor = c;
+
+                        d.environmentColors["Selection"].BackgroundColor = s;
+                        d.environmentColors["CaretLine"].BackgroundColor = cl;
+                        //  d.environmentColors["VRuler"].BackgroundColor = c;
+                        d.DigitColor.BackgroundColor = c;
+                        d.DefaultTextColor.BackgroundColor = c;
+
+                        backgroundColor = c;
+
+
+                        foreach (var lineSegment in textEditorControl1.Document.LineSegmentCollection)
+                        {
+                            foreach (var lineSegmentWord in lineSegment.Words)
+                            {
+                                if (lineSegmentWord.SyntaxColor != null)
+                                {
+                                    lineSegmentWord.SyntaxColor = new HighlightColor(lineSegmentWord.SyntaxColor.Color, lineSegmentWord.SyntaxColor.BackgroundColor, lineSegmentWord.SyntaxColor.Bold, lineSegmentWord.SyntaxColor.Italic);
+                                    lineSegmentWord.SyntaxColor.BackgroundColor = c;
+                                }
+                            }
+                        }
+
+                        if (!IsLocalization)
+                            SyntaxHighlightingManager.Instance.DoDocument(textEditorControl1.Document, backgroundColor, ScriptFile);
+
+                    }
+
+                }
+                else
+                {
+                    Name = Text = DockText = "Mod: " + filename.Substring(filename.LastIndexOf("/") + 1);
+
+                    textEditorControl1.Document.ReadOnly = false;
+                    // textEditorControl1.Document.HighlightingStrategy = new DefaultHighlightingStrategy("Default", false);//textEditorControl1.Document.HighlightingStrategy
+                    var d = (textEditorControl1.Document.HighlightingStrategy as DefaultHighlightingStrategy);
+                    {
+                        var c = Color.FromArgb(255, 40, 42, 54);
+                        var s = Color.FromArgb(255, 70, 73, 92);
+                        var cl = Color.FromArgb(255, 40, 43, 62);
+
+                        backgroundColor = c;
+
+                        foreach (var lineSegment in textEditorControl1.Document.LineSegmentCollection)
+                        {
+                            foreach (var lineSegmentWord in lineSegment.Words)
+                            {
+                                if (lineSegmentWord.SyntaxColor != null)
+                                {
+                                    lineSegmentWord.SyntaxColor = new HighlightColor(lineSegmentWord.SyntaxColor.Color, lineSegmentWord.SyntaxColor.BackgroundColor, lineSegmentWord.SyntaxColor.Bold, lineSegmentWord.SyntaxColor.Italic);
+                                    lineSegmentWord.SyntaxColor.BackgroundColor = c;
+                                }
+                            }
+                        }
+
+                    }
+                    if (!IsLocalization)
+                        SyntaxHighlightingManager.Instance.DoDocument(textEditorControl1.Document, backgroundColor, ScriptFile);
+                }
+            }
           //  Filename = filename.Substring(filename.LastIndexOf("game/") + 5);
-            textEditorControl1.LoadFile(filename);
-
-            if (IsBaseFile)
-            {
-                Name = Text = DockText = "Base: " + filename.Substring(filename.LastIndexOf("/") + 1) + " (Read-Only)";
-                textEditorControl1.Document.ReadOnly = true;
-                textEditorControl1.Document.HighlightingStrategy = new DefaultHighlightingStrategy("Default", true);//textEditorControl1.Document.HighlightingStrategy
-                var d = (textEditorControl1.Document.HighlightingStrategy as DefaultHighlightingStrategy);
-                {
-                    var c= Color.FromArgb(255, 54, 42, 40);
-                    var s = Color.FromArgb(255, 92, 73, 70);
-                    var cl = Color.FromArgb(255, 62, 43, 40);
-
-                    d.environmentColors["Default"].BackgroundColor = c;
-                    d.environmentColors["FoldLine"].BackgroundColor = c;
-                    d.environmentColors["VRuler"].BackgroundColor = c;
-                    
-                    d.environmentColors["Selection"].BackgroundColor = s;
-                    d.environmentColors["CaretLine"].BackgroundColor = cl;
-                  //  d.environmentColors["VRuler"].BackgroundColor = c;
-                    d.DigitColor.BackgroundColor = c;
-                    d.DefaultTextColor.BackgroundColor = c;
-
-                    backgroundColor = c;
-
-
-                    foreach (var lineSegment in textEditorControl1.Document.LineSegmentCollection)
-                    {
-                        foreach (var lineSegmentWord in lineSegment.Words)
-                        {
-                            if (lineSegmentWord.SyntaxColor != null)
-                            {
-                                lineSegmentWord.SyntaxColor = new HighlightColor(lineSegmentWord.SyntaxColor.Color, lineSegmentWord.SyntaxColor.BackgroundColor, lineSegmentWord.SyntaxColor.Bold, lineSegmentWord.SyntaxColor.Italic);
-                                lineSegmentWord.SyntaxColor.BackgroundColor = c;
-                            }
-                        }
-                    }
-                    
-                    SyntaxHighlightingManager.Instance.DoDocument(textEditorControl1.Document, backgroundColor, ScriptFile);
-
-                }
-
-            }
-            else
-            {
-                Name = Text = DockText = "Mod: " + filename.Substring(filename.LastIndexOf("/") + 1);
-                
-                textEditorControl1.Document.ReadOnly = false;
-               // textEditorControl1.Document.HighlightingStrategy = new DefaultHighlightingStrategy("Default", false);//textEditorControl1.Document.HighlightingStrategy
-                var d = (textEditorControl1.Document.HighlightingStrategy as DefaultHighlightingStrategy);
-                {
-                    var c = Color.FromArgb(255, 40, 42, 54);
-                    var s = Color.FromArgb(255, 70, 73, 92);
-                    var cl = Color.FromArgb(255, 40, 43, 62);
-
-                    backgroundColor = c;
-
-                    foreach (var lineSegment in textEditorControl1.Document.LineSegmentCollection)
-                    {
-                        foreach (var lineSegmentWord in lineSegment.Words)
-                        {
-                            if (lineSegmentWord.SyntaxColor != null)
-                            {
-                                lineSegmentWord.SyntaxColor = new HighlightColor(lineSegmentWord.SyntaxColor.Color, lineSegmentWord.SyntaxColor.BackgroundColor, lineSegmentWord.SyntaxColor.Bold, lineSegmentWord.SyntaxColor.Italic);
-                                lineSegmentWord.SyntaxColor.BackgroundColor = c;
-                            }
-                        }
-                    }
-                    
-                }
-                SyntaxHighlightingManager.Instance.DoDocument(textEditorControl1.Document, backgroundColor, ScriptFile);
-            }
+        
             IgnoredFirstDirty = false;
             return textEditorControl1;
         }
+
+        public bool IsLocalization { get; set; }
 
 
         public void Activate()
@@ -855,7 +882,7 @@ namespace CK3ScriptEditor
         {
             if (!Dirty)
                 return true;
-            if (ScriptFile.IsBase)
+            if (IsBaseFile)
                 return true;
 
             var res = MessageBox.Show("Save modified file: " + Filename, "Warning: Unsaved script file.",

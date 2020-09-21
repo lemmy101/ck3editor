@@ -117,13 +117,13 @@ namespace JominiParse
 
 
 
-            BreakpointLine = 24;
+            BreakpointLine = 30;
             //   BreakpointFile = "common/on_action/test_on_action.txt";
             //BreakpointFile = "events/test_event5.txt";
             //BreakpointFile = "common/scripted_effects/test.txt";
             //BreakpointFile = "events/test_events_8.txt";
             //BreakpointFile = "common/bookmarks/a.txt";
-            BreakpointFile = "events/test_event/";
+            BreakpointFile = "events/kill_them_all_events/kill_them_all_events.txt";
 
 
             if (obj.Filename.Contains(BreakpointFile))
@@ -133,7 +133,7 @@ namespace JominiParse
 
             if (obj.LineStart == BreakpointLine &&
                 obj.Filename.Contains(BreakpointFile))
-            {
+             {
 
             }
 
@@ -352,8 +352,11 @@ namespace JominiParse
                             {
                                 if (Enum.TryParse(s, out scope))
                                 {
-                                    obj.SetScopeType(scope);
-                                    foundScope = true;
+                                    if (scope != ScopeType.value)
+                                    {
+                                        obj.SetScopeType(scope);
+                                        foundScope = true;
+                                    }
                                 }
 
 
@@ -362,7 +365,8 @@ namespace JominiParse
                             if (!foundScope)
                             {
                                 if (obj.lhsSchema.targetScope != ScopeType.any &&
-                                    obj.lhsSchema.targetScope != ScopeType.none)
+                                    obj.lhsSchema.targetScope != ScopeType.none &&
+                                    obj.lhsSchema.targetScope != ScopeType.value)
                                 {
                                     obj.SetScopeType(obj.lhsSchema.targetScope);
                                 }
@@ -377,8 +381,12 @@ namespace JominiParse
                             {
                                 if (Enum.TryParse(s, out scope))
                                 {
-                                    obj.SetScopeType(scope);
-                                    foundScope = true;
+                                    if(scope != ScopeType.value)
+                                    {
+                                        obj.SetScopeType(scope);
+                                        foundScope = true;
+
+                                    }
                                 }
 
 
@@ -387,7 +395,8 @@ namespace JominiParse
                             if (!foundScope)
                             {
                                 if (obj.lhsSchema.targetScope != ScopeType.any &&
-                                    obj.lhsSchema.targetScope != ScopeType.none)
+                                    obj.lhsSchema.targetScope != ScopeType.none &&
+                                    obj.lhsSchema.targetScope != ScopeType.value)
                                 {
                                     obj.SetScopeType(obj.lhsSchema.targetScope);
                                 }
@@ -396,7 +405,8 @@ namespace JominiParse
                         else if (obj.lhsSchema.function == "event_target")
                         {
                             if (obj.lhsSchema.targetScope != ScopeType.any &&
-                                obj.lhsSchema.targetScope != ScopeType.none)
+                                obj.lhsSchema.targetScope != ScopeType.none &&
+                                obj.lhsSchema.targetScope != ScopeType.value)
                             {
                                 obj.SetScopeType(obj.lhsSchema.targetScope);
                             }
@@ -404,7 +414,8 @@ namespace JominiParse
                         else if (obj.lhsSchema.function == "script_list")
                         {
                             if (obj.lhsSchema.targetScope != ScopeType.any &&
-                                obj.lhsSchema.targetScope != ScopeType.none)
+                                obj.lhsSchema.targetScope != ScopeType.none &&
+                                obj.lhsSchema.targetScope != ScopeType.value)
                             {
                                 obj.SetScopeType(obj.lhsSchema.targetScope);
                             }

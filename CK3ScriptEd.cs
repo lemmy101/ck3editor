@@ -82,8 +82,12 @@ namespace CK3ScriptEditor
             UpdateAllWindows();
             Core.Instance.Init();
 
-            Core.Instance.CreateOrLoadMod(modName);
-            CK3EditorPreferencesManager.Instance.LoadWindows();
+            if(Directory.Exists(Globals.CK3ModPath + modName))
+            {
+                Core.Instance.CreateOrLoadMod(modName);
+                CK3EditorPreferencesManager.Instance.LoadWindows();
+
+            }
 
             CK3EditorPreferencesManager.Instance.Save();
 
@@ -175,6 +179,7 @@ namespace CK3ScriptEditor
                     AllowUpdateFile = true;
                     sw.IgnoredFirstDirty = false;
 
+
                 }
                 else
                 {
@@ -185,7 +190,7 @@ namespace CK3ScriptEditor
                     this.openBaseScriptWindows.Remove(sw.Filename);
                     this.openModScriptWindows.Remove(sw.Filename);
                     this.OpenScriptWindows.Remove(e.Content as ScriptWindow);
-
+                    CK3EditorPreferencesManager.Instance.Save();
                 }
             }
         }
@@ -214,6 +219,7 @@ namespace CK3ScriptEditor
         }
         public void LoadCK3File(string filename, bool forceBase)
         {
+
             bool fromBase = JominiParse.Core.Instance.LoadCK3File(filename, forceBase);
 
             CurrentFile = filename;
@@ -266,6 +272,7 @@ namespace CK3ScriptEditor
             window.Filename = filename;
             AllowUpdateFile = false;
             window.ScriptFile = Core.Instance.GetFile(filename, fromBase);
+            window.IsBaseFile = fromBase;
             textEditors[filename] = window.LoadFile(startDir+filename);
             DockPanel.AddContent(window);
             DockPanel.ActiveContent = window;
@@ -491,6 +498,8 @@ namespace CK3ScriptEditor
             {
                 if (scriptWindow.Filename == null)
                     return null;
+                if (scriptWindow.ScriptFile == null)
+                    return null;
                 results.Add(scriptWindow.ScriptFile.IsBase ? "base:" + scriptWindow.Filename : "mod:" + scriptWindow.Filename);
             }
 
@@ -553,10 +562,52 @@ namespace CK3ScriptEditor
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var sw = (DockPanel.ActiveContent as ScriptWindow);
+            
+            if (sw.ScriptFile == null)
+                return;
 
             if (sw != null && !sw.ScriptFile.IsBase)
             {
                 sw.Save();
+            }
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            About about = new About();
+
+            about.ShowDialog(this);
+        }
+
+        private void closeAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            for (var index = 0; index < OpenScriptWindows.Count; index++)
+            {
+                var openScriptWindow = OpenScriptWindows[index];
+                openScriptWindow.Close();
+            }
+            for (var index = 0; index < OpenScriptWindows.Count; index++)
+            {
+                var openScriptWindow = OpenScriptWindows[index];
+                openScriptWindow.Close();
+            }
+            for (var index = 0; index < OpenScriptWindows.Count; index++)
+            {
+                var openScriptWindow = OpenScriptWindows[index];
+                openScriptWindow.Close();
+            }
+            for (var index = 0; index < OpenScriptWindows.Count; index++)
+            {
+                var openScriptWindow = OpenScriptWindows[index];
+                openScriptWindow.Close();
+            }
+        }
+
+        private void saveAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (var openScriptWindow in OpenScriptWindows)
+            {
+                openScriptWindow.Save();
             }
         }
     }

@@ -15,6 +15,7 @@ namespace CK3ScriptEditor
 
         public void DoDocument(IDocument doc, Color backgroundColor, ScriptFile file)
         {
+
             foreach (var scriptObject in file.Map.Values)
             {
                 //  ColorEntireObject(Color.White, backgroundColor, doc, scriptObject.LineStart - 1, scriptObject.LineEnd);

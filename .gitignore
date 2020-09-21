@@ -1181,3 +1181,11 @@
 /obj/Debug/CK3ScriptEditor.TabOpenWindowsDlg.resources
 /obj/Debug/CK3ScriptEditor.LocalizationEditor.resources
 /obj/Debug/CK3ScriptEditor.NewLocalizationFileObjectDialog.resources
+/obj/Debug/CK3ScriptEditor.About.resources
+/obj/Release/CK3ScriptEditor.About.resources
+/obj/Release/CK3ScriptEditor.BasicFind.resources
+/obj/Release/CK3ScriptEditor.LocalizationEditor.resources
+/obj/Release/CK3ScriptEditor.NewFileFolder.resources
+/obj/Release/CK3ScriptEditor.NewLocalizationFileObjectDialog.resources
+/obj/Release/CK3ScriptEditor.NewScriptObjectDialog.resources
+/obj/Release/CK3ScriptEditor.TabOpenWindowsDlg.resources

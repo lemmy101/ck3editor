@@ -308,6 +308,10 @@ namespace JominiParse
             rightHandOnly = loadBool(node as XmlNode, "rightHandOnly", false);
             avoidRed = loadBool(node as XmlNode, "avoidRed", false);
 
+            if(typeList.Contains("value"))
+            {
+                inheritsIds.Add("value");
+            }
             var c = node.FirstChild;
 
             while(c != null)
@@ -539,8 +543,8 @@ namespace JominiParse
                         
                         if(found == null)
                             found = clone;
-                        if (candidates != null)
-                            candidates.Add(clone);
+                    //    if (candidates != null)
+                    //        candidates.Add(clone);
                         clone.Serialize();
                     }
                     else if (f.function == "script_list" && data == null)
@@ -550,8 +554,8 @@ namespace JominiParse
 
                         if (found == null)
                             found = f;
-                        if (candidates != null)
-                            candidates.Add(f);
+                   //     if (candidates != null)
+                     //       candidates.Add(f);
                     }
 
                     // don't allow blocks on rhs
@@ -566,6 +570,8 @@ namespace JominiParse
 
                     if (!obj.IsBlock && f.Children.Count > 0 && !f.TypeList.Contains("value"))
                     {
+                        if (candidates != null)
+                            candidates.Add(f);
                         continue;
                     }
 
@@ -770,6 +776,29 @@ namespace JominiParse
             clone.inherits.UnionWith(inherits);
             clone.inheritsIds.UnionWith(inheritsIds);
             return clone;
+        }
+
+        public bool IsEffect()
+        {
+            if (inheritsIds.Contains("effect"))
+                return true;
+
+            foreach (var schemaNode in inherits)
+                if (schemaNode.IsEffect())
+                    return true;
+
+            return false;
+        }
+        public bool IsTrigger()
+        {
+            if (inheritsIds.Contains("trigger"))
+                return true;
+
+            foreach (var schemaNode in inherits)
+                if (schemaNode.IsTrigger())
+                    return true;
+
+            return false;
         }
     }
 

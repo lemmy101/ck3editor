@@ -92,6 +92,7 @@ namespace CK3ScriptEditor
             string startModDir = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name;
             Fill(ck3, startDir, false);
             Fill(mod, startModDir, true);
+         //   mod.Tag = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/";
             projectTree.ResumeNodeEvents();
 
             SelectPath(path);
@@ -131,8 +132,19 @@ namespace CK3ScriptEditor
         {
             string d = dir.Replace("\\", "/");
             d = d.Substring(d.LastIndexOf("/") + 1);
+
+
+
             DarkTreeNode sub = new DarkTreeNode(d);
-            sub.Tag = dir;
+
+            string dirShort = null;
+            if (!mod)
+                dirShort = dir.Substring(dir.LastIndexOf("game/") + 5);
+            else
+                dirShort = dir.Substring(dir.LastIndexOf(Core.Instance.ModCK3Library.Name + "/") + Core.Instance.ModCK3Library.Name.Length + 1);
+
+
+            sub.Tag = dirShort;
             var dirs = Directory.GetDirectories(dir);
             node.Nodes.Add(sub);
             foreach (var sd in dirs)
@@ -167,18 +179,35 @@ namespace CK3ScriptEditor
 
                 var tag = sel.Tag as string;
 
-                bool fromBase = false;
+                var fromBase = IsFromBase(sel);
 
-                while (sel != null)
+                if (tag != null)
                 {
-                    if (sel.Text == "base" && sel.ParentNode == null)
-                        fromBase = true;
-                    sel = sel.ParentNode;
+                    tag = tag.Replace("\\", "/");
+                    tag = tag.Replace(Core.Instance.ModCK3Library.Path, "");
+                    tag = tag.Replace(Globals.CK3Path, "");
+
+                    if (!tag.EndsWith(".txt") && !tag.EndsWith(".yml"))
+                        return;
+
+                    CK3ScriptEd.Instance.LoadCK3File(tag, fromBase);
                 }
 
-                CK3ScriptEd.Instance.LoadCK3File(tag, fromBase);
-
             }
+        }
+
+        private static bool IsFromBase(DarkTreeNode sel)
+        {
+            bool fromBase = false;
+
+            while (sel != null)
+            {
+                if (sel.Text == "base" && sel.ParentNode == null)
+                    fromBase = true;
+                sel = sel.ParentNode;
+            }
+
+            return fromBase;
         }
 
         private void projectTree_MouseClick(object sender, MouseEventArgs e)
@@ -218,6 +247,12 @@ namespace CK3ScriptEditor
                     delete.Tag = selected;
                     overrideFolder.Tag = selected;
                     overrideFile.Tag = selected;
+
+                    if (isBase)
+                        selected = Globals.CK3Path + selected + "/";
+                    else
+                        selected = Core.Instance.ModCK3Library.Path + selected + "/";
+
 
                     bool directory = Directory.Exists(selected);
 
@@ -262,6 +297,9 @@ namespace CK3ScriptEditor
             string tag = menuItem.Tag.ToString();
 
             string from = tag;
+
+            from = Globals.CK3Path + from + "/";
+        
 
             OverrideFolder(from);
 
@@ -315,6 +353,7 @@ namespace CK3ScriptEditor
 
             if (!File.Exists(filename))
             {
+             
                 using (FileStream fs = new FileStream(filename, FileMode.Create))
                 {
                     using (System.IO.TextWriter writeFile = new StreamWriter(fs, Encoding.UTF8))
@@ -323,8 +362,10 @@ namespace CK3ScriptEditor
                     }
                 }
 
-                filename = filename.Replace(Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/", "");
+                 filename = filename.Replace(Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/", "");
 
+                 if (!Core.Instance.BaseCK3Library.FileMap.ContainsKey(filename))
+                     return;
 
                 Core.Instance.ModCK3Library.AddFile(filename);
                 Core.Instance.LoadCK3File(filename, false, true);
@@ -350,6 +391,7 @@ namespace CK3ScriptEditor
             var menuItem = sender as MenuItem;
 
             string tag = menuItem.Tag.ToString();
+            tag = Core.Instance.ModCK3Library.Path + tag + "/";
 
             NewFileFolder f = new NewFileFolder();
 
@@ -374,6 +416,7 @@ namespace CK3ScriptEditor
             var menuItem = sender as MenuItem;
 
             string tag = menuItem.Tag.ToString();
+            tag = Core.Instance.ModCK3Library.Path + tag;
 
             NewFileFolder f = new NewFileFolder();
 
@@ -392,32 +435,37 @@ namespace CK3ScriptEditor
                 file = tag + "/" + file;
                 if (!File.Exists(file))
                 {
-                    using (FileStream fs = new FileStream(file, FileMode.Create))
+                    var file2 = file.Replace(Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/", "");
+
+                    if(Core.Instance.ModCK3Library.AddFile(file2))
                     {
-                        using (System.IO.TextWriter writeFile = new StreamWriter(fs, Encoding.UTF8))
+                        
+                        using (FileStream fs = new FileStream(file, FileMode.Create))
                         {
+                            using (System.IO.TextWriter writeFile = new StreamWriter(fs, Encoding.UTF8))
+                            {
+
+                            }
+                        }
+                        file = file2;
+
+                        Core.Instance.LoadCK3File(file, false, true);
+
+
+                        if (Core.Instance.BaseCK3Library.FileMap.ContainsKey(file))
+                        {
+                            var ff = Core.Instance.BaseCK3Library.FileMap[file];
+
+                            foreach (var mapValue in ff.Map.Values)
+                            {
+                                mapValue.Overridden = true;
+                            }
 
                         }
+
+                        CK3ScriptEd.Instance.UpdateAllWindows();
                     }
 
-                    file = file.Replace(Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/", "");
-
-                    Core.Instance.ModCK3Library.AddFile(file);
-                    Core.Instance.LoadCK3File(file, false, true);
-
-
-                    if (Core.Instance.BaseCK3Library.FileMap.ContainsKey(file))
-                    {
-                        var ff = Core.Instance.BaseCK3Library.FileMap[file];
-
-                        foreach (var mapValue in ff.Map.Values)
-                        {
-                            mapValue.Overridden = true;
-                        }
-
-                    }
-
-                    CK3ScriptEd.Instance.UpdateAllWindows();
                 }
                 else
                 {

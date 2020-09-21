@@ -17,6 +17,8 @@ namespace CK3ScriptEditor
         public void Save()
         {
             {
+                if (!Directory.Exists(Globals.CK3EdDataPath))
+                    Directory.CreateDirectory(Globals.CK3EdDataPath);
                 string filename = Globals.CK3EdDataPath + "Directories.txt";
 
                 using (System.IO.TextWriter writeFile = new StreamWriter(filename))
@@ -86,8 +88,16 @@ namespace CK3ScriptEditor
                 string text = System.IO.File.ReadAllText(filename);
 
                 string[] lines = text.Replace("\r", "").Split('\n');
-                CK3ScriptEd.Instance.Load(lines[0].Trim());
-              
+
+                if (Directory.Exists(Globals.CK3ModPath + lines[0].Trim()))
+                {
+                    CK3ScriptEd.Instance.Load(lines[0].Trim());
+                }
+                else
+                {
+                    return;
+                }
+
             }
             if (Core.Instance.ModCK3Library == null)
                 return;
@@ -129,7 +139,24 @@ namespace CK3ScriptEditor
 
                         }
                     }
-                    else windows.Add(CK3ScriptEd.Instance.GetTextEditor(line.Split(':')[1], line.Split(':')[0] == "base"));
+                    else
+                    {
+                        bool fromBase = line.Split(':')[0] == "base";
+
+                        if (fromBase)
+                        {
+                            string f = Globals.CK3Path + filename;
+                            if (!File.Exists(f))
+                                continue;
+                        }
+                        else
+                        {
+                            string f = Core.Instance.ModCK3Library.Path + filename;
+                            if (!File.Exists(f))
+                                continue;
+                        }
+                        windows.Add(CK3ScriptEd.Instance.GetTextEditor(line.Split(':')[1], fromBase));
+                    }
                 }
             }
         }

@@ -656,11 +656,11 @@ namespace ICSharpCode.TextEditor
 			
 			if (autodetectEncoding) {
 				Encoding encoding = this.Encoding;
-				Document.TextContent = Util.FileReader.ReadFileContent(stream, ref encoding);
+				Document.TextContent = Util.FileReader.ReadFileContent(stream, ref encoding).Replace("\r", "");
 				this.Encoding = encoding;
 			} else {
 				using (StreamReader reader = new StreamReader(fileName, this.Encoding)) {
-					Document.TextContent = reader.ReadToEnd();
+					Document.TextContent = reader.ReadToEnd().Replace("\r", "");
 				}
 			}
 			

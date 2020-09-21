@@ -40,9 +40,16 @@ namespace CK3ScriptEditor
                         if (MessageBox.Show("Could not find CK3 at specified directory.", "Error",
                                 MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.Cancel)
                         {
+                            Application.Exit();
                             return;
                         }
                     }
+                }
+                else
+                {
+                    Application.Exit();
+                    return;
+
                 }
             }
             

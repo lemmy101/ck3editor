@@ -55,8 +55,9 @@ namespace JominiParse
             SchemaManager.Instance.Init();
             BaseCK3Library = new ScriptLibrary();
             ModCK3Library = new ScriptLibrary();
+            ModCK3Library.Parent = BaseCK3Library;
             LoadingCK3Library = BaseCK3Library;
-            BaseCK3Library.Path = Globals.CK3Path;
+          
             EnumManager.Instance.Load();
             LoadCK3Scripts(BaseCK3Library, true, true);
             ScriptObject.ClearCachedScriptedEffects();
@@ -133,8 +134,7 @@ namespace JominiParse
             ModCK3Library = new ScriptLibrary();
             ModCK3Library.Parent = BaseCK3Library;
             ModCK3Library.Name = mod;
-            ModCK3Library.Path = Globals.CK3ModPath + mod + "/";
-
+        
             LoadingCK3Library = ModCK3Library;
             LoadCK3Scripts(ModCK3Library, false, false);
 
@@ -236,7 +236,7 @@ namespace JominiParse
             }
 
 
-            string directory = filename.Substring(0, filename.LastIndexOf("/"));
+            string directory = filename.Substring(0, Math.Max(filename.LastIndexOf("/"), 0));
 
             ScriptContext context = GetContextFromDirectory(directory);
             string startDir = LoadingCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
@@ -316,6 +316,7 @@ namespace JominiParse
             for (int i = 0; i < Core.Instance.DeferedInitializationList.Count; i++)
             {
                 var scriptObject = Core.Instance.DeferedInitializationList[i];
+                
                 scriptObject.Initialize();
             }
 
