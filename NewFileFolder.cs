@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkUI.Forms;
+using JominiParse;
 
 namespace CK3ScriptEditor
 {
@@ -18,6 +19,6 @@ namespace CK3ScriptEditor
             InitializeComponent();
         }
 
-        public string Dir { get; set; }
+        public RefFilename Dir { get; set; }
     }
 }

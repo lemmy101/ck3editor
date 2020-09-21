@@ -11,10 +11,30 @@ namespace JominiParse
     {
         public Dictionary<string, ScriptObject> AllTypeMap = new Dictionary<string, ScriptObject>();
    
-        public Dictionary<string, ScriptFile> FileMap = new Dictionary<string, ScriptFile>();
+        Dictionary<RefFilename, ScriptFile> FileMap = new Dictionary<RefFilename, ScriptFile>();
 
         public LocalizationParser LocalizationParser = new LocalizationParser();
+        public bool HasFile(RefFilename file)
+        {
+            RefFilename f = new RefFilename(file.ToRelativeFilename(), this == Core.Instance.BaseCK3Library);
 
+            if (FileMap.ContainsKey(f))
+                return true;
+
+            return false;
+        }
+        public ScriptFile GetFile(RefFilename file)
+        {
+            RefFilename f = new RefFilename(file.ToRelativeFilename(), this == Core.Instance.BaseCK3Library);
+
+            if (FileMap.ContainsKey(f))
+                return FileMap[f];
+
+            if (Parent != null)
+                return Parent.GetFile(file);
+
+            return null;
+        }
         public class GroupContextInfo
         {
             public ScriptContext GroupItemContext { get; set; }
@@ -314,7 +334,6 @@ namespace JominiParse
                     else
                     {
                         f = new ScriptFile();
-                        f.IsBase = this == Core.Instance.BaseCK3Library;
                         f.Filename = dec.Filename;
                         f.Context = context;
                         FileMap[dec.Filename] = f;
@@ -613,7 +632,6 @@ namespace JominiParse
             else
             {
                 f = new ScriptFile();
-                f.IsBase = this == Core.Instance.BaseCK3Library;
                 f.Filename = dec.Filename;
                 f.Context = context;
                 FileMap[dec.Filename] = f;
@@ -624,18 +642,8 @@ namespace JominiParse
             f.Map[s] = dec;
         }
 
-        public ScriptFile GetFile(string file)
-        {
-            if (FileMap.ContainsKey(file))
-                return FileMap[file];
 
-            if (Parent != null)
-                return Parent.GetFile(file);
-
-            return null;
-        }
-
-        public ScriptFile EnsureFile(string filename, ScriptContext context)
+        public ScriptFile EnsureFile(RefFilename filename, ScriptContext context)
         {
             if(FileMap.ContainsKey(filename))
             {
@@ -643,7 +651,7 @@ namespace JominiParse
             }
 
             ScriptFile file = new ScriptFile();
-            file.IsBase = this == Core.Instance.BaseCK3Library;
+
             file.Filename = filename;
             file.Context = context;
             FileMap[filename] = file;
@@ -659,25 +667,6 @@ namespace JominiParse
             }
 
             return file;
-        }
-
-        public void SaveBinary(string filename)
-        {
-
-            using (BinaryWriter writer = new BinaryWriter(File.Open(filename, FileMode.Create)))
-            {
-                writer.Write(FileMap.Count);
-                foreach (var file in FileMap.Values)
-                {
-                    writer.Write(file.Filename);
-                    writer.Write(file.Map.Count);
-                    writer.Write((int)file.Context);
-                    foreach (var scriptObject in file.Map.Values)
-                    {
-                        scriptObject.Write(writer);
-                    }
-                }
-            }
         }
 
         public bool Has(ScriptObject inside)
@@ -698,9 +687,9 @@ namespace JominiParse
 
             return results;
         }
-        public List<string> GetDirectoryListFromContext(ScriptContext context, string requiredNamespace)
+        public List<RefFilename> GetDirectoryListFromContext(ScriptContext context, string requiredNamespace)
         {
-            List<string> results = new List<string>();
+            List<RefFilename> results = new List<RefFilename>();
             foreach (var keyValuePair in FileMap)
             {
                 if (keyValuePair.Value.Context == context)
@@ -715,7 +704,7 @@ namespace JominiParse
             return results;
         }
 
-        public void ClearFile(string filename)
+        public void ClearFile(RefFilename filename)
         {
             if(FileMap.ContainsKey(filename))
             {
@@ -846,15 +835,13 @@ namespace JominiParse
             }
         }
 
-        public bool AddFile(string file)
+        public bool AddFile(RefFilename file)
         {
             ScriptFile f = new ScriptFile();
 
-            f.IsBase = false;
-            f.Filename = file;
-            string dir = file.Substring(0, file.LastIndexOf("/") + 1);
+            f.Filename = new RefFilename(file.ToRelativeFilename(), this == Core.Instance.BaseCK3Library);
             var l = Core.Instance.BaseCK3Library.ContextData.Where(a =>
-                a.Value.Directory != null && dir.Contains(a.Value.Directory));
+                a.Value.Directory != null && f.Filename.ToRelativeDirectoryOfFile().Contains(a.Value.Directory));
             if(l.Count() == 0)
                 return false;
             f.Context = l.First().Key;

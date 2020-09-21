@@ -7,12 +7,12 @@ namespace JominiParse
     {
         public static VariableStore Instance = new VariableStore();
         public Dictionary<string, List<Variable>> unsortedScopedVariables = new Dictionary<string, List<Variable>>();
-        public Dictionary<string, List<Variable>> unsortedScopedVariablesByFilename = new Dictionary<string, List<Variable>>();
+        public Dictionary<RefFilename, List<Variable>> unsortedScopedVariablesByFilename = new Dictionary<RefFilename, List<Variable>>();
 
         public Dictionary<string, Dictionary<ScopeType, Variable>> scopedVariables = new Dictionary<string, Dictionary<ScopeType, Variable>>();
 
         public Dictionary<string, Variable> globalVariables = new Dictionary<string, Variable>();
-        public Dictionary<string, List<Variable>> globalVariablesByFilename = new Dictionary<string, List<Variable>>();
+        public Dictionary<RefFilename, List<Variable>> globalVariablesByFilename = new Dictionary<RefFilename, List<Variable>>();
         public void RegisterSetLocalVariable(ScriptObject node)
         {
             var w = node.Children.Where(a => a.Name == "value");
@@ -170,7 +170,7 @@ namespace JominiParse
             {
                 unsortedScopedVariables[n] = new List<Variable>();
             }
-            if (!unsortedScopedVariablesByFilename.ContainsKey(n))
+            if (!unsortedScopedVariablesByFilename.ContainsKey(node.Topmost.Filename))
             {
                 unsortedScopedVariablesByFilename[node.Topmost.Filename] = new List<Variable>();
             }
@@ -185,7 +185,7 @@ namespace JominiParse
             unsortedScopedVariablesByFilename[node.Topmost.Filename].Add(v);
         }
 
-        public void RemoveAllVariablesFromFile(string filename)
+        public void RemoveAllVariablesFromFile(RefFilename filename)
         {
             if (unsortedScopedVariablesByFilename.ContainsKey(filename))
             {

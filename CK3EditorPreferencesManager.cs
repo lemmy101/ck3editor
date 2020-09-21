@@ -155,7 +155,7 @@ namespace CK3ScriptEditor
                             if (!File.Exists(f))
                                 continue;
                         }
-                        windows.Add(CK3ScriptEd.Instance.GetTextEditor(line.Split(':')[1], fromBase));
+                        windows.Add(CK3ScriptEd.Instance.GetTextEditor(new RefFilename(line.Split(':')[1], fromBase)));
                     }
                 }
             }

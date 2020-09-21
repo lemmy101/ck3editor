@@ -27,10 +27,10 @@ namespace CK3ScriptEditor
         public List<ScriptWindow> OpenScriptWindows = new List<ScriptWindow>();
 
         Dictionary<string, TabPage> tabs = new Dictionary<string, TabPage>();
-        Dictionary<string, ICSharpCode.TextEditor.TextEditorControl> modTextEditors = new Dictionary<string, ICSharpCode.TextEditor.TextEditorControl>();
-        Dictionary<string, ICSharpCode.TextEditor.TextEditorControl> baseTextEditors = new Dictionary<string, ICSharpCode.TextEditor.TextEditorControl>();
-        private Dictionary<string, ScriptWindow> openModScriptWindows = new Dictionary<string, ScriptWindow>();
-        private Dictionary<string, ScriptWindow> openBaseScriptWindows = new Dictionary<string, ScriptWindow>();
+        Dictionary<RefFilename, ICSharpCode.TextEditor.TextEditorControl> modTextEditors = new Dictionary<RefFilename, ICSharpCode.TextEditor.TextEditorControl>();
+        Dictionary<RefFilename, ICSharpCode.TextEditor.TextEditorControl> baseTextEditors = new Dictionary<RefFilename, ICSharpCode.TextEditor.TextEditorControl>();
+        private Dictionary<RefFilename, ScriptWindow> openModScriptWindows = new Dictionary<RefFilename, ScriptWindow>();
+        private Dictionary<RefFilename, ScriptWindow> openBaseScriptWindows = new Dictionary<RefFilename, ScriptWindow>();
         private bool fileOverviewDirty;
         private List<DarkDockContent> _toolWindows = new List<DarkDockContent>();
         internal FileOverviewToolWindow fileOverview;
@@ -49,9 +49,9 @@ namespace CK3ScriptEditor
                 DockPanel.RemoveContent(toolWindow);
         }
 
-        public void Goto(string tagFilename, int tagLineStart, bool isBase)
+        public void Goto(RefFilename tagFilename, int tagLineStart, bool isBase)
         {
-            var text = GetTextEditor(tagFilename, isBase);
+            var text = GetTextEditor(tagFilename);
 
             text.ActiveTextAreaControl.CenterViewOn(tagLineStart, 0);
             text.ActiveTextAreaControl.Caret.Line = tagLineStart;
@@ -206,36 +206,25 @@ namespace CK3ScriptEditor
         }
 
 
-        public void LoadCK3File(string filename)
+        public void LoadCK3File(RefFilename filename)
         {
+
             bool fromBase = JominiParse.Core.Instance.LoadCK3File(filename);
 
             CurrentFile = filename;
 
-            ICSharpCode.TextEditor.TextEditorControl scriptTextFile = GetTextEditor(filename, fromBase);
-
-            fileOverview.UpdateTree(filename, scriptTextFile.ActiveTextAreaControl.Caret.Line, fromBase);
-
-        }
-        public void LoadCK3File(string filename, bool forceBase)
-        {
-
-            bool fromBase = JominiParse.Core.Instance.LoadCK3File(filename, forceBase);
-
-            CurrentFile = filename;
-
-            ICSharpCode.TextEditor.TextEditorControl scriptTextFile = GetTextEditor(filename, fromBase);
+            ICSharpCode.TextEditor.TextEditorControl scriptTextFile = GetTextEditor(filename);
 
             fileOverview.UpdateTree(filename, scriptTextFile.ActiveTextAreaControl.Caret.Line, fromBase);
 
         }
 
-        public TextEditorControl GetTextEditor(string filename, bool fromBase = true)
+        public TextEditorControl GetTextEditor(RefFilename filename)
         {
 
-            string startDir = fromBase ? Globals.CK3Path : Core.Instance.ModCK3Library.Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
+            bool fromBase = filename.IsBase;
 
-            if (!File.Exists(startDir + filename))
+            if (!filename.Exists)
                 fromBase = !fromBase;
 
             var textEditors = fromBase ? baseTextEditors : modTextEditors;
@@ -259,7 +248,7 @@ namespace CK3ScriptEditor
             return textEditors[filename];
         }
 
-        public void AddTab(string filename, bool fromBase)
+        public void AddTab(RefFilename filename, bool fromBase)
         {
             var textEditors = fromBase ? baseTextEditors : modTextEditors;
             var openScriptWindows = fromBase ? openBaseScriptWindows : openModScriptWindows;
@@ -273,11 +262,11 @@ namespace CK3ScriptEditor
             AllowUpdateFile = false;
             window.ScriptFile = Core.Instance.GetFile(filename, fromBase);
             window.IsBaseFile = fromBase;
-            textEditors[filename] = window.LoadFile(startDir+filename);
+            textEditors[filename] = window.LoadFile(filename);
             DockPanel.AddContent(window);
             DockPanel.ActiveContent = window;
             window.UpdateLocalizations();
-            window.Name = window.Text = filename;
+            window.Name = window.Text = filename.ToRelativeFilename();
             window.FullFilename = startDir + filename;
             AllowUpdateFile = true;
             fileOverview.UpdateTree(filename, textEditors[filename].ActiveTextAreaControl.Caret.Line, fromBase);
@@ -291,7 +280,7 @@ namespace CK3ScriptEditor
 
         public IHighlightingStrategy HighlightStrategy { get; set; }
 
-        public string CurrentFile { get; set; }
+        public RefFilename CurrentFile { get; set; }
         public BasicFind Find { get; set; }
         public TabOpenWindowsDlg TabOpenDlg { get; set; }
 
@@ -300,7 +289,7 @@ namespace CK3ScriptEditor
 
         }
 
-        public void CloseDocument(bool mod, string path)
+        public void CloseDocument(bool mod, RefFilename path)
         {
             var textEditors = !mod ? baseTextEditors : modTextEditors;
             var openScriptWindows = !mod ? openBaseScriptWindows : openModScriptWindows;
@@ -318,7 +307,7 @@ namespace CK3ScriptEditor
                     "This process will take every object in overridden mod files that have changed (files that share the filename with CK3 base files) and move them to a new file with object specific overrides. This will improve mod compatibility for the mod.\n\nWARNING: This may not be what you want to do for all mods, if you are purposefully overriding content from the base files to remove them intentionally, for the purposes of Total Conversions etc then this may cause damage to your mod.\n\nPLEASE BACK UP BEFORE USING THIS!",
                     "Warning", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
-                List<string> toDelete = new List<string>();
+           /*     List<string> toDelete = new List<string>();
                 foreach (var fileMapValue in Core.Instance.ModCK3Library.FileMap.Values)
                 {
                     var baseFile = Core.Instance.BaseCK3Library.GetFile(fileMapValue.Filename);
@@ -354,7 +343,7 @@ namespace CK3ScriptEditor
                         if(changedObjects.Count==0)
                             continue;
                         ;
-                        string fileEnd = fileMapValue.Filename.Substring(fileMapValue.Filename.LastIndexOf("/") + 1);
+                        string fileEnd = fileMapValue.Filename.ToRelativeFilename().Substring(fileMapValue.Filename.ToRelativeFilename().LastIndexOf("/") + 1);
                         bool add00 = false;
                         int numOfFile = 1;
                         var under = fileEnd.IndexOf("_");
@@ -390,7 +379,7 @@ namespace CK3ScriptEditor
 
 
                    
-                        string newFilename = fileMapValue.Filename.Substring(0, fileMapValue.Filename.LastIndexOf("/") + 1) + fileEnd;
+                        string newFilename = fileMapValue.Filename.ToRelativeFilename().Substring(0, fileMapValue.Filename.ToRelativeFilename().LastIndexOf("/") + 1) + fileEnd;
 
                         RawScriptHelper.SaveScriptObjectsToFile(fileMapValue, changedObjects, newFilename);
                     }
@@ -406,7 +395,7 @@ namespace CK3ScriptEditor
                 Core.Instance.LoadMod(Core.Instance.ModCK3Library.Name);
                 CK3ScriptEd.Instance.CloseAllModFileWindows();
                 CK3ScriptEd.Instance.UpdateAllWindows();
-                CK3EditorPreferencesManager.Instance.Save();
+                CK3EditorPreferencesManager.Instance.Save();*/
             }
         }
 
@@ -437,9 +426,9 @@ namespace CK3ScriptEditor
             BackupManager.Instance.UpdateTick();
         }
 
-        public List<string> GetOpenModWindowsFilenameList()
+        public List<RefFilename> GetOpenModWindowsFilenameList()
         {
-            List<string> files = new List<string>();
+            List<RefFilename> files = new List<RefFilename>();
 
             foreach (var openModScriptWindow in openModScriptWindows)
             {
@@ -505,9 +494,9 @@ namespace CK3ScriptEditor
 
             return results;
         }
-        public List<string> GetOpenBaseWindowsFilenameList()
+        public List<RefFilename> GetOpenBaseWindowsFilenameList()
         {
-            List<string> files = new List<string>();
+            List<RefFilename> files = new List<RefFilename>();
 
             foreach (var openModScriptWindow in openBaseScriptWindows)
             {

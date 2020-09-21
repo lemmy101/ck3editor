@@ -19,31 +19,29 @@ namespace CK3ScriptEditor
             dlg.Init(scriptObject.Filename, scriptObject.LineStart, scriptObject.LineEnd, scriptObject);
             if(dlg.ShowDialog(CK3ScriptEd.Instance) == DialogResult.OK)
             {
-                string dir = Core.Instance.GetDirectoryFromContext(dlg.Context) + "/";
+                RefFilename dir = Core.Instance.GetDirectoryFromContext(dlg.Context);
 
-                string path = dir + dlg.ChosenFilename;
-                string fullPath = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/" + path;
-                string fullBasePath = Globals.CK3Path + dlg.ScriptObject.Filename;
-                bool exists = File.Exists(fullPath);
-                string textToImplant = dlg.GetTextToImplant(fullBasePath);
+                RefFilename fullPath = dir.Append(dlg.ChosenFilename);
+                
+                fullPath.IsBase = false;
+
+                bool exists = fullPath.Exists;
+                string textToImplant = dlg.GetTextToImplant(fullPath);
                 textToImplant = textToImplant.Replace("\r", "");
                 if (exists)
                 {
                     // need to insert it into the file....
-                    string text = System.IO.File.ReadAllText(fullPath);
+                    string text = System.IO.File.ReadAllText(fullPath.ToFullWindowsFilename());
                     text = text.Replace("\r", "");
                     var lines = text.Split(new char[] { '\n' }).ToList();
 
-                    var file = Core.Instance.GetFile(path, false);
+                    var lines2 = textToImplant.Split(new char[] { '\n' }).ToList();
 
-                    {
-                        var lines2 = textToImplant.Split(new char[] { '\n' }).ToList();
+                    lines.AddRange(lines2);
 
-                        lines.AddRange(lines2);
+                   
 
-                    }
-
-                    using (FileStream fs = new FileStream(fullPath, FileMode.Create))
+                    using (FileStream fs = new FileStream(fullPath.ToFullWindowsFilename(), FileMode.Create))
                     {
                         // create a new file....
                         using (StreamWriter outputFile = new StreamWriter(fs, Encoding.UTF8))
@@ -56,7 +54,7 @@ namespace CK3ScriptEditor
                 }
                 else
                 {
-                    using (FileStream fs = new FileStream(fullPath, FileMode.Create))
+                    using (FileStream fs = new FileStream(fullPath.ToFullWindowsFilename(), FileMode.Create))
                     {
                         // create a new file....
                         using (StreamWriter outputFile = new StreamWriter(fs, Encoding.UTF8))
@@ -76,13 +74,13 @@ namespace CK3ScriptEditor
 
 
 
-                Core.Instance.ModCK3Library.EnsureFile(path, dlg.ScriptObject.Context);
-                Core.Instance.LoadCK3File(path, false, true);
+                Core.Instance.ModCK3Library.EnsureFile(fullPath, dlg.ScriptObject.Context);
+                Core.Instance.LoadCK3File(fullPath, false, true);
                 CK3ScriptEd.Instance.projectExplorer.FillProjectView();
                 CK3ScriptEd.Instance.soExplorer.UpdateScriptExplorer();
-                CK3ScriptEd.Instance.CloseDocument(true, path);
-                int newLine = Core.Instance.ModCK3Library.GetFile(path).Map[dlg.ScriptObject.Name].LineStart - 1;
-                CK3ScriptEd.Instance.Goto(path, newLine, false); CK3ScriptEd.Instance.Goto(path, newLine, false);
+                CK3ScriptEd.Instance.CloseDocument(true, fullPath);
+                int newLine = Core.Instance.ModCK3Library.GetFile(fullPath).Map[dlg.ScriptObject.Name].LineStart - 1;
+                CK3ScriptEd.Instance.Goto(fullPath, newLine, false); CK3ScriptEd.Instance.Goto(fullPath, newLine, false);
 
             }
         }

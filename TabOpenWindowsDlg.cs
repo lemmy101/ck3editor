@@ -29,7 +29,7 @@ namespace CK3ScriptEditor
 
                 var s = instanceOpenScriptWindow.Filename;
 
-                string ss = s.Substring(s.LastIndexOf("/") + 1);
+                string ss = s.ToRelativeFilename().Substring(s.ToRelativeFilename().LastIndexOf("/") + 1);
 
                 int col = 50;
 
@@ -45,7 +45,7 @@ namespace CK3ScriptEditor
                     ss += "Mod:  ";
                 }
 
-                ss += s.Substring(0, s.LastIndexOf("/"));
+                ss += s.ToRelativeFilename().Substring(0, s.ToRelativeFilename().LastIndexOf("/"));
 
                 var i = new DarkListItem(ss);
                 i.Tag = instanceOpenScriptWindow;

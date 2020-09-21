@@ -272,134 +272,7 @@ namespace CK3ScriptEditor
             }
 
         }
-        private void FillBranchFiles(DarkTreeNode parent, ScriptContext context)
-        {
-            namespaces.Clear();
-            var names = Core.Instance.GetNameSet(context, this.showModOnly.CheckState != CheckState.Checked).OrderBy(a => a).ToList();
-
-            NamespaceItems defaultNamespace = new NamespaceItems();
-
-            foreach (var name in names)
-            {
-                ScriptObject e = Core.Instance.Get( context, name);
-                string ff = e.Filename.Substring(e.Filename.LastIndexOf("/")+1).Replace(".txt", "");
-
-                if (e != null)
-                {
-                    var namesp = defaultNamespace;
-                    if (!string.IsNullOrEmpty(ff))
-                    {
-                        if (namespaces.ContainsKey(ff))
-                        {
-                            namesp = namespaces[ff];
-                        }
-                        else
-                        {
-                            namesp = new NamespaceItems();
-                            namespaces[ff] = namesp;
-                        }
-                    }
-
-                    namesp.objList.Add(e);
-                }
-            }
-
-
-            var namelist = namespaces.Keys.ToList();
-
-            foreach (var n in namelist)
-            {
-                DarkTreeNode d = new DarkTreeNode(n);
-                parent.Nodes.Add(d);
-                foreach (var scriptObject in namespaces[n].objList)
-                {
-                    DarkTreeNode dob = new DarkTreeNode(scriptObject.Name);
-
-                    dob.Tag = scriptObject;
-                    if (!scriptObject.ScriptFile.IsBase)
-                    {
-                        dob.TextColor = Color.LightBlue;
-                        parent.TextColor = Color.LightBlue;
-
-                        if (parent.ParentNode != null)
-                        {
-                            parent.ParentNode.TextColor = Color.LightBlue;
-
-                        }
-                        d.TextColor = Color.LightBlue;
-                    }
-                    else
-                    {
-                        if (scriptObject.Overridden)
-                        {
-                            dob.TextColor = Color.LightCoral;
-                            if (parent.TextColor == Colors.LightText)
-                            {
-                                parent.TextColor = Color.LightCoral;
-
-                                if (parent.ParentNode != null)
-                                {
-                                    if (parent.ParentNode.TextColor == Colors.LightText)
-                                        parent.ParentNode.TextColor = Color.LightCoral;
-
-                                }
-                            }
-
-
-                            if (d.TextColor == Colors.LightText)
-                                d.TextColor = Color.LightCoral;
-                        }
-                    }
-                    if (!scriptObject.Overridden || showOveridden.Checked)
-                        d.Nodes.Add(dob);
-                }
-            }
-
-
-            foreach (var scriptObject in defaultNamespace.objList)
-            {
-                DarkTreeNode dob = new DarkTreeNode(scriptObject.Name);
-
-                dob.Tag = scriptObject;
-
-                if (!scriptObject.ScriptFile.IsBase)
-                {
-                    dob.TextColor = Color.LightBlue;
-                    parent.TextColor = Color.LightBlue;
-
-                    if (parent.ParentNode != null)
-                    {
-                        parent.ParentNode.TextColor = Color.LightBlue;
-
-                    }
-                }
-                else
-                {
-                    if (scriptObject.Overridden)
-                    {
-                        dob.TextColor = Color.LightCoral;
-                        if (parent.TextColor == Colors.LightText)
-                        {
-                            parent.TextColor = Color.LightCoral;
-
-                            if (parent.ParentNode != null)
-                            {
-                                if (parent.ParentNode.TextColor == Colors.LightText)
-                                    parent.ParentNode.TextColor = Color.LightCoral;
-
-                            }
-                        }
-
-
-
-                    }
-                }
-                if (!scriptObject.Overridden || showOveridden.Checked)
-                    parent.Nodes.Add(dob);
-            }
-
-        }
-
+    
         private void showModOnly_CheckedChanged(object sender, EventArgs e)
         {
             UpdateScriptExplorer();
@@ -476,30 +349,28 @@ namespace CK3ScriptEditor
             if (dlg.ShowDialog(CK3ScriptEd.Instance) == DialogResult.OK)
             {
 
-                string dir = Core.Instance.GetDirectoryFromContext(dlg.Context) + "/";
+                RefFilename dir = Core.Instance.GetDirectoryFromContext(dlg.Context);
 
-                string path = dir + dlg.ChosenFilename;
-                string fullPath = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/" + path;
-                 bool exists = File.Exists(fullPath);
+                RefFilename fullPath = dir.Append(dlg.ChosenFilename);
+                fullPath.IsBase = false;
+
+                bool exists = fullPath.Exists;
                 string textToImplant = dlg.soName.Text + " = { \n\n\n}";
                 
                 if (exists)
                 {
                     // need to insert it into the file....
-                    string text = System.IO.File.ReadAllText(fullPath);
+                    string text = System.IO.File.ReadAllText(fullPath.ToFullWindowsFilename());
                     text = text.Replace("\r", "");
                     var lines = text.Split(new char[] { '\n' }).ToList();
 
-                    var file = Core.Instance.GetFile(path, false);
+                    var lines2 = textToImplant.Split(new char[] { '\n' }).ToList();
 
-                    {
-                        var lines2 = textToImplant.Split(new char[] { '\n' }).ToList();
+                    lines.AddRange(lines2);
 
-                        lines.AddRange(lines2);
 
-                    }
 
-                    using (FileStream fs = new FileStream(fullPath, FileMode.Create))
+                    using (FileStream fs = new FileStream(fullPath.ToFullWindowsFilename(), FileMode.Create))
                     {
                         // create a new file....
                         using (StreamWriter outputFile = new StreamWriter(fs, Encoding.UTF8))
@@ -512,7 +383,7 @@ namespace CK3ScriptEditor
                 }
                 else
                 {
-                    using (FileStream fs = new FileStream(fullPath, FileMode.Create))
+                    using (FileStream fs = new FileStream(fullPath.ToFullWindowsFilename(), FileMode.Create))
                     {
                         // create a new file....
                         using (StreamWriter outputFile = new StreamWriter(fs, Encoding.UTF8))
@@ -527,13 +398,13 @@ namespace CK3ScriptEditor
 
 
 
-                Core.Instance.ModCK3Library.EnsureFile(path, context);
-                Core.Instance.LoadCK3File(path, false, true);
+                Core.Instance.ModCK3Library.EnsureFile(fullPath, context);
+                Core.Instance.LoadCK3File(fullPath, false, true);
                 CK3ScriptEd.Instance.projectExplorer.FillProjectView();
                 CK3ScriptEd.Instance.soExplorer.UpdateScriptExplorer();
-                CK3ScriptEd.Instance.CloseDocument(true, path);
-                int newLine = Core.Instance.ModCK3Library.GetFile(path).Map[dlg.soName.Text].LineStart - 1;
-                CK3ScriptEd.Instance.Goto(path, newLine, false); CK3ScriptEd.Instance.Goto(path, newLine, false);
+                CK3ScriptEd.Instance.CloseDocument(true, fullPath);
+                int newLine = Core.Instance.ModCK3Library.GetFile(fullPath).Map[dlg.soName.Text].LineStart - 1;
+                CK3ScriptEd.Instance.Goto(fullPath, newLine, false); CK3ScriptEd.Instance.Goto(fullPath, newLine, false);
 
 
                 CK3ScriptEd.Instance.UpdateAllWindows();

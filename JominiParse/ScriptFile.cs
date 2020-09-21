@@ -5,8 +5,13 @@ namespace JominiParse
 {
     public class ScriptFile
     {
-        public string Filename { get; set; }
-        public bool IsBase { get; set; }
+        public RefFilename Filename { get; set; }
+
+        public bool IsBase
+        {
+            get { return Filename.IsBase; }
+        }
+
         public bool Overridden { get; set; }
         public ScriptContext Context { get; set; }
         public string Namespace { get; set; }
@@ -55,5 +60,6 @@ namespace JominiParse
                 mapValue.DoSmartFind(options, results);
             }
         }
+
     }
 }

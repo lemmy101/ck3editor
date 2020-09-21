@@ -11,7 +11,7 @@ namespace JominiParse
 
         public List<ScriptParsedSegment> children = new List<ScriptParsedSegment>();
         public List<int> lineNumbers = new List<int>();
-        public string filename;
+        public RefFilename filename;
         public bool isBlock;
 
         public override string ToString()

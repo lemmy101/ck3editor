@@ -26,7 +26,7 @@ namespace JominiParse
         public HashSet<string> _cachedScriptedEffects = null;
         public HashSet<string> _cachedScriptedTriggers = null;
 
-
+      
         public Core()
         {
             Wipe();
@@ -178,10 +178,10 @@ namespace JominiParse
             return ModCK3Library.HasLocalizedText(tag);
         }
 
-        public ScriptContext GetContextFromDirectory(string dir)
+        public ScriptContext GetContextFromDirectory(RefFilename dir)
         {
             var res = BaseCK3Library.ContextData
-                .Where(a => a.Value.Directory != null && dir.StartsWith(a.Value.Directory)).ToList();
+                .Where(a => a.Value.Directory != null && dir.ToRelativeFilename().StartsWith(a.Value.Directory)).ToList();
 
             if (res.Any())
 
@@ -192,41 +192,35 @@ namespace JominiParse
             return ScriptContext.Event;
         }
 
-        public void LoadCK3BaseFile(string filename)
+        public void LoadCK3BaseFile(RefFilename filename)
         {
-            if (BaseCK3Library.FileMap.ContainsKey(filename))
+            if (BaseCK3Library.HasFile(filename))
                 return;
 
             LoadingCK3Library = BaseCK3Library;
-            string directory = filename.Substring(0, filename.LastIndexOf("/"));
-
-            ScriptContext context = GetContextFromDirectory(directory);
-            string startDir = Globals.CK3Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
-
-            var results = FileTokenizer.Instance.LoadFile(startDir + filename, startDir, context, true);
+         
+            ScriptContext context = GetContextFromDirectory(filename);
+       
+            var results = FileTokenizer.Instance.LoadFile(filename, context, true);
 
             BaseCK3Library.Add(results, context);
         }
 
-        public bool LoadCK3File(string filename, bool forceBase = false, bool forceReload = false)
+        public bool LoadCK3File(RefFilename filename, bool forceBase = false, bool forceReload = false)
         {
-            bool fromBase = false;
-            if (!ModCK3Library.FileMap.ContainsKey(filename))
-                fromBase = true;
-
-            fromBase = fromBase | forceBase;
+            bool fromBase = filename.IsBase;
 
             LoadingCK3Library = fromBase ? BaseCK3Library : ModCK3Library;
             if (!forceReload)
             {
                 if (fromBase)
                 {
-                    if (BaseCK3Library.FileMap.ContainsKey(filename))
+                    if (BaseCK3Library.HasFile(filename))
                         return fromBase;
                 }
                 else
                 {
-                    if (ModCK3Library.FileMap.ContainsKey(filename))
+                    if (ModCK3Library.HasFile(filename))
                         return fromBase;
                 }
             }
@@ -236,12 +230,11 @@ namespace JominiParse
             }
 
 
-            string directory = filename.Substring(0, Math.Max(filename.LastIndexOf("/"), 0));
+           // string directory = filename.Substring(0, Math.Max(filename.LastIndexOf("/"), 0));
 
-            ScriptContext context = GetContextFromDirectory(directory);
-            string startDir = LoadingCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
-
-            var results = FileTokenizer.Instance.LoadFile(startDir + filename, startDir, context, true);
+            ScriptContext context = GetContextFromDirectory(filename);
+         
+            var results = FileTokenizer.Instance.LoadFile(filename, context, true);
 
             LoadingCK3Library.Add(results, context);
 
@@ -250,7 +243,7 @@ namespace JominiParse
             return fromBase;
         }
 
-        public ScriptFile GetFile(string file, bool isBaseFile)
+        public ScriptFile GetFile(RefFilename file, bool isBaseFile)
         {
             if (isBaseFile)
                 return BaseCK3Library.GetFile(file);
@@ -258,7 +251,7 @@ namespace JominiParse
             return ModCK3Library.GetFile(file);
         }
 
-        public ScriptFile GetFile(string file)
+        public ScriptFile GetFile(RefFilename file)
         {
             return ModCK3Library.GetFile(file);
         }
@@ -298,13 +291,13 @@ namespace JominiParse
                         ScriptLibrary.ContextInfo info = LoadingCK3Library.ContextData[(ScriptContext) x];
                         if (info.Directory.EndsWith(".txt"))
                         {
-                            var r = FileTokenizer.Instance.LoadFile(startDir + info.Directory, startDir,
+                            var r = FileTokenizer.Instance.LoadFile(new RefFilename(info.Directory, lib == BaseCK3Library),
                                 (ScriptContext) x, save);
                             LoadingCK3Library.Add(r, (ScriptContext) x);
                         }
                         else
                         {
-                            var r = FileTokenizer.Instance.LoadDirectory(startDir + info.Directory + "/", startDir,
+                            var r = FileTokenizer.Instance.LoadDirectory(new RefFilename(info.Directory + "/", lib == BaseCK3Library), 
                                 (ScriptContext) x, save, load);
                             LoadingCK3Library.Add(r, (ScriptContext) x);
                         }
@@ -325,21 +318,20 @@ namespace JominiParse
             LoadingCK3Library.RecalculateGroups();
         }
 
-        public void UpdateFile(string filename, string text)
+        public void UpdateFile(RefFilename filename, string text)
         {
             VariableStore.Instance.RemoveAllVariablesFromFile(filename);
             Core.Instance.DeferedPostInitializationListNext.Clear();
 
             ModCK3Library.ClearFile(filename);
-            string startDir = ModCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
-
+      
             LoadingCK3Library = ModCK3Library;
 
-            var c = GetContextFromDirectory(filename.Substring(0, filename.LastIndexOf("/")));
+            var c = GetContextFromDirectory(filename);
 
             try
             {
-                var results = FileTokenizer.Instance.LoadText(text, startDir + filename, startDir, c);
+                var results = FileTokenizer.Instance.LoadText(text, filename, c);
 
                 ModCK3Library.Add(results, c);
             }
@@ -502,9 +494,9 @@ namespace JominiParse
             return ModCK3Library.Get(ScriptContext.Event, name);
         }
 
-        public string GetDirectoryFromContext(ScriptContext context)
+        public RefFilename GetDirectoryFromContext(ScriptContext context)
         {
-            return BaseCK3Library.ContextData[context].Directory;
+            return new RefFilename(BaseCK3Library.ContextData[context].Directory, true);
         }
 
         public HashSet<string> GetNameSetFromEnumType(string type, bool allowPrepend = false, bool addPrepend = false)

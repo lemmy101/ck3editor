@@ -171,7 +171,8 @@ namespace CK3ScriptEditor
                 }
                 string startDir = Core.Instance.ModCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
                 Core.Instance.ModCK3Library.LoadLocalizations(startDir + "localization/english");
-                UpdateDatabase();
+                if(!Filename.IsBase)
+                    UpdateDatabase();
                 CK3ScriptEd.Instance.UpdateAllWindows();
             }
         }
@@ -540,6 +541,9 @@ namespace CK3ScriptEditor
         {
             if (Filename == null)
                 return;
+            if (Filename.IsBase)
+                return;
+
             if (CK3ScriptEd.Instance.AllowUpdateFile)
             {
                 Core.Instance.UpdateFile(Filename, this.textEditorControl1.Document.TextContent);
@@ -620,7 +624,7 @@ namespace CK3ScriptEditor
         {
             var line = textEditorControl1.ActiveTextAreaControl.Caret.Line + 1;
 
-            var file = Core.Instance.GetFile(Filename.Replace("\\", "/"));
+            var file = Core.Instance.GetFile(Filename);
             ScriptObject best = null;
             foreach (var scriptObject in file.Map.Values)
             {
@@ -745,24 +749,24 @@ namespace CK3ScriptEditor
             return DockText;
         }
 
-        public string Filename { get; set; }
+        public RefFilename Filename { get; set; }
         public ScriptFile ScriptFile { get; set; }
 
-        public TextEditorControl LoadFile(string filename)
+        public TextEditorControl LoadFile(RefFilename filename)
         {
-            if (filename.EndsWith(".yml"))
+            if (filename.Extension == (".yml"))
             {
                 IsLocalization = true;
           }
 
             IgnoredFirstDirty = true;
-            if(File.Exists(filename))
+            if(filename.Exists)
             {
-                textEditorControl1.LoadFile(filename);
+                textEditorControl1.LoadFile(filename.ToFullWindowsFilename());
 
                 if (IsBaseFile)
                 {
-                    Name = Text = DockText = "Base: " + filename.Substring(filename.LastIndexOf("/") + 1) + " (Read-Only)";
+                    Name = Text = DockText = "Base: " + filename.Name + " (Read-Only)";
                     textEditorControl1.Document.ReadOnly = true;
                     textEditorControl1.Document.HighlightingStrategy = new DefaultHighlightingStrategy("Default", true);//textEditorControl1.Document.HighlightingStrategy
                     var d = (textEditorControl1.Document.HighlightingStrategy as DefaultHighlightingStrategy);
@@ -804,7 +808,7 @@ namespace CK3ScriptEditor
                 }
                 else
                 {
-                    Name = Text = DockText = "Mod: " + filename.Substring(filename.LastIndexOf("/") + 1);
+                    Name = Text = DockText = "Mod: " + filename.Name;
 
                     textEditorControl1.Document.ReadOnly = false;
                     // textEditorControl1.Document.HighlightingStrategy = new DefaultHighlightingStrategy("Default", false);//textEditorControl1.Document.HighlightingStrategy

@@ -47,9 +47,9 @@ namespace CK3ScriptEditor
             TreeView.SelectedNodes.Clear();
 
         }
-        public void UpdateTree(string filename, int lineNumber, bool isBaseFile)
+        public void UpdateTree(RefFilename filename, int lineNumber, bool isBaseFile)
         {
-            if (filename.EndsWith(".yml"))
+            if (filename.Extension == ".yml")
                 return;
 
             IsBaseFile = isBaseFile;
@@ -132,7 +132,7 @@ namespace CK3ScriptEditor
         }
 
         private int CaretLine = 0;
-        public void UpdateTreeSelection(string filename, int caretLine)
+        public void UpdateTreeSelection(RefFilename filename, int caretLine)
         {
             caretLine++;
             

@@ -234,7 +234,7 @@ namespace JominiParse
             this.Library = Core.Instance.LoadingCK3Library;
 
             if (LineStart == ScriptObjectBehaviourManager.BreakpointLine &&
-                Topmost.Filename.Contains(ScriptObjectBehaviourManager.BreakpointFile))
+                Topmost.Filename.ToRelativeFilename().Contains(ScriptObjectBehaviourManager.BreakpointFile))
             {
             }
 
@@ -564,7 +564,7 @@ namespace JominiParse
 
         public int LineStart { get; set; }
 
-        public string Filename { get; set; }
+        public RefFilename Filename { get; set; }
         public virtual string Name { get; set; }
         public ScriptContext Context { get; set; }
         public bool IsBlock { get; set; }

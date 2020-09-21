@@ -126,13 +126,13 @@ namespace JominiParse
             BreakpointFile = "events/kill_them_all_events/kill_them_all_events.txt";
 
 
-            if (obj.Filename.Contains(BreakpointFile))
+            if (obj.Filename.ToRelativeFilename().Contains(BreakpointFile))
             {
 
             }
 
             if (obj.LineStart == BreakpointLine &&
-                obj.Filename.Contains(BreakpointFile))
+                obj.Filename.ToRelativeFilename().Contains(BreakpointFile))
              {
 
             }

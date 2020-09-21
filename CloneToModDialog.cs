@@ -23,7 +23,7 @@ namespace CK3ScriptEditor
 
         internal String ChosenFilename;
 
-        public void Init(string fromFilename, int lineStart, int lineEnd, ScriptObject scriptObject)
+        public void Init(RefFilename fromFilename, int lineStart, int lineEnd, ScriptObject scriptObject)
         {
             OK.Enabled = false;
             var context = scriptObject.Context;
@@ -38,14 +38,15 @@ namespace CK3ScriptEditor
 
             DarkTreeNode root = new DarkTreeNode(context.ToString());
       
-            List<string> str = Core.Instance.ModCK3Library.GetDirectoryListFromContext(context, scriptObject.Namespace);
+            List<RefFilename> str = Core.Instance.ModCK3Library.GetDirectoryListFromContext(context, scriptObject.Namespace);
             for (var index = 0; index < str.Count; index++)
             {
                 var item = root;
                 var file = str[index];
 
-                file = file.Replace(dirFromContext, "");
-                var parts = file.Split('/');
+                file = file.RemoveFromPath(dirFromContext);
+                
+                var parts = file.SplitDirectories();
                 
                 foreach (var part in parts)
                 {
@@ -150,9 +151,9 @@ namespace CK3ScriptEditor
             
         }
 
-        internal string GetTextToImplant(string fullPath)
+        internal string GetTextToImplant(RefFilename fullPath)
         {
-            string text = System.IO.File.ReadAllText(fullPath);
+            string text = System.IO.File.ReadAllText(fullPath.ToFullWindowsFilename());
 
             var lines = text.Split(new char[] { '\n' }).ToList();
 

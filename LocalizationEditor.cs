@@ -21,6 +21,19 @@ namespace CK3ScriptEditor
         {
             InitializeComponent();
             
+            localTextEdit.ActiveTextAreaControl.TextArea.DoProcessDialogKey += TextAreaOnDoProcessDialogKey;
+        }
+
+        private bool TextAreaOnDoProcessDialogKey(Keys keyData)
+        {
+            if ((keyData == Keys.Escape))
+            {
+                DialogResult = DialogResult.Cancel;
+                Close();
+                return true;
+            }
+
+            return false;
         }
 
         public void Set(ScriptWindow parent, string tag, string localized)

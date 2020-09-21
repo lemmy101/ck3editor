@@ -81,7 +81,7 @@ namespace JominiParse
         }
         public static List<string> GetScriptFromFileFromBase(ScriptObject scriptObject)
         {
-            var baseFile = Core.Instance.BaseCK3Library.FileMap[scriptObject.ScriptFile.Filename];
+            var baseFile = Core.Instance.BaseCK3Library.GetFile(scriptObject.ScriptFile.Filename);
 
             if(baseFile==null)
                 return new List<string>();

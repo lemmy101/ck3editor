@@ -32,15 +32,17 @@ namespace CK3ScriptEditor
 
             DarkTreeNode root = new DarkTreeNode(context.ToString());
       
-            List<string> str = Core.Instance.ModCK3Library.GetDirectoryListFromContext(context, null);
+            List<RefFilename> str = Core.Instance.ModCK3Library.GetDirectoryListFromContext(context, null);
             for (var index = 0; index < str.Count; index++)
             {
                 var item = root;
                 var file = str[index];
 
-                file = file.Replace(dirFromContext, "");
-                var parts = file.Split('/');
-                
+                file = file.RemoveFromPath(dirFromContext);
+
+                var parts = file.SplitDirectories();
+
+
                 foreach (var part in parts)
                 {
                     DarkTreeNode next = new DarkTreeNode(part);

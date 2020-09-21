@@ -88,7 +88,7 @@ namespace CK3ScriptEditor
             var lineSeg = doc.LineSegmentCollection[line];
 
             if (scriptObject.LineStart == ScriptObjectBehaviourManager.BreakpointLine &&
-                scriptObject.Filename.Contains(ScriptObjectBehaviourManager.BreakpointFile))
+                scriptObject.Filename.ToRelativeFilename().Contains(ScriptObjectBehaviourManager.BreakpointFile))
             {
 
             }

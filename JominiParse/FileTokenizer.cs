@@ -36,30 +36,29 @@ namespace JominiParse
             return test;
         }
 
-        public List<ScriptObject> LoadDirectory(string directory, string basePath, ScriptContext context, bool save, bool load)
+        public List<ScriptObject> LoadDirectory(RefFilename directory, ScriptContext context, bool save, bool load)
         {
             List<ScriptObject> results = new List<ScriptObject>();
-            if (!Directory.Exists(directory))
+            if (!directory.Exists)
                 return results;
 
-            var directories = Directory.GetDirectories(directory);
+            var directories = directory.GetDirectories();
 
             foreach (var s in directories)
             {
-                results.AddRange(LoadDirectory(s, basePath, context, save, load));
+                results.AddRange(LoadDirectory(s, context, save, load));
             }
 
-            var files = Directory.GetFiles(directory);
+            var files = directory.GetFiles();
 
             foreach (var file in files)
             {
-                if (file.EndsWith(".txt"))
+                if (file.Extension == ".txt")
                 {
 
-                    string binFilename = file.Replace(".txt", ".bin");
+                    string binFilename = file.ToRelativeFilename().Replace(".txt", ".bin");
                     binFilename = binFilename.Replace(Globals.CK3Path, "");
                     binFilename = Globals.CK3EdDataPath.Replace("\\", "/") + "CachedCK3Data/" + binFilename;
-
                     if (File.Exists(binFilename) && load)
                     {
                         ScriptNamespace = "";
@@ -67,27 +66,25 @@ namespace JominiParse
 
                     }
                     else
-                        results.AddRange(LoadFile(file.Replace("\\", "/"), basePath, context, save));
+                        results.AddRange(LoadFile(file, context, save));
                 }
             }
 
             return results;
         }
-        public List<ScriptObject> LoadFile(string filename, string basePath, ScriptContext context, bool save)
+        public List<ScriptObject> LoadFile(RefFilename filename, ScriptContext context, bool save)
         {
-            if(!File.Exists(filename))
+            if(!filename.Exists)
                 return new List<ScriptObject>();
 
-            string text = System.IO.File.ReadAllText(filename);
-            return LoadText(text, filename, basePath, context, save);
+            string text = System.IO.File.ReadAllText(filename.ToFullFilename());
+            return LoadText(text, filename, context, save);
         }
-        public List<ScriptObject> LoadText(string text, string filename, string basePath, ScriptContext context, bool save=false)
+        public List<ScriptObject> LoadText(string text, RefFilename filename, ScriptContext context, bool save=false)
         {
             ScriptNamespace = "";
             List<ScriptObject> results = new List<ScriptObject>();
 
-       
-            filename = filename.Replace(basePath, "");
 
             this.file = Core.Instance.LoadingCK3Library.EnsureFile(filename, context);
 
@@ -166,7 +163,7 @@ namespace JominiParse
             var parsableResults = ParseTokens(tokens, lineNumbers, filename);
 
             if(save)
-                SaveBinary(parsableResults, context, filename);
+                SaveBinary(parsableResults, context, filename.ToRelativeFilename());
 
             ParseResults(null, parsableResults, context, results);
 
@@ -217,7 +214,7 @@ namespace JominiParse
 
             ScriptParsedSegment p = new ScriptParsedSegment();
 
-            p.filename = filename.Replace(".bin", ".txt");
+            p.filename = new RefFilename(filename.Replace(".bin", ".txt"), true);
             p.name = name;
             p.op = op;
             p.value = values;
@@ -364,7 +361,7 @@ namespace JominiParse
 
 
 
-        public List<ScriptParsedSegment> ParseTokens(List<string> tokens, List<int> lineNumbers, string filename)
+        public List<ScriptParsedSegment> ParseTokens(List<string> tokens, List<int> lineNumbers, RefFilename filename)
         {
             List<ScriptParsedSegment> parsables = new List<ScriptParsedSegment>();
             List<int> lineNumbersForObject = new List<int>();
