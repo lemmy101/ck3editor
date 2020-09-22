@@ -20,6 +20,8 @@ namespace CK3ScriptEditor
         public FileOverviewToolWindow()
         {
             DockArea = DarkDockArea.Left;
+            AutoScaleMode = AutoScaleMode.Inherit;
+
             InitializeComponent();
 
             TreeView.MouseDoubleClick += TreeView_MouseDoubleClick;
@@ -51,6 +53,19 @@ namespace CK3ScriptEditor
         {
             if (filename.Extension == ".yml")
                 return;
+
+
+            switch (EditorGlobals.FontSize)
+            {
+                case FontSize.Normal:
+                    TreeView.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+                case FontSize.Large:
+                    TreeView.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+            }
+
+
 
             IsBaseFile = isBaseFile;
             TreeView.Nodes.Clear();

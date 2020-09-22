@@ -17,7 +17,9 @@ namespace CK3ScriptEditor
         public SmartFindOptionWindow()
         {
             DockArea = DarkDockArea.Right;
+
             InitializeComponent();
+            Update();
         }
 
         private void findInFiles_Click(object sender, EventArgs e)
@@ -25,6 +27,18 @@ namespace CK3ScriptEditor
             DoFind();
         }
 
+        public void Update()
+        {
+            switch (EditorGlobals.FontSize)
+            {
+                case FontSize.Normal:
+                    searchText.Font = darkLabel1.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+                case FontSize.Large:
+                    searchText.Font = darkLabel1.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+            }
+        }
         private void DoFind()
         {
             SmartFindOptions options = new SmartFindOptions();

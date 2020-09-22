@@ -20,6 +20,18 @@ namespace CK3ScriptEditor
             {
                 if (!Directory.Exists(Globals.CK3EdDataPath))
                     Directory.CreateDirectory(Globals.CK3EdDataPath);
+                var filename = Globals.CK3EdDataPath + "Preferences.txt";
+
+                using (TextWriter writeFile = new StreamWriter(filename))
+                {
+                    writeFile.WriteLine("FontSize=" + EditorGlobals.FontSize);
+
+                }
+            }
+
+            {
+                if (!Directory.Exists(Globals.CK3EdDataPath))
+                    Directory.CreateDirectory(Globals.CK3EdDataPath);
                 var filename = Globals.CK3EdDataPath + "Directories.txt";
 
                 using (TextWriter writeFile = new StreamWriter(filename))
@@ -71,10 +83,39 @@ namespace CK3ScriptEditor
                 Globals.CK3Path = lines[0].Trim();
                 Globals.CK3DocPath = lines[1].Trim();
             }
+            {
+                var filename = Globals.CK3EdDataPath + "Preferences.txt";
+
+                if (!File.Exists(filename))
+                    return;
+
+                var text = File.ReadAllText(filename);
+
+                var lines = text.Replace("\r", "").Split('\n');
+
+                foreach (var line in lines)
+                {
+                    string[] split = line.Split('=');
+                    if (split.Length < 2)
+                        continue;
+
+                    if (split[0] == "FontSize")
+                    {
+                        FontSize font = FontSize.Normal;
+                        if (Enum.TryParse(split[1].Trim(), out font))
+                        {
+                            EditorGlobals.FontSize = font;
+                        }
+                    }
+                }
+            }
         }
 
         public void Load()
         {
+          
+
+
             if (Core.Instance.ModCK3Library == null)
             {
                 var filename = Globals.CK3EdDataPath + "LoadedMod.txt";

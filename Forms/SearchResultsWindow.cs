@@ -16,6 +16,7 @@ namespace CK3ScriptEditor
     {
         public SearchResultsWindow()
         {
+            AutoScaleMode = AutoScaleMode.Inherit;
             DockArea = DarkDockArea.Bottom;
             InitializeComponent();
             resultsTree.ItemHeight += 4;
@@ -23,6 +24,17 @@ namespace CK3ScriptEditor
 
         public void SetResults(SmartFindOptions options, List<SmartFindResults> results)
         {
+
+            switch (EditorGlobals.FontSize)
+            {
+                case FontSize.Normal:
+                    resultsTree.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+                case FontSize.Large:
+                    resultsTree.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+            }
+
             resultsTree.SuspendNodeEvents();
             resultsTree.Nodes.Clear();
 
@@ -106,7 +118,7 @@ namespace CK3ScriptEditor
 
             foreach (var g in group)
             {
-                var file = new DarkTreeNode(g.Key.Filename + " - (" + g.ToList().Count + " results)");
+                var file = new DarkTreeNode(g.Key.Filename.ToRelativeFilename() + " - (" + g.ToList().Count + " results)");
                 file.Nodes.AddRange(g.ToList());
                 parent.Nodes.Add(file);
             }

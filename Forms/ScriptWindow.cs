@@ -34,19 +34,16 @@ namespace CK3ScriptEditor
 
         public ScriptWindow(bool fromBase)
         {
+            AutoScaleMode = AutoScaleMode.Inherit;
             IsBaseFile = fromBase;
             DockArea = DarkDockArea.Document;
 
 
             InitializeComponent();
             Editor.ShowVRuler = false;
-            Editor.Font = new Font(
-                "Courier New",
-                12F,
-                FontStyle.Regular,
-                GraphicsUnit.Point,
-                0);
+          
 
+            SetFont();
 
             Editor.ActiveTextAreaControl.Caret.PositionChanged += CaretOnPositionChanged;
             Editor.Document.DocumentChanged += ActiveTextAreaControlOnTextChanged;
@@ -661,37 +658,7 @@ namespace CK3ScriptEditor
             Editor.Document.LocalizationMap.Clear();
 
             var file = ScriptFile;
-            /*
-            foreach (var scriptObject in file.Map)
-            {
-                if(scriptObject.Value.Schema != null)
-                {
-                    var l = scriptObject.Value.Schema.children.Where(a => a.Value.type == "localized").ToList();
-
-                    foreach (var keyValuePair in l)
-                    {
-                        var res = scriptObject.Value.Children.Where(a => a.Name == keyValuePair.Key).ToList();
-
-                        foreach (var re in res)
-                        {
-                            //
-                            if (re is LocalizedString)
-                            {
-
-                            }
-                            if(re is ScriptValue)
-                            {
-                                string val = (re as ScriptValue).GetStringValue();
-
-                                if(!string.IsNullOrEmpty(val))
-                                {
-                                    textEditorControl1.Document.LocalizationMap[re.LineStart-1] = Core.Instance.GetLocalizedText(val);
-                                }
-                            }
-                        }
-                    }
-                }
-            }*/
+      
             Editor.Invalidate();
             Editor.ActiveTextAreaControl.Invalidate();
             Editor.ActiveTextAreaControl.TextArea.Invalidate();
@@ -840,6 +807,28 @@ namespace CK3ScriptEditor
             if (res == DialogResult.No) return true;
 
             return false;
+        }
+
+        public void SetFont()
+        {
+            switch (EditorGlobals.FontSize)
+            {
+                case FontSize.Normal:
+                    Editor.Font = new Font(
+                        "Courier New",
+                        12F,
+                        FontStyle.Regular,
+                        GraphicsUnit.Point,
+                        0); break;
+                case FontSize.Large:
+                    Editor.Font = new Font(
+                        "Courier New",
+                        14F,
+                        FontStyle.Regular,
+                        GraphicsUnit.Point,
+                        0);
+                    break;
+            }
         }
     }
 }

@@ -19,6 +19,27 @@ namespace CK3ScriptEditor
             InitializeComponent();
 
             localTextEdit.ActiveTextAreaControl.TextArea.DoProcessDialogKey += TextAreaOnDoProcessDialogKey;
+
+
+            switch (EditorGlobals.FontSize)
+            {
+                case FontSize.Normal:
+                    localTextEdit.Font = new Font(
+                        "Courier New",
+                        12F,
+                        FontStyle.Regular,
+                        GraphicsUnit.Point,
+                        0); break;
+                case FontSize.Large:
+                    localTextEdit.Font = new Font(
+                        "Courier New",
+                        14F,
+                        FontStyle.Regular,
+                        GraphicsUnit.Point,
+                        0);
+                    break;
+            }
+
         }
 
         public string LocalizedTag { get; set; }

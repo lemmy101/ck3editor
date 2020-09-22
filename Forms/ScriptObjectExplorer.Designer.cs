@@ -97,9 +97,9 @@
             this.findTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.findTextBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.findTextBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.findTextBox.Location = new System.Drawing.Point(54, 33);
+            this.findTextBox.Location = new System.Drawing.Point(68, 30);
             this.findTextBox.Name = "findTextBox";
-            this.findTextBox.Size = new System.Drawing.Size(369, 20);
+            this.findTextBox.Size = new System.Drawing.Size(355, 20);
             this.findTextBox.TabIndex = 4;
             this.findTextBox.TextChanged += new System.EventHandler(this.findTextBox_TextChanged);
             // 
@@ -107,7 +107,7 @@
             // 
             this.darkLabel1.AutoSize = true;
             this.darkLabel1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.darkLabel1.Location = new System.Drawing.Point(18, 36);
+            this.darkLabel1.Location = new System.Drawing.Point(18, 33);
             this.darkLabel1.Name = "darkLabel1";
             this.darkLabel1.Size = new System.Drawing.Size(30, 13);
             this.darkLabel1.TabIndex = 5;

@@ -33,6 +33,8 @@ namespace CK3ScriptEditor
         public ProjectExplorer()
         {
             DockArea = DarkDockArea.Left;
+            AutoScaleMode = AutoScaleMode.Inherit;
+
             InitializeComponent();
             FillProjectView();
         }
@@ -88,6 +90,17 @@ namespace CK3ScriptEditor
                 return;
 
             var path = CurrentSelectedPath;
+
+
+            switch (EditorGlobals.FontSize)
+            {
+                case FontSize.Normal:
+                    projectTree.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+                case FontSize.Large:
+                    projectTree.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+            }
 
 
             projectTree.Nodes.Clear();

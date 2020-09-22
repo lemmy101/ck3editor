@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -38,11 +39,33 @@ namespace CK3ScriptEditor
 
         private Dictionary<string, TabPage> tabs = new Dictionary<string, TabPage>();
 
+        public void UpdateFont()
+        {
+
+            switch (EditorGlobals.FontSize)
+            {
+                case FontSize.Normal:
+                    darkMenuStrip1.Font = Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+                case FontSize.Large:
+                    darkMenuStrip1.Font = Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+            }
+
+            
+
+
+        }
+
         public CK3ScriptEd()
         {
             Instance = this;
-            
+
+      
+            AutoScaleMode = AutoScaleMode.Font;
+
             InitializeComponent();
+            UpdateFont();
 
             OpenDocuments = new OpenDocuments(DockPanel);
 
@@ -104,7 +127,10 @@ namespace CK3ScriptEditor
 
             CK3EditorPreferencesManager.Instance.Load();
             //loadDlg.Init(this, );
+            mediumToolStripMenuItem.Checked = EditorGlobals.FontSize == FontSize.Normal;
+            largeToolStripMenuItem.Checked = EditorGlobals.FontSize == FontSize.Large;
 
+  
         }
 
         public void DoLoadDialog(ParameterizedThreadStart function, object param)
@@ -368,6 +394,7 @@ namespace CK3ScriptEditor
 
         public void UpdateAllWindows()
         {
+            smartFind.Update();
             projectExplorer.FillProjectView();
             soExplorer.UpdateScriptExplorer();
             detailsExplorer.SetObject(null);
@@ -466,5 +493,23 @@ namespace CK3ScriptEditor
             
         }
 
+        public void ChangeFontAllScriptWindows()
+        {
+            OpenDocuments.ChangeFontAllScriptWindows();
+        }
+
+        private void mediumToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            largeToolStripMenuItem.Checked = false;
+            mediumToolStripMenuItem.Checked = true;
+            EditorGlobals.FontSize = FontSize.Normal;
+        }
+
+        private void largeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            largeToolStripMenuItem.Checked = true;
+            mediumToolStripMenuItem.Checked = false;
+            EditorGlobals.FontSize = FontSize.Large;
+        }
     }
 }

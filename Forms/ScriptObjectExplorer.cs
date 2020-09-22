@@ -25,6 +25,7 @@ namespace CK3ScriptEditor
         public ScriptObjectExplorer()
         {
             DockArea = DarkDockArea.Left;
+            AutoScaleMode = AutoScaleMode.Inherit;
             InitializeComponent();
         }
 
@@ -81,6 +82,16 @@ namespace CK3ScriptEditor
             var path = CurrentSelectedPath;
             namespaces.Clear();
             tree.Nodes.Clear();
+
+            switch (EditorGlobals.FontSize)
+            {
+                case FontSize.Normal:
+                    tree.Font = this.findTextBox.Font = darkLabel1.Font =  new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+                case FontSize.Large:
+                    tree.Font = this.findTextBox.Font = darkLabel1.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+            }
 
             tree.SuspendLayout();
             tree.SuspendNodeEvents();

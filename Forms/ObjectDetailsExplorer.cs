@@ -35,6 +35,17 @@ namespace CK3ScriptEditor
 
         private void Fill()
         {
+
+            switch (EditorGlobals.FontSize)
+            {
+                case FontSize.Normal:
+                    referencedByList.Font = referencesList.Font = scopesList.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+                case FontSize.Large:
+                    referencedByList.Font = referencesList.Font = scopesList.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    break;
+            }
+
             referencedByList.Items.Clear();
             referencesList.Items.Clear();
             scopesList.Items.Clear();

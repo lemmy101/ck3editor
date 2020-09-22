@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -231,6 +232,16 @@ namespace CK3ScriptEditor
                 var i = new DarkListItem(ss);
                 i.Tag = instanceOpenScriptWindow;
                 openFileList.Items.Add(i);
+            }
+        }
+
+        public void ChangeFontAllScriptWindows()
+        {
+            foreach (var openScriptWindow in openScriptWindows)
+            {
+
+                openScriptWindow.SetFont();
+
             }
         }
     }
