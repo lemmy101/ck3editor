@@ -29,8 +29,8 @@ namespace CK3ScriptEditor
             set
             {
                 _window = value;
-                replaceNext.Enabled = !_window.ScriptFile.IsBase;
-                ReplaceText.Enabled = !_window.ScriptFile.IsBase;
+                replaceNext.Enabled = !_window.Filename.IsBase;
+                ReplaceText.Enabled = !_window.Filename.IsBase;
             }
         }
 

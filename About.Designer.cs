@@ -40,7 +40,7 @@
             this.darkLabel1.Name = "darkLabel1";
             this.darkLabel1.Size = new System.Drawing.Size(301, 39);
             this.darkLabel1.TabIndex = 0;
-            this.darkLabel1.Text = "CK3 Mod Ed - Version 0.0.1 ULTRA ALPHA\r\n\r\nCreated by yemmlie101 - Not affiliated " +
+            this.darkLabel1.Text = "CK3 Mod Ed - Version 0.0.2 ULTRA ALPHA\r\n\r\nCreated by yemmlie101 - Not affiliated " +
     "with Paradox Interactive";
             this.darkLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 

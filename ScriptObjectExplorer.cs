@@ -325,6 +325,25 @@ namespace CK3ScriptEditor
                         menu.MenuItems.Add(newObject);
 
                     }
+                    else if (selectedO is ScriptObject)
+                    {
+                        var so = selectedO as ScriptObject;
+
+                        if (so.Topmost.Filename.IsBase)
+                        {
+                            MenuItem newObject = new MenuItem("&Clone " + (selectedO as ScriptObject).Name + " to " + Core.Instance.ModCK3Library.Name);
+                            newObject.Click += CloneObject_OnClick;
+                            newObject.Tag = selectedO;
+                            menu.MenuItems.Add(newObject);
+                        }
+                        
+
+                        /*
+                    
+                         *
+                         */
+
+                    }
 
                     if (menu.MenuItems.Count > 0)
                     {
@@ -334,6 +353,16 @@ namespace CK3ScriptEditor
                 }
 
             }
+        }
+
+        private void CloneObject_OnClick(object sender, EventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+
+             ScriptObject toClone = menuItem.Tag as ScriptObject;
+
+             if(toClone!=null)
+                ScriptCloningManager.Instance.Clone(toClone);
         }
 
         private void NewObject_Click(object sender, EventArgs e)
