@@ -1189,3 +1189,4 @@
 /obj/Release/CK3ScriptEditor.NewLocalizationFileObjectDialog.resources
 /obj/Release/CK3ScriptEditor.NewScriptObjectDialog.resources
 /obj/Release/CK3ScriptEditor.TabOpenWindowsDlg.resources
+/obj/Debug/CK3ScriptEditor.LoadingDialog.resources

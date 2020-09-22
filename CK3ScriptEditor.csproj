@@ -70,6 +70,12 @@
     <Compile Include="CK3ScriptEd.Designer.cs">
       <DependentUpon>CK3ScriptEd.cs</DependentUpon>
     </Compile>
+    <Compile Include="LoadingDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LoadingDialog.Designer.cs">
+      <DependentUpon>LoadingDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="LocalizationEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -180,6 +186,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="CK3ScriptEd.resx">
       <DependentUpon>CK3ScriptEd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LoadingDialog.resx">
+      <DependentUpon>LoadingDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LocalizationEditor.resx">
       <DependentUpon>LocalizationEditor.cs</DependentUpon>

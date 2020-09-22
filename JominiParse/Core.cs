@@ -46,26 +46,27 @@ namespace JominiParse
             LoadingCK3Library = null;
         }
 
-        public void Init()
+        public void Init(IProgressFeedback progressFeedback)
         {
             Wipe();
 
             SchemaManager.Instance.Init();
             BaseCK3Library = new ScriptLibrary();
+            BaseCK3Library.Name = "Base";
             ModCK3Library = new ScriptLibrary();
             ModCK3Library.Parent = BaseCK3Library;
             LoadingCK3Library = BaseCK3Library;
 
             EnumManager.Instance.Load();
-            LoadCK3Scripts(BaseCK3Library);
+            LoadCK3Scripts(BaseCK3Library, progressFeedback);
             ScriptObject.ClearCachedScriptedEffects();
 
-            ProcessBaseFileBehaviour();
+            ProcessBaseFileBehaviour(progressFeedback);
 
             SchemaManager.Instance.SaveBinary();
         }
 
-        private void ProcessBaseFileBehaviour()
+        private void ProcessBaseFileBehaviour(IProgressFeedback progressFeedback)
         {
             var binFilename = "behaviourData.bin";
             binFilename = Globals.CK3EdDataPath.Replace("\\", "/") + binFilename;
@@ -89,7 +90,7 @@ namespace JominiParse
 
             if (writer != null) writer.Write(Globals.DataVersion);
 
-            PostInitialize(writer, reader);
+            PostInitialize(progressFeedback, writer, reader);
 
             if (writer != null)
             {
@@ -100,11 +101,11 @@ namespace JominiParse
             if (reader != null) reader.Close();
         }
 
-        public void CreateOrLoadMod(string mod)
+        public void CreateOrLoadMod(string mod, IProgressFeedback progressFeedback)
         {
             if (Directory.Exists(Globals.CK3ModPath + mod + "/"))
             {
-                LoadMod(mod);
+                LoadMod(mod,progressFeedback);
                 return;
             }
 
@@ -113,20 +114,20 @@ namespace JominiParse
             ModCK3Library.Parent = BaseCK3Library;
             ModCK3Library.Name = mod;
 
-            PostInitialize();
+            PostInitialize(progressFeedback);
             ScriptObject.ClearCachedScriptedEffects();
         }
 
-        public void LoadMod(string mod)
+        public void LoadMod(string mod, IProgressFeedback progressFeedback)
         {
             ModCK3Library = new ScriptLibrary();
             ModCK3Library.Parent = BaseCK3Library;
             ModCK3Library.Name = mod;
 
             LoadingCK3Library = ModCK3Library;
-            LoadCK3Scripts(ModCK3Library, false, false);
+            LoadCK3Scripts(ModCK3Library, progressFeedback, false, false);
 
-            PostInitialize();
+            PostInitialize(progressFeedback);
 
             RePostProcessUntilComplete();
 
@@ -217,7 +218,7 @@ namespace JominiParse
 
             LoadingCK3Library.Add(results, context);
 
-            PostInitialize();
+            PostInitialize(null);
 
             return fromBase;
         }
@@ -236,23 +237,28 @@ namespace JominiParse
         }
 
 
-        public void PostInitialize(BinaryWriter writer = null, BinaryReader reader = null)
+        public void PostInitialize(IProgressFeedback progressFeedback, BinaryWriter writer = null,
+            BinaryReader reader = null)
         {
+
+       
             do
             {
                 Instance.DeferedPostInitializationList = Instance.DeferedPostInitializationListNext;
                 Instance.DeferedPostInitializationListNext = new List<ScriptObject>();
+                progressFeedback?.StartNewJob("Post-Processing " + LoadingCK3Library.Name + " CK3 Scripts", (int)Instance.DeferedPostInitializationList.Count);
                 for (var i = 0; i < Instance.DeferedPostInitializationList.Count; i++)
                 {
                     var scriptObject = Instance.DeferedPostInitializationList[i];
                     scriptObject.PostInitialize(writer, reader);
+                    progressFeedback?.AddProgress(1);
                 }
 
                 Instance.DeferedPostInitializationList.Clear();
             } while (Instance.DeferedPostInitializationListNext.Count > 0);
         }
 
-        public void LoadCK3Scripts(ScriptLibrary lib, bool save = true, bool load = true)
+        public void LoadCK3Scripts(ScriptLibrary lib, IProgressFeedback progressFeedback=null, bool save = true, bool load = true)
         {
             LoadingCK3Library = lib;
 
@@ -261,33 +267,44 @@ namespace JominiParse
 
             LoadingCK3Library.LoadLocalizations(startDir + "localization/english");
 
+
+            if (progressFeedback != null)
+            {
+                progressFeedback.StartNewJob("Loading " + lib.Name + " CK3 Scripts", (int)ScriptContext.Max);
+            }
+
             for (var x = 0; x < (int) ScriptContext.Max; x++)
-                if (LoadingCK3Library.ContextData.ContainsKey((ScriptContext) x))
-                    if (!string.IsNullOrEmpty(LoadingCK3Library.ContextData[(ScriptContext) x].Directory))
+            {
+                if (LoadingCK3Library.ContextData.ContainsKey((ScriptContext)x))
+                    if (!string.IsNullOrEmpty(LoadingCK3Library.ContextData[(ScriptContext)x].Directory))
                     {
-                        var info = LoadingCK3Library.ContextData[(ScriptContext) x];
+                        var info = LoadingCK3Library.ContextData[(ScriptContext)x];
                         if (info.Directory.EndsWith(".txt"))
                         {
                             var r = FileTokenizer.Instance.LoadFile(
                                 new RefFilename(info.Directory, lib == BaseCK3Library),
-                                (ScriptContext) x, save);
-                            LoadingCK3Library.Add(r, (ScriptContext) x);
+                                (ScriptContext)x, save);
+                            LoadingCK3Library.Add(r, (ScriptContext)x);
                         }
                         else
                         {
                             var r = FileTokenizer.Instance.LoadDirectory(
                                 new RefFilename(info.Directory + "/", lib == BaseCK3Library),
-                                (ScriptContext) x, save, load);
-                            LoadingCK3Library.Add(r, (ScriptContext) x);
+                                (ScriptContext)x, save, load);
+                            LoadingCK3Library.Add(r, (ScriptContext)x);
                         }
                     }
+                
+                progressFeedback?.AddProgress(1);
+            }
 
-
+            progressFeedback?.StartNewJob("Initializing " + lib.Name + " CK3 Scripts", (int)Instance.DeferedInitializationList.Count);
             for (var i = 0; i < Instance.DeferedInitializationList.Count; i++)
             {
                 var scriptObject = Instance.DeferedInitializationList[i];
 
                 scriptObject.Initialize();
+                progressFeedback?.AddProgress(1);
             }
 
             Instance.DeferedInitializationList.Clear();

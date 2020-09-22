@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using DarkUI.Controls;
 using DarkUI.Docking;
@@ -102,6 +103,15 @@ namespace CK3ScriptEditor
             BackupManager.Instance.UpdateTick();
 
             CK3EditorPreferencesManager.Instance.Load();
+            //loadDlg.Init(this, );
+
+        }
+
+        public void DoLoadDialog(ParameterizedThreadStart function, object param)
+        {
+            LoadingDialog dlg = new LoadingDialog();
+
+            dlg.Init(this, function, param);
         }
 
         public bool AllowUpdateFile { get; set; }
@@ -137,16 +147,13 @@ namespace CK3ScriptEditor
             {
                 return;
             }
-          
-            Core.Instance = new Core();
 
             UpdateAllWindows();
-            Core.Instance.Init();
+            DoLoadDialog(DoModLoadDialog,modName);
 
             if (Directory.Exists(Globals.CK3ModPath + modName))
             {
-                Core.Instance.CreateOrLoadMod(modName);
-                CK3EditorPreferencesManager.Instance.LoadWindows();
+                 CK3EditorPreferencesManager.Instance.LoadWindows();
             }
 
             CK3EditorPreferencesManager.Instance.Save();
@@ -154,6 +161,19 @@ namespace CK3ScriptEditor
             UpdateAllWindows();
             BackupManager.Instance.MinutesSinceLastSave = 1000000000;
             BackupManager.Instance.UpdateTick();
+        }
+
+        private static void DoModLoadDialog(object modName)
+        {
+            Core.Instance = new Core();
+
+            Core.Instance.Init((IProgressFeedback)LoadingDialog.Instance);
+
+            if (Directory.Exists(Globals.CK3ModPath + modName.ToString()))
+            {
+                Core.Instance.CreateOrLoadMod(modName.ToString(), (IProgressFeedback)LoadingDialog.Instance);
+            }
+
         }
 
         private void DockPanel_ContentRemoved(object sender, DockContentEventArgs e)
