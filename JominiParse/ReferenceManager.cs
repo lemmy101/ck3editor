@@ -23,8 +23,7 @@ namespace JominiParse
 
         public void AddConnection(ScriptObject From, ScriptObject FromCommand, string ToTag)
         {
-
-            EventConnection connection = new EventConnection();
+            var connection = new EventConnection();
 
             connection.From = From;
             connection.FromCommand = FromCommand;

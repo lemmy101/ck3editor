@@ -14,13 +14,11 @@ namespace CK3ScriptEditor
     public partial class SmartFindOptionWindow : DarkToolWindow
     {
 
-
         public SmartFindOptionWindow()
         {
             DockArea = DarkDockArea.Right;
             InitializeComponent();
         }
-
 
         private void findInFiles_Click(object sender, EventArgs e)
         {

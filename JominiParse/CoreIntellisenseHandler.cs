@@ -1,8 +1,9 @@
-﻿using System;
+﻿#region
+
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
+
+#endregion
 
 namespace JominiParse
 {
@@ -10,8 +11,10 @@ namespace JominiParse
     {
         public static CoreIntellisenseHandler Instance = new CoreIntellisenseHandler();
 
-        List<ScriptObject> visited = new List<ScriptObject>();
-        private void GetScriptScopesFromReferences(ScriptObject eventConnectionFrom, HashSet<ScriptObject.ScriptScope> scopes)
+        private readonly List<ScriptObject> visited = new List<ScriptObject>();
+
+        private void GetScriptScopesFromReferences(ScriptObject eventConnectionFrom,
+            HashSet<ScriptObject.ScriptScope> scopes)
         {
             if (visited.Contains(eventConnectionFrom))
                 return;
@@ -19,33 +22,23 @@ namespace JominiParse
             visited.Add(eventConnectionFrom);
 
             foreach (var keyValuePair in eventConnectionFrom.scriptScopes)
-            {
                 if (!keyValuePair.Value.Temporary)
                     scopes.Add(keyValuePair.Value);
-            }
 
 
             var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(eventConnectionFrom.Name).Distinct();
 
-            foreach (var eventConnection in ConnectionsIn)
-            {
-                GetScriptScopesFromReferences(eventConnection.From, scopes);
-            }
-
-
+            foreach (var eventConnection in ConnectionsIn) GetScriptScopesFromReferences(eventConnection.From, scopes);
         }
+
         public List<string> GetValidTokens(ScriptObject inside, string match)
         {
             if (inside == null || inside.BehaviourData == null)
                 return new List<string>();
 
-            List<string> results = new List<string>();
-            List<string> results2 = new List<string>();
-            if (inside == null)
-            {
-
-                return results;
-            }
+            var results = new List<string>();
+            var results2 = new List<string>();
+            if (inside == null) return results;
 
             if (!string.IsNullOrEmpty(match))
                 inside = inside.Parent;
@@ -56,41 +49,37 @@ namespace JominiParse
 
             if (inside.lhsSchema != null)
             {
-                var ch = inside.lhsSchema.Children.Where(a=>!a.rightHandOnly && (a.scopes.Contains(scope) || a.scopes.Contains(ScopeType.none) || a.scopes.Contains(ScopeType.inheritparent)));
+                var ch = inside.lhsSchema.Children.Where(a =>
+                    !a.rightHandOnly && (a.scopes.Contains(scope) || a.scopes.Contains(ScopeType.none) ||
+                                         a.scopes.Contains(ScopeType.inheritparent)));
 
                 foreach (var schemaNode in ch)
-                {
                     if (schemaNode.namesFrom != null)
                     {
-
                     }
                     else
+                    {
                         results.Add(schemaNode.name);
-                }
+                    }
 
                 if (inside.lhsSchema.IsEffect())
                 {
                     var sl = SchemaManager.Instance.GetSchema("scriptlist");
 
-                    var options = sl.Children.Where(a => a.scopes.Contains(scope) && (a.name.StartsWith("every_") || a.name.StartsWith("random_") || a.name.StartsWith("ordered_"))).ToList();
+                    var options = sl.Children.Where(a => a.scopes.Contains(scope) && (a.name.StartsWith("every_") ||
+                        a.name.StartsWith("random_") || a.name.StartsWith("ordered_"))).ToList();
 
-                    foreach (var schemaNode in options)
-                    {
-                        results.Add(schemaNode.name);
-                    }
+                    foreach (var schemaNode in options) results.Add(schemaNode.name);
                 }
 
                 if (inside.lhsSchema.IsTrigger())
                 {
                     var sl = SchemaManager.Instance.GetSchema("scriptlist");
 
-                    var options = sl.Children.Where(a => a.scopes.Contains(scope) && (a.name.StartsWith("any_"))).ToList();
+                    var options = sl.Children.Where(a => a.scopes.Contains(scope) && a.name.StartsWith("any_"))
+                        .ToList();
 
-                    foreach (var schemaNode in options)
-                    {
-                        results.Add(schemaNode.name);
-                    }
-
+                    foreach (var schemaNode in options) results.Add(schemaNode.name);
                 }
             }
 
@@ -100,7 +89,6 @@ namespace JominiParse
             results = results.OrderBy(a => a).Distinct().ToList();
 
 
-
             if (inside.lhsSchema != null)
             {
                 var ch = inside.lhsSchema.Children.Where(a =>
@@ -108,11 +96,8 @@ namespace JominiParse
                                          a.scopes.Contains(ScopeType.inheritparent)));
 
                 foreach (var schemaNode in ch)
-                {
                     if (schemaNode.namesFrom != null)
                         results2.AddRange(EnumManager.Instance.GetEnums(schemaNode.namesFrom));
-              
-                }
             }
 
 
@@ -128,23 +113,19 @@ namespace JominiParse
                 results = results.OrderBy(a => !a.ToLower().StartsWith(match.ToLower())).ToList();
 
 
-
             return results;
         }
+
         public List<string> GetValidTokensEqual(ScriptObject inside, string child, string sofar)
         {
-            List<string> results = new List<string>();
+            var results = new List<string>();
 
-            if (inside == null)
-            {
-
-                return results;
-            }
+            if (inside == null) return results;
 
             if (inside.BehaviourData == null)
                 return new List<string>();
 
-            List<string> expectedType = new List<string>();
+            var expectedType = new List<string>();
 
             var scope = inside.GetScopeType();
 
@@ -152,24 +133,22 @@ namespace JominiParse
             {
                 expectedType.AddRange(inside.lhsSchema.TypeList);
 
-                var ch = inside.lhsSchema.Children.Where(a => a.rightHandOnly && (a.scopes.Contains(scope) || a.scopes.Contains(ScopeType.none) || a.scopes.Contains(ScopeType.inheritparent)));
+                var ch = inside.lhsSchema.Children.Where(a =>
+                    a.rightHandOnly && (a.scopes.Contains(scope) || a.scopes.Contains(ScopeType.none) ||
+                                        a.scopes.Contains(ScopeType.inheritparent)));
 
                 //var l = ch.Where(a => a.TypeList.Any(b => inside.lhsSchema.TypeList.Contains(b))).ToList();
 
-                foreach (var schemaNode in ch)
-                {
-                    results.Add(schemaNode.name);
-                }
+                foreach (var schemaNode in ch) results.Add(schemaNode.name);
 
                 foreach (var s in inside.lhsSchema.TypeList)
                 {
-                    var enums = EnumManager.Instance.GetEnums(s, false, false);
+                    var enums = EnumManager.Instance.GetEnums(s);
 
                     results.AddRange(enums);
                 }
-                
-
             }
+
             results = results.OrderBy(a => a).Distinct().ToList();
             if (sofar != null)
                 results.RemoveAll(a => !a.ToLower().Contains(sofar.ToLower()));
@@ -180,22 +159,14 @@ namespace JominiParse
             if (string.IsNullOrWhiteSpace(sofar))
             {
                 if (expectedType.Contains("value"))
-                {
                     results.Insert(0, "{ }");
-
-                }
                 else if (inside.BehaviourData.candidates != null)
-                {
                     foreach (var behaviourDataCandidate in inside.BehaviourData.candidates)
-                    {
                         if (behaviourDataCandidate.Children.Count > 0)
                         {
                             results.Insert(0, "{ }");
                             break;
                         }
-                    }
-                }
-
             }
 
             if (results.Count == 1 && results[0] == sofar)
@@ -203,10 +174,7 @@ namespace JominiParse
             if (sofar != null && sofar.Trim().Length > 0)
             {
                 int test;
-                if (Int32.TryParse(sofar, out test))
-                {
-                    results.Clear();
-                }
+                if (int.TryParse(sofar, out test)) results.Clear();
             }
 
             return results;
@@ -313,7 +281,5 @@ namespace JominiParse
                       }
                   }*/
         }
-
-
     }
 }

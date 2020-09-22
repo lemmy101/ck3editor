@@ -1,11 +1,18 @@
-﻿using System.ComponentModel.Design;
+﻿#region
+
 using System.IO;
+
+#endregion
 
 namespace JominiParse
 {
     public class LocalizedString : ScriptObject
     {
         public string key;
+
+        public LocalizedString(ScriptObject parent, ScriptParsedSegment seg) : base(parent, seg)
+        {
+        }
 
         public override string ToScript()
         {
@@ -27,10 +34,6 @@ namespace JominiParse
         {
             base.Write(writer);
             writer.Write(key);
-        }
-
-        public LocalizedString(ScriptObject parent, ScriptParsedSegment seg) : base(parent, seg)
-        {
         }
 
         public string Localized()

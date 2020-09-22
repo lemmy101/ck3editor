@@ -34,9 +34,6 @@ namespace JominiParse
                             type = ScopeType.value;
                     }
                 }
-             
-
-
             }
             var name = node.Children.Where(a => a.Name == "name");
             var target = node.Children.Where(a => a.Name == "value");

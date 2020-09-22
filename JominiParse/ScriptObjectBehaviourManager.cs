@@ -118,11 +118,7 @@ namespace JominiParse
 
 
             BreakpointLine = 30;
-            //   BreakpointFile = "common/on_action/test_on_action.txt";
-            //BreakpointFile = "events/test_event5.txt";
-            //BreakpointFile = "common/scripted_effects/test.txt";
-            //BreakpointFile = "events/test_events_8.txt";
-            //BreakpointFile = "common/bookmarks/a.txt";
+         
             BreakpointFile = "events/kill_them_all_events/kill_them_all_events.txt";
 
 

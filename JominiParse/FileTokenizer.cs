@@ -1,9 +1,11 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
+
+#endregion
 
 namespace JominiParse
 {
@@ -11,118 +13,119 @@ namespace JominiParse
     {
         public static FileTokenizer Instance = new FileTokenizer();
 
-        string EnsureSpacing(string str, string test)
+        public ScriptFile file { get; set; }
+
+        public string ScriptNamespace { get; set; }
+
+        private string EnsureSpacing(string str, string test)
         {
             if (!str.Contains(test))
                 return str;
 
-            string[] split = str.Split(new string[] { test }, StringSplitOptions.None);
-            test = String.Join(" " + test + " ", split);
+            var split = str.Split(new[] {test}, StringSplitOptions.None);
+            test = string.Join(" " + test + " ", split);
 
             return test;
         }
-        string EnsureNoSpacing(string str, string test)
+
+        private string EnsureNoSpacing(string str, string test)
         {
             if (!str.Contains(test))
                 return str;
 
-            string[] split2 = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var split2 = str.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 
-            str = String.Join("", split2);
-            
-            string[] split = str.Split(new string[] { test }, StringSplitOptions.None);
-            test = String.Join(test.Trim(), split);
+            str = string.Join("", split2);
+
+            var split = str.Split(new[] {test}, StringSplitOptions.None);
+            test = string.Join(test.Trim(), split);
 
             return test;
         }
 
         public List<ScriptObject> LoadDirectory(RefFilename directory, ScriptContext context, bool save, bool load)
         {
-            List<ScriptObject> results = new List<ScriptObject>();
+            var results = new List<ScriptObject>();
             if (!directory.Exists)
                 return results;
 
             var directories = directory.GetDirectories();
 
-            foreach (var s in directories)
-            {
-                results.AddRange(LoadDirectory(s, context, save, load));
-            }
+            foreach (var s in directories) results.AddRange(LoadDirectory(s, context, save, load));
 
             var files = directory.GetFiles();
 
             foreach (var file in files)
-            {
                 if (file.Extension == ".txt")
                 {
-
-                    string binFilename = file.ToRelativeFilename().Replace(".txt", ".bin");
+                    var binFilename = file.ToRelativeFilename().Replace(".txt", ".bin");
                     binFilename = binFilename.Replace(Globals.CK3Path, "");
                     binFilename = Globals.CK3EdDataPath.Replace("\\", "/") + "CachedCK3Data/" + binFilename;
                     if (File.Exists(binFilename) && load)
                     {
                         ScriptNamespace = "";
                         results.AddRange(LoadParsableFile(binFilename));
-
                     }
                     else
+                    {
                         results.AddRange(LoadFile(file, context, save));
+                    }
                 }
-            }
 
             return results;
         }
+
         public List<ScriptObject> LoadFile(RefFilename filename, ScriptContext context, bool save)
         {
-            if(!filename.Exists)
+            if (!filename.Exists)
                 return new List<ScriptObject>();
 
-            string text = System.IO.File.ReadAllText(filename.ToFullFilename());
+            var text = File.ReadAllText(filename.ToFullFilename());
             return LoadText(text, filename, context, save);
         }
-        public List<ScriptObject> LoadText(string text, RefFilename filename, ScriptContext context, bool save=false)
+
+        public List<ScriptObject> LoadText(string text, RefFilename filename, ScriptContext context, bool save = false)
         {
             ScriptNamespace = "";
-            List<ScriptObject> results = new List<ScriptObject>();
+            var results = new List<ScriptObject>();
 
 
-            this.file = Core.Instance.LoadingCK3Library.EnsureFile(filename, context);
+            file = Core.Instance.LoadingCK3Library.EnsureFile(filename, context);
 
-            string[] lines = text.Split(new char[] {'\n'});
-            List<int> lineNumbers = new List<int>();
-            List<string> tokens = new List<string>();
-            int index = 0;
+            var lines = text.Split('\n');
+            var lineNumbers = new List<int>();
+            var tokens = new List<string>();
+            var index = 0;
             for (var i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
                 line = line.Trim();
                 index++;
-               
+
                 if (line.Contains("debug_log"))
                     continue;
                 if (line.Trim().StartsWith("#"))
                     continue;
-                string line2 = line;
+                var line2 = line;
                 if (line.Length == 0)
                     continue;
-                if(line2 == "name = \"Abdallah\" #ibn Muhammad\"")
+                if (line2 == "name = \"Abdallah\" #ibn Muhammad\"")
                 {
-
                 }
-                if (line2.Contains("\"") && ((line2.IndexOf("\"") < line2.IndexOf("#") || line2.IndexOf("#") == -1)))
+
+                if (line2.Contains("\"") && (line2.IndexOf("\"") < line2.IndexOf("#") || line2.IndexOf("#") == -1))
                 {
-                    string ll = line2;
-                    string after = "";
+                    var ll = line2;
+                    var after = "";
                     while (ll.Contains("\""))
-                    {
                         if (ll.Contains("\"") &&
-                            ((ll.IndexOf("\"") < ll.IndexOf("#") || ll.IndexOf("#") == -1)))
+                            (ll.IndexOf("\"") < ll.IndexOf("#") || ll.IndexOf("#") == -1))
                         {
                             var s = ll.IndexOf("\"");
                             var e = ll.IndexOf("\"", s + 1);
                             var l = e - s;
-                            string before = ll.Substring(0, s);
-                            string str = ll.Substring((s + 1), l - 1);
+                            var before = ll.Substring(0, s);
+                            var str = ll.Substring(s + 1, l - 1);
                             after = ll.Substring(e + 1);
 
                             TokenizeLine(before.Trim(), tokens);
@@ -134,26 +137,16 @@ namespace JominiParse
                         {
                             ll = ll.Substring(0, ll.IndexOf("#")).Trim();
                         }
-                      
-                        
 
-                    }
                     TokenizeLine(after.Trim(), tokens);
 
 
-
-                    while (lineNumbers.Count < tokens.Count)
-                    {
-                        lineNumbers.Add(index);
-                    }
+                    while (lineNumbers.Count < tokens.Count) lineNumbers.Add(index);
                 }
                 else
                 {
                     TokenizeLine(line2, tokens);
-                    while (lineNumbers.Count < tokens.Count)
-                    {
-                        lineNumbers.Add(index);
-                    }
+                    while (lineNumbers.Count < tokens.Count) lineNumbers.Add(index);
                 }
             }
 
@@ -162,7 +155,7 @@ namespace JominiParse
 
             var parsableResults = ParseTokens(tokens, lineNumbers, filename);
 
-            if(save)
+            if (save)
                 SaveBinary(parsableResults, context, filename.ToRelativeFilename());
 
             ParseResults(null, parsableResults, context, results);
@@ -172,22 +165,22 @@ namespace JominiParse
 
         public List<ScriptObject> LoadParsableFile(string s)
         {
-            using (BinaryReader reader = new BinaryReader(File.Open(s, FileMode.Open)))
+            using (var reader = new BinaryReader(File.Open(s, FileMode.Open)))
             {
-                ScriptContext context = (ScriptContext) reader.ReadInt32();
+                var context = (ScriptContext) reader.ReadInt32();
                 var filename = s.Substring(s.IndexOf("/CachedCK3Data/") + 15).Replace("\\", "/");
 
-                int count = reader.ReadInt32();
+                var count = reader.ReadInt32();
 
-                List<ScriptParsedSegment> parsables = new List<ScriptParsedSegment>();
+                var parsables = new List<ScriptParsedSegment>();
 
-                for (int x = 0; x < count; x++)
+                for (var x = 0; x < count; x++)
                 {
-                    ScriptParsedSegment parsable = LoadParsable(reader, filename);
+                    var parsable = LoadParsable(reader, filename);
                     parsables.Add(parsable);
                 }
 
-                List<ScriptObject> results = new List<ScriptObject>();
+                var results = new List<ScriptObject>();
                 ParseResults(null, parsables, context, results);
                 return results;
             }
@@ -195,24 +188,21 @@ namespace JominiParse
 
         private ScriptParsedSegment LoadParsable(BinaryReader reader, string filename)
         {
-            string name = reader.ReadString();
+            var name = reader.ReadString();
 
-            int lineStart = reader.ReadInt32();
-            int lineEnd = reader.ReadInt32();
-            bool isBlock = reader.ReadBoolean();
+            var lineStart = reader.ReadInt32();
+            var lineEnd = reader.ReadInt32();
+            var isBlock = reader.ReadBoolean();
             string op = null;
             if (reader.ReadBoolean())
                 op = reader.ReadString();
-            byte valCount = reader.ReadByte();
-            List<string> values = new List<string>();
-            for (int x = 0; x < valCount; x++)
-            {
-                values.Add(reader.ReadString());
-            }
+            var valCount = reader.ReadByte();
+            var values = new List<string>();
+            for (var x = 0; x < valCount; x++) values.Add(reader.ReadString());
 
-            int numChildren = reader.ReadInt32();
+            var numChildren = reader.ReadInt32();
 
-            ScriptParsedSegment p = new ScriptParsedSegment();
+            var p = new ScriptParsedSegment();
 
             p.filename = new RefFilename(filename.Replace(".bin", ".txt"), true);
             p.name = name;
@@ -221,34 +211,26 @@ namespace JominiParse
             p.lineNumbers.Add(lineStart);
             p.lineNumbers.Add(lineEnd);
             p.isBlock = isBlock;
-            for (int x = 0; x < numChildren; x++)
-            {
-                p.children.Add(LoadParsable(reader, filename));
-            }
+            for (var x = 0; x < numChildren; x++) p.children.Add(LoadParsable(reader, filename));
 
             return p;
         }
 
         private void SaveBinary(List<ScriptParsedSegment> parsableResults, ScriptContext context, string filename)
         {
-            string binFilename = filename.Replace(".txt", ".bin");
+            var binFilename = filename.Replace(".txt", ".bin");
 
             binFilename = Globals.CK3EdDataPath.Replace("\\", "/") + "CachedCK3Data/" + binFilename;
-            string binDir = binFilename.Substring(0, binFilename.LastIndexOf("/"));
+            var binDir = binFilename.Substring(0, binFilename.LastIndexOf("/"));
             if (!Directory.Exists(binDir))
                 Directory.CreateDirectory(binDir);
 
-            using (BinaryWriter writer = new BinaryWriter(File.Open(binFilename, FileMode.Create)))
+            using (var writer = new BinaryWriter(File.Open(binFilename, FileMode.Create)))
             {
-                writer.Write((int)context);
+                writer.Write((int) context);
                 writer.Write(parsableResults.Count);
-                
-                foreach (var scriptParsedSegment in parsableResults)
-                {
-                    SaveParsable(writer, scriptParsedSegment);
 
-                }
-
+                foreach (var scriptParsedSegment in parsableResults) SaveParsable(writer, scriptParsedSegment);
             }
         }
 
@@ -262,24 +244,15 @@ namespace JominiParse
             writer.Write(parsableResults.isBlock);
 
             writer.Write(parsableResults.op != null);
-            if(parsableResults.op !=null)
+            if (parsableResults.op != null)
                 writer.Write(parsableResults.op);
-            writer.Write((byte)parsableResults.value.Count);
+            writer.Write((byte) parsableResults.value.Count);
 
-            foreach (var s in parsableResults.value)
-            {
-                writer.Write(s);
-            }
+            foreach (var s in parsableResults.value) writer.Write(s);
 
             writer.Write(parsableResults.children.Count);
-            foreach (var parsableResultsChild in parsableResults.children)
-            {
-                SaveParsable(writer, parsableResultsChild);
-            }
-
+            foreach (var parsableResultsChild in parsableResults.children) SaveParsable(writer, parsableResultsChild);
         }
-
-        public ScriptFile file { get; set; }
 
         private void TokenizeLine(string line2, List<string> tokens)
         {
@@ -291,7 +264,7 @@ namespace JominiParse
             line2 = EnsureSpacing(line2, "=");
             line2 = EnsureSpacing(line2, "<");
             line2 = EnsureSpacing(line2, ">");
-            
+
             line2 = EnsureSpacing(line2, "= =");
             line2 = EnsureSpacing(line2, "! =");
 
@@ -304,12 +277,13 @@ namespace JominiParse
 
             //
 
-            
+
             if (line2.Contains("<  =") || line2.Contains(">  ="))
             {
                 line2 = line2.Replace("<  =", "<=");
                 line2 = line2.Replace(">  =", ">=");
             }
+
             if (line2.Contains("= =") || line2.Contains("! ="))
             {
                 line2 = line2.Replace("= =", "==");
@@ -318,7 +292,7 @@ namespace JominiParse
 
 
             {
-                string[] linetokens = line2.Split(new char[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries);
+                var linetokens = line2.Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries);
 
                 tokens.AddRange(linetokens);
             }
@@ -335,22 +309,18 @@ namespace JominiParse
                     SetNamespace(scriptParsedSegment.value[0]);
                     continue;
                 }
-              
-                var r = ParseResult(parent, scriptParsedSegment, context);
-                if(r != null)
-                    results.Add(r);
-                else
-                {
 
-                }
+                var r = ParseResult(parent, scriptParsedSegment, context);
+                if (r != null) results.Add(r);
             }
         }
+
         private ScriptObject ParseResult(ScriptObject parent, ScriptParsedSegment parsableResult, ScriptContext context)
         {
             if (ScriptNamespace != null && context == ScriptContext.Activities)
             {
-
             }
+
             return ScriptObjectFactory.Instance.CreateScriptObject(context, parsableResult, parent, ScriptNamespace);
         }
 
@@ -360,66 +330,68 @@ namespace JominiParse
         }
 
 
-
         public List<ScriptParsedSegment> ParseTokens(List<string> tokens, List<int> lineNumbers, RefFilename filename)
         {
-            List<ScriptParsedSegment> parsables = new List<ScriptParsedSegment>();
-            List<int> lineNumbersForObject = new List<int>();
-            List<string> tokensForObject = new List<string>();
-            int token = 0;
+            var parsables = new List<ScriptParsedSegment>();
+            var lineNumbersForObject = new List<int>();
+            var tokensForObject = new List<string>();
+            var token = 0;
             while (tokens.Count > 0)
             {
                 if (tokens.Count == 1)
                 {
                     tokensForObject.Clear();
                     tokensForObject.AddRange(tokens);
-                    List<int> lineNumChild = new List<int>();
+                    var lineNumChild = new List<int>();
                     lineNumChild.AddRange(lineNumbers);
-                    ScriptParsedSegment parsable = new ScriptParsedSegment();
+                    var parsable = new ScriptParsedSegment();
                     parsable.lineNumbers = lineNumChild;
                     parsable.filename = filename;
                     parsable.Parse(tokensForObject);
                     parsables.Add(parsable);
                     tokens.Clear();
-                   // lineNumChild.Clear();
+                    // lineNumChild.Clear();
                     token += 1;
                     continue;
                 }
+
                 if (tokens.Count == 2)
                 {
                     tokensForObject.Clear();
                     tokensForObject.Add(tokens[0]);
-                    List<int> lineNumChild = new List<int>();
+                    var lineNumChild = new List<int>();
                     lineNumChild.Add(lineNumbers[0]);
-                    ScriptParsedSegment parsable = new ScriptParsedSegment();
+                    var parsable = new ScriptParsedSegment();
                     parsable.lineNumbers = lineNumChild;
                     parsable.filename = filename;
                     parsable.Parse(tokensForObject);
                     parsables.Add(parsable);
                     tokens.RemoveAt(0);
-                  //  lineNumChild.Clear();
+                    //  lineNumChild.Clear();
                     lineNumbers.RemoveAt(0);
                     token += 1;
                     continue;
                 }
-                string first = tokens[0];
-                string second = tokens[1];
-                string third = tokens[2];
 
-                int extraTokens =0;
+                var first = tokens[0];
+                var second = tokens[1];
+                var third = tokens[2];
+
+                var extraTokens = 0;
                 if (first == "NOT" && lineNumbers[0] == 431)
                 {
-
                 }
-                if(third == "hsv")
+
+                if (third == "hsv")
                 {
-                    third = String.Join("", tokens.GetRange(2, tokens.Count - 2));
+                    third = string.Join("", tokens.GetRange(2, tokens.Count - 2));
                     lineNumbers.RemoveRange(2, tokens.Count - 3);
                     tokens.RemoveAt(2);
                     tokens.Insert(2, third);
-                    tokens.RemoveRange(3, tokens.Count-3);
+                    tokens.RemoveRange(3, tokens.Count - 3);
                     token += 3;
                 }
+
                 if (first == "scripted_trigger" || first == "scripted_effect")
                 {
                     first = first + " " + second;
@@ -428,7 +400,6 @@ namespace JominiParse
                     tokens.RemoveAt(1);
                     lineNumbers.RemoveAt(1);
                     tokens[0] = first;
-             
                 }
 
                 // could be a list...
@@ -441,17 +412,16 @@ namespace JominiParse
                     tokens.Insert(1, "=");
                     lineNumbers.Insert(0, lineNumbers[0]);
                     lineNumbers.Insert(1, lineNumbers[0]);
-
-
                 }
 
-                if ((!(second == "=" || second == ">" || second == "<" || second == ">=" || second == "<=" || second == "!=" || second == "==")) && second != "{")
+                if (!(second == "=" || second == ">" || second == "<" || second == ">=" || second == "<=" ||
+                      second == "!=" || second == "==") && second != "{")
                 {
                     tokensForObject.Clear();
                     tokensForObject.Add(tokens[0]);
-                    List<int> lineNumChild = new List<int>();
+                    var lineNumChild = new List<int>();
                     lineNumChild.Add(lineNumbers[0]);
-                    ScriptParsedSegment parsable = new ScriptParsedSegment();
+                    var parsable = new ScriptParsedSegment();
                     parsable.lineNumbers = lineNumChild;
                     parsable.filename = filename;
                     parsable.Parse(tokensForObject);
@@ -463,13 +433,14 @@ namespace JominiParse
                     continue;
                 }
 
-                else if (second == "=" || second == ">" || second == "<" || second == ">=" || second == "<=" || second == "!=" || second == "==")
+                if (second == "=" || second == ">" || second == "<" || second == ">=" || second == "<=" ||
+                    second == "!=" || second == "==")
                 {
                 }
                 else
                 {
                     // something weird going on - insert an = sign
-            
+
                     {
                         // whoopsie, missed =...
                         tokens.Insert(1, "=");
@@ -478,36 +449,38 @@ namespace JominiParse
                         third = tokens[2];
                         lineNumbers.Insert(1, lineNumbers[0]);
                     }
-
                 }
-                bool isBlock = false;
-                if (second == "=" || second == ">" || second == "<" || second == ">=" || second == "<=" || second == "!=" || second == "==")
+
+                var isBlock = false;
+                if (second == "=" || second == ">" || second == "<" || second == ">=" || second == "<=" ||
+                    second == "!=" || second == "==")
                 {
                     if (third == "{")
                     {
                         // this is a complex bracketed object... find the equivelent closing one...
 
-                        int range = GetRangeOfClosedBracket(tokens, extraTokens);
+                        var range = GetRangeOfClosedBracket(tokens, extraTokens);
 
                         if (range == -1)
                         {
                             tokens.Add("}");
-                            lineNumbers.Add(lineNumbers.Last()+1);
-                            range = tokens.Count-1;
+                            lineNumbers.Add(lineNumbers.Last() + 1);
+                            range = tokens.Count - 1;
                         }
 
                         isBlock = true;
 
-                        tokensForObject = tokens.GetRange(0, range+1);
+                        tokensForObject = tokens.GetRange(0, range + 1);
 
                         lineNumbersForObject = lineNumbers.GetRange(0, range + 1);
                         lineNumbers.RemoveRange(0, range + 1);
-                        tokens.RemoveRange(0, range+1);
-                    } else if (third.StartsWith("@["))
+                        tokens.RemoveRange(0, range + 1);
+                    }
+                    else if (third.StartsWith("@["))
                     {
                         // weird inliney calculations in scriptvalues
-                        int index = tokens.IndexOf("]");
-                        tokensForObject = tokens.GetRange(0, index+1);
+                        var index = tokens.IndexOf("]");
+                        tokensForObject = tokens.GetRange(0, index + 1);
 
                         lineNumbersForObject = lineNumbers.GetRange(0, index + 1);
                         lineNumbers.RemoveRange(0, index + 1);
@@ -518,8 +491,8 @@ namespace JominiParse
                     }
                     else
                     {
-                        int n = 3 + extraTokens;
-                        
+                        var n = 3 + extraTokens;
+
                         tokensForObject = tokens.GetRange(0, n);
 
                         lineNumbersForObject = lineNumbers.GetRange(0, n);
@@ -529,25 +502,19 @@ namespace JominiParse
                         token += n;
                     }
                 }
-                else
-                {
-                    // err.
-                }
 
                 {
-                    ScriptParsedSegment parsable = new ScriptParsedSegment();
+                    var parsable = new ScriptParsedSegment();
                     parsable.lineNumbers = lineNumbersForObject;
                     parsable.filename = filename;
                     parsable.isBlock = isBlock;
                     if (parsable.lineNumbers[0] == 125 && filename.Equals("common/on_action/childhood_on_actions.txt"))
                     {
-
                     }
-                        
+
                     parsable.Parse(tokensForObject);
                     parsables.Add(parsable);
                 }
-
             }
 
             return parsables;
@@ -555,8 +522,8 @@ namespace JominiParse
 
         private int GetRangeOfClosedBracket(List<string> tokens, int extraTokens)
         {
-            int depth = 0;
-            for (int n = 2+extraTokens; n < tokens.Count; n++)
+            var depth = 0;
+            for (var n = 2 + extraTokens; n < tokens.Count; n++)
             {
                 if (tokens[n] == "{")
                     depth++;
@@ -567,7 +534,6 @@ namespace JominiParse
                     if (depth == 0)
                         return n;
                 }
-
             }
 
             // error...
@@ -579,9 +545,5 @@ namespace JominiParse
             ScriptNamespace = segmentValue;
             file.Namespace = segmentValue;
         }
-
-        public string ScriptNamespace { get; set; }
-
-      
     }
 }

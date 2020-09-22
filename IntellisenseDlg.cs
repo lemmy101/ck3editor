@@ -1,49 +1,53 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkUI.Controls;
 using ICSharpCode.TextEditor;
-using ICSharpCode.TextEditor.Document;
 using JominiParse;
+
+#endregion
 
 namespace CK3ScriptEditor
 {
     public partial class IntellisenseDlg : Form
     {
-        
+        private bool autoCompletePostEquals;
+
         public IntellisenseDlg()
         {
             InitializeComponent();
         }
+        public string TabSpacing { get; set; }
+        public ScriptObject Inside { get; set; }
+        public ScriptWindow ScriptWindow { get; set; }
+        public string StartText { get; set; }
+        public TextEditorControl Control { get; set; }
+        public bool Force { get; set; }
 
-        private bool autoCompletePostEquals = false;
-
-        public bool FillIntellisense(ScriptWindow sw, ICSharpCode.TextEditor.TextEditorControl control, string lineSegment, int caretColumn, ScriptObject inside)
+        public bool FillIntellisense(ScriptWindow sw, TextEditorControl control, string lineSegment, int caretColumn,
+            ScriptObject inside)
         {
-            this.ScriptWindow = sw;
-            this.Control = control;
-            string before = lineSegment.Substring(0, caretColumn);
-            string after = lineSegment.Substring(caretColumn);
+            ScriptWindow = sw;
+            Control = control;
+            var before = lineSegment.Substring(0, caretColumn);
+            var after = lineSegment.Substring(caretColumn);
 
             if (after.Trim().Length > 0 && (after[0] != ' ' || after[0] != '\t'))
                 return false;
 
             Size = new Size(600, 400);
-            int startOfLastword = before.IndexOf(before.Trim());
-            this.TabSpacing = before.Substring(0, startOfLastword);
+            var startOfLastword = before.IndexOf(before.Trim());
+            TabSpacing = before.Substring(0, startOfLastword);
             if (before.Trim().Length == 0)
                 TabSpacing = before;
-            int endOfLastWord = before.IndexOf(before.Trim()) + before.Trim().Length;
-            this.Inside = inside;
-            string beforeOriginal = before;
+            var endOfLastWord = before.IndexOf(before.Trim()) + before.Trim().Length;
+            Inside = inside;
+            var beforeOriginal = before;
             before = before.Trim();
-            List<String> choices = new List<string>();
+            var choices = new List<string>();
             if (before.Length == 0 && !Force)
                 return false;
 
@@ -56,21 +60,21 @@ namespace CK3ScriptEditor
                 beforeOriginal = beforeOriginal.Replace("!=", "*");
                 beforeOriginal = beforeOriginal.Replace("==", "*");
                 beforeOriginal = beforeOriginal.Replace("=", "*");
-                int afterOpindex = beforeOriginal.IndexOf("*") + 1;
+                var afterOpindex = beforeOriginal.IndexOf("*") + 1;
                 before = before.Replace("==", "*");
                 before = before.Replace("<=", "*");
                 before = before.Replace(">=", "*");
                 before = before.Replace("!=", "*");
                 before = before.Replace("==", "*");
                 before = before.Replace("=", "*");
-                string beforeReplaced = before;
-                string sofar = before.Substring(before.LastIndexOf("*") + 1).Trim();
+                var beforeReplaced = before;
+                var sofar = before.Substring(before.LastIndexOf("*") + 1).Trim();
                 before = before.Substring(0, before.LastIndexOf("*")).Trim();
-                int dif = beforeOriginal.Length - beforeOriginal.TrimEnd(new char[] { ' ' }).Length;
+                var dif = beforeOriginal.Length - beforeOriginal.TrimEnd(' ').Length;
 
                 if (!beforeReplaced.Trim().EndsWith("*"))
                     dif = 1;
-                
+
                 if (dif >= 1)
                 {
                     // find appropriate choices for type before =
@@ -80,7 +84,6 @@ namespace CK3ScriptEditor
 
                     StartText = lineSegment.Substring(0, afterOpindex);
                     autoCompletePostEquals = true;
-
                 }
             }
             else
@@ -91,15 +94,15 @@ namespace CK3ScriptEditor
                 choices = CoreIntellisenseHandler.Instance.GetValidTokens(inside, before);
 
                 var index = lineSegment.IndexOf(before);
-                
-                this.StartText = lineSegment.Substring(0, index);
+
+                StartText = lineSegment.Substring(0, index);
                 if (before.Length == 0)
                     StartText = lineSegment.Substring(0, caretColumn);
 
                 autoCompletePostEquals = false;
             }
 
-            this.suggestionListbox.Items.Clear();
+            suggestionListbox.Items.Clear();
             if (choices.Count == 0)
                 return false;
 
@@ -114,39 +117,23 @@ namespace CK3ScriptEditor
             suggestionListbox.SuspendEvents(false);
 
             suggestionListbox.SelectItem(0);
-            Size = new Size(Size.Width, Math.Min((choices.Count*suggestionListbox.ItemHeight)+5, 10 * suggestionListbox.ItemHeight));
+            Size = new Size(Size.Width,
+                Math.Min(choices.Count * suggestionListbox.ItemHeight + 5, 10 * suggestionListbox.ItemHeight));
 
             return true;
         }
 
-        public string TabSpacing { get; set; }
-
-        public ScriptObject Inside { get; set; }
-
-        public ScriptWindow ScriptWindow { get; set; }
-
-        public string StartText { get; set; }
-
-        public TextEditorControl Control { get; set; }
-        public bool Force { get; set; }
-
         private void suggestionListbox_KeyPress(object sender, KeyPressEventArgs e)
         {
-            
         }
 
         private void suggestionListbox_SelectedIndicesChanged(object sender, EventArgs e)
         {
-
         }
 
         private void suggestionListbox_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Return)
-            {
-                DoComplete();
-            }
-            
+            if (e.KeyCode == Keys.Return) DoComplete();
         }
 
         public void DoComplete()
@@ -154,16 +141,16 @@ namespace CK3ScriptEditor
             Control.ActiveTextAreaControl.TextArea.Focus();
             var ls = Control.Document.GetLineSegment(Control.ActiveTextAreaControl.Caret.Line);
             var t = suggestionListbox.Items[suggestionListbox.SelectedIndices[0]].Text;
-            string tabs = TabSpacing;
+            var tabs = TabSpacing;
 
-            var needBraces = false;//CoreIntellisenseHandler.Instance.GetNeedBraces(Inside, t);
+            var needBraces = false; //CoreIntellisenseHandler.Instance.GetNeedBraces(Inside, t);
             if (!autoCompletePostEquals)
             {
                 t += " = ";
             }
             else
             {
-                StartText = StartText.TrimEnd(new char[] {' '});
+                StartText = StartText.TrimEnd(' ');
                 if (t == "{ }")
                 {
                     t = "";
@@ -171,13 +158,14 @@ namespace CK3ScriptEditor
                     needBraces = true;
                 }
                 else
+                {
                     t = " " + t;
+                }
             }
 
-            
 
             Control.Document.Replace(ls.Offset, ls.Length,
-                StartText + (t));
+                StartText + t);
 
             if (!needBraces)
             {
@@ -186,20 +174,17 @@ namespace CK3ScriptEditor
             else
             {
                 Control.ActiveTextAreaControl.Caret.Line++;
-                Control.ActiveTextAreaControl.Caret.Column = (tabs.Length)+1;
-
+                Control.ActiveTextAreaControl.Caret.Column = tabs.Length + 1;
             }
 
-            this.ScriptWindow.UpdateDatabase();
+            ScriptWindow.UpdateDatabase();
         }
 
         public void SelectUp()
         {
-            if(suggestionListbox.SelectedIndices.Count > 0)
-            {
-                if(suggestionListbox.SelectedIndices[0] > 0)
-                    suggestionListbox.SelectItem(suggestionListbox.SelectedIndices[0]-1);
-            }
+            if (suggestionListbox.SelectedIndices.Count > 0)
+                if (suggestionListbox.SelectedIndices[0] > 0)
+                    suggestionListbox.SelectItem(suggestionListbox.SelectedIndices[0] - 1);
             suggestionListbox.EnsureVisible();
             suggestionListbox.Invalidate();
         }
@@ -207,14 +192,11 @@ namespace CK3ScriptEditor
         public void SelectDown()
         {
             if (suggestionListbox.SelectedIndices.Count > 0)
-            {
-                if (suggestionListbox.SelectedIndices[0] < suggestionListbox.Items.Count-1)
+                if (suggestionListbox.SelectedIndices[0] < suggestionListbox.Items.Count - 1)
                     suggestionListbox.SelectItem(suggestionListbox.SelectedIndices[0] + 1);
-            }
 
             suggestionListbox.EnsureVisible();
             suggestionListbox.Invalidate();
-
         }
 
         private void suggestionListbox_MouseDoubleClick(object sender, MouseEventArgs e)

@@ -1,6 +1,8 @@
-﻿using System;
+﻿#region
+
 using System.Collections.Generic;
-using System.Text;
+
+#endregion
 
 namespace JominiParse
 {
@@ -8,12 +10,9 @@ namespace JominiParse
     {
         public static HashSet<string> PrependToken(this HashSet<string> h, string token)
         {
-            HashSet<string> s = new HashSet<string>();
+            var s = new HashSet<string>();
 
-            foreach (var s1 in h)
-            {
-                s.Add(token + s1);
-            }
+            foreach (var s1 in h) s.Add(token + s1);
 
             return s;
         }

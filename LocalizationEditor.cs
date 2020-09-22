@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿#region
+
+using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkUI.Forms;
 using ICSharpCode.TextEditor.Document;
-using JominiParse;
+
+#endregion
 
 namespace CK3ScriptEditor
 {
@@ -20,13 +17,16 @@ namespace CK3ScriptEditor
         public LocalizationEditor()
         {
             InitializeComponent();
-            
+
             localTextEdit.ActiveTextAreaControl.TextArea.DoProcessDialogKey += TextAreaOnDoProcessDialogKey;
         }
 
+        public string LocalizedTag { get; set; }
+        public ScriptWindow ParentWindow { get; set; }
+
         private bool TextAreaOnDoProcessDialogKey(Keys keyData)
         {
-            if ((keyData == Keys.Escape))
+            if (keyData == Keys.Escape)
             {
                 DialogResult = DialogResult.Cancel;
                 Close();
@@ -38,17 +38,17 @@ namespace CK3ScriptEditor
 
         public void Set(ScriptWindow parent, string tag, string localized)
         {
-            this.LocalizedTag = tag;
-            string[] lines = localized.Split(new string[] {"\\n"}, StringSplitOptions.None);
+            LocalizedTag = tag;
+            var lines = localized.Split(new[] {"\\n"}, StringSplitOptions.None);
 
-            this.ParentWindow = parent;
-            
-            localTextEdit.Document.TextContent = String.Join("\n", lines);
+            ParentWindow = parent;
+
+            localTextEdit.Document.TextContent = string.Join("\n", lines);
             var c = Color.FromArgb(255, 42, 54, 40);
 
             localTextEdit.Document.ReadOnly = false;
-            
-            var d = (localTextEdit.Document.HighlightingStrategy as DefaultHighlightingStrategy);
+
+            var d = localTextEdit.Document.HighlightingStrategy as DefaultHighlightingStrategy;
             {
                 var s = Color.FromArgb(255, 73, 92, 70);
                 var cl = Color.FromArgb(255, 43, 62, 40);
@@ -67,36 +67,25 @@ namespace CK3ScriptEditor
 
 
                 foreach (var lineSegment in localTextEdit.Document.LineSegmentCollection)
-                {
-                    foreach (var lineSegmentWord in lineSegment.Words)
+                foreach (var lineSegmentWord in lineSegment.Words)
+                    if (lineSegmentWord.SyntaxColor != null)
                     {
-                        if (lineSegmentWord.SyntaxColor != null)
-                        {
-                            lineSegmentWord.SyntaxColor = new HighlightColor(lineSegmentWord.SyntaxColor.Color,
-                                lineSegmentWord.SyntaxColor.BackgroundColor, lineSegmentWord.SyntaxColor.Bold,
-                                lineSegmentWord.SyntaxColor.Italic);
-                            lineSegmentWord.SyntaxColor.BackgroundColor = c;
-                        }
+                        lineSegmentWord.SyntaxColor = new HighlightColor(lineSegmentWord.SyntaxColor.Color,
+                            lineSegmentWord.SyntaxColor.BackgroundColor, lineSegmentWord.SyntaxColor.Bold,
+                            lineSegmentWord.SyntaxColor.Italic);
+                        lineSegmentWord.SyntaxColor.BackgroundColor = c;
                     }
-                }
             }
         }
 
-        public string LocalizedTag { get; set; }
-
-        public ScriptWindow ParentWindow { get; set; }
-
         private void done_Click(object sender, EventArgs e)
         {
-
             Close();
-          
         }
 
         private void cancel_Click(object sender, EventArgs e)
         {
             Close();
-            
         }
     }
 }

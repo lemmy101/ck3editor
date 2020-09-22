@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region
+
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using JominiParse;
+
+#endregion
 
 namespace CK3ScriptEditor
 {
     public class BackupManager
     {
         public static BackupManager Instance = new BackupManager();
+
+        public float MinutesSinceLastSave;
         public float AutosaveInterval { get; set; } = 15f;
         public int NumBackups { get; set; } = 30;
-
-        public float MinutesSinceLastSave = 0;
-        public int TickTimeMS
-        {
-            get { return (int) (AutosaveInterval * 60 * 1000); }
-        }
+        public int TickTimeMS => (int) (AutosaveInterval * 60 * 1000);
 
         public void UpdateTick()
         {
@@ -33,33 +28,30 @@ namespace CK3ScriptEditor
             if (Core.Instance.ModCK3Library == null)
                 return;
 
-            string destDirectory = Globals.CK3EdDataPath;
+            var destDirectory = Globals.CK3EdDataPath;
 
             destDirectory += "CK3EditBackups/";
             if (!Directory.Exists(destDirectory))
                 Directory.CreateDirectory(destDirectory);
 
-            string backupDir = destDirectory + Core.Instance.ModCK3Library.Name;
+            var backupDir = destDirectory + Core.Instance.ModCK3Library.Name;
 
-            for (int x = NumBackups - 2; x >= 0; x--)
+            for (var x = NumBackups - 2; x >= 0; x--)
+                // if (Directory.Exists(backupDir))
             {
-               // if (Directory.Exists(backupDir))
-                {
-                    string backupDirFrom = destDirectory + Core.Instance.ModCK3Library.Name + "_" + (x+1);
-                    if(x==0)
-                        backupDirFrom = destDirectory + Core.Instance.ModCK3Library.Name;
+                var backupDirFrom = destDirectory + Core.Instance.ModCK3Library.Name + "_" + (x + 1);
+                if (x == 0)
+                    backupDirFrom = destDirectory + Core.Instance.ModCK3Library.Name;
 
-                    string backupDirFromTo = destDirectory + Core.Instance.ModCK3Library.Name + "_" + (x+2);
-                    DeleteDir(backupDirFromTo + "/");
-                    if(Directory.Exists(backupDirFrom + "/"))
-                        Directory.Move(backupDirFrom + "/", backupDirFromTo + "/");
-
-                }
+                var backupDirFromTo = destDirectory + Core.Instance.ModCK3Library.Name + "_" + (x + 2);
+                DeleteDir(backupDirFromTo + "/");
+                if (Directory.Exists(backupDirFrom + "/"))
+                    Directory.Move(backupDirFrom + "/", backupDirFromTo + "/");
             }
+
             DeleteDir(backupDir + "/");
 
             CopyDir(Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/", backupDir + "/");
-
         }
 
         private void CopyDir(string f, string t)
@@ -67,27 +59,22 @@ namespace CK3ScriptEditor
             if (!Directory.Exists(f))
                 return;
 
-            if (!Directory.Exists(t))
-            {
-                Directory.CreateDirectory(t);
-            }
-            string[] files = Directory.GetFiles(f);
+            if (!Directory.Exists(t)) Directory.CreateDirectory(t);
+            var files = Directory.GetFiles(f);
 
             foreach (var file in files)
             {
-                string filename = file.Substring(file.LastIndexOf("/")+1);
+                var filename = file.Substring(file.LastIndexOf("/") + 1);
 
                 File.Copy(f + filename, t + filename);
-                
             }
 
-            string[] dirs = Directory.GetDirectories(f);
+            var dirs = Directory.GetDirectories(f);
 
             foreach (var s in dirs)
             {
-                string last = s.Substring(s.LastIndexOf("/")+1);
-                CopyDir(s+"/", t+last+"/");
-
+                var last = s.Substring(s.LastIndexOf("/") + 1);
+                CopyDir(s + "/", t + last + "/");
             }
         }
 
@@ -96,20 +83,13 @@ namespace CK3ScriptEditor
             if (!Directory.Exists(dir))
                 return;
 
-            string[] files = Directory.GetFiles(dir);
+            var files = Directory.GetFiles(dir);
 
-            foreach (var file in files)
-            {
-                File.Delete(file);
-            }
+            foreach (var file in files) File.Delete(file);
 
-            string[] dirs = Directory.GetDirectories(dir);
+            var dirs = Directory.GetDirectories(dir);
 
-            foreach (var s in dirs)
-            {
-                DeleteDir(s);
-
-            }
+            foreach (var s in dirs) DeleteDir(s);
 
             Directory.Delete(dir);
         }

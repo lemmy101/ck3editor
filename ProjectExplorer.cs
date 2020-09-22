@@ -1,21 +1,35 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkUI.Controls;
 using DarkUI.Docking;
 using JominiParse;
 
+#endregion
+
 namespace CK3ScriptEditor
 {
     public partial class ProjectExplorer : DarkToolWindow
     {
+        private readonly List<string> allowedDirs = new List<string>
+        {
+            "common",
+            "events",
+            "gui",
+            "gfx",
+            "history",
+            "map_data",
+            "localization"
+        };
+
+
+        private readonly ContextMenu menu = new ContextMenu();
+
         public ProjectExplorer()
         {
             DockArea = DarkDockArea.Left;
@@ -25,28 +39,26 @@ namespace CK3ScriptEditor
 
         public string AddToPath { get; set; }
 
-        string CurrentSelectedPath
+        private string CurrentSelectedPath
         {
             get
             {
-
                 if (projectTree.SelectedNodes.Count > 0)
                 {
                     var sel = projectTree.SelectedNodes[0];
 
-                    string path = "";
+                    var path = "";
 
                     while (sel != null)
                     {
                         path = sel.Text + ">" + path;
                         sel = sel.ParentNode;
-
                     }
+
                     if (AddToPath != null)
                         return path + ">" + AddToPath;
 
                     return path;
-
                 }
 
                 return "";
@@ -55,44 +67,41 @@ namespace CK3ScriptEditor
 
         private void SelectPath(string path)
         {
-            string[] p = path.Split('>');
+            var p = path.Split('>');
 
             var nodes = projectTree.Nodes;
 
             foreach (var s in p)
-            {
-                foreach (var node in nodes)
+            foreach (var node in nodes)
+                if (node.Text == s)
                 {
-                    if (node.Text == s)
-                    {
-                        node.Expanded = true;
-                        projectTree.SelectNode(node);
-                        nodes = node.Nodes;
-                        break;
-                    }
+                    node.Expanded = true;
+                    projectTree.SelectNode(node);
+                    nodes = node.Nodes;
+                    break;
                 }
-            }
         }
+
         public void FillProjectView()
         {
             if (Core.Instance.ModCK3Library == null)
                 return;
 
-            string path = CurrentSelectedPath;
+            var path = CurrentSelectedPath;
 
 
             projectTree.Nodes.Clear();
             projectTree.SuspendNodeEvents();
-            DarkTreeNode ck3 = new DarkTreeNode("base");
-            DarkTreeNode mod = new DarkTreeNode(Core.Instance.ModCK3Library.Name);
+            var ck3 = new DarkTreeNode("base");
+            var mod = new DarkTreeNode(Core.Instance.ModCK3Library.Name);
 
             projectTree.Nodes.Add(ck3);
             projectTree.Nodes.Add(mod);
-            string startDir = Globals.CK3Path;//"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
-            string startModDir = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name;
+            var startDir = Globals.CK3Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
+            var startModDir = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name;
             Fill(ck3, new RefFilename(startDir), false);
             Fill(mod, new RefFilename(startModDir), true);
-         //   mod.Tag = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/";
+            //   mod.Tag = Globals.CK3ModPath + Core.Instance.ModCK3Library.Name + "/";
             projectTree.ResumeNodeEvents();
 
             SelectPath(path);
@@ -100,18 +109,6 @@ namespace CK3ScriptEditor
             AddToPath = null;
         }
 
-
-        ContextMenu menu = new ContextMenu();
-        List<string> allowedDirs = new List<string>()
-        {
-            "common",
-            "events",
-            "gui",
-            "gfx",
-            "history",
-            "map_data",
-            "localization",
-        };
         private void Fill(DarkTreeNode node, RefFilename startDir, bool mod)
         {
             var dirs = startDir.GetDirectories();
@@ -120,41 +117,34 @@ namespace CK3ScriptEditor
             {
                 var dir = dirs[index];
                 var s = dir.Name;
-                if (allowedDirs.Contains(s))
-                {
-                    FillDir(node, dir, mod);
-                }
+                if (allowedDirs.Contains(s)) FillDir(node, dir, mod);
             }
         }
 
         private void FillDir(DarkTreeNode node, RefFilename dir, bool mod)
         {
-            string d = dir.Name;
-         
-            DarkTreeNode sub = new DarkTreeNode(d);
+            var d = dir.Name;
+
+            var sub = new DarkTreeNode(d);
             sub.Tag = dir;
 
-            string dirShort = dir.ToRelativeFilename();
-            
-            
+            var dirShort = dir.ToRelativeFilename();
+
+
             var dirs = dir.GetDirectories();
             node.Nodes.Add(sub);
-            foreach (var sd in dirs)
-            {
-                FillDir(sub, sd, mod);
-            }
+            foreach (var sd in dirs) FillDir(sub, sd, mod);
 
             var files = dir.GetFiles();
 
             foreach (var file in files)
             {
-                string ff = file.Name;
+                var ff = file.Name;
 
-                DarkTreeNode f = new DarkTreeNode(ff);
+                var f = new DarkTreeNode(ff);
                 f.Tag = file;
 
                 sub.Nodes.Add(f);
-
             }
         }
 
@@ -167,18 +157,16 @@ namespace CK3ScriptEditor
                 if (!(sel.Tag is RefFilename))
                     return;
 
-                var tag = (RefFilename)sel.Tag;
+                var tag = (RefFilename) sel.Tag;
 
-                if(tag.IsFile)
+                if (tag.IsFile)
                     CK3ScriptEd.Instance.LoadCK3File(tag);
-            
-
             }
         }
 
         private static bool IsFromBase(DarkTreeNode sel)
         {
-            bool fromBase = false;
+            var fromBase = false;
 
             while (sel != null)
             {
@@ -192,20 +180,19 @@ namespace CK3ScriptEditor
 
         private void projectTree_MouseClick(object sender, MouseEventArgs e)
         {
-
             if (e.Button == MouseButtons.Right)
             {
                 projectTree.Invalidate();
-                MenuItem newFile = new MenuItem("&New file");
-                MenuItem newFolder = new MenuItem("&New folder");
-                MenuItem delete = new MenuItem("&Delete");
-                MenuItem overrideFolder = new MenuItem("&Override folder");
-                MenuItem overrideFile = new MenuItem("&Override file");
+                var newFile = new MenuItem("&New file");
+                var newFolder = new MenuItem("&New folder");
+                var delete = new MenuItem("&Delete");
+                var overrideFolder = new MenuItem("&Override folder");
+                var overrideFile = new MenuItem("&Override file");
                 // Define the MenuItem object to display for the PictureBox.
 
                 // Clear all previously added MenuItems.
                 menu.MenuItems.Clear();
-                
+
                 if (projectTree.SelectedNodes.Count > 0 && projectTree.SelectedNodes[0].Tag != null)
                 {
                     var selected = projectTree.SelectedNodes[0].Tag as RefFilename;
@@ -213,16 +200,13 @@ namespace CK3ScriptEditor
                         return;
 
                     var p = projectTree.SelectedNodes[0];
-                    while (p.ParentNode != null)
-                    {
-                        p = p.ParentNode;
-                    }
+                    while (p.ParentNode != null) p = p.ParentNode;
 
-                    bool isBase = false;
+                    var isBase = false;
                     if (p.Text == "base")
                         isBase = true;
 
-               
+
                     newFile.Tag = selected;
                     newFolder.Tag = selected;
                     delete.Tag = selected;
@@ -230,7 +214,7 @@ namespace CK3ScriptEditor
                     overrideFile.Tag = selected;
 
 
-                    bool directory = selected.IsDirectory;
+                    var directory = selected.IsDirectory;
 
                     if (directory)
                     {
@@ -239,10 +223,11 @@ namespace CK3ScriptEditor
                             menu.MenuItems.Add(newFolder);
                             menu.MenuItems.Add(newFile);
                             menu.MenuItems.Add(delete);
-
                         }
                         else
+                        {
                             menu.MenuItems.Add(overrideFolder);
+                        }
                     }
                     else
                     {
@@ -258,11 +243,7 @@ namespace CK3ScriptEditor
                     overrideFile.Click += OverrideFileOnClick;
                     overrideFolder.Click += OverrideFolderOnClick;
                     menu.Show(projectTree, new Point(e.X, e.Y));
-
                 }
-
-
-
             }
         }
 
@@ -281,20 +262,17 @@ namespace CK3ScriptEditor
         {
             var dirs = folder.GetDirectories();
 
-            foreach (var dir in dirs)
-            {
-                OverrideFolder(dir);
-            }
+            foreach (var dir in dirs) OverrideFolder(dir);
 
             var files = folder.GetFiles();
 
             for (var index = 0; index < files.Length; index++)
             {
                 var file = files[index];
-            
-                 CreateFile(file);
+
+                CreateFile(file);
             }
-       }
+        }
 
         private void OverrideFileOnClick(object sender, EventArgs e)
         {
@@ -309,37 +287,29 @@ namespace CK3ScriptEditor
         private void CreateFile(RefFilename filename)
         {
             filename = filename.ToMod();
-            string dir = filename.ToFullDirectoryOfFile();
+            var dir = filename.ToFullDirectoryOfFile();
 
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
-       
+
             if (!filename.Exists)
             {
-             
-                using (FileStream fs = new FileStream(filename.ToFullWindowsFilename(), FileMode.Create))
+                using (var fs = new FileStream(filename.ToFullWindowsFilename(), FileMode.Create))
                 {
-                    using (System.IO.TextWriter writeFile = new StreamWriter(fs, Encoding.UTF8))
+                    using (TextWriter writeFile = new StreamWriter(fs, Encoding.UTF8))
                     {
-
                     }
                 }
 
-                 if (!Core.Instance.BaseCK3Library.HasFile(filename.ToBase()))
-                     return;
+                if (!Core.Instance.BaseCK3Library.HasFile(filename.ToBase()))
+                    return;
 
                 Core.Instance.ModCK3Library.AddFile(filename);
                 Core.Instance.LoadCK3File(filename, false, true);
 
                 var f = Core.Instance.BaseCK3Library.GetFile(filename);
 
-                foreach (var mapValue in f.Map.Values)
-                {
-                    mapValue.Overridden = true;
-                }
+                foreach (var mapValue in f.Map.Values) mapValue.Overridden = true;
             }
         }
 
@@ -347,24 +317,24 @@ namespace CK3ScriptEditor
         {
             var menuItem = sender as MenuItem;
 
-            string tag = menuItem.Tag.ToString();
+            var tag = menuItem.Tag.ToString();
         }
 
         private void NewFolder_Click(object sender, EventArgs e)
         {
             var menuItem = sender as MenuItem;
 
-            RefFilename tag = menuItem.Tag as RefFilename;
-         
-            NewFileFolder f = new NewFileFolder();
+            var tag = menuItem.Tag as RefFilename;
+
+            var f = new NewFileFolder();
 
             f.Dir = tag;
             f.Text = "Create new folder...";
             if (f.ShowDialog(CK3ScriptEd.Instance) == DialogResult.OK)
             {
-                string t = f.NewText.Text;
+                var t = f.NewText.Text;
 
-                RefFilename dir = tag.SubDir(t);
+                var dir = tag.SubDir(t);
                 dir = dir.ToMod();
 
                 if (!dir.Exists)
@@ -377,37 +347,35 @@ namespace CK3ScriptEditor
         {
             var menuItem = sender as MenuItem;
 
-            RefFilename tag = menuItem.Tag as RefFilename;
+            var tag = menuItem.Tag as RefFilename;
 
-            NewFileFolder f = new NewFileFolder();
+            var f = new NewFileFolder();
 
             f.Dir = tag;
             f.Text = "Create new file...";
 
             if (f.ShowDialog(CK3ScriptEd.Instance) == DialogResult.OK)
             {
-                string t = f.NewText.Text;
+                var t = f.NewText.Text;
 
-                string file = t;
+                var file = t;
                 if (!file.EndsWith(".txt"))
                     file = file + ".txt";
 
-                RefFilename fileRef = tag.AsFileInDirectory(file);
+                var fileRef = tag.AsFileInDirectory(file);
 
                 fileRef = fileRef.ToMod();
                 if (!fileRef.Exists)
                 {
                     if (Core.Instance.ModCK3Library.AddFile(fileRef))
                     {
-                        
-                        using (FileStream fs = new FileStream(fileRef.ToFullWindowsFilename(), FileMode.Create))
+                        using (var fs = new FileStream(fileRef.ToFullWindowsFilename(), FileMode.Create))
                         {
-                            using (System.IO.TextWriter writeFile = new StreamWriter(fs, Encoding.UTF8))
+                            using (TextWriter writeFile = new StreamWriter(fs, Encoding.UTF8))
                             {
-
                             }
                         }
-                       
+
                         Core.Instance.LoadCK3File(fileRef, false, true);
 
 
@@ -415,21 +383,15 @@ namespace CK3ScriptEditor
                         {
                             var ff = Core.Instance.BaseCK3Library.GetFile(fileRef);
 
-                            foreach (var mapValue in ff.Map.Values)
-                            {
-                                mapValue.Overridden = true;
-                            }
-
+                            foreach (var mapValue in ff.Map.Values) mapValue.Overridden = true;
                         }
 
                         CK3ScriptEd.Instance.UpdateAllWindows();
                     }
-
                 }
                 else
                 {
                     AddToPath = null;
-
                 }
             }
         }

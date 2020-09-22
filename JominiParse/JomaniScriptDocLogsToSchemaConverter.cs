@@ -22,8 +22,9 @@ namespace JominiParse
 
             public List<string> Usage = new List<string>();
             public List<string> SupportedScopes = new List<string>();
-            public List<string> TargetScopes = new List<string>();
+            public readonly List<string> TargetScopes = new List<string>();
         }
+
         public class Modifier
         {
             public string Name { get; set; }

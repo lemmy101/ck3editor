@@ -1,21 +1,20 @@
-﻿using System;
+﻿#region
+
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkUI.Controls;
 using DarkUI.Docking;
 using JominiParse;
+
+#endregion
 
 namespace CK3ScriptEditor
 {
     public partial class ObjectDetailsExplorer : DarkToolWindow
     {
         private ScriptObject obj;
+        private readonly List<ScriptObject> visited = new List<ScriptObject>();
 
         public ObjectDetailsExplorer()
         {
@@ -27,12 +26,13 @@ namespace CK3ScriptEditor
         public void SetObject(ScriptObject o)
         {
             var oldo = obj;
-            if(o != null)
+            if (o != null)
                 obj = o.Topmost;
 
-            if(o != oldo || o == null)
+            if (o != oldo || o == null)
                 Fill();
         }
+
         private void Fill()
         {
             referencedByList.Items.Clear();
@@ -41,36 +41,28 @@ namespace CK3ScriptEditor
 
             if (obj == null)
                 return;
-            string str = obj.Topmost.Name;
+            var str = obj.Topmost.Name;
 
             if (str.Contains(" "))
                 str = str.Split(' ')[1];
 
             var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(str);
 
-            foreach (var eventConnection in ConnectionsIn)
-            {
-                AddIncoming(eventConnection.From, eventConnection);
-            }
-            
+            foreach (var eventConnection in ConnectionsIn) AddIncoming(eventConnection.From, eventConnection);
+
             var Connections = ReferenceManager.Instance.GetConnectionsFrom(str).Distinct().ToList();
 
-            foreach (var eventConnection in Connections)
-            {
-                AddOutgoing(eventConnection.ToTag, eventConnection);
-            }
+            foreach (var eventConnection in Connections) AddOutgoing(eventConnection.ToTag, eventConnection);
             scopesList.SuspendEvents(true);
 
-            foreach (var objScriptScope in obj.scriptScopes.OrderBy(a=>a.Value.Name))
-            {
+            foreach (var objScriptScope in obj.scriptScopes.OrderBy(a => a.Value.Name))
                 // add local script scopes...
                 AddScriptScope(objScriptScope.Value, "local");
-            }
 
             if (ConnectionsIn.Count > 0)
             {
-                HashSet<ScriptObject.ScriptScope> Scopes = new HashSet<ScriptObject.ScriptScope>();
-                HashSet<ScriptObject.ScriptScope> scopesThis = new HashSet<ScriptObject.ScriptScope>();
+                var Scopes = new HashSet<ScriptObject.ScriptScope>();
+                var scopesThis = new HashSet<ScriptObject.ScriptScope>();
                 scopesThis.Clear();
                 // get first reference list...
                 visited.Clear();
@@ -87,16 +79,11 @@ namespace CK3ScriptEditor
 
                     // remove any that don't appear in every reference...
                     Scopes.RemoveWhere(a => !scopesThis.Any(b => b.Name == a.Name));
-
                 }
 
-                foreach (var scope in Scopes.OrderBy(a => a.Name))
-                {
-                    AddScriptScope(scope, "inherited");
-
-                }
+                foreach (var scope in Scopes.OrderBy(a => a.Name)) AddScriptScope(scope, "inherited");
             }
-         
+
 
             scopesList.SuspendEvents(false);
 
@@ -106,30 +93,30 @@ namespace CK3ScriptEditor
             foreach (var darkListItem in l)
                 scopesList.Items.Add(darkListItem);
         }
-        List<ScriptObject> visited = new List<ScriptObject>();
-        private void GetScriptScopesFromReferences(ScriptObject eventConnectionFrom, HashSet<ScriptObject.ScriptScope> scopes)
+
+        private void GetScriptScopesFromReferences(ScriptObject eventConnectionFrom,
+            HashSet<ScriptObject.ScriptScope> scopes)
         {
             if (visited.Contains(eventConnectionFrom))
                 return;
 
-    
+
             foreach (var keyValuePair in eventConnectionFrom.scriptScopes)
-            {
                 if (!keyValuePair.Value.Temporary)
                     scopes.Add(keyValuePair.Value);
-            }
 
 
-            var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(eventConnectionFrom.Name).Distinct().ToList();
+            var ConnectionsIn = ReferenceManager.Instance.GetConnectionsTo(eventConnectionFrom.Name).Distinct()
+                .ToList();
             visited.Add(eventConnectionFrom);
 
             if (ConnectionsIn.Count > 0)
             {
-                HashSet<ScriptObject.ScriptScope> Scopes = new HashSet<ScriptObject.ScriptScope>();
-                HashSet<ScriptObject.ScriptScope> scopesThis = new HashSet<ScriptObject.ScriptScope>();
+                var Scopes = new HashSet<ScriptObject.ScriptScope>();
+                var scopesThis = new HashSet<ScriptObject.ScriptScope>();
                 scopesThis.Clear();
                 // get first reference list...
-               
+
                 GetScriptScopesFromReferences(ConnectionsIn[0].From, scopesThis);
                 Scopes.UnionWith(scopesThis);
 
@@ -141,21 +128,19 @@ namespace CK3ScriptEditor
                     GetScriptScopesFromReferences(eventConnection.From, scopesThis);
 
                     // remove any that don't appear in every reference...
-                    if(scopesThis.Count > 0)
+                    if (scopesThis.Count > 0)
                         Scopes.RemoveWhere(a => !scopesThis.Any(b => b.Name == a.Name));
-
                 }
 
                 scopes.UnionWith(Scopes);
             }
-      
         }
 
         private void AddScriptScope(ScriptObject.ScriptScope objScriptScope, string type)
         {
-            string name = objScriptScope.Name;
-            int col2 = (int) (scopesList.Width / 2.7f);
-            int col3 = (int) (col2 * 1.6f);
+            var name = objScriptScope.Name;
+            var col2 = (int) (scopesList.Width / 2.7f);
+            var col3 = (int) (col2 * 1.6f);
             col2 /= 6;
             col3 /= 6;
 
@@ -167,7 +152,7 @@ namespace CK3ScriptEditor
             while (name.Length < col3)
                 name += " ";
 
-            name += (objScriptScope.Temporary ? "temp " : "");
+            name += objScriptScope.Temporary ? "temp " : "";
 
             name += type + " " + (objScriptScope.IsValue ? "scope value" : "scope");
             if (scopesList.Items.Any(a => a.Text == name))
@@ -180,7 +165,7 @@ namespace CK3ScriptEditor
 
         private void AddOutgoing(string eventConnectionTo, ReferenceManager.EventConnection c)
         {
-            string str = eventConnectionTo;
+            var str = eventConnectionTo;
 
             if (str.Contains(" "))
                 str = str.Split(' ')[1];
@@ -192,7 +177,7 @@ namespace CK3ScriptEditor
 
         private void AddIncoming(ScriptObject eventConnectionFrom, ReferenceManager.EventConnection c)
         {
-            string str = eventConnectionFrom.Name;
+            var str = eventConnectionFrom.Name;
 
             if (str.Contains(" "))
                 str = str.Split(' ')[1];
@@ -206,7 +191,8 @@ namespace CK3ScriptEditor
         {
             if (referencesList.SelectedIndices.Count > 0)
             {
-                var item = referencesList.Items[referencesList.SelectedIndices[0]].Tag as ReferenceManager.EventConnection;
+                var item =
+                    referencesList.Items[referencesList.SelectedIndices[0]].Tag as ReferenceManager.EventConnection;
                 var i = Core.Instance.Get(item.ToTag);
                 CK3ScriptEd.Instance.Goto(i.Filename, i.LineStart - 1, false);
             }
@@ -216,10 +202,10 @@ namespace CK3ScriptEditor
         {
             if (referencedByList.SelectedIndices.Count > 0)
             {
-                var item = referencedByList.Items[referencedByList.SelectedIndices[0]].Tag as ReferenceManager.EventConnection;
-                CK3ScriptEd.Instance.Goto(item.FromCommand.Filename, item.FromCommand.LineStart-1, false);
+                var item =
+                    referencedByList.Items[referencedByList.SelectedIndices[0]].Tag as ReferenceManager.EventConnection;
+                CK3ScriptEd.Instance.Goto(item.FromCommand.Filename, item.FromCommand.LineStart - 1, false);
             }
-
         }
 
         private void scopesList_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -227,11 +213,9 @@ namespace CK3ScriptEditor
             if (scopesList.SelectedIndices.Count > 0)
             {
                 var item = scopesList.Items[scopesList.SelectedIndices[0]].Tag as ScriptObject.ScriptScope;
-                if(item.Declared != null)
+                if (item.Declared != null)
                     CK3ScriptEd.Instance.Goto(item.Declared.Filename, item.Declared.LineStart - 1, false);
-                
             }
-
         }
     }
 }

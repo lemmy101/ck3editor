@@ -1,38 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+﻿#region
+
+using System;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkUI.Controls;
 using DarkUI.Forms;
 using JominiParse;
 
+#endregion
+
 namespace CK3ScriptEditor
 {
     public partial class NewScriptObjectDialog : DarkForm
     {
+        internal string ChosenFilename;
+
         public NewScriptObjectDialog()
         {
             InitializeComponent();
         }
 
-        internal String ChosenFilename;
 
+        public ScriptContext Context { get; set; }
         public void Init(ScriptContext context)
         {
             OK.Enabled = false;
-            this.Context = context;
-  
-            string dirFromContext = Core.Instance.GetBaseDirectoryFromContext(context).ToRelativeFilename();
+            Context = context;
 
-            DarkTreeNode root = new DarkTreeNode(context.ToString());
-      
-            List<RefFilename> str = Core.Instance.ModCK3Library.GetDirectoryListFromContext(context, null);
+            var dirFromContext = Core.Instance.GetBaseDirectoryFromContext(context).ToRelativeFilename();
+
+            var root = new DarkTreeNode(context.ToString());
+
+            var str = Core.Instance.ModCK3Library.GetDirectoryListFromContext(context, null);
             for (var index = 0; index < str.Count; index++)
             {
                 var item = root;
@@ -45,32 +45,24 @@ namespace CK3ScriptEditor
 
                 foreach (var part in parts)
                 {
-                    DarkTreeNode next = new DarkTreeNode(part);
+                    var next = new DarkTreeNode(part);
                     var f = item.Nodes.Where(a => a.Text == part);
                     if (f.Any())
-                    {
                         next = f.First();
-                    }
                     else
-                    {
                         item.Nodes.Add(next);
-
-                    }
                     item = next;
                     item.Expanded = true;
-                    if(part.Contains(".txt"))
+                    if (part.Contains(".txt"))
                         item.Tag = file;
                 }
             }
 
-            if(root.Nodes.Count > 0)
+            if (root.Nodes.Count > 0)
                 existingFileView.Nodes.Add(root);
-            
+
             root.Expanded = true;
         }
-
-    
-        public ScriptContext Context { get; set; }
 
         private void newFileRadio_CheckedChanged(object sender, EventArgs e)
         {
@@ -84,35 +76,34 @@ namespace CK3ScriptEditor
 
         private void filenameButton_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+            var saveFileDialog1 = new SaveFileDialog();
 
             saveFileDialog1.Filter = "txt files (*.txt)|*.txt";
             saveFileDialog1.FilterIndex = 1;
-            saveFileDialog1.InitialDirectory = Core.Instance.GetModDirectoryFromContext(Context).ToFullWindowsFilename();
+            saveFileDialog1.InitialDirectory =
+                Core.Instance.GetModDirectoryFromContext(Context).ToFullWindowsFilename();
 
-            string dir = Core.Instance.GetModDirectoryFromContext(Context).ToFullWindowsFilename();
+            var dir = Core.Instance.GetModDirectoryFromContext(Context).ToFullWindowsFilename();
 
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
-            bool done = false;
+            var done = false;
 
             while (!done)
-            {
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    if (!saveFileDialog1.FileName.Replace("\\", "/").Contains(Core.Instance.GetModDirectoryFromContext(Context).ToRelativeFilename()))
+                    if (!saveFileDialog1.FileName.Replace("\\", "/")
+                        .Contains(Core.Instance.GetModDirectoryFromContext(Context).ToRelativeFilename()))
                     {
-                        MessageBox.Show("Error: File must be in " + Core.Instance.GetModDirectoryFromContext(Context).ToRelativeFilename() +
+                        MessageBox.Show("Error: File must be in " +
+                                        Core.Instance.GetModDirectoryFromContext(Context).ToRelativeFilename() +
                                         " directory", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     else
                     {
                         done = true;
-                        string f = saveFileDialog1.FileName.Replace("\\", "/");
-                        string r = Core.Instance.GetModDirectoryFromContext(Context).ToFullFilename();
+                        var f = saveFileDialog1.FileName.Replace("\\", "/");
+                        var r = Core.Instance.GetModDirectoryFromContext(Context).ToFullFilename();
 
                         chosenFilename.Text = saveFileDialog1.FileName = f.Replace(r, "");
                         newFileRadio.Checked = true;
@@ -124,35 +115,25 @@ namespace CK3ScriptEditor
                 {
                     done = true;
                 }
-            }
-
-            
         }
 
         private void OK_Click(object sender, EventArgs e)
         {
             // do the clone!!!
-
-
-       
-            
         }
 
         private void Cancel_Click(object sender, EventArgs e)
         {
-
         }
 
         private void existingFileView_SelectedNodesChanged(object sender, EventArgs e)
         {
-
             if (existingFileView.SelectedNodes.Count > 0 && existingFileView.SelectedNodes[0].Tag != null)
             {
                 ChosenFilename = (existingFileView.SelectedNodes[0].Tag as RefFilename).ToRelativeFilename();
                 cloneToExisting.Checked = true;
                 OK.Enabled = true;
             }
-            
         }
     }
 }

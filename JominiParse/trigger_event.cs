@@ -8,6 +8,5 @@
         public string days_to { get; set; }
         public ScriptObject Topmost { get; set; }
         public ScriptObject Function { get; set; }
-
     }
 }

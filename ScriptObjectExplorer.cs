@@ -336,19 +336,11 @@ namespace CK3ScriptEditor
                             newObject.Tag = selectedO;
                             menu.MenuItems.Add(newObject);
                         }
-                        
-
-                        /*
-                    
-                         *
-                         */
-
                     }
 
                     if (menu.MenuItems.Count > 0)
                     {
                         menu.Show(tree, new Point(e.X, e.Y));
-
                     }
                 }
 

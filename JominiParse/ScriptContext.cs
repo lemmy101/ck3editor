@@ -73,12 +73,12 @@
         GeographicRegion,
         LawGroup,
         VassalContractObligation,
-        Max,
+        Max
     }
 
     public enum ScriptGroupContext
     {
         TraitGroups,
-        Max,
+        Max
     }
 }

@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿#region
+
+using System;
 using System.Windows.Forms;
 using DarkUI.Controls;
 using DarkUI.Forms;
+
+#endregion
 
 namespace CK3ScriptEditor
 {
@@ -23,27 +20,22 @@ namespace CK3ScriptEditor
 
         public void Fill()
         {
-            this.openFileList.Items.Clear();
+            openFileList.Items.Clear();
             foreach (var instanceOpenScriptWindow in CK3ScriptEd.Instance.OpenScriptWindows)
             {
-
                 var s = instanceOpenScriptWindow.Filename;
 
-                string ss = s.ToRelativeFilename().Substring(s.ToRelativeFilename().LastIndexOf("/") + 1);
+                var ss = s.ToRelativeFilename().Substring(s.ToRelativeFilename().LastIndexOf("/") + 1);
 
-                int col = 50;
+                var col = 50;
 
                 while (ss.Length < col)
                     ss += " ";
 
                 if (instanceOpenScriptWindow.ScriptFile.IsBase)
-                {
                     ss += "Base: ";
-                }
                 else
-                {
                     ss += "Mod:  ";
-                }
 
                 ss += s.ToRelativeFilename().Substring(0, s.ToRelativeFilename().LastIndexOf("/"));
 
@@ -51,7 +43,8 @@ namespace CK3ScriptEditor
                 i.Tag = instanceOpenScriptWindow;
                 openFileList.Items.Add(i);
             }
-            this.openFileList.SelectItem(1);
+
+            openFileList.SelectItem(1);
         }
 
         private void openFileList_KeyUp(object sender, KeyEventArgs e)
@@ -71,23 +64,20 @@ namespace CK3ScriptEditor
             {
                 if (e.Shift)
                 {
-                    int sel = this.openFileList.SelectedIndices[0] - 1;
+                    var sel = openFileList.SelectedIndices[0] - 1;
                     if (sel < 0)
-                        sel = openFileList.Items.Count-1;
-                    this.openFileList.SelectItem(sel);
+                        sel = openFileList.Items.Count - 1;
+                    openFileList.SelectItem(sel);
                     openFileList.EnsureVisible();
-
                 }
                 else
                 {
-                    int sel = this.openFileList.SelectedIndices[0] + 1;
+                    var sel = openFileList.SelectedIndices[0] + 1;
                     if (sel >= openFileList.Items.Count)
                         sel = 0;
-                    this.openFileList.SelectItem(sel);
+                    openFileList.SelectItem(sel);
                     openFileList.EnsureVisible();
-
                 }
-
             }
         }
 
