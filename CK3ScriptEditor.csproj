@@ -131,6 +131,7 @@
     <Compile Include="ObjectDetailsExplorer.Designer.cs">
       <DependentUpon>ObjectDetailsExplorer.cs</DependentUpon>
     </Compile>
+    <Compile Include="OpenDocuments.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectExplorer.cs">
       <SubType>UserControl</SubType>

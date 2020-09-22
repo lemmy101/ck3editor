@@ -274,7 +274,7 @@ namespace CK3ScriptEditor
             // intellisense...
 
             if (e.KeyCode == Keys.Tab && e.Control)
-                if (CK3ScriptEd.Instance.OpenScriptWindows.Count > 1)
+                if (CK3ScriptEd.Instance.OpenDocuments.NumDocumentsOpen() > 1)
                 {
                     DoCloseIntellisense();
 
@@ -779,8 +779,7 @@ namespace CK3ScriptEditor
                         SyntaxHighlightingManager.Instance.DoDocument(Editor.Document, backgroundColor, ScriptFile);
                 }
             }
-            //  Filename = filename.Substring(filename.LastIndexOf("game/") + 5);
-
+      
             IgnoredFirstDirty = false;
             return Editor;
         }
@@ -802,8 +801,7 @@ namespace CK3ScriptEditor
 
             CK3EditorPreferencesManager.Instance.Save();
 
-            CK3ScriptEd.Instance.OpenScriptWindows.Remove(this);
-            CK3ScriptEd.Instance.OpenScriptWindows.Insert(0, this);
+            CK3ScriptEd.Instance.OpenDocuments.MoveToStartOfDocumentList(this);
         }
 
         private void textEditorControl1_Click(object sender, EventArgs e)

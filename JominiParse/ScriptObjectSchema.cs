@@ -605,8 +605,8 @@ namespace JominiParse
             success = false;
             if (name == "scope")
             {
-                var results = new List<ScriptObject.ScriptScope>();
-                obj.Topmost.GetValidScriptScopesInit(results, true, ScriptObject.ScopeFindType.Any);
+                var results = new List<ScriptScope>();
+                obj.Topmost.GetValidScriptScopesInit(results, true, ScopeFindType.Any);
                 foreach (var objScriptScope in results)
                     if (objScriptScope.Name == data)
                     {

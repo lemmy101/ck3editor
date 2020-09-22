@@ -656,8 +656,8 @@ namespace JominiParse
 
                 else if (type == "scope")
                 {
-                    List<ScriptObject.ScriptScope> results = new List<ScriptObject.ScriptScope>();
-                    scriptObject.Topmost.GetValidScriptScopesInit(results, true, ScriptObject.ScopeFindType.Any);
+                    List<ScriptScope> results = new List<ScriptScope>();
+                    scriptObject.Topmost.GetValidScriptScopesInit(results, true, ScopeFindType.Any);
                     foreach (var topmostScriptScope in results)
                     {
                         // its a scope!

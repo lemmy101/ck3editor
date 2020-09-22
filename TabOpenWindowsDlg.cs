@@ -21,28 +21,8 @@ namespace CK3ScriptEditor
         public void Fill()
         {
             openFileList.Items.Clear();
-            foreach (var instanceOpenScriptWindow in CK3ScriptEd.Instance.OpenScriptWindows)
-            {
-                var s = instanceOpenScriptWindow.Filename;
 
-                var ss = s.ToRelativeFilename().Substring(s.ToRelativeFilename().LastIndexOf("/") + 1);
-
-                var col = 50;
-
-                while (ss.Length < col)
-                    ss += " ";
-
-                if (instanceOpenScriptWindow.ScriptFile.IsBase)
-                    ss += "Base: ";
-                else
-                    ss += "Mod:  ";
-
-                ss += s.ToRelativeFilename().Substring(0, s.ToRelativeFilename().LastIndexOf("/"));
-
-                var i = new DarkListItem(ss);
-                i.Tag = instanceOpenScriptWindow;
-                openFileList.Items.Add(i);
-            }
+            CK3ScriptEd.Instance.OpenDocuments.CreateOpenTabWindowList(openFileList);
 
             openFileList.SelectItem(1);
         }

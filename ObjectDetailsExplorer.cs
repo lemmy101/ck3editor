@@ -61,8 +61,8 @@ namespace CK3ScriptEditor
 
             if (ConnectionsIn.Count > 0)
             {
-                var Scopes = new HashSet<ScriptObject.ScriptScope>();
-                var scopesThis = new HashSet<ScriptObject.ScriptScope>();
+                var Scopes = new HashSet<ScriptScope>();
+                var scopesThis = new HashSet<ScriptScope>();
                 scopesThis.Clear();
                 // get first reference list...
                 visited.Clear();
@@ -95,7 +95,7 @@ namespace CK3ScriptEditor
         }
 
         private void GetScriptScopesFromReferences(ScriptObject eventConnectionFrom,
-            HashSet<ScriptObject.ScriptScope> scopes)
+            HashSet<ScriptScope> scopes)
         {
             if (visited.Contains(eventConnectionFrom))
                 return;
@@ -112,8 +112,8 @@ namespace CK3ScriptEditor
 
             if (ConnectionsIn.Count > 0)
             {
-                var Scopes = new HashSet<ScriptObject.ScriptScope>();
-                var scopesThis = new HashSet<ScriptObject.ScriptScope>();
+                var Scopes = new HashSet<ScriptScope>();
+                var scopesThis = new HashSet<ScriptScope>();
                 scopesThis.Clear();
                 // get first reference list...
 
@@ -136,7 +136,7 @@ namespace CK3ScriptEditor
             }
         }
 
-        private void AddScriptScope(ScriptObject.ScriptScope objScriptScope, string type)
+        private void AddScriptScope(ScriptScope objScriptScope, string type)
         {
             var name = objScriptScope.Name;
             var col2 = (int) (scopesList.Width / 2.7f);
@@ -212,7 +212,7 @@ namespace CK3ScriptEditor
         {
             if (scopesList.SelectedIndices.Count > 0)
             {
-                var item = scopesList.Items[scopesList.SelectedIndices[0]].Tag as ScriptObject.ScriptScope;
+                var item = scopesList.Items[scopesList.SelectedIndices[0]].Tag as ScriptScope;
                 if (item.Declared != null)
                     CK3ScriptEd.Instance.Goto(item.Declared.Filename, item.Declared.LineStart - 1, false);
             }

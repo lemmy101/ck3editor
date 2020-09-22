@@ -484,7 +484,7 @@ namespace JominiParse
             return s;
         }
 
-        public HashSet<string> LocalVarListFromObjectFile(ScriptObject o, ScriptObject.ScopeVarType type)
+        public HashSet<string> LocalVarListFromObjectFile(ScriptObject o, ScopeVarType type)
         {
             var s = new HashSet<string>();
             var v = o.Topmost.ScriptFile.LocalVarNamelist(o.GetVarType());

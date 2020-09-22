@@ -15,6 +15,8 @@ namespace CK3ScriptEditor
 
         public void DoDocument(IDocument doc, Color backgroundColor, ScriptFile file)
         {
+            if (file == null)
+                return;
 
             foreach (var scriptObject in file.Map.Values)
             {

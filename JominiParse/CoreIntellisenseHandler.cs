@@ -14,7 +14,7 @@ namespace JominiParse
         private readonly List<ScriptObject> visited = new List<ScriptObject>();
 
         private void GetScriptScopesFromReferences(ScriptObject eventConnectionFrom,
-            HashSet<ScriptObject.ScriptScope> scopes)
+            HashSet<ScriptScope> scopes)
         {
             if (visited.Contains(eventConnectionFrom))
                 return;

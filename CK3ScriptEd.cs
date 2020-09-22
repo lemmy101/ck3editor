@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using DarkUI.Controls;
 using DarkUI.Docking;
 using DarkUI.Forms;
 using DarkUI.Win32;
@@ -21,25 +22,14 @@ namespace CK3ScriptEditor
         public static CK3ScriptEd Instance;
         private readonly List<DarkDockContent> _toolWindows = new List<DarkDockContent>();
 
-        private readonly Dictionary<RefFilename, TextEditorControl> baseTextEditors =
-            new Dictionary<RefFilename, TextEditorControl>();
-
         internal ObjectDetailsExplorer detailsExplorer;
         internal FileOverviewToolWindow fileOverview;
         private bool fileOverviewDirty;
 
         private ScriptWindow lastActive;
 
-        private readonly Dictionary<RefFilename, TextEditorControl> modTextEditors =
-            new Dictionary<RefFilename, TextEditorControl>();
+        public OpenDocuments OpenDocuments { get; set; }
 
-        private readonly Dictionary<RefFilename, ScriptWindow> openBaseScriptWindows =
-            new Dictionary<RefFilename, ScriptWindow>();
-
-        private readonly Dictionary<RefFilename, ScriptWindow> openModScriptWindows =
-            new Dictionary<RefFilename, ScriptWindow>();
-
-        public List<ScriptWindow> OpenScriptWindows = new List<ScriptWindow>();
         internal ProjectExplorer projectExplorer;
         internal SearchResultsWindow searchResults;
         internal SmartFindOptionWindow smartFind;
@@ -50,8 +40,11 @@ namespace CK3ScriptEditor
         public CK3ScriptEd()
         {
             Instance = this;
-
+            
             InitializeComponent();
+
+            OpenDocuments = new OpenDocuments(DockPanel);
+
             AutoSave.Interval = BackupManager.Instance.TickTimeMS;
             //  ScopeManager.Instance.LoadScopeDefinitions("ScopeDefs/scopes.xml");
             //  ScopeManager.Instance.LoadTriggerDefinitions("ScopeDefs/triggers.xml");
@@ -115,7 +108,6 @@ namespace CK3ScriptEditor
 
         public IHighlightingStrategy HighlightStrategy { get; set; }
 
-        public RefFilename CurrentFile { get; set; }
         public BasicFind Find { get; set; }
         public TabOpenWindowsDlg TabOpenDlg { get; set; }
 
@@ -141,19 +133,11 @@ namespace CK3ScriptEditor
 
         public void Load(string modName)
         {
-            for (var index = 0; index < OpenScriptWindows.Count; index++)
+            if (!OpenDocuments.CloseAllDocuments())
             {
-                var openScriptWindow = OpenScriptWindows[index];
-                if (!openScriptWindow.CheckSave())
-                    return;
+                return;
             }
-
-            for (var index = 0; index < OpenScriptWindows.Count; index++)
-            {
-                var openScriptWindow = OpenScriptWindows[index];
-                openScriptWindow.Close();
-            }
-
+          
             Core.Instance = new Core();
 
             UpdateAllWindows();
@@ -192,11 +176,8 @@ namespace CK3ScriptEditor
                 else
                 {
                     sw.RemoveEventHandlers();
-                    baseTextEditors.Remove(sw.Filename);
-                    modTextEditors.Remove(sw.Filename);
-                    openBaseScriptWindows.Remove(sw.Filename);
-                    openModScriptWindows.Remove(sw.Filename);
-                    OpenScriptWindows.Remove(e.Content as ScriptWindow);
+                    
+                    OpenDocuments.Remove(sw);
                     CK3EditorPreferencesManager.Instance.Save();
                 }
             }
@@ -216,8 +197,6 @@ namespace CK3ScriptEditor
         {
             var fromBase = Core.Instance.LoadCK3File(filename);
 
-            CurrentFile = filename;
-
             var scriptTextFile = GetTextEditor(filename);
 
             fileOverview.UpdateTree(filename, scriptTextFile.ActiveTextAreaControl.Caret.Line, fromBase);
@@ -225,58 +204,39 @@ namespace CK3ScriptEditor
 
         public TextEditorControl GetTextEditor(RefFilename filename)
         {
-            var fromBase = filename.IsBase;
+            
+            TextEditorControl control = OpenDocuments.GetTextEditor(filename);
+            
+            if(control == null)
+                control = AddTab(filename);
 
-            if (!filename.Exists)
-                fromBase = !fromBase;
-
-            var textEditors = fromBase ? baseTextEditors : modTextEditors;
-            var openScriptWindows = fromBase ? openBaseScriptWindows : openModScriptWindows;
-
-            if (textEditors.ContainsKey(filename))
-            {
-                DockPanel.ActiveContent = openScriptWindows[filename];
-
-                openScriptWindows[filename].GetInside();
-
-                CurrentFile = filename;
-                return textEditors[filename];
-            }
-
-            CurrentFile = filename;
-            AddTab(filename, fromBase);
-            //   fileOverview.UpdateTree(filename, textEditors[filename].ActiveTextAreaControl.Caret.Line);
-            return textEditors[filename];
+            return control;
         }
 
-        public void AddTab(RefFilename filename, bool fromBase)
+        public TextEditorControl AddTab(RefFilename filename)
         {
-            var textEditors = fromBase ? baseTextEditors : modTextEditors;
-            var openScriptWindows = fromBase ? openBaseScriptWindows : openModScriptWindows;
+           bool fromBase = filename.IsBase;
 
-            var window = new ScriptWindow(fromBase);
+           var window = OpenDocuments.AddTab(filename);
 
-            openScriptWindows[filename] = window;
-
-            var startDir =
-                fromBase
-                    ? Globals.CK3Path
-                    : Core.Instance.ModCK3Library.Path; //"D:/SteamLibrary/steamapps/common/Crusader Kings III/";
-            window.Filename = filename;
             AllowUpdateFile = false;
-            window.ScriptFile = Core.Instance.GetFile(filename, fromBase);
             window.IsBaseFile = fromBase;
-            textEditors[filename] = window.LoadFile(filename);
+            
             DockPanel.AddContent(window);
             DockPanel.ActiveContent = window;
             window.UpdateLocalizations();
             window.Name = window.Text = filename.ToRelativeFilename();
-            window.FullFilename = startDir + filename;
+            window.FullFilename = filename.ToFullFilename();
             AllowUpdateFile = true;
-            fileOverview.UpdateTree(filename, textEditors[filename].ActiveTextAreaControl.Caret.Line, fromBase);
-            if (!OpenScriptWindows.Contains(window))
-                OpenScriptWindows.Add(window);
+
+            fileOverview.UpdateTree(filename, window.Editor.ActiveTextAreaControl.Caret.Line, fromBase);
+
+            if (!OpenDocuments.Contains(window))
+                OpenDocuments.Add(window);
+
             CK3EditorPreferencesManager.Instance.Save();
+
+            return window.Editor;
         }
 
         private void windowToolStripMenuItem_Click(object sender, EventArgs e)
@@ -285,10 +245,7 @@ namespace CK3ScriptEditor
 
         public void CloseDocument(bool mod, RefFilename path)
         {
-            var textEditors = !mod ? baseTextEditors : modTextEditors;
-            var openScriptWindows = !mod ? openBaseScriptWindows : openModScriptWindows;
-
-            if (openScriptWindows.ContainsKey(path)) DockPanel.RemoveContent(openScriptWindows[path]);
+            OpenDocuments.CloseDocument(mod, path);
         }
 
         private void fixOverriddenFilesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -400,80 +357,23 @@ namespace CK3ScriptEditor
                     (DockPanel.ActiveContent as ScriptWindow).ScriptFile.IsBase);
         }
 
-        private void CloseAllModFileWindows()
-        {
-            foreach (var w in openModScriptWindows) DockPanel.RemoveContent(w.Value);
-        }
-
         private void AutoSave_Tick(object sender, EventArgs e)
         {
             BackupManager.Instance.UpdateTick();
         }
 
-        public List<RefFilename> GetOpenModWindowsFilenameList()
-        {
-            var files = new List<RefFilename>();
-
-            foreach (var openModScriptWindow in openModScriptWindows) files.Add(openModScriptWindow.Value.Filename);
-
-            return files;
-        }
-
         public int GetOpenWindowsFilenameListIndex()
         {
-            var files = new List<ScriptWindow>();
+            int index = OpenDocuments.GetOpenWindowsFilenameListIndex();
 
-            foreach (var openModScriptWindow in openModScriptWindows) files.Add(openModScriptWindow.Value);
-
-            foreach (var openModScriptWindow in openBaseScriptWindows) files.Add(openModScriptWindow.Value);
-
-            files = files.OrderBy(a => DockPanel.Controls[0].Controls[0].Controls.IndexOf(a)).ToList();
-
-            var results = new List<string>();
-
-            for (var index = 0; index < files.Count; index++)
-            {
-                var scriptWindow = files[index];
-                if (scriptWindow == DockPanel.ActiveContent)
-                    return index;
-            }
-
-            return -1;
+            return index;
         }
 
         public List<string> GetOpenWindowsFilenameList()
         {
-            var files = new List<ScriptWindow>();
-
-            foreach (var openModScriptWindow in openModScriptWindows) files.Add(openModScriptWindow.Value);
-
-            foreach (var openModScriptWindow in openBaseScriptWindows) files.Add(openModScriptWindow.Value);
-
-            files = files.OrderBy(a => DockPanel.Controls[0].Controls[0].Controls.IndexOf(a)).ToList();
-
-            var results = new List<string>();
-
-            foreach (var scriptWindow in files)
-            {
-                if (scriptWindow.Filename == null)
-                    return null;
-                if (scriptWindow.ScriptFile == null)
-                    return null;
-                results.Add(scriptWindow.ScriptFile.IsBase
-                    ? "base:" + scriptWindow.Filename
-                    : "mod:" + scriptWindow.Filename);
-            }
+            List<string> results = OpenDocuments.GetOpenWindowsFilenameList();
 
             return results;
-        }
-
-        public List<RefFilename> GetOpenBaseWindowsFilenameList()
-        {
-            var files = new List<RefFilename>();
-
-            foreach (var openModScriptWindow in openBaseScriptWindows) files.Add(openModScriptWindow.Value.Filename);
-
-            return files;
         }
 
         public void SetActiveEditor(TextEditorControl c)
@@ -508,12 +408,12 @@ namespace CK3ScriptEditor
 
         private void CK3ScriptEd_FormClosing(object sender, FormClosingEventArgs e)
         {
-            foreach (var openScriptWindow in OpenScriptWindows)
-                if (!openScriptWindow.CheckSave())
-                {
-                    e.Cancel = true;
-                    return;
-                }
+            if (!OpenDocuments.CheckSave())
+            {
+                e.Cancel = true;
+
+            }
+        
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -535,34 +435,16 @@ namespace CK3ScriptEditor
 
         private void closeAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            for (var index = 0; index < OpenScriptWindows.Count; index++)
-            {
-                var openScriptWindow = OpenScriptWindows[index];
-                openScriptWindow.Close();
-            }
 
-            for (var index = 0; index < OpenScriptWindows.Count; index++)
-            {
-                var openScriptWindow = OpenScriptWindows[index];
-                openScriptWindow.Close();
-            }
+            OpenDocuments.CloseAllDocuments();
 
-            for (var index = 0; index < OpenScriptWindows.Count; index++)
-            {
-                var openScriptWindow = OpenScriptWindows[index];
-                openScriptWindow.Close();
-            }
-
-            for (var index = 0; index < OpenScriptWindows.Count; index++)
-            {
-                var openScriptWindow = OpenScriptWindows[index];
-                openScriptWindow.Close();
-            }
         }
 
         private void saveAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (var openScriptWindow in OpenScriptWindows) openScriptWindow.Save();
+            OpenDocuments.SaveAll();
+            
         }
+
     }
 }
