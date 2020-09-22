@@ -1,51 +1,55 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkUI.Config;
 using DarkUI.Controls;
 using DarkUI.Docking;
 using JominiParse;
 
+#endregion
+
 namespace CK3ScriptEditor
 {
     public partial class ScriptObjectExplorer : DarkToolWindow
     {
+        private readonly ContextMenu menu = new ContextMenu();
+
+        private readonly Dictionary<string, NamespaceItems> namespaces = new Dictionary<string, NamespaceItems>();
+
         public ScriptObjectExplorer()
         {
             DockArea = DarkDockArea.Left;
             InitializeComponent();
         }
+
         public string AddToPath { get; set; }
 
-        string CurrentSelectedPath
+        private string CurrentSelectedPath
         {
             get
             {
-
                 if (tree.SelectedNodes.Count > 0)
                 {
                     var sel = tree.SelectedNodes[0];
 
-                    string path = "";
+                    var path = "";
 
                     while (sel != null)
                     {
                         path = sel.Text + ">" + path;
                         sel = sel.ParentNode;
-
                     }
+
                     if (AddToPath != null)
                         return path + ">" + AddToPath;
 
                     return path;
-
                 }
 
                 return "";
@@ -54,23 +58,19 @@ namespace CK3ScriptEditor
 
         private void SelectPath(string path)
         {
-            string[] p = path.Split('>');
+            var p = path.Split('>');
 
             var nodes = tree.Nodes;
 
             foreach (var s in p)
-            {
-                foreach (var node in nodes)
+            foreach (var node in nodes)
+                if (node.Text == s)
                 {
-                    if (node.Text == s)
-                    {
-                        node.Expanded = true;
-                        tree.SelectNode(node);
-                        nodes = node.Nodes;
-                        break;
-                    }
+                    node.Expanded = true;
+                    tree.SelectNode(node);
+                    nodes = node.Nodes;
+                    break;
                 }
-            }
         }
 
         public void UpdateScriptExplorer()
@@ -78,87 +78,137 @@ namespace CK3ScriptEditor
             if (Core.Instance.ModCK3Library == null)
                 return;
 
-            string path = CurrentSelectedPath;
+            var path = CurrentSelectedPath;
             namespaces.Clear();
             tree.Nodes.Clear();
 
             tree.SuspendLayout();
             tree.SuspendNodeEvents();
 
-            List<KeyValuePair<ScriptContext, ScriptLibrary.ContextInfo>> c = Core.Instance.BaseCK3Library.ContextData.ToList().OrderBy(a => a.Key.ToString()).ToList();
+            var c = Core.Instance.BaseCK3Library.ContextData.ToList().OrderBy(a => a.Key.ToString()).ToList();
 
-            Dictionary<string, DarkTreeNode> parents = new Dictionary<string, DarkTreeNode>();
+            var parents = new Dictionary<string, DarkTreeNode>();
             foreach (var keyValuePair in c)
             {
-                DarkTreeNode activities = new DarkTreeNode(keyValuePair.Key.ToString());
+                var activities = new DarkTreeNode(keyValuePair.Key.ToString());
 
                 var parent = tree.Nodes;
 
                 if (keyValuePair.Value.Category != null)
                 {
                     if (parents.ContainsKey(keyValuePair.Value.Category))
+                    {
                         parent = parents[keyValuePair.Value.Category].Nodes;
+                    }
                     else
                     {
-                        DarkTreeNode category = new DarkTreeNode(keyValuePair.Value.Category.ToString());
+                        var category = new DarkTreeNode(keyValuePair.Value.Category);
                         parents[keyValuePair.Value.Category] = category;
-                        
+
                         tree.Nodes.Add(category);
                         parent = parents[keyValuePair.Value.Category].Nodes;
                     }
                 }
-               
 
-                {
-                    activities.Tag = keyValuePair.Key;
-                }
+                activities.Tag = keyValuePair.Key;
+
                 parent.Add(activities);
 
-                var ordered = (parent).ToList().OrderBy(a => a.Text);
+                var ordered = parent.ToList().OrderBy(a => a.Text);
 
                 parent.Clear();
 
                 parent.AddRange(ordered);
-                
+
                 FillBranch(activities, keyValuePair.Key);
+
+                if (!showEmpty.Checked || findTextBox.Text.Trim().Length != 0) 
+                    RemoveBlank(activities);
             }
 
-            {
+            var orderedRoot = tree.Nodes.ToList().OrderBy(a => a.Text);
 
-                var ordered = (tree.Nodes).ToList().OrderBy(a => a.Text);
+            tree.Nodes.Clear();
 
-                tree.Nodes.Clear();
+            tree.Nodes.AddRange(orderedRoot);
 
-                tree.Nodes.AddRange(ordered);
-
-            }
+            RemoveBlankFinalCleanup();
 
             tree.ResumeNodeEvents();
             tree.ResumeLayout(true);
             SelectPath(path);
         }
 
-        class NamespaceItems
+        private void RemoveBlankFinalCleanup()
         {
-            public List<ScriptObject> objList = new List<ScriptObject>();
+            for (var index = 0; index < tree.Nodes.Count; index++)
+            {
+                var darkTreeNode = tree.Nodes[index];
+
+                for (var i = 0; i < darkTreeNode.Nodes.Count; i++)
+                {
+                    var treeNode = darkTreeNode.Nodes[i];
+
+                    if (!(treeNode.Tag is ScriptObject))
+                        if (treeNode.Nodes.Count == 0)
+                        {
+                            darkTreeNode.Nodes.Remove(treeNode);
+                            i--;
+                        }
+                }
+
+                if (darkTreeNode.Nodes.Count == 0)
+                {
+                    tree.Nodes.Remove(darkTreeNode);
+                    index--;
+                }
+            }
         }
 
-        Dictionary<string, NamespaceItems> namespaces = new Dictionary<string,NamespaceItems>();
+        private void RemoveBlank(DarkTreeNode activities)
+        {
+            var darkTreeNode = activities;
+
+            for (var i = 0; i < darkTreeNode.Nodes.Count; i++)
+            {
+                var treeNode = darkTreeNode.Nodes[i];
+
+                for (var j = 0; j < treeNode.Nodes.Count; j++)
+                {
+                    var treeNode2 = treeNode.Nodes[j];
+                    if (!(treeNode2.Tag is ScriptObject))
+                        if (treeNode2.Nodes.Count == 0)
+                        {
+                            treeNode.Nodes.Remove(treeNode2);
+                            j--;
+                        }
+                }
+
+                if (!(treeNode.Tag is ScriptObject))
+                    if (treeNode.Nodes.Count == 0)
+                    {
+                        darkTreeNode.Nodes.Remove(treeNode);
+                        i--;
+                    }
+            }
+
+            if (darkTreeNode.Nodes.Count == 0) tree.Nodes.Remove(darkTreeNode);
+        }
 
         private void FillBranch(DarkTreeNode parent, ScriptContext context)
         {
             namespaces.Clear();
-            var names = Core.Instance.GetNameSet(context, this.showModOnly.CheckState != CheckState.Checked).OrderBy(a => a).ToList();
+            var names = Core.Instance.GetNameSet(context, showModOnly.CheckState != CheckState.Checked).OrderBy(a => a)
+                .ToList();
 
-            NamespaceItems defaultNamespace = new NamespaceItems();
+            var defaultNamespace = new NamespaceItems();
 
             foreach (var name in names)
             {
-                ScriptObject e = Core.Instance.Get(context, name);
-              
+                var e = Core.Instance.Get(context, name);
+
                 if (e != null)
                 {
- 
                     var namesp = defaultNamespace;
                     if (!string.IsNullOrEmpty(e.Namespace))
                     {
@@ -182,11 +232,14 @@ namespace CK3ScriptEditor
 
             foreach (var n in namelist)
             {
-                DarkTreeNode d = new DarkTreeNode(n);
+                var d = new DarkTreeNode(n);
                 parent.Nodes.Add(d);
                 foreach (var scriptObject in namespaces[n].objList)
                 {
-                    DarkTreeNode dob = new DarkTreeNode(scriptObject.Name);
+                    if (findTextBox.Text.Trim().Length != 0)
+                        if (!scriptObject.Name.ToLower().Contains(findTextBox.Text.Trim().ToLower()))
+                            continue;
+                    var dob = new DarkTreeNode(scriptObject.Name);
 
                     dob.Tag = scriptObject;
                     if (!scriptObject.ScriptFile.IsBase)
@@ -194,11 +247,7 @@ namespace CK3ScriptEditor
                         dob.TextColor = Color.LightBlue;
                         parent.TextColor = Color.LightBlue;
 
-                        if (parent.ParentNode != null)
-                        {
-                            parent.ParentNode.TextColor = Color.LightBlue;
-
-                        }
+                        if (parent.ParentNode != null) parent.ParentNode.TextColor = Color.LightBlue;
                         d.TextColor = Color.LightBlue;
                     }
                     else
@@ -211,11 +260,8 @@ namespace CK3ScriptEditor
                                 parent.TextColor = Color.LightCoral;
 
                                 if (parent.ParentNode != null)
-                                {
                                     if (parent.ParentNode.TextColor == Colors.LightText)
                                         parent.ParentNode.TextColor = Color.LightCoral;
-
-                                }
                             }
 
 
@@ -223,6 +269,7 @@ namespace CK3ScriptEditor
                                 d.TextColor = Color.LightCoral;
                         }
                     }
+
                     if (!scriptObject.Overridden || showOveridden.Checked)
                         d.Nodes.Add(dob);
                 }
@@ -231,7 +278,10 @@ namespace CK3ScriptEditor
 
             foreach (var scriptObject in defaultNamespace.objList)
             {
-                DarkTreeNode dob = new DarkTreeNode(scriptObject.Name);
+                if (findTextBox.Text.Trim().Length != 0)
+                    if (!scriptObject.Name.ToLower().Contains(findTextBox.Text.Trim().ToLower()))
+                        continue;
+                var dob = new DarkTreeNode(scriptObject.Name);
 
                 dob.Tag = scriptObject;
 
@@ -240,11 +290,7 @@ namespace CK3ScriptEditor
                     dob.TextColor = Color.LightBlue;
                     parent.TextColor = Color.LightBlue;
 
-                    if (parent.ParentNode != null)
-                    {
-                        parent.ParentNode.TextColor = Color.LightBlue;
-
-                    }
+                    if (parent.ParentNode != null) parent.ParentNode.TextColor = Color.LightBlue;
                 }
                 else
                 {
@@ -256,23 +302,17 @@ namespace CK3ScriptEditor
                             parent.TextColor = Color.LightCoral;
 
                             if (parent.ParentNode != null)
-                            {
                                 if (parent.ParentNode.TextColor == Colors.LightText)
                                     parent.ParentNode.TextColor = Color.LightCoral;
-
-                            }
                         }
-
-
-
                     }
                 }
+
                 if (!scriptObject.Overridden || showOveridden.Checked)
                     parent.Nodes.Add(dob);
             }
-
         }
-    
+
         private void showModOnly_CheckedChanged(object sender, EventArgs e)
         {
             UpdateScriptExplorer();
@@ -285,23 +325,20 @@ namespace CK3ScriptEditor
                 var sel = tree.SelectedNodes[0];
 
                 var tag = sel.Tag as ScriptObject;
-                if ((tag as ScriptObject) == null)
+                if (tag == null)
                     return;
 
-                CK3ScriptEd.Instance.Goto(tag.Filename, tag.LineStart - 1, (tag as ScriptObject).ScriptFile.IsBase);
-
+                CK3ScriptEd.Instance.Goto(tag.Filename, tag.LineStart - 1, tag.ScriptFile.IsBase);
             }
         }
-        
+
         private void showOveridden_CheckedChanged(object sender, EventArgs e)
         {
             UpdateScriptExplorer();
-
         }
-        ContextMenu menu = new ContextMenu();
+
         private void tree_MouseClick(object sender, MouseEventArgs e)
         {
-          
         }
 
         private void tree_MouseUp(object sender, MouseEventArgs e)
@@ -317,13 +354,12 @@ namespace CK3ScriptEditor
 
                     if (selectedO is ScriptContext)
                     {
-                        ScriptContext c = (ScriptContext)selectedO;
+                        var c = (ScriptContext) selectedO;
 
-                        MenuItem newObject = new MenuItem("&New " + c.ToString());
+                        var newObject = new MenuItem("&New " + c);
                         newObject.Click += NewObject_Click;
                         newObject.Tag = selectedO;
                         menu.MenuItems.Add(newObject);
-
                     }
                     else if (selectedO is ScriptObject)
                     {
@@ -331,19 +367,16 @@ namespace CK3ScriptEditor
 
                         if (so.Topmost.Filename.IsBase)
                         {
-                            MenuItem newObject = new MenuItem("&Clone " + (selectedO as ScriptObject).Name + " to " + Core.Instance.ModCK3Library.Name);
+                            var newObject = new MenuItem("&Clone " + (selectedO as ScriptObject).Name + " to " +
+                                                         Core.Instance.ModCK3Library.Name);
                             newObject.Click += CloneObject_OnClick;
                             newObject.Tag = selectedO;
                             menu.MenuItems.Add(newObject);
                         }
                     }
 
-                    if (menu.MenuItems.Count > 0)
-                    {
-                        menu.Show(tree, new Point(e.X, e.Y));
-                    }
+                    if (menu.MenuItems.Count > 0) menu.Show(tree, new Point(e.X, e.Y));
                 }
-
             }
         }
 
@@ -351,9 +384,9 @@ namespace CK3ScriptEditor
         {
             var menuItem = sender as MenuItem;
 
-             ScriptObject toClone = menuItem.Tag as ScriptObject;
+            var toClone = menuItem.Tag as ScriptObject;
 
-             if(toClone!=null)
+            if (toClone != null)
                 ScriptCloningManager.Instance.Clone(toClone);
         }
 
@@ -361,62 +394,58 @@ namespace CK3ScriptEditor
         {
             var menuItem = sender as MenuItem;
 
-            var context = (ScriptContext)menuItem.Tag;
+            var context = (ScriptContext) menuItem.Tag;
 
-            NewScriptObjectDialog dlg = new NewScriptObjectDialog();
+            var dlg = new NewScriptObjectDialog();
 
             dlg.Text = "Create new " + context + " script object.";
             dlg.Init(context);
             if (dlg.ShowDialog(CK3ScriptEd.Instance) == DialogResult.OK)
             {
+                var dir = Core.Instance.GetBaseDirectoryFromContext(dlg.Context);
 
-                RefFilename dir = Core.Instance.GetBaseDirectoryFromContext(dlg.Context);
-
-                RefFilename fullPath = dir.Append(dlg.ChosenFilename);
+                var fullPath = dir.Append(dlg.ChosenFilename);
                 fullPath.IsBase = false;
 
-                bool exists = fullPath.Exists;
-                string textToImplant = dlg.soName.Text + " = { \n\n\n}";
-                
+                var exists = fullPath.Exists;
+                var textToImplant = dlg.soName.Text + " = { \n\n\n}";
+
                 if (exists)
                 {
                     // need to insert it into the file....
-                    string text = System.IO.File.ReadAllText(fullPath.ToFullWindowsFilename());
+                    var text = File.ReadAllText(fullPath.ToFullWindowsFilename());
                     text = text.Replace("\r", "");
-                    var lines = text.Split(new char[] { '\n' }).ToList();
+                    var lines = text.Split('\n').ToList();
 
-                    var lines2 = textToImplant.Split(new char[] { '\n' }).ToList();
+                    var lines2 = textToImplant.Split('\n').ToList();
 
                     lines.AddRange(lines2);
 
 
-
-                    using (FileStream fs = new FileStream(fullPath.ToFullWindowsFilename(), FileMode.Create))
+                    using (var fs = new FileStream(fullPath.ToFullWindowsFilename(), FileMode.Create))
                     {
                         // create a new file....
-                        using (StreamWriter outputFile = new StreamWriter(fs, Encoding.UTF8))
+                        using (var outputFile = new StreamWriter(fs, Encoding.UTF8))
                         {
-
-                            foreach (string line in lines)
+                            foreach (var line in lines)
                                 outputFile.WriteLine(line);
                         }
                     }
                 }
                 else
                 {
-                    using (FileStream fs = new FileStream(fullPath.ToFullWindowsFilename(), FileMode.Create))
+                    using (var fs = new FileStream(fullPath.ToFullWindowsFilename(), FileMode.Create))
                     {
                         // create a new file....
-                        using (StreamWriter outputFile = new StreamWriter(fs, Encoding.UTF8))
+                        using (var outputFile = new StreamWriter(fs, Encoding.UTF8))
                         {
-                            var lines = textToImplant.Split(new char[] { '\n' }).ToList();
-                          
-                            foreach (string line in lines)
+                            var lines = textToImplant.Split('\n').ToList();
+
+                            foreach (var line in lines)
                                 outputFile.WriteLine(line);
                         }
                     }
                 }
-
 
 
                 Core.Instance.ModCK3Library.EnsureFile(fullPath, context);
@@ -424,12 +453,28 @@ namespace CK3ScriptEditor
                 CK3ScriptEd.Instance.projectExplorer.FillProjectView();
                 CK3ScriptEd.Instance.soExplorer.UpdateScriptExplorer();
                 CK3ScriptEd.Instance.CloseDocument(true, fullPath);
-                int newLine = Core.Instance.ModCK3Library.GetFile(fullPath).Map[dlg.soName.Text].LineStart - 1;
-                CK3ScriptEd.Instance.Goto(fullPath, newLine, false); CK3ScriptEd.Instance.Goto(fullPath, newLine, false);
+                var newLine = Core.Instance.ModCK3Library.GetFile(fullPath).Map[dlg.soName.Text].LineStart - 1;
+                CK3ScriptEd.Instance.Goto(fullPath, newLine, false);
+                CK3ScriptEd.Instance.Goto(fullPath, newLine, false);
 
 
                 CK3ScriptEd.Instance.UpdateAllWindows();
             }
+        }
+
+        private void showEmpty_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateScriptExplorer();
+        }
+
+        private void findTextBox_TextChanged(object sender, EventArgs e)
+        {
+            UpdateScriptExplorer();
+        }
+
+        private class NamespaceItems
+        {
+            public readonly List<ScriptObject> objList = new List<ScriptObject>();
         }
     }
 }
