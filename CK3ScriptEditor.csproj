@@ -50,177 +50,177 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="About.cs">
+    <Compile Include="Forms\About.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="About.Designer.cs">
+    <Compile Include="Forms\About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
     <Compile Include="BackupManager.cs" />
-    <Compile Include="BasicFind.cs">
+    <Compile Include="Forms\BasicFind.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="BasicFind.Designer.cs">
+    <Compile Include="Forms\BasicFind.Designer.cs">
       <DependentUpon>BasicFind.cs</DependentUpon>
     </Compile>
     <Compile Include="CK3EditorPreferencesManager.cs" />
-    <Compile Include="CK3ScriptEd.cs">
+    <Compile Include="Forms\CK3ScriptEd.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CK3ScriptEd.Designer.cs">
+    <Compile Include="Forms\CK3ScriptEd.Designer.cs">
       <DependentUpon>CK3ScriptEd.cs</DependentUpon>
     </Compile>
-    <Compile Include="LoadingDialog.cs">
+    <Compile Include="Forms\LoadingDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LoadingDialog.Designer.cs">
+    <Compile Include="Forms\LoadingDialog.Designer.cs">
       <DependentUpon>LoadingDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="LocalizationEditor.cs">
+    <Compile Include="Forms\LocalizationEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LocalizationEditor.Designer.cs">
+    <Compile Include="Forms\LocalizationEditor.Designer.cs">
       <DependentUpon>LocalizationEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="NewLocalizationFileObjectDialog.cs">
+    <Compile Include="Forms\NewLocalizationFileObjectDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NewLocalizationFileObjectDialog.Designer.cs">
+    <Compile Include="Forms\NewLocalizationFileObjectDialog.Designer.cs">
       <DependentUpon>NewLocalizationFileObjectDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="NewScriptObjectDialog.cs">
+    <Compile Include="Forms\NewScriptObjectDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NewScriptObjectDialog.Designer.cs">
+    <Compile Include="Forms\NewScriptObjectDialog.Designer.cs">
       <DependentUpon>NewScriptObjectDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="CloneToModDialog.cs">
+    <Compile Include="Forms\CloneToModDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CloneToModDialog.Designer.cs">
+    <Compile Include="Forms\CloneToModDialog.Designer.cs">
       <DependentUpon>CloneToModDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="DDSHelper.cs" />
-    <Compile Include="EventPreviewForm.cs">
+    <Compile Include="Forms\EventPreviewForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="EventPreviewForm.Designer.cs">
+    <Compile Include="Forms\EventPreviewForm.Designer.cs">
       <DependentUpon>EventPreviewForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="EventRepresentation.cs">
+    <Compile Include="Forms\EventRepresentation.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="EventRepresentation.Designer.cs">
+    <Compile Include="Forms\EventRepresentation.Designer.cs">
       <DependentUpon>EventRepresentation.cs</DependentUpon>
     </Compile>
-    <Compile Include="FileOverviewToolWindow.cs">
+    <Compile Include="Forms\FileOverviewToolWindow.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="FileOverviewToolWindow.Designer.cs">
+    <Compile Include="Forms\FileOverviewToolWindow.Designer.cs">
       <DependentUpon>FileOverviewToolWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="IntellisenseDlg.cs">
+    <Compile Include="Forms\IntellisenseDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="IntellisenseDlg.Designer.cs">
+    <Compile Include="Forms\IntellisenseDlg.Designer.cs">
       <DependentUpon>IntellisenseDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="NewFileFolder.cs">
+    <Compile Include="Forms\NewFileFolder.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NewFileFolder.Designer.cs">
+    <Compile Include="Forms\NewFileFolder.Designer.cs">
       <DependentUpon>NewFileFolder.cs</DependentUpon>
     </Compile>
-    <Compile Include="ObjectDetailsExplorer.cs">
+    <Compile Include="Forms\ObjectDetailsExplorer.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ObjectDetailsExplorer.Designer.cs">
+    <Compile Include="Forms\ObjectDetailsExplorer.Designer.cs">
       <DependentUpon>ObjectDetailsExplorer.cs</DependentUpon>
     </Compile>
     <Compile Include="OpenDocuments.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="ProjectExplorer.cs">
+    <Compile Include="Forms\ProjectExplorer.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ProjectExplorer.Designer.cs">
+    <Compile Include="Forms\ProjectExplorer.Designer.cs">
       <DependentUpon>ProjectExplorer.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScriptCloningManager.cs" />
-    <Compile Include="ScriptObjectExplorer.cs">
+    <Compile Include="Forms\ScriptObjectExplorer.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ScriptObjectExplorer.Designer.cs">
+    <Compile Include="Forms\ScriptObjectExplorer.Designer.cs">
       <DependentUpon>ScriptObjectExplorer.cs</DependentUpon>
     </Compile>
-    <Compile Include="ScriptWindow.cs">
+    <Compile Include="Forms\ScriptWindow.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ScriptWindow.Designer.cs">
+    <Compile Include="Forms\ScriptWindow.Designer.cs">
       <DependentUpon>ScriptWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="SearchResultsWindow.cs">
+    <Compile Include="Forms\SearchResultsWindow.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SearchResultsWindow.Designer.cs">
+    <Compile Include="Forms\SearchResultsWindow.Designer.cs">
       <DependentUpon>SearchResultsWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="SmartFindOptionWindow.cs">
+    <Compile Include="Forms\SmartFindOptionWindow.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SmartFindOptionWindow.Designer.cs">
+    <Compile Include="Forms\SmartFindOptionWindow.Designer.cs">
       <DependentUpon>SmartFindOptionWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="SyntaxHighlightingManager.cs" />
-    <Compile Include="TabOpenWindowsDlg.cs">
+    <Compile Include="Forms\TabOpenWindowsDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TabOpenWindowsDlg.Designer.cs">
+    <Compile Include="Forms\TabOpenWindowsDlg.Designer.cs">
       <DependentUpon>TabOpenWindowsDlg.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="About.resx">
+    <EmbeddedResource Include="Forms\About.resx">
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="BasicFind.resx">
+    <EmbeddedResource Include="Forms\BasicFind.resx">
       <DependentUpon>BasicFind.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CK3ScriptEd.resx">
+    <EmbeddedResource Include="Forms\CK3ScriptEd.resx">
       <DependentUpon>CK3ScriptEd.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LoadingDialog.resx">
+    <EmbeddedResource Include="Forms\LoadingDialog.resx">
       <DependentUpon>LoadingDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LocalizationEditor.resx">
+    <EmbeddedResource Include="Forms\LocalizationEditor.resx">
       <DependentUpon>LocalizationEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NewLocalizationFileObjectDialog.resx">
+    <EmbeddedResource Include="Forms\NewLocalizationFileObjectDialog.resx">
       <DependentUpon>NewLocalizationFileObjectDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NewScriptObjectDialog.resx">
+    <EmbeddedResource Include="Forms\NewScriptObjectDialog.resx">
       <DependentUpon>NewScriptObjectDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CloneToModDialog.resx">
+    <EmbeddedResource Include="Forms\CloneToModDialog.resx">
       <DependentUpon>CloneToModDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="EventPreviewForm.resx">
+    <EmbeddedResource Include="Forms\EventPreviewForm.resx">
       <DependentUpon>EventPreviewForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="EventRepresentation.resx">
+    <EmbeddedResource Include="Forms\EventRepresentation.resx">
       <DependentUpon>EventRepresentation.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FileOverviewToolWindow.resx">
+    <EmbeddedResource Include="Forms\FileOverviewToolWindow.resx">
       <DependentUpon>FileOverviewToolWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="IntellisenseDlg.resx">
+    <EmbeddedResource Include="Forms\IntellisenseDlg.resx">
       <DependentUpon>IntellisenseDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NewFileFolder.resx">
+    <EmbeddedResource Include="Forms\NewFileFolder.resx">
       <DependentUpon>NewFileFolder.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ObjectDetailsExplorer.resx">
+    <EmbeddedResource Include="Forms\ObjectDetailsExplorer.resx">
       <DependentUpon>ObjectDetailsExplorer.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ProjectExplorer.resx">
+    <EmbeddedResource Include="Forms\ProjectExplorer.resx">
       <DependentUpon>ProjectExplorer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -232,19 +232,19 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="ScriptObjectExplorer.resx">
+    <EmbeddedResource Include="Forms\ScriptObjectExplorer.resx">
       <DependentUpon>ScriptObjectExplorer.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ScriptWindow.resx">
+    <EmbeddedResource Include="Forms\ScriptWindow.resx">
       <DependentUpon>ScriptWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SearchResultsWindow.resx">
+    <EmbeddedResource Include="Forms\SearchResultsWindow.resx">
       <DependentUpon>SearchResultsWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SmartFindOptionWindow.resx">
+    <EmbeddedResource Include="Forms\SmartFindOptionWindow.resx">
       <DependentUpon>SmartFindOptionWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TabOpenWindowsDlg.resx">
+    <EmbeddedResource Include="Forms\TabOpenWindowsDlg.resx">
       <DependentUpon>TabOpenWindowsDlg.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="format.xshd">
@@ -278,10 +278,6 @@
       <Name>JominiParse</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="DevIL.dll" />
-    <Content Include="DevIL.NET2.dll" />
-    <Content Include="ILU.dll" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

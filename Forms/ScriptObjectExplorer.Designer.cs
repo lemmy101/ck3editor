@@ -82,7 +82,7 @@
             // 
             this.showEmpty.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.showEmpty.AutoSize = true;
-            this.showEmpty.Location = new System.Drawing.Point(242, 644);
+            this.showEmpty.Location = new System.Drawing.Point(231, 644);
             this.showEmpty.Name = "showEmpty";
             this.showEmpty.Size = new System.Drawing.Size(136, 17);
             this.showEmpty.TabIndex = 3;
