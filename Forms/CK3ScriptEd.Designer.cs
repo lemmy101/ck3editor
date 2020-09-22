@@ -84,8 +84,8 @@
             this.saveAllToolStripMenuItem});
             this.fileToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
-            this.fileToolStripMenuItem.Text = "File...";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
             // 
             // loadModToolStripMenuItem
             // 
@@ -214,7 +214,7 @@
             this.MainMenuStrip = this.darkMenuStrip1;
             this.Name = "CK3ScriptEd";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "CK3 Mod Ed - 0.0.2";
+            this.Text = "CK3 Mod Ed - 0.0.3";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CK3ScriptEd_FormClosing);
             this.darkMenuStrip1.ResumeLayout(false);
             this.darkMenuStrip1.PerformLayout();
